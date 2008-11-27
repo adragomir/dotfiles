@@ -1,0 +1,221 @@
+# if not running interactively, don't do anything
+[ -z "$PS1" ] && return
+
+. ~/.bash_aliases
+
+###
+###
+###
+#prompt
+export PS1="\[\e[33;1m\][<\u@\h>][\t][\w]\n \$ \[\e[0m\]"
+export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
+
+#export PS1="[\u \W]#"
+export PAGER=less
+#export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
+export EDITOR='vim'
+export VISUAL='vim'
+export LC_ALL="en_US"
+# Fancy PWD display function
+# The home directory (HOME) is replaced with a ~
+# /home/me/stuff          -> ~/stuff               if USER=me
+# /usr/share/big_dir_name -> ../share/big_dir_name if pwdmaxlen=20
+bash_prompt_command() {
+    # How many characters of the $PWD should be kept
+    local pwdmaxlen=25
+    # Indicate that there has been dir truncation
+    local trunc_symbol=".."
+    local dir=${PWD##*/}
+    pwdmaxlen=$(( ( pwdmaxlen < ${#dir} ) ? ${#dir} : pwdmaxlen ))
+    NEW_PWD=${PWD/#$HOME/\~}
+    local pwdoffset=$(( ${#NEW_PWD} - pwdmaxlen ))
+    if [ ${pwdoffset} -gt "0" ]
+    then
+        NEW_PWD=${NEW_PWD:$pwdoffset:$pwdmaxlen}
+        NEW_PWD=${trunc_symbol}/${NEW_PWD#*/}
+    fi
+}
+PROMPT_COMMAND=bash_prompt_command
+
+# Tab complete for sudo
+complete -cf sudo
+# type and which complete on commands
+complete -c command type which
+# builtin completes on builtins
+complete -b builtin
+# shopt completes with shopt options
+complete -A shopt shopt
+# set completes with set options
+complete -A setopt set
+# readonly and unset complete with shell variables
+complete -v readonly unset
+# bg completes with stopped jobs
+complete -A stopped -P '%' bg
+# other job commands
+complete -j -P '%' fg jobs disown
+
+#stops ctrl+d from logging me out
+set -o ignoreeof
+
+# Turn on extended globbing and programmable completion
+shopt -s extglob progcomp
+
+
+
+#########
+# Path 
+#########
+export CURLY_LOCATION=/Users/adragomi/bin/ozzy
+export PATH=/usr/local/php5/bin:$PATH
+export PATH=$PATH:/usr/local/bin:/Users/adragomi/bin:/Users/adragomi/bin/ozzy:/Users/adragomi/andrei/apollo/bin:/Users/adragomi/andrei/leo/bin
+export PATH=$PATH:/Users/adragomi/work/flexsdk/bin
+export PATH=$PATH:"/Users/adragomi/Applications/PLT Scheme v372/bin"
+export PATH=$PATH:"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin"
+export PATH=$PATH:"/Users/adragomi/Applications/Graphics/Graphviz.app/Contents/MacOS"
+
+#export DISPLAY=:0.0
+
+# colors in terminal
+export CLICOLOR=1
+export LSCOLORS=ExFxCxDxBxegedabagacad
+
+# Flex & Apollo
+export APOLLO_SDK=/Users/adragomi/andrei/apollo
+export FLEX_SDK=/Users/adragomi/work/flexsdk
+export FLEX_HOME=/Users/adragomi/work/flexsdk
+export FLEX_SDK_HOME=/Users/adragomi/work/flexsdk
+
+# asc.jar
+export ASC=/Users/adragomi/andrei/asc
+export PATH=$PATH:/Users/adragomi/andrei/asc/
+
+#ant
+
+# maven
+export PATH=$PATH:/usr/local/maven-2.0.4/bin
+#
+# Your previous .profile  (if any) is saved as .profile.dpsaved
+# Setting the path for DarwinPorts.
+export PATH=$PATH:/opt/local/bin:/opt/local/sbin
+export PATH=$PATH:/opt/local/jruby/bin
+export LC_CTYPE=en_US.UTF-8
+
+# Setting PATH for MacPython 2.5
+# The orginal version is saved in .profile.pysave
+PATH="/usr/local/mysql/bin:${PATH}"
+export PATH
+
+# Setting PATH for MacPython 2.5
+# The orginal version is saved in .profile.pysave
+PATH=$PATH:/Users/adragomi/Applications/zero-1.0.0.P20070702-1062
+export PATH
+
+export PYTHONPATH=/opt/local/lib/python2.5/site-packages:/Users/adragomi/.python
+export PYTHONPATH=$PYTHONPATH:/Users/adragomi/.python
+
+####################
+### history settings
+####################
+export HISTFILE=/Users/adragomi/.history/`date +%Y%m%d`.hist
+export HISTSIZE=100000
+export HISTCONTROL=ignoredups
+
+
+# browser
+export BROWSER=/Applications/Firefox.app/Contents/MacOS/firefox-bin
+
+# shell options
+# allow .dotfile to be returned in path-name expansion
+shopt -s dotglob
+# this allows editing of multi-line commands.
+shopt -s cmdhist
+# make it append, rather than overwrite the history
+shopt -s histappend
+# fix typos
+shopt -s cdspell
+
+
+export P4CONFIG=.p4conf
+export HTML_TIDY=/Users/adragomi/.tidyconf
+export FCSH_VIM_ROOT=/Users/adragomi/work/flex/sdk/bin
+
+#########
+# aliases
+#########
+
+alias pad='ssh -p 9122 -D localhost:1080 root@86.35.12.14'
+alias gvim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim -g'
+alias vim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim'
+alias find='find -E'
+#alias ll='ls -lh'
+#alias l='ls -Ff'
+#alias la='ls -af'
+#alias ld='ls -d -af'  # directories only!
+alias ls='ls -AFh'
+alias pgrep='pgrep -lf'
+alias cdd='cd - '
+alias df='df -h'
+alias du='du -h -c'
+alias ps='ps auxw'
+alias ping='ping -c 5'
+alias mkdir='mkdir -p'
+alias grep='grep --colour'
+alias svnaddall='svn status | grep "^\?" | awk "{print \$2}" | xargs svn add'
+alias irb='irb --readline -r irb/completion -rubygems'
+alias ri='ri -Tf ansi'
+alias tu='top -o cpu'
+alias tm='top -o vsize'
+
+
+function cdgem {
+  cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
+}
+
+function cdpython {
+  cd /Library/Frameworks/Python.framework/Versions/2.4/lib/python2.4/site-packages/;
+}
+##########
+#functions
+##########
+
+calc () 
+{ echo "$*" | bc -l; }
+
+alias h="sudo hostname adragomi-mac.corp.adobe.com"
+
+export MONO_GAC_PREFIX=/usr/local
+
+export CINTSYSDIR=/Users/adragomi/andrei/cint-5.16.19/
+export PATH=$PATH:$CINTSYSDIR
+export PATH=$PATH:/Users/adragomi/Applications/dev/Factor
+
+export PYTHONSTARTUP=~/.pythonstartup
+
+
+# luatext
+export TEXMFCNF=/usr/local/texlive/2007/texmf/web2c/
+export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,/usr/local/texlive/texmf-local/scripts/context/lua,/Users/adragomi/texmf/scripts/context/lua}'
+export TEXMF='{/Users/adragomi/.texlive2007/texmf-config,/Users/adragomi/.texlive2007/texmf-var,/Users/adragomi/texmf,/usr/local/texlive/2007/texmf-config,/usr/local/texlive/2007/texmf-var,/usr/local/texlive/2007/texmf,/usr/local/texlive/texmf-local,/usr/local/texlive/2007/texmf-dist,/usr/local/texlive/2007/texmf.gwtex}'
+export TEXMFCACHE=/tmp
+export TEXMFCNF=/usr/local/texlive/2007/texmf/web2c
+
+export PATH=$PATH:/usr/local/texlive/2007/bin/i386-darwin
+
+export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
+export ANT_HOME=/Users/adragomi/andrei/apache-ant-1.7.0
+export MAVEN_HOME=/usr/share/maven
+export JUNIT_HOME=/usr/share/junit
+
+export PATH=$PATH:/Users/adragomi/andrei/emulator/Vice/tools
+# haxe
+#export HAXE_LIBRARY_PATH=/usr/local/haxe/std:.
+#export NEKOPATH=/usr/local/neko
+#export PATH=$PATH:/usr/local/arm-apple-darwin/bin/
+export MANPATH=/opt/local/share/man:$MANPATH
+
+
+export LANDINGPAD=
+
+test -r /sw/bin/init.sh && . /sw/bin/init.sh
+
+export DVA_HOME=/Users/adragomi/work/theoden/depot/shared_code/adobe/dva/adobe

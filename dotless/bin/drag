@@ -1,0 +1,3 @@
+#! /bin/sh
+
+exec ~/Applications/Drag.app/Contents/MacOS/Drag $@

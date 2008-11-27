@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# Alan Grosskurth
+# http://grosskurth.ca/xredo/20070117/redo
+# Public domain
+#
+
+[ -d .redo ] || mkdir .redo
+find .redo -name '*.uptodate' -exec rm -f '{}' \;
+find .redo -name '*.prereqs.build' -exec rm -f '{}' \;
+find .redo -name '*.prereqsne.build' -exec rm -f '{}' \;
+redo-ifchange it

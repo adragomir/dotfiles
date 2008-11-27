@@ -1,0 +1,826 @@
+#!/bin/sh
+MD5SUM="2cfb1b95d3a367dde55f54045b6cf780  -"
+VERSION="Tue Aug 28 08:11:45 CDT 2001 <root@ipcroe.rkkda.com>"
+
+#
+#	p4
+#
+#	Wrapper for Perforce "p4" command to extend it to support the
+#	more popular CVS update/commit model.
+#
+#	Stick this in your $PATH before /usr/bin/p4.
+#
+#	Author: Rick Richardson <rickr@mn.rr.com>
+#		http://home.mn.rr.com/richardsons/
+#
+#	TODO (many):
+#		Handle CVS style options.
+#	TODO import:
+#		Handle repository vendortag releasetag args
+#	TODO rename:
+#		There is a Perforce problem if you do this:
+#		p4 rename xxx yyy; p4 commit; p4 rename yyy xxx; p4 commit
+#		The file will end up deleted.  The only workaround I know of
+#		is to rename it three times (xxx->yyy->zzz->xxx).
+#	TODO add:
+#		There is a bug with stock Perforce "p4 add".  If you p4 add
+#		a file that doesn't yet exist, then create the file and
+#		try to do a submit/commit, the submit will fail.
+#		At this point, the only thing you can do is to issue
+#		a p4 revert and then a new p4 add command.  This wrapper
+#		should be changed to protect against that.
+#
+
+#
+#       Subroutine to report an error and exit
+#
+PROGNAME="$0"
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+#
+#	Locate the Perforce 'p4' binary
+#
+for P4 in /Users/adragomi/bin/p4
+do
+	flag=0
+	case `file $P4` in
+	*exec*)	flag=1;;
+	esac
+	if [ $flag = 1 ]; then
+		break
+	fi
+done
+[ -x $P4 ] || error "Cannot find Perforce 'p4' binary"
+
+TMP=/tmp/p4blather
+TMP=/tmp/p4blather$$
+
+#
+#	Save the original value of P4CONFIG, so we can warn the user in
+#	our "p4 ws" command.  Then set P4CONFIG if it wasn't already set.
+#
+saveP4CONFIG="$P4CONFIG"
+if [ "$P4CONFIG" = "" ]; then
+	export P4CONFIG=.p4config
+fi
+
+#
+#	Run the users favorite editor
+#
+editor() {
+	editor=vi
+	if [ "$P4EDITOR" != "" ]; then
+		editor="$P4EDITOR"
+	fi
+
+	$editor "$@"
+}
+
+#
+#	Version of "p4" command that eats the blather and returns just
+#	a valid exit status code.  Yes, p4 needs an option to do this.
+#
+p4rc() {
+	$P4 -s "$@" >$TMP 2>&1
+	while read tag blather
+	do
+		case "$tag" in
+		error:)
+			rm -f $TMP
+			return 1
+			;;
+		esac
+	done < $TMP
+	rm -f $TMP
+	return 0
+}
+
+#
+#	Augmented "submit" command that allows a log message (with -m)
+#	and which allows more than one file argument.  Apparently, users
+#	have asked Perforce for this going back to 1999, but they have
+#	been unresponsive.  Another argument for open source software.
+#
+#	N.B. the file/dir arguments are Perforce syntax.
+#
+p4submit() {
+	#
+	#	Parse p4 submit options
+	#
+	IOPT=0
+	MOPT=0
+	COPT=
+	SOPT=
+	LOGMSG="enter_description_here"
+	LOGFILE=
+	OPTIND=0
+	while getopts "c:isF:m:" opt
+	do
+		case $opt in
+		c)	COPT="$OPTARG";;
+		i)	IOPT=1;;
+		s)	SOPT="-s";;
+		F)	LOGFILE="$OPTARG"; MOPT=1;;
+		m)	LOGMSG="$OPTARG"; MOPT=1;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	#
+	# handle p4 submit -c
+	#
+	if [ "$COPT" != "" ]; then
+		$P4 submit -c $COPT
+		return
+	fi
+
+	#
+	# For all other cases, prepare a changelog file...
+	#
+	TMP2=/tmp/p4files.$$
+	$P4 opened "$@" > $TMP2 2>/dev/null
+	if [ ! -s $TMP2 ]; then
+		rm -f $TMP2
+		echo "No files to submit from the default changelist."
+		return
+	fi
+
+	(
+		# Hey, this is great, we can put the log message up top
+		# where its quicker to get to in order to change.
+		echo "Description:"
+		if [ "$LOGFILE" = "" ]; then
+			echo "	$LOGMSG"
+		else
+			cat $LOGFILE | sed 's/^/ /'
+		fi
+		$P4 change -o $SOPT 2>&1 | sed '/^Description/,$d'
+		echo "Files:"
+		sed -e 's/^/	/' -e	's/#/	#/' < $TMP2 | sort -u
+		rm -f $TMP2
+	) > $TMP
+
+	#
+	# If we are interactive, fire up the editor
+	#
+	if [ $MOPT = 0 -a $IOPT = 0 -a "$LOGFILE" = "" ]; then
+		sum=`md5sum $TMP`
+		editor $TMP
+		sum2=`md5sum $TMP`
+		if [ "$sum" = "$sum2" ]; then
+			echo "Error in submit specification."
+			echo "Change description missing.  You must enter one."
+			echo -n "Hit return to continue..."
+			read answer
+			editor $TMP
+			sum2=`md5sum $TMP`
+			if [ "$sum" = "$sum2" ]; then
+				echo "Specification not corrected -- giving up."
+				rm -f $TMP
+				return
+			fi
+		fi
+	fi
+
+	#
+	# Feed the changelog file to the real p4 submit command
+	#
+	$P4 submit -i $SOPT < $TMP
+	rm -f $TMP
+}
+
+#
+#	Parse the global p4 options
+#
+P4ONLY=
+OPTIND=0
+while getopts "c:d:H:p:P:su:v:Vx:?h" opt
+do
+	case $opt in
+	c)	P4="$P4 -c $OPTARG";;
+	d)	P4="$P4 -d $OPTARG";;
+	H)	P4="$P4 -H $OPTARG";;
+	p)	P4="$P4 -p $OPTARG";;
+	P)	P4="$P4 -P $OPTARG";;
+	s)	P4ONLY="$P4ONLY -s";;
+	u)	P4="$P4 -u $OPTARG";;
+	v)	P4="$P4 -v $OPTARG";;
+	x)	P4ONLY="$P4ONLY -x $OPTARG";;
+	V)
+		echo "p4 wrapper: version $VERSION"
+		exec $P4 -V
+		;;
+	h|\?)	$P4 -h
+		set -- help
+		OPTIND=1
+		break;
+		# echo "    Run \"p4 help\" for further information"
+		# echo
+		# exit 0
+		;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+#
+#	Main program
+#
+case "$1" in
+annotate)
+	shift
+
+	#
+	#	Get CVS style args
+	#
+	REV=
+	RECURSE=1
+	OPTIND=0
+	while getopts "lRfr:D:h?" opt
+	do
+		case $opt in
+		# TODO: handle the rest of the CVS options
+		l)	# Local directory only, no recursion.
+			RECURSE=0
+			;;
+		R)	# Process directories recursively.
+			RECURSE=1
+			;;
+		f)	# Use head revision if tag/date not found.
+			error "option not implemented yet"
+			;;
+		r)	# rev; Annotate using specified revision/tag
+			case "$OPTARG" in
+			[0-9]*)		REV="#$OPTARG";;
+			"#"*)		REV="$OPTARG";;
+			@*)		REV="$OPTARG";;
+			[A-Za-z]*)	REV="@$OPTARG";;
+			*)		error "Unknown revision syntax";;
+			esac
+			;;
+		D)	# date; Set date to annoate on from
+			# Perforce has a very limited date syntax.
+			# Use the more flexible "date" command to parse
+			# the date we are given, then turn that into
+			# Perforce syntax.
+			REV=`date -d "$OPTARG" "+@%Y/%m/%d:%H:%M:%S"`
+			if [ $? != 0 ]; then
+				exit 1
+			fi
+			error "p4pr.pl too stupid to handle -D right now"
+			;;
+		h|\?)  
+			echo "Usage:"
+			echo -n "	p4 annotate"
+			echo " [-lRf] [-r rev|-D date] [file|dir] ..."
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	if [ $RECURSE = 1 ]; then
+		glob=...
+	else
+		glob="*"
+	fi
+
+	if [ $# = 0 ]; then
+		$P4 files ./$glob | sed 's/#.*//' |
+		while read pfile blather
+		do
+			p4pr.pl $pfile$REV
+		done
+	else
+		for file in "$@"
+		do
+			if [ -d "$file" ]; then
+				$P4 files $file/"$glob" | sed 's/#.*//' |
+				while read pfile blather
+				do
+					p4pr.pl $pfile$REV
+				done
+			else
+				p4pr.pl $file$REV
+			fi
+		done
+	fi
+	;;
+
+commit)
+	shift
+	#
+	#	Get CVS style args
+	#
+	LOGMSG=
+	LOGFILE=
+	RECURSE=1
+	OPTIND=0
+	while getopts "F:lm:Rh?" opt
+	do
+		case $opt in
+		# TODO: handle the rest of the CVS options
+		F)	LOGFILE="$OPTARG";;
+		f)	RECURSE=0;;
+		l)	RECURSE=0;;
+		m)	LOGMSG="$OPTARG";;
+		R)	RECURSE=1;;
+		r)	# rev; Commit to this branch or trunk revision.
+			error "option -r not implemented yet"
+			;;
+		h|\?)  
+			echo -n "Usage: p4 commit [-nRlf] [-m msg|-F logfile]"
+			echo " [-r rev] [file|dir]..."
+			echo -n "	-R      Process directories"
+			echo " recursively. (Default)"
+			echo "	-l      Local directory only (not recursive)."
+			echo -n "	-f      Force the file to be committed;"
+			echo " disables recursion."
+			echo "	-F file Read the log message from file."
+			echo "	-m msg  Log message."
+			echo "	-r rev  Commit to this branch/trunk revision."
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	if [ $# = 0 ]; then
+		#
+		# Finger out which files need to be committed...
+		# ... ala CVS, current dir and lower only.
+		#
+		$P4 diff -se ./... 2>/dev/null |
+		while read file
+		do
+			p4rc edit $file || error "Can't p4 edit $file"
+		done
+		if [ $RECURSE = 1 ]; then
+			pfiles=./...
+		else
+			pfiles=./*
+		fi
+	else
+		#
+		# User supplied list of files/dirs to commit
+		#
+		pfiles=
+		for file in "$@"
+		do
+			if [ -d "$file" ]; then
+				$P4 diff -se $file/... 2>/dev/null |
+				while read dirfile
+				do
+					p4rc edit $dirfile ||
+						error "Can't p4 edit $dirfile"
+				done
+				pfiles="$pfiles $file/..."
+			else
+				p4rc edit $file || error "Can't p4 edit $file"
+				pfiles="$pfiles $file"
+			fi
+		done
+	fi
+
+	#
+	# Use our augmented version of p4 submit to do the dirty work
+	#
+	if [ "$LOGMSG" != "" ]; then
+		p4submit -m "$LOGMSG" $pfiles
+	elif [ "$LOGFILE" != "" ]; then
+		p4submit -F "$LOGFILE" $pfiles
+	else
+		p4submit $pfiles
+	fi
+	;;
+
+import)
+	shift
+
+	OPTIND=0
+	while getopts "h?" opt
+	do
+		case $opt in
+		h|\?)  
+			echo "Usage:"
+			echo "	p4 import"
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	# TODO: handle repository vendortag releasetag args
+
+	find . -type f -print | $P4 -x - add
+	$P4 submit ./...
+	;;
+
+log)
+	shift
+
+	# TODO: handle CVS options
+
+	OPTIND=0
+	while getopts "h?" opt
+	do
+		case $opt in
+		h|\?)  
+			echo "Usage:"
+			echo "	p4 log [file|dir] ..."
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	# Convert directory names to p4 syntax
+	pfiles=
+	for file in "$@"
+	do
+		if [ -d "$file" ]; then
+			pfiles="$pfiles $file/..."
+		else
+			pfiles="$pfiles $file"
+		fi
+	done
+	if [ "$pfiles" = "" ]; then
+		pfiles=./...
+	fi
+	$P4 filelog -l $pfiles
+	;;
+
+rename)
+	shift
+
+	OPTIND=0
+	while getopts "h?" opt
+	do
+		case $opt in
+		h|\?)  
+			echo "Usage:	p4 rename from to"
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	if [ $# != 2 ]; then
+		error "Usage: p4 rename from to"
+	fi
+
+	FROM="$1"
+	TO="$2"
+	$P4 integrate $FROM $TO
+	$P4 delete $FROM
+	# TODO: theres a problem if you do this:
+	# 	p4 rename xxx yyy; p4 commit; p4 rename yyy xxx; p4 commit
+	# The file will end up deleted.
+	;;
+
+stat)
+	shift
+
+	OPTIND=0
+	while getopts "h?" opt
+	do
+		case $opt in
+		h|\?)  
+			echo "Usage:	p4 stat [file|dir] ..."
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	# Convert directory names to p4 syntax
+	pfiles=
+	for file in "$@"
+	do
+		if [ -d "$file" ]; then
+			pfiles="$pfiles $file/..."
+		else
+			pfiles="$pfiles $file"
+		fi
+	done
+	if [ "$pfiles" = "" ]; then
+		pfiles=./...
+	fi
+
+	echo "Files needing an update/sync..."
+	$P4 diff -sd $pfiles |
+		sed -e 's/^/	/'
+	$P4 sync -n $pfiles 2>&1 |
+		sed -e 's/^/	/' -e 's/File(s) up-to-date./None/' \
+			-e '/file(s) up-to-date./d'
+	echo
+	echo "Files needing a commit/submit..."
+	$P4 diff -se  $pfiles |
+		sed -e 's/^/	/'
+	;;
+
+cdiff)
+	shift
+
+	OPTIND=0
+	while getopts "h?" opt
+	do
+		case $opt in
+		h|\?)  
+			echo "Usage:	p4 cdiff [file|dir] ..."
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	# Convert directory names to p4 syntax
+	pfiles=
+	for file in "$@"
+	do
+		if [ -d "$file" ]; then
+			pfiles="$pfiles $file/..."
+		else
+			pfiles="$pfiles $file"
+		fi
+	done
+	if [ "$pfiles" = "" ]; then
+		pfiles=./...
+	fi
+
+	echo "Files that are different than the depot:"
+	$P4 diff -se $pfiles  | xargs $P4 diff -f 
+
+	;;
+submit)
+	#
+	# As a safety net, use unadorned $P4 submit if we can,
+	# otherwise, use our augmented version.
+	#
+	if [ $# -le 1 ]; then
+		exec  $P4 "$@"
+	else
+		shift
+		p4submit "$@"
+	fi
+	;;
+
+update)
+	# Do a sync and then a resolve
+	shift
+
+	#
+	#	Get CVS style args
+	#
+	REV=
+	FFLAG=
+	OPTIND=0
+	while getopts "APCdflRpk:r:D:j:I:W:h?" opt
+	do
+		case $opt in
+		# TODO: handle the rest of the CVS options
+		A)	# Reset sticky
+			error "option not implemented yet"
+			;;
+		P)	# Prune empty directories
+			error "option not implemented yet"
+			;;
+		C)	# Overwrite locally modified files with clean copies
+			FFLAG=-f
+			;;
+		d)	# Build directories like checkout does
+			error "option not implemented yet"
+			;;
+		f)	# Force a head revision match if tag/date not found.
+			error "option not implemented yet"
+			;;
+		l)	# Local directory only, no recursion.
+			error "option not implemented yet"
+			;;
+		R)	# Process directories recursively.
+			error "option not implemented yet"
+			;;
+		p)	# Send updates to standard output (avoids stickiness).
+			error "option not implemented yet"
+			;;
+		k)	# kopt; Use RCS kopt -k option on checkout.
+			error "option not implemented yet"
+			;;
+		r)	# rev; Update using specified revision/tag (is sticky).
+			case "$OPTARG" in
+			[0-9]*)		REV="#$OPTARG";;
+			"#"*)		REV="$OPTARG";;
+			@*)		REV="$OPTARG";;
+			[A-Za-z]*)	REV="@$OPTARG";;
+			*)		error "Unknown revision syntax";;
+			esac
+			;;
+		D)	# date; Set date to update from (in CVS, is sticky).
+			# Perforce has a very limited date syntax.
+			# Use the more flexible "date" command to parse
+			# the date we are given, then turn that into
+			# Perforce syntax.
+			REV=`date -d "$OPTARG" "+@%Y/%m/%d:%H:%M:%S"`
+			if [ $? != 0 ]; then
+				exit 1
+			fi
+			;;
+		j)	# rev; Merge changes between current revision and rev.
+			error "option not implemented yet"
+			;;
+		I)	# ign; More files to ignore (! to reset).
+			error "option not implemented yet"
+			;;
+		W)	# spec; Wrappers specification line.
+			error "option not implemented yet"
+			;;
+		h|\?)  
+			echo "Usage:"
+			echo "	p4 update [options] [file|dir] ..."
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	if [ $# = 0 ]; then
+		# ala CVS, sync/resolve current dir and lower only.
+
+		# Pick up files that are missing...
+		$P4 diff -sd ./...$REV | $P4 -x- sync -f
+
+		# Pick up files that have changed...
+		$P4 sync $FFLAG ./...$REV
+		$P4 resolve ./...
+	else
+		# Convert directory names to p4 syntax
+		pfiles=
+		pdfiles=
+		for file in "$@"
+		do
+			if [ -d "$file" ]; then
+				pfiles="$pfiles $file/..."
+				pdfiles="$pfiles $file/...$REV"
+			else
+				pfiles="$pfiles $file"
+				pdfiles="$pfiles $file$REV"
+			fi
+		done
+
+		# Pick up files that are missing...
+		$P4 diff -sd $pfiles | $P4 -x- sync -f
+
+		# Pick up files that have changed...
+		$P4 sync $FFLAG $pdfiles
+		$P4 resolve $pfiles
+	fi
+	;;
+
+checkout)
+	shift
+
+	# TODO: handle CVS options
+
+	OPTIND=0
+	while getopts "h?" opt
+	do
+		case $opt in
+		h|\?)  
+			echo "Usage:	p4 checkout dir ..."
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+	
+	for module in "$@"
+	do
+		$P4 sync $module/...
+	done
+	;;
+
+ws)
+	#
+	# Perform the "dirty secret" business of setting up a workspace.
+	#
+	# This basically means creating a .p4config file in the current
+	# directory to hold the workspace name and server settings, and
+	# then running the p4 client program.
+	#
+	# The business of setting all those environment variables in
+	# your .profile is a crock.  If you do it that way, you can only
+	# have one workspace per login.  The dotfile is the only way to go.
+	#
+	shift
+
+	OPTIND=0
+	while getopts "h?" opt
+	do
+		case $opt in
+		h|\?)  
+			echo "Usage: p4 ws <wsname> [serv:port [user [passwd]]]"
+			exit 0
+			;;
+		esac
+	done
+	shift `expr $OPTIND - 1`
+
+	if [ $# = 0 ]; then
+		error "Usage: p4 ws <wsname> [serv:port [user [passwd]]]"
+	fi
+
+	if [ -f "$P4CONFIG" ]; then
+		error "$P4CONFIG exists.  Remove it first"
+	fi
+
+	WSNAME="$1"
+	PORT="$2"
+	USER="$3"
+	PASSWD="$4"
+
+	if [ "$PORT" = "" ]; then
+		if [ "$P4PORT" = "" ]; then
+			echo "P4PORT=perforce:1666" > $P4CONFIG
+		else
+			echo "P4PORT=$P4PORT" > $P4CONFIG
+		fi
+	else
+		echo "P4PORT=$PORT" > $P4CONFIG
+	fi
+
+	echo "P4CLIENT=$WSNAME" >> $P4CONFIG
+
+	if [ "$USER" != "" ]; then
+		echo "P4USER=$USER" >> $P4CONFIG
+	else
+		echo "P4USER=$LOGNAME" >> $P4CONFIG
+	fi
+	if [ "$PASSWD" != "" ]; then
+		echo "P4PASSWD=$PASSWD" >> $P4CONFIG
+	fi
+
+	$P4 client -o  |
+		sed -e 's/noallwrite/allwrite/' -e 's/^Host:.*/Host:/' |
+		$P4 client -i
+	$P4 client
+	if [ "$saveP4CONFIG" = "" ]; then
+		echo "Warning: Add 'export P4CONFIG=.p4config' to your .profile"
+		echo "Warning: for safety in case you stop using this wrapper"
+	fi
+	;;
+
+help)
+	if [ $# = 1 ]; then
+		$P4 | sed '/p4 help views.*/a\
+	p4 help wrapper       list extended commands provided by p4 wrapper'
+	elif [ $2 = "wrapper" ]; then
+		cat <<-EOF
+
+		Most extended subcommands take file and/or directory
+		arguments, recursing on the directories.  If no arguments
+		are supplied to such a command, it will recurse on the
+		current directory (inclusive) by default.  This is the
+		surprise-free behavior CVS users are used to.
+
+		Extended Perforce client commands:
+
+		p4 annotate file|dir ...
+		        Make a listing of who changed what line.
+		p4 checkout dir ...
+			Checkout everything under the directory "dir".
+		p4 commit [file|dir] ...
+		        Submit changed files to the depot.
+		p4 import
+		        Add all files in current directory and below to
+		        the depot.
+		p4 log file ...
+		        List revision history of files.
+		p4 rename from to
+		        Rename the file "from" as "to".
+		p4 stat [file|dir] ...
+		        Report all files needing an update/sync
+		        and/or a commit/submit.
+		p4 cdiff [file|dir] ...
+		        CVS-like report of differences from the current depot
+		p4 submit [-m logmsg] [p4filespec] ...
+		        Augmented version of p4 submit that allows more than
+		        one P4-style file specification.  It also allows the
+		        changelog description to be specified with -m.
+		p4 update [file|dir] ...
+		        Get latest files from depot, doing a resolve
+		        if necessary.
+		p4 ws <wsname> [server:port [user [passwd]]]
+		        Create a new workspace in the current directory.
+		EOF
+	else
+		$P4 "$@"
+	fi
+	;;
+
+*)
+	# Hand off all other commands to p4
+	exec  $P4 $P4ONLY "$@"
+	;;
+esac

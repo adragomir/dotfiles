@@ -1,0 +1,9 @@
+add-xml-decl=yes
+output-xhtml=yes
+tab-size=4
+wrap=0
+numeric-entities=yes
+char-encoding=ascii
+input-encoding=utf8
+output-encoding=utf8
+write-back=yes

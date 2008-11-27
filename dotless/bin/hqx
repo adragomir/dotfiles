@@ -1,0 +1,2 @@
+#!/bin/bash
+/Users/adragomi/Applications/StuffIt\ Expander.app/Contents/MacOS/StuffIt\ Expander $*

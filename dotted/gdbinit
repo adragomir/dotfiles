@@ -1,0 +1,25 @@
+set print demangle
+set print asm-demangle
+set print object
+set print vtbl
+set overload-resolution on
+set print array on
+set print null-stop
+set print pretty
+set print object on
+
+define dump_metadata
+       call _debug_dump( $arg0 )
+ 
+       set print array on
+       set print address off
+       print * _debug_metadata_dump->_M_impl._M_start @ _debug_metadata_dump->_M_impl._M_finish - _debug_metadata_dump->_M_impl._M_start
+       set print array off
+       set print address on
+end
+ 
+define dump_metadata_value
+       set print address off
+       print _debug_dump( $arg0, $arg1 )
+       set print address on
+end

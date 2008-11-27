@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [[ -f "${1}" ]] ;
+then
+	open -a /Users/adragomi/Applications/MacVim.app "$@"
+else
+	`touch ${1}`
+	open -a /Users/adragomi/Applications/MacVim.app "$@"
+fi

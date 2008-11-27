@@ -1,0 +1,3 @@
+<?php while ($row_@<#cursor#>rsname@ = $@rsname@->fetch_assoc()) { ?>
+
+<?php } ?>

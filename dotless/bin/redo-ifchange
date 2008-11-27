@@ -1,0 +1,192 @@
+#!/bin/sh
+#
+# Alan Grosskurth
+# http://grosskurth.ca/xredo/20070117/redo-ifchange
+# Public domain
+#
+
+msg_() {
+  level_="$1: "
+  shift
+  case "$level_" in
+    info*) level_=
+  esac
+  echo "redo-ifchange: ${level_}$@" 1>&2
+  case "$level_" in
+    error*) exit 111 ;;
+  esac
+}
+
+record_() {
+  echo "$1" > .redo/"$2"'{new}'
+  mv .redo/"$2"'{new}' .redo/"$2"
+}
+
+record_prereq_() {
+  case "$REDOPARENT" in
+    '') : ;;
+    *)
+      ( if [ ! -e .redo/"$REDOPARENT.prereqs.build" ]; then
+          echo "$1"
+        elif ! grep "$1" .redo/"$REDOPARENT.prereqs.build" \
+        >/dev/null 2>/dev/null; then
+          cat .redo/"$REDOPARENT.prereqs.build"
+          echo "$1"
+        fi
+      ) > .redo/"$REDOPARENT.prereqs.build"'{new}'
+      mv .redo/"$REDOPARENT.prereqs.build"'{new}' \
+      .redo/"$REDOPARENT.prereqs.build"
+      ;;
+  esac
+}
+
+for i in "$@"; do
+  [ -d .redo/"`dirname $i`" ] || mkdir .redo/"`dirname $i`"
+
+  if [ -e .redo/"$i.uptodate" ]; then
+    record_prereq_ "$i"
+    continue
+  fi
+
+  # Determine file type
+  if [ -e .redo/"$i.type" ]; then
+    type=`head -1 .redo/"$i.type"`
+  else
+    if [ -e "$i" ]; then
+      type=s
+    else
+      type=t
+    fi
+    record_ "$type" "$i.type"
+  fi
+
+  uptodate=n
+  case "$type" in
+    s)
+      # Check MD5 checksum
+      if [ -e "$i" ]; then
+        newmd5=`md5sum "$i" | awk '{print $1}'`
+        if [ -e .redo/"$i.md5" ]; then
+          oldmd5=`head -1 .redo/"$i.md5"`
+          if [ "$newmd5" = "$oldmd5" ]; then
+            uptodate=y
+          fi
+        elif [ -e .redo/"$i.nonexist" ]; then
+          rm -f .redo/"$i.nonexist"
+        fi
+        record_ "$newmd5" "$i.md5"
+      fi
+      #case "$uptodate" in
+      #  n) msg_ info "out-of-date source $i" ;;
+      #  *) msg_ info "up-to-date source $i" ;;
+      #esac
+      record_ "$uptodate" "$i.uptodate"
+      record_prereq_ "$i"
+      continue
+      ;;
+  esac
+
+  ### Must be a target file
+
+  # Check regular prerequisites
+  if [ -e .redo/"$i.prereqs" ]; then
+    uptodate=y
+    while read -r line; do
+      if [ ! -e .redo/"$line.uptodate" ]; then
+        env REDOPARENT="$i" redo-ifchange "$line"
+      fi
+      # Check for build errors
+      if [ -e .redo/"$line.result" ]; then
+        case `head -1 .redo/"$line.result"` in
+          0) : ;;
+          *) msg_ error "$i: failed to rebuild prerequisite $line" ;;
+        esac
+      fi
+
+      if [ -e .redo/"$line.uptodate" ]; then
+        case `head -1 .redo/"$line.uptodate"` in
+          n)
+            uptodate=n
+            break
+            ;;
+        esac
+      else
+        msg_ ASSERT: "$i: no uptodate file for $line" 1>&2
+        exit 111
+      fi
+    done < .redo/"$i.prereqs"
+  fi
+
+  # Check nonexistent prerequisites
+  if [ -e .redo/"$i.prereqsne" ]; then
+    while read -r line; do
+      if [ -e "$line" ]; then
+        uptodate=n
+      fi
+    done < .redo/"$i.prereqsne"
+  fi
+
+  case "$uptodate" in
+    n)
+      # Remove old prerequisites
+      rm -f .redo/"$i.prereqs"
+      rm -f .redo/"$i.prereqsnonexist"
+      # Determine which build script to execute (rebuild it if necessary)
+      if [ -e "$i.do" ]; then
+        env REDOPARENT="$i" redo-ifchange "$i.do"
+        buildfile="$i.do"
+      else
+        default=`echo "$i" | sed 's/.*\(\.[^\.]*\)$/default\1/'`
+        if [ -e "$default.do" ]; then
+          env REDOPARENT="$i" redo-ifchange "$default.do"
+          env REDOPARENT="$i" redo-ifcreate "$i.do"
+          buildfile="$default.do"
+        else
+          msg_ error "$i: no build script found"
+        fi
+      fi
+      # Execute the build script
+      basefile=`echo "$i" | sed 's/\..*$//'`
+      env REDOPARENT="$i" \
+      sh -e "$buildfile" 0 "$basefile" .redo/"$i---redoing" \
+      > .redo/"$i---redoing"
+      result="$?"
+      record_ "$result" "$i.result"
+      case "$result" in
+        0)
+          newmd5=`md5sum .redo/"$i---redoing" | awk '{print $1}'`
+          if [ -e .redo/"$i.md5" ]; then
+            oldmd5=`head -1 .redo/"$i.md5"`
+            case "$newmd5" in
+              "$oldmd5")
+                rm -f .redo/"$i---redoing"
+                uptodate=y  # No change
+                ;;
+              *)
+                mv .redo/"$i---redoing" "$i"
+                record_ "$newmd5" "$i.md5"
+                ;;
+            esac
+          else
+            mv .redo/"$i---redoing" "$i"
+            record_ "$newmd5" "$i.md5"
+          fi
+          msg_ info "rebuilt $i" 1>&2
+          ;;
+        *)
+          rm -f .redo/"$i---redoing"
+          msg_ error "failed to rebuild $i"
+          ;;
+      esac
+      ;;
+  esac
+
+  if [ -e .redo/"$i.prereqs.build" ]; then
+    mv .redo/"$i.prereqs.build" .redo/"$i.prereqs"
+  fi
+  if [ -e .redo/"$i.prereqsne.build" ]; then
+    mv .redo/"$i.prereqsne.build" .redo/"$i.prereqsne"
+  fi
+  record_prereq_ "$i"
+  record_ "$uptodate" "$i.uptodate"
+done

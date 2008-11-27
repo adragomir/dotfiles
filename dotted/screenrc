@@ -1,0 +1,5 @@
+startup_message off
+defscrollback 10000
+hardstatus alwayslastline
+hardstatus string "%{kG}%50>%-w%{ky}%n %t%{-}%+w%{-} %>%=%{ky}Ctrl-A ?%{-} for help"
+term xterm-256color

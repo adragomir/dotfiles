@@ -1,0 +1,6 @@
+httpservice=~/work/skunkworks/adragomir/HTTPServiceTest CD=. filter="*" {
+ HTTPServiceTest.mxml
+ SocketHTTPServiceTest.mxml
+ teet.mxml
+}
+

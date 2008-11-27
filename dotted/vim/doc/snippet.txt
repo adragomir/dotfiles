@@ -1,0 +1,84 @@
+*snippet.txt*   Plug-in for templating files and functions
+
+
+
+                                  VIM REFERENCE MANUAL 
+=============================================================================
+1 . Introduction                         |snippet-Introduction|
+2 . Installation                         |snippet-Installation|
+3 . Creating snippets                    |Creating-snippets|
+3a.   includes                           |snippet-includes|
+4 . Hacking snippets                     |Hacking-snippets|
+
+                                                       *snippet-Introduction*
+    Snippets are fragments of code, usually related to keywords ( see
+|Hacking-snippets| for other uses ). For example the C language defines 
+"for" and "do" as keywords, among others.  Since "for" is usually written
+    as : >
+         for (...;...;...) {
+                 //code here
+         }
+< Most users will create an abbreviation for the keyword "for" to add the
+parenthesis and curly-braces such as : >
+         iabb xFor for<space>(<space>;<space>;<space>)<space>{<cr><cr>}
+<
+To accomplish this using snippets, create a file named "for.spt" in the "c"
+directory where you have installed snippets see |snippet-Installation|. This
+file would need these lines : >
+ for ( <#cursor#>; ; ) {
+
+ }
+< Now when editing a 'c' file, when you type 'for<C-S>' ,for is replaced by the
+snippet of code you placed in the file.  Additionally the cursor is placed 
+between the opening ( and the first ; ... ready for you to begin typing. 
+This is fully explained in |Creating-snippets|
+
+
+
+                                                       *snippet-Installation*
+  Copy snippet.vim to your $HOME/.vim/plugin directory. Next create the
+$HOME/.vim/snippets directory.  or if you prefer, put it anywhere you
+like and add the following line to your |vimrc| >
+    let snippet_directory="<path/to/snippets/dir>"
+<  
+  if there are code segments which you want inserted regardless of filetype ,
+i.e comment blocks, changelog then add this line to your |vimrc| >
+    let snippet_use_global=1
+<
+Additionally create a directory named 'global' in your snippet directory.
+Then the plugin will search the 'global' directory before the current filetype
+directory.
+                                                          *Creating-snippets*
+  To create a snippet, 
+1.  Change to the snippet directory. 
+2.  Create a folder with the same name as the syntax language you are using.
+       to find out the name type ':echo b:current_syntax'
+3.  Create a file named <keyword>.spt 
+4.  In this file write all of the text that you want inserted into your file.
+       The following replacements will occur if found in the .spt file: >
+       <#cursor#>                       where the cursor will be
+       <#file#>                         the file name
+       <#datex#>                        the current date
+       <#mod#>                          the last modification time
+       <#dir#>                          the directory
+       <#ext#>                          the file extension
+<
+ To include snippets from another syntax , create the file '_include.spt' in 
+the directory and put the syntax names , one per line in the file.  So to 
+include 'c' snippets in 'c++' in the snippets/cpp directory create a
+'_include.spt' file and put 'c' on the first line.  Now Snippets from c and
+cpp will be available in your cpp editing session
+                                                           *Hacking-snippets*
+You can use snippets to do any replacement.  For example, use 'commentBlock' 
+to insert this :
+>
+  /***********************************+
+   * Author  : Timothy Aldrich        *
+   * Date    : <todays date>          *
+   * Purpose : blah blah blah         *
+   +***********************************/
+<
+by creating commentBlock.spt in your snippet path
+
+
+vim:tw=78:ts=8:ft=help

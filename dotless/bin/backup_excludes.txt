@@ -1,0 +1,6 @@
+/Users/adragomi/Downloads/dc/*
+adragomi/Downloads/dc/*
+/Users/adragomi/vm/*
+adragomi/vm/*
+/Users/adragomi/Downloads/torrents/*
+adragomi/Downloads/torrents/*

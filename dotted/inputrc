@@ -1,0 +1,17 @@
+set bell-style none 
+set completion-ignore-case on 
+set page-completions off
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+set meta-flag off
+set input-meta off
+
+"\e[1~": beginning-of-line
+"\e[4~": end-of-line
+"\e[5C": forward-word
+"\e[5D": backward-word
+"\e[3~": delete-char 
+
+
+"\e[A": history-search-backward
+"\e[B": history-search-forward 
