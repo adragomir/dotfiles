@@ -626,8 +626,8 @@ command! W :browse confirm saveas
 command! -bar Hexmode call ToggleHex()
 
 " key mappings
-let mapleader = ","
-let maplocalleader = ","
+let mapleader = "\\"
+let maplocalleader = "\\"
 
 call KeyMap('', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>', '', 'n')
 call KeyMap('', '<F7>', ':RTlist<CR>', '', 'niv')
@@ -740,16 +740,16 @@ imap <D-0> <C-o>10gt<CR>
 endif
 
 if has("gui_running")
-map <D-1> 1gt
-map <D-2> 2gt
-map <D-3> 3gt
-map <D-4> 4gt
-map <D-5> 5gt
-map <D-6> 6gt
-map <D-7> 7gt
-map <D-8> 8gt
-map <D-9> 9gt
-map <D-0> 10gt
+  map <D-1> 1gt
+  map <D-2> 2gt
+  map <D-3> 3gt
+  map <D-4> 4gt
+  map <D-5> 5gt
+  map <D-6> 6gt
+  map <D-7> 7gt
+  map <D-8> 8gt
+  map <D-9> 9gt
+  map <D-0> 10gt
 endif
 
 " working with tabs
@@ -772,6 +772,8 @@ else
   noremap n <Esc>:tabnew<Cr>
   noremap c <Esc>:tabclose<Cr>
 endif
+
+map <leader>t :FuzzyFinderTextMate<CR>
 
 " macros 
 map ]xx :Explore<cr>2jp<c-w>H20<c-w><
