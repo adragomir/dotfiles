@@ -4,6 +4,7 @@ require 'optparse'
 require 'rdoc/usage'
 require 'ostruct'
 require 'date'
+require 'time'
 
 class Entry
 
@@ -148,6 +149,7 @@ class Wiki
     Dir[folder + "/**/*"].each { |f|
       next unless File.file?(f)
       file_name = f
+			file_stats = File::Stat.new(f)
       f = f[folder.length..f.length]
       prefix = f[0..f.rindex("/")]
       name = f[f.rindex("/")+1 .. f.length]
@@ -158,6 +160,12 @@ class Wiki
       p.deserialize(IO.read(file_name), {
         :include_name => false
       })
+			# add time, from file time; DISABLED for now
+			#if ! p.metadata.has_key?("time")
+			#	p.metadata["time"] = Time.parse(file_stats.mtime.to_s).utc()
+			#else
+			#end
+			
       @pages.push(p)
     }
     new_pages, pages = @pages.partition{ |p| p.index < 0 }
@@ -227,13 +235,17 @@ class App
     def explode
       w = Wiki.new()
       w.parse_from_file(@arguments[0])
-      folder = @arguments[1] + "/" || "./exploded/"
+      folder = (@arguments[1] || "./exploded") + "/" 
       w.set_order(@ordering)
       w.pages.each { |p|
         FileUtils.mkdir_p(folder + p.dir())
         File.open(folder + p.dir() + p.file(), "wb+") { |f|
           f.write(p.serialize)
         }
+				if p.metadata.has_key?("time")
+					t = Time.parse(p.metadata["time"]).utc()
+					File.utime(t, t, folder + p.dir() + p.file())
+				end
       }
     end
 

@@ -143,7 +143,7 @@ export FCSH_VIM_ROOT=/Users/adragomi/work/flex/sdk/bin
 # aliases
 #########
 
-alias bochs='/Users/adragomi/Applications/bochs.app/Contents/MacOS/bochs'
+alias bochs='LTDL_LIBRARY_PATH=/Users/adragomi/andrei/bochs/lib/bochs/plugins BXSHARE=/Users/adragomi/andrei/bochs/share/bochs /Users/adragomi/andrei/bochs/bin/bochs'
 alias pad='ssh -p 9122 -D localhost:1080 root@86.35.12.14'
 alias gvim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim -g'
 alias vim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim'
