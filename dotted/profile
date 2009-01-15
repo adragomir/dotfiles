@@ -69,9 +69,9 @@ export CURLY_LOCATION=/Users/adragomi/bin/ozzy
 export PATH=/usr/local/php5/bin:$PATH
 export PATH=$PATH:/usr/local/bin:/Users/adragomi/bin:/Users/adragomi/bin/ozzy:/Users/adragomi/andrei/apollo/bin:/Users/adragomi/andrei/leo/bin
 export PATH=$PATH:/Users/adragomi/work/flexsdk/bin
-export PATH=$PATH:"/Users/adragomi/Applications/PLT Scheme v372/bin"
 export PATH=$PATH:"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin"
 export PATH=$PATH:"/Users/adragomi/Applications/Graphics/Graphviz.app/Contents/MacOS"
+export PATH=$PATH:/usr/local/lib/ocaml_godi/bin/
 
 #export DISPLAY=:0.0
 
@@ -125,6 +125,8 @@ export HISTCONTROL=ignoredups
 export BROWSER=/Applications/Firefox.app/Contents/MacOS/firefox-bin
 
 # shell options
+# extended globbing
+shopt -s extglob
 # allow .dotfile to be returned in path-name expansion
 shopt -s dotglob
 # this allows editing of multi-line commands.
@@ -133,6 +135,7 @@ shopt -s cmdhist
 shopt -s histappend
 # fix typos
 shopt -s cdspell
+shopt -s histverify
 
 
 export P4CONFIG=.p4conf
@@ -175,6 +178,46 @@ function cdgem {
 function cdpython {
   cd /Library/Frameworks/Python.framework/Versions/2.4/lib/python2.4/site-packages/;
 }
+
+function mycd {
+
+    MYCD=/tmp/mycd.txt
+    touch ${MYCD}
+
+    typeset -i x
+    typeset -i ITEM_NO
+    typeset -i i
+    x=0
+
+    if [[ -n "${1}" ]]; then
+       if [[ -d "${1}" ]]; then
+          print "${1}" >> ${MYCD}
+          sort -u ${MYCD} > ${MYCD}.tmp
+          mv ${MYCD}.tmp ${MYCD}
+          FOLDER=${1}
+       else
+          i=${1}
+          FOLDER=$(sed -n "${i}p" ${MYCD})
+       fi
+    fi
+
+    if [[ -z "${1}" ]]; then
+       print ""
+       cat ${MYCD} | while read f; do
+          x=$(expr ${x} + 1)
+          print "${x}. ${f}"
+       done
+       print "\nSelect #"
+       read ITEM_NO
+       FOLDER=$(sed -n "${ITEM_NO}p" ${MYCD})
+    fi
+
+    if [[ -d "${FOLDER}" ]]; then
+       cd ${FOLDER}
+    fi
+}
+
+
 ##########
 #functions
 ##########
@@ -214,9 +257,11 @@ export PATH=$PATH:/Users/adragomi/andrei/emulator/Vice/tools
 #export PATH=$PATH:/usr/local/arm-apple-darwin/bin/
 export MANPATH=/opt/local/share/man:$MANPATH
 
-
 export LANDINGPAD=
 
 test -r /sw/bin/init.sh && . /sw/bin/init.sh
+
+# wiki
+export WIKI=/Users/adragomi/Documents/personal/life/exploded/
 
 export DVA_HOME=/Users/adragomi/work/theoden/depot/shared_code/adobe/dva/adobe
