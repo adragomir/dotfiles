@@ -16,7 +16,7 @@ RSYNC=/usr/local/bin/rsync
 # $* expands to any extra command line options you may give
 
 sudo $RSYNC -a -x -S -v -E --delete --ignore-errors \
-  --exclude-from /Users/adragomi/bin/backup_excludes.txt $* /Users/adragomi /Volumes/Backup/rsync/adragomi
+  -F $* /Users/adragomi /Volumes/Backup/backup/Users/adragomi
 
 # make the backup bootable - comment this out if needed
 #sudo bless -folder /Volumes/OSX/System/Library/CoreServices
