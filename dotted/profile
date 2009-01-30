@@ -67,7 +67,7 @@ shopt -s extglob progcomp
 #########
 export CURLY_LOCATION=/Users/adragomi/bin/ozzy
 export PATH=/usr/local/php5/bin:$PATH
-export PATH=$PATH:/usr/local/bin:/Users/adragomi/bin:/Users/adragomi/bin/ozzy:/Users/adragomi/andrei/apollo/bin:/Users/adragomi/andrei/leo/bin
+export PATH=$PATH:/usr/local/bin:/Users/adragomi/bin:/Users/adragomi/bin/ozzy:/Users/adragomi/andrei/leo/bin
 export PATH=$PATH:/Users/adragomi/work/flexsdk/bin
 export PATH=$PATH:"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin"
 export PATH=$PATH:"/Users/adragomi/Applications/Graphics/Graphviz.app/Contents/MacOS"
@@ -80,14 +80,14 @@ export CLICOLOR=1
 export LSCOLORS=ExFxCxDxBxegedabagacad
 
 # Flex & Apollo
-export APOLLO_SDK=/Users/adragomi/andrei/apollo
-export FLEX_SDK=/Users/adragomi/work/flexsdk
-export FLEX_HOME=/Users/adragomi/work/flexsdk
-export FLEX_SDK_HOME=/Users/adragomi/work/flexsdk
+export FLEX_SDK=/Users/adragomi/temp/svn_other_projects/flexsdk
+export FLEX_HOME=/Users/adragomi/temp/svn_other_projects/flexsdk
+export FLEX_SDK_HOME=/Users/adragomi/temp/svn_other_projects/flexsdk
 
 # asc.jar
-export ASC=/Users/adragomi/andrei/asc
-export PATH=$PATH:/Users/adragomi/andrei/asc/
+# TODO [adragomi ]
+#export ASC=/Users/adragomi/andrei/asc
+#export PATH=$PATH:/Users/adragomi/andrei/asc/
 
 #ant
 
@@ -146,7 +146,7 @@ export FCSH_VIM_ROOT=/Users/adragomi/work/flex/sdk/bin
 # aliases
 #########
 
-alias bochs='LTDL_LIBRARY_PATH=/Users/adragomi/andrei/bochs/lib/bochs/plugins BXSHARE=/Users/adragomi/andrei/bochs/share/bochs /Users/adragomi/andrei/bochs/bin/bochs'
+alias bochs='LTDL_LIBRARY_PATH=/Users/adragomi/work/tools/bochs/lib/bochs/plugins BXSHARE=/Users/adragomi/work/tools/bochs/share/bochs /Users/adragomi/work/tools/bochs/bin/bochs'
 alias pad='ssh -p 9122 -D localhost:1080 root@86.35.12.14'
 alias gvim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim -g'
 alias vim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim'
@@ -229,7 +229,6 @@ alias h="sudo hostname adragomi-mac.corp.adobe.com"
 
 export MONO_GAC_PREFIX=/usr/local
 
-export CINTSYSDIR=/Users/adragomi/andrei/cint-5.16.19/
 export PATH=$PATH:$CINTSYSDIR
 export PATH=$PATH:/Users/adragomi/Applications/dev/Factor
 
@@ -246,11 +245,11 @@ export TEXMFCNF=/usr/local/texlive/2007/texmf/web2c
 export PATH=$PATH:/usr/local/texlive/2007/bin/i386-darwin
 
 export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
-export ANT_HOME=/Users/adragomi/andrei/apache-ant-1.7.0
+export ANT_HOME=/Users/adragomi/work/tools/apache-ant-1.7.0
 export MAVEN_HOME=/usr/share/maven
 export JUNIT_HOME=/usr/share/junit
 
-export PATH=$PATH:/Users/adragomi/andrei/emulator/Vice/tools
+export PATH=$PATH:/Users/adragomi/work/tools/emulator/Vice/tools
 # haxe
 #export HAXE_LIBRARY_PATH=/usr/local/haxe/std:.
 #export NEKOPATH=/usr/local/neko

@@ -46,7 +46,7 @@ set iskeyword+=@-@,48-57,128-167,224-235,_,"
 set showtabline=2
 set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
-set completeopt=menu,menuone
+set completeopt=menu,menuone,preview
 set gdefault
 
 " settings: windows and buffers
