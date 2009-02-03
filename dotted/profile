@@ -1,7 +1,57 @@
 # if not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-. ~/.bash_aliases
+alias la='ls -A'
+alias g='gvim.sh'
+alias ack="ack -i -a"
+alias l="ls -AGlFT"
+alias lt="ls -AGlFTtr"
+alias reload="source ~/.profile"
+alias lc="cl"
+function cl() { cd "$@" && l; }
+function cs () {
+  cd "$@"
+  if [ -n "$(git status 2>/dev/null)" ]; then
+    echo "$(git status 2>/dev/null)"
+  fi
+}
+function mkd() {
+  mkdir -p "$*" && cd "$*" && pwd
+}
+# make top default to ordering by CPU usage:
+alias top='top -ocpu'
+# more lightweight version of top which doesn't use so much CPU itself:
+alias ttop='top -ocpu -R -F -s 2 -n30'
+
+# git commands
+alias gss="git stash save"
+alias gsp="git stash pop"
+# git
+alias gl="git log"
+alias ga="git add"
+alias gr="git reset"
+alias gs="git status"
+alias gst="git status"
+
+alias gd="git diff"
+alias gdc="git diff --cached"
+
+alias g-update-deleted="git ls-files -z --deleted | git update-index -z --remove --stdin"
+#alias gstt="git ls-files --exclude-per-directory=.gitignore --exclude-from=.git/info/exclude --others --modified -t"
+
+alias gb="git branch"
+alias gba="git branch -a -v"
+
+alias gfr="git fetch && git rebase refs/remotes/origin/master"
+alias gci="git commit"
+alias gco="git checkout"
+function gco {
+  if [ -z "$1" ]; then
+    git checkout master
+  else
+    git checkout $1
+  fi
+}
 
 ###
 ###
@@ -169,7 +219,7 @@ alias irb='irb --readline -r irb/completion -rubygems'
 alias ri='ri -Tf ansi'
 alias tu='top -o cpu'
 alias tm='top -o vsize'
-
+alias t="~/bin/todo.py --todo-dir '/Users/adragomi/Documents/personal/life/exploded/todo@/'"
 
 function cdgem {
   cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
