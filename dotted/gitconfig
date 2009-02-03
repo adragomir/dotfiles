@@ -13,7 +13,16 @@
 [diff]
 	renames = true
 [merge]
-	tool = vimdiff
+	tool = araxismerge
+[mergetool "araxismerge"]
+    # I put p4merge and DiffMerge in /Applications/Utilities, but you might have them in /Applications.
+    cmd = /Users/adragomi/bin/araxisp4winmrg \
+        "$PWD/$BASE" \
+        "$PWD/$REMOTE" \
+        "$PWD/$LOCAL" \
+        "$PWD/$MERGED" 
+    keepBackup = false
+    trustExitCode = false
 [core]
 	legacyheaders = false
 	excludesfile = /Users/adragomi/.gitignore
