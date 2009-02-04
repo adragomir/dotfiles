@@ -29,7 +29,7 @@ TODO_DIR = ''
 # ANSI (light|dark|nocolor) or Windows Console (windark)
 # Or use -t theme flag
 # Or use BGCOL environment variable
-defaultTheme = 'light'
+defaultTheme = 'dark'
 
 # Set default verbosity level with False or True
 # True will display various messages after each action - useful for bots
@@ -1078,6 +1078,7 @@ if __name__ == "__main__":
             sortIgnoreCase = False
         if o == '-d':
             """For backwards compatibility with todo.sh"""
+            TODO_DIR = a
         if o == '--todo-dir':
             """Specify TODO_DIR from command line"""
             TODO_DIR = a

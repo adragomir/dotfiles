@@ -110,7 +110,9 @@ set -o ignoreeof
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
 
-
+source ~/.bash/git-completion.bash
+source ~/.bash/todo_completer.sh
+complete -F _todo_sh -o default t
 
 #########
 # Path 
@@ -219,7 +221,7 @@ alias irb='irb --readline -r irb/completion -rubygems'
 alias ri='ri -Tf ansi'
 alias tu='top -o cpu'
 alias tm='top -o vsize'
-alias t="~/bin/todo.py --todo-dir '/Users/adragomi/Documents/personal/life/exploded/todo@/'"
+alias t="~/bin/todo.py -d '/Users/adragomi/Documents/personal/life/exploded/todo@/'"
 
 function cdgem {
   cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
