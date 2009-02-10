@@ -477,7 +477,7 @@ def add(text):
     """Add a new task to the TODO file"""
     text = setPriority(text)
     f = open(TODO_FILE, "a")
-    f.write(text + os.linesep)
+    f.write(text + " {created: " + formatDate("now") + "}" + os.linesep)
     f.close()
     if not quiet: print "Added: ", text
 
@@ -940,7 +940,7 @@ def highlightPriority(matchobj):
         return PRI_C + matchobj.group(0) + DEFAULT
     else:
         return PRI_X + matchobj.group(0) + DEFAULT
-        
+
 def highlightLate(matchobj):
     """color replacement function used when highlighting overdue items"""
     due = date(int(matchobj.group(2)), int(matchobj.group(3)), int(matchobj.group(4)))

@@ -56,8 +56,6 @@ function gco {
 ###
 ###
 ###
-#prompt
-export PS1="\[\e[33;1m\][<\u@\h>][\t][\w]\n \$ \[\e[0m\]"
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
 #export PS1="[\u \W]#"
@@ -71,6 +69,12 @@ export LC_ALL="en_US"
 # /home/me/stuff          -> ~/stuff               if USER=me
 # /usr/share/big_dir_name -> ../share/big_dir_name if pwdmaxlen=20
 bash_prompt_command() {
+	if [ $? -ne 0 ]
+	then
+		ERROR_FLAG=1
+	else
+		ERROR_FLAG=
+	fi
     # How many characters of the $PWD should be kept
     local pwdmaxlen=25
     # Indicate that there has been dir truncation
@@ -86,6 +90,37 @@ bash_prompt_command() {
     fi
 }
 PROMPT_COMMAND=bash_prompt_command
+
+#prompt
+#
+sh_norm="\[\033[0m\]"
+sh_black="\[\033[0;30m\]"
+sh_darkgray="\[\033[1;30m\]"
+sh_blue="\[\033[0;34m\]"
+sh_light_blue="\[\033[1;34m\]"
+sh_green="\[\033[0;32m\]"
+sh_light_green="\[\033[1;32m\]"
+sh_cyan="\[\033[0;36m\]"
+sh_light_cyan="\[\033[1;36m\]"
+sh_red="\[\033[0;31m\]"
+sh_light_red="\[\033[1;31m\]"
+sh_purple="\[\033[0;35m\]"
+sh_light_purple="\[\033[1;35m\]"
+sh_brown="\[\033[0;33m\]"
+sh_yellow="\[\033[1;33m\]"
+sh_light_gray="\[\033[0;37m\]"
+sh_white="\[\033[1;37m\]"
+
+# TODO
+HOSTCOLOUR=${sh_green}
+
+function color_me_bad() {
+	if [[ ${ERROR_FLAG} -ne 0 ]]
+	then
+		echo -en "\033[31m"
+	fi
+}
+export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w]\n\$(color_me_bad) \$ ${sh_norm}"
 
 # Tab complete for sudo
 complete -cf sudo
@@ -212,7 +247,7 @@ alias pgrep='pgrep -lf'
 alias cdd='cd - '
 alias df='df -h'
 alias du='du -h -c'
-alias ps='ps auxw'
+#alias ps='ps auxw'
 alias ping='ping -c 5'
 alias mkdir='mkdir -p'
 alias grep='grep --colour'
