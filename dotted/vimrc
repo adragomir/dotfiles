@@ -21,7 +21,7 @@ set incsearch                 " show matches while searching
 set laststatus=2              " always show status line
 set scrolloff=2               " minlines to show around cursor
 set sidescrolloff=4           " minchars to show around cursor
-set shortmess=asTIA           " supress some file messages
+set shortmess=aTI             " supress some file messages
 set showbreak=>               " character to show that a line is wrapped
 set showcmd                   " show number of selected chars/lines in status
 set showmatch                 " briefly jump to matching brace
@@ -37,26 +37,32 @@ set noerrorbells
 set whichwrap=<,>,h,l,b,s,~,[,]
 set wildmenu
 set wildmode=list:longest,full
+set wildignore=*.o,*.obj,*.pyc,*.d
 set winaltkeys=no
 set writebackup
 set writeany
 set iskeyword+=@-@,48-57,128-167,224-235,_,"
 set showtabline=2
 set matchtime=0
-set complete=.,t,i	" completion by Ctrl-N
-set completeopt=menu,menuone
+set complete=.,w,b,u,t,i	" completion by Ctrl-N
+set completeopt=menu,menuone,preview
+set gdefault
 
 " settings: windows and buffers
 "set noequalalways
 set guiheadroom=0
 " 	When off a buffer is unloaded when it is |abandon|ed.
-set nohidden
+set hidden
 set splitbelow                " split windows below current one
 set title
 
 " settings: line endings
 "set ff=unix
 "set ffs=unix
+
+" settings: grep
+set grepprg=ack
+set grepformat=%f:%l:%m
 
 " settings: tabs and indenting
 set autoindent
@@ -72,6 +78,9 @@ if has("gui_running")
   set noantialias
   set guifont=Terminus:h20
 endif
+
+"nnoremap <silent> Q
+"nnoremap <silent> gQ
 
 if has("gui_running")
   " behave mswin
@@ -151,6 +160,8 @@ if has("gui_running")
   " end macmap.vim
 endif
 set t_Co=256
+map H ^
+map L $
 
 colorscheme desert
 highlight SignColor guibg=red guifg=White
@@ -598,6 +609,14 @@ function! OpenNewTabOnFileOpen()
 	endif
 endfunction
 
+function! ToggleScratch()
+  if expand('%') == g:ScratchBufferName
+    quit
+  else
+    Sscratch
+  endif
+endfunction
+
 function! MyTabLine()
   let s = ''
   for i in range(tabpagenr('$'))
@@ -642,8 +661,8 @@ command! W :browse confirm saveas
 command! -bar Hexmode call ToggleHex()
 
 " key mappings
-let mapleader = ","
-let maplocalleader = ","
+let mapleader = "\\"
+let maplocalleader = "\\"
 
 call KeyMap('', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>', '', 'n')
 call KeyMap('', '<F7>', ':RTlist<CR>', '', 'niv')
@@ -715,6 +734,12 @@ inoremap <C-CR> <C-o>o
 inoremap <C-S-CR> <CR><C-o>O
 inoremap <silent> <Home> <C-o>:call HomeKey()<CR>
 nnoremap <silent> <Home> :call HomeKey()<CR>
+
+set suffixes+=.lo,.o,.moc,.la,.closure,.loT
+" Insert an include guard based on the file name on ,i
+nmap <MapLocalLeader>h :AT<CR>
+nmap ,h :AT<CR>
+map <leader>s :call ToggleScratch()<CR>
 
 " make word back / forward to be cooloer
 "noremap W b
@@ -794,11 +819,13 @@ else
   noremap c <Esc>:tabclose<Cr>
 endif
 
+map <leader>t :FuzzyFinderTextMate<CR>
+
 " macros 
 map ]xx :Explore<cr>2jp<c-w>H20<c-w><
 
 " abbreviations
-cabbrev help vertical help
+"cabbrev help vertical help
 iabbrev mdy <C-r>=strftime("%Y-%m-%d %H:%M:%S")
 iabbrev fi if
 iabbrev fpritnf fprintf
@@ -921,8 +948,3 @@ if has("autocmd")
 endif
 
 "set noantialias
-
-syntax on                           
-filetype plugin on                    
-filetype indent on                    
-au BufNewFile,BufRead *.li setf lisaac

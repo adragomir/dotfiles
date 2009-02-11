@@ -3,7 +3,7 @@ set nocompatible              " use VI incompatible features
 set noantialias
 set noautochdir
 set autowriteall
-set ruler
+set ruler showcmd
 set number                    " show line numbers
 set mouse=a
 set selectmode=mouse,key      " select model
@@ -22,7 +22,7 @@ set incsearch                 " show matches while searching
 set laststatus=2              " always show status line
 set scrolloff=2               " minlines to show around cursor
 set sidescrolloff=4           " minchars to show around cursor
-set shortmess=aTI           " supress some file messages
+set shortmess=aTI             " supress some file messages
 set showbreak=>               " character to show that a line is wrapped
 set showcmd                   " show number of selected chars/lines in status
 set showmatch                 " briefly jump to matching brace
@@ -80,8 +80,8 @@ if has("gui_running")
   set guifont=Terminus:h20
 endif
 
-nnoremap Q
-nnoremap gQ
+"nnoremap <silent> Q
+"nnoremap <silent> gQ
 
 if has("gui_running")
   " behave mswin
@@ -160,7 +160,7 @@ if has("gui_running")
   omap <special> <D-a> <Esc><D-a>
   " end macmap.vim
 endif
-
+set t_Co=256
 map H ^
 map L $
 
@@ -618,6 +618,42 @@ function! ToggleScratch()
   endif
 endfunction
 
+function! MyTabLine()
+  let s = ''
+  for i in range(tabpagenr('$'))
+    " select the highlighting
+    if i + 1 == tabpagenr()
+      let s .= '%#TabLineSel#'
+    else
+      let s .= '%#TabLine#'
+    endif
+
+    " set the tab page number (for mouse clicks)
+    let s .= '%' . (i + 1) . 'T'
+
+    " the label is made by MyTabLabel()
+    let s .= ' %{MyTabLabel(' . (i + 1) . ')} '
+  endfor
+
+  " after the last tab fill with TabLineFill and reset tab page nr
+  let s .= '%#TabLineFill#%T'
+
+  " right-align the label to close the current tab page
+  if tabpagenr('$') > 1
+    let s .= '%=%#TabLine#%999Xclose'
+  endif
+
+  return s
+endfunction
+
+function! MyTabLabel(n)
+  let buflist = tabpagebuflist(a:n)
+  let winnr = tabpagewinnr(a:n)
+  let guifname = bufname(buflist[winnr - 1])
+  let guifname = substitute(guifname, '^\(.*\)/\([^/]*\)$', '\2', '')
+  return '[' . string(a:n) . ']' . guifname
+endfunction
+
 
 " end $HOME/.vim/_mine/functions.vim
 
@@ -727,16 +763,16 @@ if has("gui_running")
 endif
 
 if has("gui_running")
-imap <D-1> <C-o>1gt<CR>
-imap <D-2> <C-o>2gt<CR>
-imap <D-3> <C-o>3gt<CR>
-imap <D-4> <C-o>4gt<CR>
-imap <D-5> <C-o>5gt<CR>
-imap <D-6> <C-o>6gt<CR>
-imap <D-7> <C-o>7gt<CR>
-imap <D-8> <C-o>8gt<CR>
-imap <D-9> <C-o>9gt<CR>
-imap <D-0> <C-o>10gt<CR>
+  imap <D-1> <C-o>1gt<CR>
+  imap <D-2> <C-o>2gt<CR>
+  imap <D-3> <C-o>3gt<CR>
+  imap <D-4> <C-o>4gt<CR>
+  imap <D-5> <C-o>5gt<CR>
+  imap <D-6> <C-o>6gt<CR>
+  imap <D-7> <C-o>7gt<CR>
+  imap <D-8> <C-o>8gt<CR>
+  imap <D-9> <C-o>9gt<CR>
+  imap <D-0> <C-o>10gt<CR>
 endif
 
 if has("gui_running")
@@ -750,6 +786,17 @@ if has("gui_running")
   map <D-8> 8gt
   map <D-9> 9gt
   map <D-0> 10gt
+else
+  map 1 1gt
+  map 2 2gt
+  map 3 3gt
+  map 4 4gt
+  map 5 5gt
+  map 6 6gt
+  map 7 7gt
+  map 8 8gt
+  map 9 9gt
+  map 0 10gt
 endif
 
 " working with tabs
@@ -841,8 +888,10 @@ autocmd BufNewFile,BufRead *.mxml,*.as :nmap <C-B> :!bash /Users/adragomi/work/f
 autocmd FileType python set omnifunc=pythoncomplete#Complete
 autocmd FileType python setlocal autoindent expandtab
 autocmd BufRead *.as set filetype=actionscript
+"autocmd VimEnter * let mapleader=","
 
 set guitablabel=%{GuiTabLabel()}
+set tabline=%!MyTabLine()
 
 " python
 python << EOF
