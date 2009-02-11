@@ -61,8 +61,8 @@ export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 #export PS1="[\u \W]#"
 export PAGER=less
 #export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
-export EDITOR='vim'
-export VISUAL='vim'
+export EDITOR='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim'
+export VISUAL='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim'
 export LC_ALL="en_US"
 # Fancy PWD display function
 # The home directory (HOME) is replaced with a ~
