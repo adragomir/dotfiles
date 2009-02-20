@@ -2,13 +2,13 @@
 set nocompatible              " use VI incompatible features
 set noantialias
 set noautochdir
-set autowriteall
+"set autowriteall
 set ruler showcmd
 set number                    " show line numbers
 set mouse=a
 set selectmode=mouse,key      " select model
 set keymodel=startsel         ",stopsel
-set autoread                  " read outside modified files
+"set autoread                  " read outside modified files
 set directory=/tmp            " temp directory
 set encoding=UTF-8            " file encoding
 set formatoptions=tcrqn21     " auto format
@@ -175,8 +175,8 @@ filetype indent on
 filetype plugin on
 
 " enable autosaving
-set updatecount=0 updatetime=500
-autocmd CursorHold,CursorHoldI * silent! wall
+"set updatecount=0 updatetime=500
+"autocmd CursorHold,CursorHoldI * silent! wall
 
 " source my functions
 " source $HOME/.vim/_mine/functions.vim

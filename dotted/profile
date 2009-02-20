@@ -53,6 +53,84 @@ function gco {
   fi
 }
 
+# autojump
+#_autojump() 
+#{
+#        local cur
+#        COMPREPLY=()
+#        cur=${COMP_WORDS[1]}
+#        IFS=$'\n' read -d '' -a COMPREPLY < <(~/bin/autojump --completion "$cur")
+#        return 0
+#}
+#complete -F _autojump j
+#export PROMPT_COMMAND='autojump -a "$(pwd -P)"'
+#alias jumpstat="autojump --stat"
+#function j {
+#    new_path="$(autojump $@)";
+#    if [ -n "$new_path" ];
+#    then 
+#        echo -e "\\033[31m${new_path}\\033[0m"; 
+#        echo; 
+#        cd "$new_path";
+#    fi
+#}
+# another autojump
+j() {
+  # change jfile if you already have a .j file for something else
+  jfile=$HOME/.j
+  if [ "$1" = "--add" ]; then
+    shift
+    # we're in $HOME all the time, let something else get all the good letters
+    [ "$*" = "$HOME" ] && return
+    awk -v q="$*" -v mx=1000 -F"|" '
+      $2 >= 1 { 
+        if( $1 == q ) { l[$1] = $2 + 1; x = 1 } else l[$1] = $2
+        y += $2
+      }
+    END {
+      x || l[q] = 1
+      if( y > mx ) {
+        for( i in l ) print i "|" l[i]*(0.9*mx/y) # aging
+      } else for( i in l ) print i "|" l[i]
+    }
+    ' $jfile 2>/dev/null > $jfile.tmp
+    mv $jfile.tmp $jfile
+  elif [ "$1" = "" -o "$1" = "--l" ];then
+    shift
+    awk -v q="$*" -F"|" '
+      BEGIN { split(q,a," ") }
+       { for( o in a ) $1 !~ a[o] && $1 = ""; if( $1 ) print $2 "\t" $1 }
+    ' $jfile 2>/dev/null | sort -n
+  # for completion
+  elif [ "$1" = "--complete" ];then
+    awk -v q="$3" -F"|" '
+      BEGIN { split(q,a," ") }
+      { for( o in a ) $1 !~ a[o] && $1 = ""; if( $1 ) print $1 }
+    ' $jfile 2>/dev/null
+  # if we hit enter on a completion just go there
+  elif [ "${1:0:1}" = "/" -a -d "$*" ]; then
+    cd "$*" 
+  else
+  # prefer case sensitive
+    cd=$(awk -v q="$*" -F"|" '
+      BEGIN { split(q,a," ") }
+      { for( o in a ) $1 !~ a[o] && $1 = ""; if( $1 ) { print $2 "\t" $1; x = 1 } }
+      END {
+        if( x ) exit
+        close(FILENAME)
+        while( getline < FILENAME ) {
+          for( o in a ) tolower($1) !~ tolower(a[o]) && $1 = ""
+          if( $1 ) print $2 "\t" $1
+        }
+      }
+    ' $jfile 2>/dev/null | sort -nr | head -n 1 | cut -f 2)
+    [ "$cd" ] && cd "$cd"
+  fi
+}
+complete -o dirnames -o filenames -C "j --complete" j
+#complete -C "j --complete" j
+
+
 ###
 ###
 ###
@@ -115,21 +193,21 @@ sh_white="\[\033[1;37m\]"
 HOSTCOLOUR=${sh_green}
 
 function color_me_bad() {
-	if [[ ${ERROR_FLAG} -ne 0 ]]
-	then
+#	if [[ ${ERROR_FLAG} -ne 0 ]]
+#	then
 		echo -en "\033[31m"
-	fi
+#	fi
 }
-export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w]\n\$(color_me_bad) \$ ${sh_norm}"
+export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w]\n${sh_yellow} \$ ${sh_norm}"
 
 # Tab complete for sudo
 complete -cf sudo
 # type and which complete on commands
 complete -c command type which
 # builtin completes on builtins
-complete -b builtin
+#complete -b builtin
 # shopt completes with shopt options
-complete -A shopt shopt
+#complete -A shopt shopt
 # set completes with set options
 complete -A setopt set
 # readonly and unset complete with shell variables
