@@ -7,3 +7,4 @@ char-encoding=ascii
 input-encoding=utf8
 output-encoding=utf8
 write-back=yes
+word-2000=yes

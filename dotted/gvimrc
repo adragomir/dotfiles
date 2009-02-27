@@ -8,7 +8,7 @@ set number                    " show line numbers
 set mouse=a
 set selectmode=mouse,key      " select model
 set keymodel=startsel         ",stopsel
-"set autoread                  " read outside modified files
+set autoread                  " read outside modified files
 set directory=/tmp            " temp directory
 set encoding=UTF-8            " file encoding
 set formatoptions=tcrqn21     " auto format
@@ -845,7 +845,7 @@ let Tlist_Compact_Format = 1
 let Tlist_File_Fold_Auto_Close = 1
 let Tlist_Use_Right_Window = 1
 let Tlist_Exit_OnlyWindow = 1
-let Tlist_WinWidth = 40 
+let Tlist_WinWidth = 0 
 
 " ruby settings
 let g:rubycomplete_buffer_loading = 1

@@ -247,12 +247,12 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 # Flex & Apollo
 export FLEX_SDK=/Users/adragomi/temp/svn_other_projects/flexsdk
 export FLEX_HOME=/Users/adragomi/temp/svn_other_projects/flexsdk
+export TAMARIN_HOME=/Users/adragomi/temp/svn_other_projects/lang.tamarin-central
 export FLEX_SDK_HOME=/Users/adragomi/temp/svn_other_projects/flexsdk
-
-# asc.jar
-# TODO [adragomi ]
-#export ASC=/Users/adragomi/andrei/asc
-#export PATH=$PATH:/Users/adragomi/andrei/asc/
+export ASC=/Users/adragomi/temp/svn_other_projects/flexsdk/lib/asc.jar
+export ASC_COMMAND="java -ea -DAS3 -DAVMPLUS -classpath ${ASC} macromedia.asc.embedding.ScriptCompiler  -abcfuture "
+export AVMSHELL_COMMAND=/Users/adragomi/temp/svn_other_projects/lang.tamarin-central/__build/shell/avmshell
+export AVMSHELL_DEBUG_COMMAND=/Users/adragomi/temp/svn_other_projects/lang.tamarin-central/__build_debugger/shell/avmshell
 
 #ant
 
@@ -335,6 +335,12 @@ alias ri='ri -Tf ansi'
 alias tu='top -o cpu'
 alias tm='top -o vsize'
 alias t="~/bin/todo.py -d '/Users/adragomi/Documents/personal/life/exploded/todo@/'"
+alias asc='$ASC_COMMAND'
+alias asc_tamarin='$ASC_COMMAND -import $TAMARIN_HOME/core/builtin.abc'
+alias asc_tamarin_shell='$FLEX_HOME/bin/asc -AS3 -import $TAMARIN_HOME/core/builtin.abc -import $TAMARIN_HOME/shell/shell_toplevel.abc'
+alias avm='$AVMSHELL_COMMAND'
+alias avm_debug='$AVMSHELL_DEBUG_COMMAND'
+
 
 function cdgem {
   cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
