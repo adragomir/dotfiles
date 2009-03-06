@@ -13,7 +13,7 @@
 " ============================================================================
 
 " Exit quickly when:
-" - this plugin was already loaded or disabled
+" - this plugin was already loaded (or disabled)
 " - when 'compatible' is set
 if (exists("g:loaded_surround") && g:loaded_surround) || &cp
     finish

@@ -1,18 +1,23 @@
 " settings
+if has("gui_macvim")
+  let macvim_skip_cmd_opt_movement = 1
+endif
 set nocompatible              " use VI incompatible features
-set noantialias
 set noautochdir
 "set autowriteall
 set ruler showcmd
 set number                    " show line numbers
+if has("gui_running")
+    set mouse=a
+endif
 set selectmode=mouse,key      " select model
 set keymodel=startsel         ",stopsel
-"set autoread                  " read outside modified files
+set autoread                  " read outside modified files
 set directory=/tmp            " temp directory
 set encoding=UTF-8            " file encoding
 set formatoptions=tcrqn21     " auto format
-set textwidth=80              " text width
-set guioptions=crbie"M"m		  " aA BAD
+"set textwidth=80             " text width
+set guioptions=crbie"M"m	  " aA BAD
 set history=10000             " number of history items
 set ignorecase                " ignore case when searching
 set smartcase                 " ignore case when searching
@@ -61,7 +66,7 @@ set title
 "set ffs=unix
 
 " settings: grep
-set grepprg=ack
+set grepprg=/Users/adragomi/bin/ack\ --noenv
 set grepformat=%f:%l:%m
 
 " settings: tabs and indenting
@@ -74,7 +79,7 @@ set tabstop=4
 let &sw=4
 
 " look & feel
-if has("gui_running")
+if has("gui_running") && has("macunix")
   set noantialias
   set guifont=Terminus:h20
 endif
@@ -84,8 +89,8 @@ endif
 
 if has("gui_running")
   " behave mswin
-  set selectmode=key
-  set mouse=
+  set selectmode=key,mouse
+  set mousemodel=popup
   set keymodel=startsel,stopsel
   set selection=exclusive
 
@@ -166,7 +171,7 @@ map L $
 colorscheme desert
 highlight SignColor guibg=red guifg=White
 
-" syntax highlightinh
+" syntax highlighting
 syntax enable
 syntax on
 filetype on
@@ -177,9 +182,35 @@ filetype plugin on
 "set updatecount=0 updatetime=500
 "autocmd CursorHold,CursorHoldI * silent! wall
 
-" source my functions
-" source $HOME/.vim/_mine/functions.vim
-" start $HOME/.vim/_mine/functions.vim
+" suffixes
+set suffixes+=.lo,.o,.moc,.la,.closure,.loT
+
+" my functions
+
+" tab settings
+function! IndentingGeneralSettings()
+  set autoindent nocindent nosmartindent
+  set indentexpr=
+endfunction
+
+function! IndentingSetTabsize(size)
+  let &tabstop     = a:size
+  let &shiftwidth  = a:size
+  let &softtabstop = a:size
+endfunction
+
+function! IndentingSetSpaces(size)
+  set expandtab
+  call IndentingGeneralSettings()
+  call IndentingSetTabsize(a:size)
+endfunction
+
+function! IndentingSetTabs()
+  set noexpandtab
+  call CHELU_indenting()
+  call IndentingSetTabsize(4)
+endfunction
+
 function! SwapUp()
   if ( line( '.' ) > 1 )
     let cur_col = virtcol(".")
@@ -286,81 +317,157 @@ function! InsertBrace()
 	execute "normal a" . s:seq
 endfunction
 
-function! KeyMap(modifier, key, action, mode, target)
-	if strlen(a:mode) > 0
-		let s:mode = " <" . a:mode . "> "
-	else
-		let s:mode = " "
-	endif
-	if StrMatchNo(a:action, '<CR>') > 1 || a:action =~ 'e' || a:action !~ '<CR>$'
-		let s:insert{"pre"} = " <Esc>"
-		let s:insert{"post"} = "a"
-	else
-		let s:insert{"pre"} = " <C-o>"
-		let s:insert{"post"} = ""
-	endif
-	if a:target =~ '_'
-		let s:insert{"pre"} = " "
-		let s:insert{"post"} = ""
-	endif
-	" modifier: <M> meta
-	if a:modifier == "M"
-		if a:target =~ 'n'
-			execute "nnoremap" . s:mode . "<M-" . a:key . "> " . a:action
-		endif
-		if a:target =~ 'i'
-			execute "inoremap" . s:mode . "<M-" . a:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
-		endif
-		if a:target =~ 'v'
-			execute "vnoremap" . s:mode . "<M-" . a:key . "> " . a:action
-		endif
-	" modifier: <D> meta
-	elseif a:modifier == "D"
-		if a:target =~ 'n'
-			execute "nnoremap" . s:mode . "<D-" . a:key . "> " . a:action
-		endif
-		if a:target =~ 'i'
-			execute "inoremap" . s:mode . "<D-" . a:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
-		endif
-		if a:target =~ 'v'
-			execute "vnoremap" . s:mode . "<D-" . a:key . "> " . a:action
-		endif
-	" modifier: <C> control
-	elseif a:modifier == "C"
-		let s:key = substitute(a:key, '[<>]', '', 'g')
-		if a:target =~ 'n'
-			execute "nnoremap" . s:mode . "<C-" . s:key . "> " . a:action
-		endif
-		if a:target =~ 'i'
-			execute "inoremap" . s:mode . "<C-" . s:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
-		endif
-		if a:target =~ 'v'
-			execute "vnoremap" . s:mode . "<C-" . s:key . "> " . a:action
-		endif
-	" modifier: <S> shift
-	elseif a:modifier == "C"
-		let s:key = substitute(a:key, '[<>]', '', 'g')
-		if a:target =~ 'n'
-			execute "nnoremap" . s:mode . "<S-" . s:key . "> " . a:action
-		endif
-		if a:target =~ 'i'
-			execute "inoremap" . s:mode . "<S-" . s:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
-		endif
-		if a:target =~ 'v'
-			execute "vnoremap" . s:mode . "<S-" . s:key . "> " . a:action
-		endif
-	" modifier: none
-	else
-		if a:target =~ 'n'
-			execute "nnoremap" . s:mode . a:key . " " . a:action
-		endif
-		if a:target =~ 'i'
-			execute "inoremap" . s:mode . a:key . s:insert{"pre"} . a:action . s:insert{"post"}
-		endif
-		if a:target =~ 'v'
-			execute "vnoremap" . s:mode . a:key . " " . a:action
-		endif
-	endif
+"function! KeyMap(modifier, key, action, mode, target)
+"	if strlen(a:mode) > 0
+"		let s:mode = " <" . a:mode . "> "
+"	else
+"		let s:mode = " "
+"	endif
+"	if StrMatchNo(a:action, '<CR>') > 1 || a:action =~ 'e' || a:action !~ '<CR>$'
+"		let s:insert{"pre"} = " <Esc>"
+"		let s:insert{"post"} = "a"
+"	else
+"		let s:insert{"pre"} = " <C-o>"
+"		let s:insert{"post"} = ""
+"	endif
+"	if a:target =~ '_'
+"		let s:insert{"pre"} = " "
+"		let s:insert{"post"} = ""
+"	endif
+"	" modifier: <M> meta
+"	if a:modifier == "M"
+"		if a:target =~ 'n'
+"			execute "nnoremap" . s:mode . "<M-" . a:key . "> " . a:action
+"		endif
+"		if a:target =~ 'i'
+"			execute "inoremap" . s:mode . "<M-" . a:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
+"		endif
+"		if a:target =~ 'v'
+"			execute "vnoremap" . s:mode . "<M-" . a:key . "> " . a:action
+"		endif
+"	" modifier: <D> meta
+"	elseif a:modifier == "D"
+"		if a:target =~ 'n'
+"			execute "nnoremap" . s:mode . "<D-" . a:key . "> " . a:action
+"		endif
+"		if a:target =~ 'i'
+"			execute "inoremap" . s:mode . "<D-" . a:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
+"		endif
+"		if a:target =~ 'v'
+"			execute "vnoremap" . s:mode . "<D-" . a:key . "> " . a:action
+"		endif
+"	" modifier: <C> control
+"	elseif a:modifier == "C"
+"		let s:key = substitute(a:key, '[<>]', '', 'g')
+"		if a:target =~ 'n'
+"			execute "nnoremap" . s:mode . "<C-" . s:key . "> " . a:action
+"		endif
+"		if a:target =~ 'i'
+"			execute "inoremap" . s:mode . "<C-" . s:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
+"		endif
+"		if a:target =~ 'v'
+"			execute "vnoremap" . s:mode . "<C-" . s:key . "> " . a:action
+"		endif
+"	" modifier: <S> shift
+"	elseif a:modifier == "C"
+"		let s:key = substitute(a:key, '[<>]', '', 'g')
+"		if a:target =~ 'n'
+"			execute "nnoremap" . s:mode . "<S-" . s:key . "> " . a:action
+"		endif
+"		if a:target =~ 'i'
+"			execute "inoremap" . s:mode . "<S-" . s:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
+"		endif
+"		if a:target =~ 'v'
+"			execute "vnoremap" . s:mode . "<S-" . s:key . "> " . a:action
+"		endif
+"	" modifier: none
+"	else
+"		if a:target =~ 'n'
+"			execute "nnoremap" . s:mode . a:key . " " . a:action
+"		endif
+"		if a:target =~ 'i'
+"			execute "inoremap" . s:mode . a:key . s:insert{"pre"} . a:action . s:insert{"post"}
+"		endif
+"		if a:target =~ 'v'
+"			execute "vnoremap" . s:mode . a:key . " " . a:action
+"		endif
+"	endif
+"endfunction
+
+" calls KeyMapExec for all combinations of modes and modifiers
+function! KeyMap(modes, special, modifiers, key, action)
+  echom "KeyMap !!!"
+  if a:modes == ""
+    if a:modifiers == ""
+      call KeyMapExec(a:modes, a:special, a:modifiers, a:key, a:action)
+    else
+      for j in range(len(a:modifiers))
+        call KeyMapExec(a:modes, a:special, a:modifiers[j], a:key, a:action)
+      endfor
+    endif
+  else
+    for i in range(len(a:modes))
+      if a:modifiers == ""
+        call KeyMapExec(a:modes[i], a:special, a:modifiers, a:key, a:action)
+      else
+        for j in range(len(a:modifiers))
+          call KeyMapExec(a:modes[i], a:special, a:modifiers[j], a:key, a:action)
+        endfor
+      endif
+    endfor
+  endif
+endfunction
+
+" mode:     n,i,v
+" modifier: C,D,L,M,S
+" key:      a,<F2>,<Left>, etc
+" action:   \o/
+function! KeyMapExec(mode, special, modifier, key, action)
+  if a:modifier=="D" && !has("macunix")
+    return
+  end
+  " arg
+  let s:arg = substitute(" <silent> ", "<>", "", "")
+
+  " if no <CR>s or only one <CR> at end, use <C-o> to better preserve cursor position
+  "   examples:
+  "     gt
+  "     :bd<CR>
+  " otherwise, use <Esc> and a
+  "   examples:
+  "     :s/a/b/<CR>:s/c/d/<CR>
+  "     :s/e/f/<CR>dd
+  let crs = len(split(a:action, "<CR>"))
+  if crs == 0 || (crs == 1 && a:action =~ '<CR>$')
+    let s:pre = "<C-o>"
+    let s:post = ""
+  else
+    let s:pre = "<Esc>"
+    let s:post = "a"
+  endif
+
+  " put what to map in s:key
+  let s:key = substitute(a:key, '[<>]', '', 'g')
+  if a:modifier == ""
+    let s:key = a:key
+  elseif a:modifier == "L"
+    let s:key = "<Leader>" . a:key
+  else " C,D,M,S
+    let s:key = "<" . a:modifier . "-" . s:key . ">"
+  end
+
+  	" put map in s:map
+  let s:map = a:mode . "noremap" . a:special .  s:key . " "
+  if a:mode == "i"
+    let s:map .= s:pre . a:action . s:post
+  else
+    let s:map .= a:action
+  endif
+
+  " \o/\O/\o/
+  "echo s:map
+  execute s:map
+
 endfunction
 
 function! OpenFileUnderCursor()
@@ -388,6 +495,26 @@ function! OpenFileUnderCursor()
 	execute "silent cd " . OldPath
 endfunction
 
+function! GetSynUnder()
+	return synIDattr(synID(line('.'), col('.'), 1), 'name')
+endfunction
+
+function! GetCharUnder()
+	return strpart(getline('.'), col('.') - 1, 1)
+endfunction
+
+function! GetCharBefore(offset)
+	return strpart(getline('.'), col('.') - (a:offset + 1), 1)
+endfunction
+
+function! GetCharAfter()
+	return strpart(getline('.'), col('.'), 1)
+endfunction
+
+function! AtEnd()
+	return col('$') == col('.')
+endfunction
+
 function! GetStringBeforeCursor()
 	return strpart(getline("."), 0, col("."))
 endfunction
@@ -396,8 +523,27 @@ function! GetStringAfterCursor()
 	return strpart(getline("."), col("."))
 endfunction
 
-function! GetWordBeforeCursor()
-	return substitute(GetStringBeforeCursor(), '^.*\(\<\w\{-1,}\)\W*$', '\1', '')
+function! GetWordBeforeCursor(keep_spaces)
+	let regexp = '^.*\(\<\w\+\)'
+	if !a:keep_spaces
+		let regexp .= '\s*'
+	endif
+	let regexp .= '$'
+	return substitute(GetStringBeforeCursor(0), regexp, '\1', '')
+endfunction
+
+function! GetExactWordBeforeCursor(offset)
+  let x = matchlist(GetStringBeforeCursor(a:offset), '\(\w\w*\)\s*$')
+  if len(x) > 0
+    return x[1]
+  else
+    return GetStringBeforeCursor(a:offset)
+  end
+	"return substitute(GetStringBeforeCursor(a:offset), '^.*\(\w\w*\)\s*$', '\1', '')
+endfunction
+
+function! GetFirstWord()
+	return substitute(getline('.'), '^\W*\(\<\w\+\).*$', '\1', '')
 endfunction
 
 function! GetStringBeforeWord()
@@ -424,6 +570,111 @@ function! GetWordUnder()
 	return Word
 endfunction
 
+function! CountOccurances(haystack, needle)
+	let occurances = 0
+	let lastpos = 0
+	let firstiter = 1
+	while lastpos > -1
+		if firstiter
+			let lastpos = match(a:haystack, a:needle, lastpos)
+		else
+			let lastpos = match(a:haystack, a:needle, lastpos + 1)
+		endif
+		let firstiter = 0
+		if lastpos > -1
+			let occurances = occurances + 1
+		endif
+	endwhile
+	return occurances
+endfunction
+
+function! InsideTag()
+	let str = GetStringBeforeCursor(0) . GetCharUnder()
+	return str =~ '^.*<[^/>]*$'
+endfunction
+
+function! InsideQuote(char)
+	let str = GetStringBeforeCursor(0) . GetCharUnder()
+	if !InsideTag()
+		let tags_complete = CountOccurances(str, '<[^/>]*>')
+		let tags_incomplete = CountOccurances(str, '<\w')
+		let tags = tags_incomplete - tags_complete
+		return (CountOccurances(str, a:char) - tags) % 2 != 0
+	else
+		return CountOccurances(str, a:char) % 2 != 0
+	endif
+endfunction
+
+function! ExpandTemplate(ignore_quote)
+	if a:ignore_quote || GetSynUnder() == 'htmlString' || (!InsideQuote("'") && !InsideQuote('"'))
+		let cword = GetExactWordBeforeCursor(1)
+		if exists('g:template' . &ft . cword)
+			return "\<C-W>" . g:template{&ft}{cword}
+		elseif exists('g:template_' . cword)
+			return "\<C-W>" . g:template_{cword}
+		endif
+	endif
+	return ExpandTag(' ')
+endfunction
+
+function! ExpandTag(char)
+	if a:char == '>'
+		if GetCharUnder() == '>'
+			return "\<Right>"
+		elseif GetCharBefore(1) == '>' && (&ft == 'php' || &ft == 'html')
+			if &ft == 'php' && GetCharBefore(2) == '?'
+				return '>'
+			endif
+			return "\<CR>\<CR>\<Up>\<Tab>"
+		endif
+	endif
+	let sbefore = GetStringBeforeCursor(0)
+	if GetCharUnder() == '>'
+		return a:char
+	endif
+	if sbefore =~ '^.*<\w\+\S*$' && (&ft == 'php' || &ft == 'html')
+		let cword = GetExactWordBeforeCursor(1)
+		let sbefore1 = strpart(sbefore, 0, strlen(sbefore) - 1)
+		if cword !~ '>' && CountOccurances(sbefore1, '<') > CountOccurances(sbefore1, '>')
+			let cleft = repeat("\<Left>", len(cword) + 4)
+			let retval = ''
+			let close_tag = '></' . cword . '>' . cleft
+			if cword == 'input' || cword == 'label' || cword == 'br' || cword == 'hr'
+				let retval .= ">\<Left>"
+			else
+				let retval .= close_tag
+			endif
+			if a:char == ' '
+				let retval = ' ' . retval
+			else
+				let retval .= "\<Right>"
+			endif
+			return retval
+		endif
+		return a:char
+	endif
+	return a:char
+endfunction
+
+" Visual mode functions
+function! Enclose(mode, indent)
+	if a:mode == '{'
+		let start = '{'
+		let end = '}'
+	elseif a:mode == '/'
+		let start = '/**'
+		let end = '/**/'
+	endif
+	let extra = ''
+	if a:indent
+		let extra = "\<BS>"
+	endif
+	call cursor(line("'<"), col("'<"))
+	execute "normal! O" . extra . start
+	call cursor(line("'>"), col("'>"))
+	execute "normal! o" . extra . end
+endfunction
+
 function! ColonComplete()
 	normal! a:
 endfunction
@@ -440,57 +691,6 @@ endfunction
 
 function! InsertDateTime()
 	execute "normal a" . strftime("%A, %Y-%m-%d %H:%M:%S")
-endfunction
-
-function! CtagAdder(...)
-	let index = 1
-	let s:dir_list = ''
-	while index <= a:0
-		let s:dir_list = s:dir_list . TlGetDirs(a:{index})
-		let index = index + 1
-	endwhile
-	call TlAddAddFiles(s:dir_list)
-	wincmd p
-	exec "normal ="
-	wincmd p
-endfunction
-
-" Adds *.rb, *.rhtml and *.css files to TagList from a given list
-" of dirs
-
-function! TlAddAddFiles(dir_list)
-	let dirlist = a:dir_list
-	let s:olddir = getcwd()
-	while strlen(dirlist) > 0
-		let curdir = substitute (dirlist, '|.*', "", "")
-		let dirlist = substitute (dirlist, '[^|]*|\?', "", "")
-		exec "cd " . g:base_dir
-		exec "TlistAddFiles " . curdir . "/*.rb"
-		exec "TlistAddFiles " . curdir . "/*.rhtml"
-		exec "TlistAddFiles " . curdir . "/*.css"
-"		exec "TlistAddFiles " . curdir . "/*.js"
-	endwhile
-	exec "cd " . s:olddir
-endfunction
-
-" Gets all dirs within a given dir, returns them in a string,
-" separated by '|''s
-
-function! TlGetDirs(start_dir)
-	let s:olddir = getcwd()
-	exec "cd " . g:base_dir . '/' . a:start_dir
-	let dirlist = a:start_dir . '|'
-	let dirlines = glob ('*')
-	let dirlines = substitute (dirlines, "\n", '/', "g")
-	while strlen(dirlines) > 0
-		let curdir = substitute (dirlines, '/.*', "", "")
-		let dirlines = substitute (dirlines, '[^/]*/\?', "", "")
-		if isdirectory(g:base_dir . '/' . a:start_dir . '/' . curdir)
-			let dirlist = dirlist . TlGetDirs(a:start_dir . '/' . curdir)
-		endif
-	endwhile
-	exec "cd " . s:olddir
-	return dirlist
 endfunction
 
 function! GuiTabLabel()
@@ -653,8 +853,98 @@ function! MyTabLabel(n)
   return '[' . string(a:n) . ']' . guifname
 endfunction
 
+" files & folders functions
 
-" end $HOME/.vim/_mine/functions.vim
+function! PathToShortHome(path)
+  return substitute(a:path, $HOME, "~", "")
+endfunction
+
+function! CwdShort()
+  return substitute(PathToShortHome(getcwd()), "\\", "/", "g")
+endfunction
+" 
+function! FuzzyReIndexCwd()
+  call FuzzyReIndex(getcwd())
+endfunction
+
+function! FuzzyReIndex(dir)
+  " dir is not:
+  "   work/archive
+  " and dir is:
+  "   work/*/*
+  "   src/*
+  if ((a:dir !~ 'work\/(archive)') && (a:dir =~ 'work\/\w\w*\/\w\w*' || a:dir =~ 'work\/\w\w*'))
+    echo "reindexing " . a:dir
+    FuzzyFinderTextMateRefreshFiles
+  endif
+endfunction
+
+let g:CWD = ""
+
+function! Cd(cd)
+  exec "cd " . a:cd
+  let g:CWD = getcwd()
+  return getcwd()
+endfunction
+
+function! CdReset()
+  if g:CWD == ""
+    let g:CWD = getcwd()
+  else
+    call Cd(g:CWD)
+  end
+endfunction
+
+function! GetRoot(path)
+  let oldcwd = getcwd()
+  call Cd(a:path)
+  let root = Slashify(Cd("/"))
+  call Cd(oldcwd)
+  return root
+endfunction
+
+function! Slashify(str)
+  return substitute(a:str, "\\", "/", "g")
+endfunction
+
+function! GetCwdCurrent()
+  return expand("%:p:h")
+endfunction
+
+function! CwdCurrent()
+  call Cd(GetCwdCurrent())
+  call FuzzyReIndexCwd()
+endfunction
+
+function! CwdUp()
+  let dirname = Slashify(expand('%:p:h'))
+  let cwd     = Slashify(getcwd())
+  let root    = GetRoot(cwd)
+  if (stridx(dirname, cwd) == -1 || cwd == GetRoot(cwd))
+    call Cd(dirname)
+  else
+    call Cd(substitute(cwd, "[^/]*$", "", ""))
+  end
+endfunction
+
+function! CwdDown()
+  let dirname = Slashify(expand('%:p:h'))
+  let cwd     = Slashify(getcwd())
+
+  if cwd == GetRoot(cwd)
+    let cwd = substitute(cwd, "/$", "", "")
+  end
+  if stridx(dirname, cwd) == -1
+    call Cd(dirname)
+  else
+    if (dirname == cwd)
+      call Cd("/")
+    else
+      let dirname = substitute(dirname, cwd . "/", "", "")
+      call Cd(cwd . "/" . substitute(dirname, "/.*", "", ""))
+    end
+  end
+endfunction
 
 " commands
 command! W :browse confirm saveas
@@ -664,59 +954,44 @@ command! -bar Hexmode call ToggleHex()
 let mapleader = "\\"
 let maplocalleader = "\\"
 
-call KeyMap('', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>', '', 'n')
-call KeyMap('', '<F7>', ':RTlist<CR>', '', 'niv')
-call KeyMap('', '<F8>', ':Tlist<CR>', 'silent', 'n')
-call KeyMap('', '<S-Space>', ':call ExpandTemplate(1)<CR>', 'silent', 'i')
-call KeyMap('D', 'q', ':q<CR>', '', 'ni')
-call KeyMap('D', 'Q', ':q!<CR>', '', 'ni')
-call KeyMap('D', 'w' , ':call ConditionalExecute("write")<CR>', 'silent', 'ni')
-call KeyMap('D', 'a' , 'gggH<C-O>G', 'silent', 'n')
-call KeyMap('D', 'a' , '<C-O>gg<C-O>gH<C-O>G', 'silent', 'i')
-call KeyMap('D', 'y' , '<C-R>', 'silent', 'n')
-call KeyMap('D', 'y' , '<C-O><C-R>', 'silent', 'i')
-call KeyMap('D', '`' , ':maca selectNextWindow:<CR>', 'silent', 'ni')
-call KeyMap('D', 'W' , ':write!<CR>', 'silent', 'ni')
-call KeyMap('D', '!', ':!!<CR>', 'silent', 'ni')
-call KeyMap('D', '"', ':@:<CR>', 'silent', 'ni')
-call KeyMap('', '<F9>', ':Tlist<CR>', 'silent', 'ni')
-call KeyMap('D', 'd', ':bd<CR>', 'silent', 'ni')
-call KeyMap('D', 'e', ':call OpenFileUnderCursor()<CR>', 'silent', 'ni')
-call KeyMap('', '<Tab>', '>gv', 'silent', 'v')
-call KeyMap('', '<S-Tab>', '<gv', 'silent', 'v')
-call KeyMap('D', "'", ':call ExpandTemplate()<CR>', 'silent', 'i')
-call KeyMap('C', 'z', ':u<CR>', 'silent', 'i')
-call KeyMap('D', 's', ':set scb<CR>', 'silent', 'ni')
-call KeyMap('D', 'S', ':set noscb<CR>', 'silent', 'ni')
-call KeyMap('D', 'u', 'guaw', 'silent', 'ni')
-call KeyMap('D', 'U', 'gUaw', 'silent', 'ni')
-call KeyMap('D', 'E', ':e .<CR>', 'silent', 'ni')
-call KeyMap('D', 'Up', ':call SwapUp()<CR>', 'silent', 'ni')
-call KeyMap('D', 'Down', ':call SwapDown()<CR>', 'silent', 'ni')
-call KeyMap('C', 'Space', '<C-p>', 'silent', 'ni')
-call KeyMap('D', 'Space', '<C-X><C-O>', 'silent', 'ni')
-call KeyMap('C', '<F2>', ':call Vm_toggle_sign()<CR>', 'silent', 'ni')
-call KeyMap('', '<F5>', ':BufExplorer<CR>', 'silent', 'ni')
-"call KeyMap('D', 'Space', ':simalt ~<CR>', 'silent', 'n')
-"call KeyMap('', '<Down>', 'gj', 'silent', 'niv')
-"call KeyMap('', '<Up>', 'gk', 'silent', 'niv')
-"call KeyMap('', ':', ':call ColonComplete()<CR>', 'silent', 'i')
-"call KeyMap('D', 'X', ':simalt ~x<CR>', 'silent', 'ni')
-"call KeyMap('M', 'a', ':let &wrap = !&wrap<CR>', 'silent', 'ni')
-"call KeyMap('D', 'X', ':simalt ~x<CR>', 'silent', 'nvi')
-"call KeyMap('C', 'Space', '<C-w><C-w>', 'silent', 'n')
-"call KeyMap('C', '1', ':buffer 11<CR>', 'silent', 'ni')
-"call KeyMap('C', '2', ':buffer 12<CR>', 'silent', 'ni')
-"call KeyMap('C', '3', ':buffer 13<CR>', 'silent', 'ni')
-"call KeyMap('C', '4', ':buffer 14<CR>', 'silent', 'ni')
-"call KeyMap('C', '5', ':buffer 15<CR>', 'silent', 'ni')
-"call KeyMap('C', '6', ':buffer 16<CR>', 'silent', 'ni')
-"call KeyMap('C', '7', ':buffer 17<CR>', 'silent', 'ni')
-"call KeyMap('C', '8', ':buffer 18<CR>', 'silent', 'ni')
-"call KeyMap('C', '9', ':buffer 19<CR>', 'silent', 'ni')
-"call KeyMap('C', '0', ':buffer 20<CR>', 'silent', 'ni')
-"call KeyMap('C', '_', ':<CR>', ':call Run_Snippet()', 'ni')
-"call KeyMap('D', '`', ':macaction selectNextWindow:<CR>', 'silent', 'ni')
+call KeyMap('n', '', '', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>')
+call KeyMap('i', '<silent>', '', '<S-Space>', ':call ExpandTemplate(1)<CR>')
+call KeyMap('ni', '', 'D', 'q', ':q<CR>')
+call KeyMap('ni', '', 'D', 'Q', ':q!<CR>')
+call KeyMap('ni', '<silent>', 'D', 'w', ':call ConditionalExecute("write")<CR>')
+call KeyMap('n', '<silent>', 'D', 'a', 'gggH<C-O>G')
+call KeyMap('i', '<silent>', 'D', 'a', '<C-O>gg<C-O>gH<C-O>G')
+call KeyMap('n', '<silent>', 'D', 'y', '<C-R>')
+call KeyMap('i', '<silent>', 'D', 'y', '<C-O><C-R>')
+call KeyMap('ni', '<silent>', 'D', '`', ':maca selectNextWindow:<CR>')
+call KeyMap('ni', '<silent>', 'D', 'W', ':write!<CR>')
+call KeyMap('ni', '<silent>', 'D', '!', ':!!<CR>')
+call KeyMap('ni', '<silent>', 'D', '"', ':@:<CR>')
+call KeyMap('ni', '<silent>', '', '<F9>', ':Tlist<CR>')
+call KeyMap('ni', '<silent>', 'D', 'd', ':bd<CR>')
+call KeyMap('ni', '<silent>', 'D', 'e', ':call OpenFileUnderCursor()<CR>')
+call KeyMap('v', '<silent>', '', '<Tab>', '>gv')
+call KeyMap('v', '<silent>', '', '<S-Tab>', '<gv')
+call KeyMap('i', '<silent>', 'D', "'", ':call ExpandTemplate()<CR>')
+call KeyMap('i', '<silent>', 'C', 'z', ':u<CR>')
+call KeyMap('ni', '<silent>', 'D', 's', ':set scb<CR>')
+call KeyMap('ni', '<silent>', 'D', 'S', ':set noscb<CR>')
+call KeyMap('ni', '<silent>', 'D', 'u', 'guaw')
+call KeyMap('ni', '<silent>', 'D', 'U', 'gUaw')
+call KeyMap('ni', '<silent>', 'D', 'E', ':e .<CR>')
+call KeyMap('ni', '<silent>', 'D', 'Up', ':call SwapUp()<CR>')
+call KeyMap('ni', '<silent>', 'D', 'Down', ':call SwapDown()<CR>')
+call KeyMap('ni', '<silent>', 'C', 'Space', '<C-p>')
+call KeyMap('ni', '<silent>', 'D', 'Space', '<C-X><C-O>')
+call KeyMap('ni', '<silent>', 'C', '<F2>', ':call Vm_toggle_sign()<CR>')
+call KeyMap('ni', '<silent>', '', '<F5>', ':BufExplorer<CR>')
+
+" files & folders mapping
+call KeyMap('n', '<silent>',  'CDLM', '-',       ':call CwdUp()<CR>')
+call KeyMap('n', '<silent>',  'CDLM', '=',       ':call CwdDown()<CR>')
+call KeyMap('n', '<silent>',  'CDLM', '0',       ':call CwdCurrent()<CR>')
+call KeyMap('n', '<silent>',  'CDLM', '\',       ':call FuzzyReIndexCwd()<CR>')
+
 inoremap <C-space> <C-p>
 
 " disable middle mouse pasting
@@ -735,10 +1010,10 @@ inoremap <C-S-CR> <CR><C-o>O
 inoremap <silent> <Home> <C-o>:call HomeKey()<CR>
 nnoremap <silent> <Home> :call HomeKey()<CR>
 
-set suffixes+=.lo,.o,.moc,.la,.closure,.loT
-" Insert an include guard based on the file name on ,i
+" switch cpp/h
 nmap <MapLocalLeader>h :AT<CR>
 nmap ,h :AT<CR>
+
 map <leader>s :call ToggleScratch()<CR>
 
 " make word back / forward to be cooloer
@@ -825,7 +1100,6 @@ map <leader>t :FuzzyFinderTextMate<CR>
 map ]xx :Explore<cr>2jp<c-w>H20<c-w><
 
 " abbreviations
-"cabbrev help vertical help
 iabbrev mdy <C-r>=strftime("%Y-%m-%d %H:%M:%S")
 iabbrev fi if
 iabbrev fpritnf fprintf
@@ -833,7 +1107,6 @@ iabbrev fro for
 iabbrev pritnf printf
 iabbrev stirng string
 iabbrev teh the
-
 
 " python syntax settings
 let python_highlight_all = 1
@@ -844,7 +1117,7 @@ let Tlist_Compact_Format = 1
 let Tlist_File_Fold_Auto_Close = 1
 let Tlist_Use_Right_Window = 1
 let Tlist_Exit_OnlyWindow = 1
-let Tlist_WinWidth = 40 
+let Tlist_WinWidth = 0 
 
 " ruby settings
 let g:rubycomplete_buffer_loading = 1
@@ -854,6 +1127,11 @@ let g:rubycomplete_rails = 1
 " enhanced commentify
 let g:EnhCommentifyBindInNormal = 'yes'
 let g:EnhCommentifyBindInVisual = 'yes'
+
+" NERD commenter
+let g:NERDMapleader = '<space>'
+let g:NERDRemoveExtraSpaces = 1
+let g:NERDSpaceDelims = 0
 
 " omni cpp complete
 let OmniCpp_GlobalScopeSearch = 1

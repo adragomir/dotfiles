@@ -416,9 +416,9 @@ export TEXMFCNF=/usr/local/texlive/2007/texmf/web2c
 export PATH=$PATH:/usr/local/texlive/2007/bin/i386-darwin
 
 export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
-export ANT_HOME=/Users/adragomi/work/tools/apache-ant-1.7.0
-export MAVEN_HOME=/usr/share/maven
-export JUNIT_HOME=/usr/share/junit
+#export ANT_HOME=/Users/adragomi/work/tools/apache-ant-1.7.0
+#export MAVEN_HOME=/usr/share/maven
+#export JUNIT_HOME=/usr/share/junit
 
 export PATH=$PATH:/Users/adragomi/work/tools/emulator/Vice/tools
 # haxe
