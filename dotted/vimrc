@@ -1,7 +1,4 @@
 " settings
-if has("gui_macvim")
-  let macvim_skip_cmd_opt_movement = 1
-endif
 set nocompatible              " use VI incompatible features
 set noautochdir
 "set autowriteall
@@ -60,6 +57,10 @@ set guiheadroom=0
 set hidden
 set splitbelow                " split windows below current one
 set title
+
+if has("gui_macvim")
+  let macvim_skip_cmd_opt_movement = 1
+endif
 
 " settings: line endings
 "set ff=unix
@@ -515,8 +516,8 @@ function! AtEnd()
 	return col('$') == col('.')
 endfunction
 
-function! GetStringBeforeCursor()
-	return strpart(getline("."), 0, col("."))
+function! GetStringBeforeCursor(offset)
+	return strpart(getline('.'), 0, col('.') - a:offset)
 endfunction
 
 function! GetStringAfterCursor()
