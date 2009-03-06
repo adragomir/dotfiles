@@ -446,6 +446,11 @@ if __name__ == "__main__":
                 encoding = sys.argv[2]
             data = open(arg, 'r').read().decode(encoding)
     else:
-        data = sys.stdin.read().decode('utf8')
+        raw_data = ""
+        raw_data = sys.stdin.read()
+        try:
+            data = raw_data.decode('utf8')
+        except:
+            data = raw_data.decode('iso-8859-1')
     wrapwrite(html2text(data))
 
