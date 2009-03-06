@@ -397,7 +397,6 @@ endfunction
 
 " calls KeyMapExec for all combinations of modes and modifiers
 function! KeyMap(modes, special, modifiers, key, action)
-  echom "KeyMap !!!"
   if a:modes == ""
     if a:modifiers == ""
       call KeyMapExec(a:modes, a:special, a:modifiers, a:key, a:action)
