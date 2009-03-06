@@ -1,18 +1,25 @@
 set expand-tilde off
+set bind-tty-special-chars off
 set bell-style none 
 set completion-ignore-case on 
 set page-completions off
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
-set meta-flag off
-set input-meta off
+set meta-flag on
+set input-meta on
 
 "\e[1~": beginning-of-line
 "\e[4~": end-of-line
 "\e[5C": forward-word
 "\e[5D": backward-word
 "\e[3~": delete-char 
+"\ed": backward-kill-word
 
+Tab: menu-complete
+
+"\C-o": set-mark
+
+"\C-w": kill-region
 
 "\e[A": history-search-backward
 "\e[B": history-search-forward 
