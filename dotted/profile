@@ -1,13 +1,6 @@
 # if not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-alias la='ls -A'
-alias g='gvim.sh'
-alias ack="ack -i -a"
-alias l="ls -AGlFT"
-alias lt="ls -AGlFTtr"
-alias reload="source ~/.profile"
-alias lc="cl"
 function cl() { cd "$@" && l; }
 function cs () {
   cd "$@"
@@ -18,33 +11,7 @@ function cs () {
 function mkd() {
   mkdir -p "$*" && cd "$*" && pwd
 }
-# make top default to ordering by CPU usage:
-alias top='top -ocpu'
-# more lightweight version of top which doesn't use so much CPU itself:
-alias ttop='top -ocpu -R -F -s 2 -n30'
 
-# git commands
-alias gss="git stash save"
-alias gsp="git stash pop"
-# git
-alias gl="git log"
-alias ga="git add"
-alias gr="git reset"
-alias gs="git status"
-alias gst="git status"
-
-alias gd="git diff"
-alias gdc="git diff --cached"
-
-alias g-update-deleted="git ls-files -z --deleted | git update-index -z --remove --stdin"
-#alias gstt="git ls-files --exclude-per-directory=.gitignore --exclude-from=.git/info/exclude --others --modified -t"
-
-alias gb="git branch"
-alias gba="git branch -a -v"
-
-alias gfr="git fetch && git rebase refs/remotes/origin/master"
-alias gci="git commit"
-alias gco="git checkout"
 function gco {
   if [ -z "$1" ]; then
     git checkout master
@@ -271,7 +238,6 @@ export HISTFILE=/Users/adragomi/.history/`date +%Y%m%d`.hist
 export HISTSIZE=100000
 export HISTCONTROL=ignoredups
 
-
 # browser
 export BROWSER=/Applications/Firefox.app/Contents/MacOS/firefox-bin
 
@@ -297,36 +263,80 @@ export FCSH_VIM_ROOT=/Users/adragomi/work/flex/sdk/bin
 # aliases
 #########
 
+# bochs
 alias bochs='LTDL_LIBRARY_PATH=/Users/adragomi/work/tools/bochs/lib/bochs/plugins BXSHARE=/Users/adragomi/work/tools/bochs/share/bochs /Users/adragomi/work/tools/bochs/bin/bochs'
-alias pad='ssh -p 9122 -D localhost:1080 root@86.35.12.14'
+
+#editor
 alias gvim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim -g'
 alias vim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim'
-alias find='find -E'
-#alias ll='ls -lh'
-#alias l='ls -Ff'
-#alias la='ls -af'
-#alias ld='ls -d -af'  # directories only!
-alias ls='ls -AFh'
-alias pgrep='pgrep -lf'
-alias cdd='cd - '
-alias df='df -h'
-alias du='du -h -c'
-#alias ps='ps auxw'
-alias ping='ping -c 5'
-alias mkdir='mkdir -p'
-alias grep='grep --colour'
-alias svnaddall='svn status | grep "^\?" | awk "{print \$2}" | xargs svn add'
-alias irb='irb --readline -r irb/completion -rubygems'
-alias ri='ri -Tf ansi'
-alias tu='top -o cpu'
-alias tm='top -o vsize'
-alias t="~/bin/todo.py -d '/Users/adragomi/Documents/personal/life/exploded/todo@/'"
+
+# git commands
+alias gss="git stash save"
+alias gsp="git stash pop"
+# git
+alias gl="git log"
+alias ga="git add"
+alias gr="git reset"
+alias gs="git status"
+alias gst="git status"
+
+# git diff
+alias gd="git diff"
+alias gdc="git diff --cached"
+
+alias g-update-deleted="git ls-files -z --deleted | git update-index -z --remove --stdin"
+
+#git branch
+alias gb="git branch"
+alias gba="git branch -a -v"
+
+alias gfr="git fetch && git rebase refs/remotes/origin/master"
+alias gci="git commit"
+alias gco="git checkout"
+
+# asc, tamarin
 alias asc='$ASC_COMMAND'
 alias asc_tamarin='$ASC_COMMAND -import $TAMARIN_HOME/core/builtin.abc'
 alias asc_tamarin_shell='$FLEX_HOME/bin/asc -AS3 -import $TAMARIN_HOME/core/builtin.abc -import $TAMARIN_HOME/shell/shell_toplevel.abc'
 alias avm='$AVMSHELL_COMMAND'
 alias avm_debug='$AVMSHELL_DEBUG_COMMAND'
 
+#builtin commands
+# make top default to ordering by CPU usage:
+alias top='top -ocpu'
+# more lightweight version of top which doesn't use so much CPU itself:
+alias ttop='top -ocpu -R -F -s 2 -n30'
+
+# ls
+alias l="ls -AGlFT"
+alias la='ls -A'
+alias lt="ls -AGlFTtr"
+alias lc="cl"
+
+alias cdd='cd - '
+
+alias mkdir='mkdir -p'
+
+alias reload="source ~/.profile"
+alias finde='find -E'
+alias g='gvim.sh'
+
+alias ack="ack -i -a"
+alias pgrep='pgrep -lf'
+
+alias df='df -h'
+alias du='du -h -c'
+
+alias psa='ps auxwww'
+alias ping='ping -c 5'
+alias grep='grep --colour'
+alias svnaddall='svn status | grep "^\?" | awk "{print \$2}" | xargs svn add'
+alias irb='irb --readline -r irb/completion -rubygems'
+alias ri='ri -Tf ansi'
+alias tu='top -o cpu'
+alias tm='top -o vsize'
+
+alias t="~/bin/todo.py -d '/Users/adragomi/Documents/personal/life/exploded/todo@/'"
 
 function cdgem {
   cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
