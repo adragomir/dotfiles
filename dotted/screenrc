@@ -1,5 +1,11 @@
+defutf8 on
+altscreen on
 startup_message off
 defscrollback 10000
+hardstatus on
 hardstatus alwayslastline
 hardstatus string "%{kG}%50>%-w%{ky}%n %t%{-}%+w%{-} %>%=%{ky}Ctrl-A ?%{-} for help"
+#hardstatus string "%-Lw %{= kG}Host: %{Y}%H%? %{c}(%1`) %{= kG} %-=Load: %{Y}%l%{kG}  %{= kG}Date: %{Y}%m/%d/%y%{= kG}  Time: %{Y}%C:%s%a%{= kG}%{W}" 
+caption always
+caption string "%-Lw%{= bw}%50>%n %t%{-}%+Lw%<" 
 term xterm-256color
