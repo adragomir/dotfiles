@@ -218,17 +218,18 @@ statusbar = {
 settings = {
   core = {
     real_name = "Andrei DRAGOMIR";
-    user_name = "adragomi";
-    nick = "adragomi";
+    user_name = "level45";
+    nick = "level45";
     proxy_address = "sj-proxy.corp.adobe.com";
     proxy_port = "80";
   };
   "fe-common/core" = {
     use_status_window = "no";
     autocreate_windows = "no";
-    autocreate_query_level = "none";
+    autocreate_query_level = "DCCMSGS";
     autoclose_windows = "no";
     reuse_unused_windows = "yes";
+    theme = "default";
   };
   "irc/dcc" = {
     dcc_download_path = "/Users/adragomi/Downloads/irssi";

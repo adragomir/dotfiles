@@ -1,3 +1,4 @@
+multiuser on
 defutf8 on
 altscreen on
 startup_message off
@@ -9,3 +10,6 @@ hardstatus string "%{kG}%50>%-w%{ky}%n %t%{-}%+w%{-} %>%=%{ky}Ctrl-A ?%{-} for h
 caption always
 caption string "%-Lw%{= bw}%50>%n %t%{-}%+Lw%<" 
 term xterm-256color
+
+# bindings
+bind b eval "writebuf" "exec sh -c 'pbcopy < /tmp/screen-exchange'"
