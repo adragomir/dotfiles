@@ -208,7 +208,7 @@ endfunction
 
 function! IndentingSetTabs()
   set noexpandtab
-  call CHELU_indenting()
+  call IndentingGeneralSettings()
   call IndentingSetTabsize(4)
 endfunction
 
