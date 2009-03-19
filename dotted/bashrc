@@ -335,6 +335,10 @@ alias tm='top -o vsize'
 
 alias t="~/bin/todo.py -d '/Users/adragomi/Documents/personal/life/exploded/todo@/'"
 
+# text 2 html
+alias textile='/usr/bin/redcloth'
+alias markdown='/usr/local/bin/markdown'
+
 function cdgem {
   cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
 }
