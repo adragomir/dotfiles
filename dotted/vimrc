@@ -991,6 +991,7 @@ call KeyMap('n', '<silent>',  'CDLM', '-',       ':call CwdUp()<CR>')
 call KeyMap('n', '<silent>',  'CDLM', '=',       ':call CwdDown()<CR>')
 call KeyMap('n', '<silent>',  'CDLM', '0',       ':call CwdCurrent()<CR>')
 call KeyMap('n', '<silent>',  'CDLM', '\',       ':call FuzzyReIndexCwd()<CR>')
+call KeyMap('n', '<silent>',  'L', 'r',       ':call InsertDateTime()<CR>')
 
 inoremap <C-space> <C-p>
 
