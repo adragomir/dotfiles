@@ -77,6 +77,29 @@ if __name__ == "__main__":
             if s['type'] == 'personal':
                 continue
             print '%s (%s)' % (s['name'], s['url'])
+    elif command == "getpage":
+        space = sys.argv[2]
+        page = sys.argv[3]
+        p = c.get_page(space, page)
+        print p["content"]
+
+    elif command == "putpage":
+        space = sys.argv[2]
+        page = sys.argv[3]
+        f = None
+        try:
+            if len(sys.argv) > 4 and sys.argv[4] != None:
+                f = open(sys.argv[4])
+            else:
+                f = sys.stdin
+        except:
+            print "No content passed in !"
+
+        new_content = f.read()
+
+        p = c.get_page(space, page)
+        p['content'] = content
+    
     elif command == "search":
         query = sys.argv[2]
         vector = c.search(query)
@@ -86,7 +109,6 @@ if __name__ == "__main__":
             print "\n"
     elif command == "searchspace":
         space = sys.argv[2]
-        print space
         query = sys.argv[3]
         vector = c.search(query, space)
         for v in vector:
@@ -106,4 +128,5 @@ if __name__ == "__main__":
 
         p = c.get_page(space, page)
         print p["content"]
+
 
