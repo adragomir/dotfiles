@@ -1129,6 +1129,9 @@ let g:rubycomplete_rails = 1
 let g:EnhCommentifyBindInNormal = 'yes'
 let g:EnhCommentifyBindInVisual = 'yes'
 
+" fuzzy settings
+let g:fuzzy_path_display = 'path'
+
 " NERD commenter
 let g:NERDMapleader = '<space>'
 let g:NERDRemoveExtraSpaces = 1
