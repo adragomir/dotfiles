@@ -227,6 +227,9 @@ export PATH
 
 export PYTHONPATH=/opt/local/lib/python2.5/site-packages:/Users/adragomi/.python
 export PYTHONPATH=$PYTHONPATH:/Users/adragomi/.python
+export JMETER_HOME=~/work/tools/jakarta-jmeter-2.3.2
+PATH=$PATH:$JMETER_HOME/bin
+export PATH
 
 ####################
 ### history settings
@@ -294,6 +297,7 @@ alias gco="git checkout"
 # asc, tamarin
 alias asc='$ASC_COMMAND'
 alias asc_tamarin='$ASC_COMMAND -import $TAMARIN_HOME/core/builtin.abc'
+alias asc_flash='$ASC_COMMAND -import $FLEX_HOME/modules/asc/abc/builtin.abc -import $FLEX_HOME/modules/asc/abc/playerglobal.abc'
 alias asc_tamarin_shell='$FLEX_HOME/bin/asc -AS3 -import $TAMARIN_HOME/core/builtin.abc -import $TAMARIN_HOME/shell/shell_toplevel.abc'
 alias avm='$AVMSHELL_COMMAND'
 alias avm_debug='$AVMSHELL_DEBUG_COMMAND'
