@@ -139,7 +139,7 @@ endif
 
 " Trailing space errors
 if exists("python_highlight_space_errors") && python_highlight_space_errors != 0
-  syn match pythonSpaceError	"\s\+$" display
+  "syn match pythonSpaceError	"\s\+$" display
 endif
 
 " Strings
