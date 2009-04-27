@@ -2,7 +2,7 @@
 " Mappings
 
 " Options
-set guioptions=mT
+set guioptions=mTbr
 set showtabline=1
 
 " Abbreviations

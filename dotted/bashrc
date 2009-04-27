@@ -263,6 +263,9 @@ export FCSH_VIM_ROOT=/Users/adragomi/work/flex/sdk/bin
 # aliases
 #########
 
+# pssh 
+alias pssh_rtc='pssh -P -l hadoop -h ~/.pssh/hosts_rtc'
+alias pscp_rtc='pscp -l hadoop -h ~/.pssh/hosts_rtc'
 # bochs
 alias bochs='LTDL_LIBRARY_PATH=/Users/adragomi/work/tools/bochs/lib/bochs/plugins BXSHARE=/Users/adragomi/work/tools/bochs/share/bochs /Users/adragomi/work/tools/bochs/bin/bochs'
 

@@ -10,7 +10,10 @@ collect = []
 files.split("\n").each { |l|
 	next unless l[" - file(s) not on client."] != nil
 	l = l.gsub(" - file(s) not on client.", "")
-	collect.push(l)
+	if l =~ /.*\.DS_Store*/ then
+	else
+		collect.push(l)
+	end
 }
 # open for edit
 if (command == "show")
