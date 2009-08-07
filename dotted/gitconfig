@@ -1,35 +1,42 @@
 [user]
 	name = Andrei Dragomir
 	email = adragomir@gmail.com
+
 [color]
 	diff = auto
 	status = auto
 	branch = auto
+
 [alias]
 	st = status
 	ci = commit
 	co = checkout
 	di = diff
-[diff]
-	renames = true
-[merge]
-	tool = araxismerge
-[mergetool "araxismerge"]
-    # I put p4merge and DiffMerge in /Applications/Utilities, but you might have them in /Applications.
-    cmd = /Users/adragomi/bin/araxisp4winmrg \
-        "$PWD/$BASE" \
-        "$PWD/$REMOTE" \
-        "$PWD/$LOCAL" \
-        "$PWD/$MERGED" 
-    keepBackup = false
-    trustExitCode = false
+
+[diff] 
+  external = /Users/adragomi/bin/araxisgitdiff
+  renames = true
+
+[mergetool "araxismergetool"] 
+  cmd = /Users/adragomi/bin/araxisgitmerge "$PWD/$REMOTE" "$PWD/$BASE" "$PWD/$LOCAL" "$PWD/$MERGED"
+  trustExitCode = false
+
+[mergetool]
+  keepBackup = false
+
+[merge] 
+  tool = araxismergetool
+
 [core]
 	legacyheaders = false
 	excludesfile = /Users/adragomi/.gitignore
+
 [repack]
 	usedeltabaseoffset = true
+
 [gui]
 	fontdiff = -family Courier -size 13 -weight normal -slant roman -underline 0 -overstrike 0
+
 [github]
 	user = adragomir
 	token = 631abd318631e5d9ef2f932a811a8d7a

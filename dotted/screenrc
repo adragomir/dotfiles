@@ -1,3 +1,7 @@
+vbell off
+deflogin on
+autodetach on
+defnonblock on
 multiuser on
 defutf8 on
 altscreen on

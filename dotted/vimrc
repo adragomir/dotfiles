@@ -75,14 +75,14 @@ set autoindent
 set smartindent
 set smarttab
 set indentexpr=none
-set noexpandtab
+set expandtab
 set tabstop=4
 let &sw=4
 
 " look & feel
 if has("gui_running") && has("macunix")
   set noantialias
-  set guifont=Terminus:h20
+  set guifont=Terminus:h16
 endif
 
 "nnoremap <silent> Q
@@ -171,6 +171,8 @@ map L $
 
 colorscheme desert
 highlight SignColor guibg=red guifg=White
+hi LineProximity guibg=yellow
+hi LineOverflow guibg=red
 
 " syntax highlighting
 syntax enable
@@ -178,6 +180,9 @@ syntax on
 filetype on
 filetype indent on
 filetype plugin on
+
+let w:m1=matchadd('LineProximity', '\%71v', -1)
+let w:m2=matchadd('LineOverflow', '\%80v', -1)
 
 " enable autosaving
 "set updatecount=0 updatetime=500
@@ -983,7 +988,7 @@ call KeyMap('ni', '<silent>', 'D', 'Up', ':call SwapUp()<CR>')
 call KeyMap('ni', '<silent>', 'D', 'Down', ':call SwapDown()<CR>')
 call KeyMap('ni', '<silent>', 'C', 'Space', '<C-p>')
 call KeyMap('ni', '<silent>', 'D', 'Space', '<C-X><C-O>')
-call KeyMap('ni', '<silent>', 'C', '<F2>', ':call Vm_toggle_sign()<CR>')
+call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
 call KeyMap('ni', '<silent>', '', '<F5>', ':BufExplorer<CR>')
 
 " files & folders mapping
@@ -1005,6 +1010,7 @@ imap  <2-MiddleMouse>  <Nop>
 imap  <3-MiddleMouse>  <Nop>
 imap  <4-MiddleMouse>  <Nop>
 
+inoremap <S-Space> <Space>
 inoremap <S-CR> <C-o>O
 inoremap <C-CR> <C-o>o
 inoremap <C-S-CR> <CR><C-o>O
@@ -1169,6 +1175,9 @@ autocmd BufNewFile,BufRead *.mxml,*.as :nmap <C-B> :!bash /Users/adragomi/work/f
 autocmd FileType python set omnifunc=pythoncomplete#Complete
 autocmd FileType python setlocal autoindent expandtab
 autocmd BufRead *.as set filetype=actionscript
+
+autocmd BufNewFile,BufRead,BufEnter *.java set cfu=VjdeCompletionFun0
+autocmd FileType java set cfu=VjdeCompletionFun0
 "autocmd VimEnter * let mapleader=","
 
 set guitablabel=%{GuiTabLabel()}
