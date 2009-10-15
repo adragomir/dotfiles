@@ -84,7 +84,7 @@
 " <{\([^[:punct:] \t]\{-}\|".\{-}"\)\(:[^}>]\{-1,}\)\?}>
 " }}}
 
-if v:version < 700
+if 1
   echomsg "snippetsEmu plugin requires Vim version 7 or later"
   finish
 endif

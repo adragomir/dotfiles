@@ -1,20 +1,19 @@
-syntax region	SnippetKeyword				start=+<#+		end=+#>+
-" Define the default highlighting.
-" For version 5.7 and earlier: only when not done already
-" For version 5.8 and later: only when an item doesn't have highlighting yet
-if version >= 508 || !exists("did_/Snippet_syntax_inits")
-  if version < 508
-    let did_Snippet_syntax_inits = 1
-    command -nargs=+ HiLink hi link <args>
-  else
-    command -nargs=+ HiLink hi def link <args>
-  endif
+" Syntax highlighting for snippet files (used for snipMate.vim)
+" Hopefully this should make snippets a bit nicer to write!
+syn match snipComment '^#.*'
+syn match placeHolder '\${\d\+\(:.\{-}\)\=}' contains=snipCommand
+syn match tabStop '\$\d\+'
+syn match snipCommand '`.\{-}`'
+syn match snippet '^snippet.*' transparent contains=multiSnipText,snipKeyword
+syn match multiSnipText '\S\+ \zs.*' contained
+syn match snipKeyword '^snippet'me=s+8 contained
+syn match snipError "^[^#s\t].*$"
 
-  HiLink SnippetKeyword 			Keyword
-
-
-
-  delcommand HiLink
-endif
-
-let b:current_syntax = "snippet"
+hi link snipComment   Comment
+hi link multiSnipText String
+hi link snipKeyword   Keyword
+hi link snipComment   Comment
+hi link placeHolder   Special
+hi link tabStop       Special
+hi link snipCommand   String
+hi link snipError     Error

@@ -110,7 +110,14 @@ public class DynamicClassLoader extends ClassLoader {
     if ((argClassName.startsWith("java.")) 
             || (argClassName.startsWith("javax."))
         ) {
-      return Class.forName(argClassName);
+		try {
+			c = Class.forName(argClassName);
+			if ( c != null ) {
+				return c;
+			}
+		}
+		catch(ClassNotFoundException ex) {
+		}
     } // end of if ()
     
     //First convert the class name from java.lang.String to java/lang/String
@@ -197,7 +204,9 @@ public class DynamicClassLoader extends ClassLoader {
       }
       return c;
       } catch (ClassNotFoundException e) {
-        throw new ClassNotFoundException(argClassName);
+		  //System.err.println(argClassName);
+		  return null;
+        //throw new ClassNotFoundException(argClassName);
       } // end of try-catch
     } // end of else
   }//end of loadClass
