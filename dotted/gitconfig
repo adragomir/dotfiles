@@ -9,13 +9,22 @@
 
 [alias]
 	st = status
+	st2 = ls-files --exclude-per-directory=.gitignore \
+				--exclude-from=.git/info/exclude \
+				-t -o -u -s -m -d
+	dc   = diff --stat --name-status --cached
+	cat   = -p cat-file -p
 	ci = commit
 	co = checkout
 	di = diff
+	w = !git branch -a && git log --branches --oneline --graph --decorate --simplify-by-decoration --since='2 months ago'
+	log1 = log --pretty=oneline --abbrev-commit --decorate
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+	file-blame = !git ls-files | xargs -n1 -i{} git log -1 --pretty=format:\"%ci {}\" -- {}
 
-[diff] 
-  external = /Users/adragomi/bin/araxisgitdiff
-  renames = true
+#[diff] 
+#  external = /Users/adragomi/bin/araxisgitdiff
+#  renames = true
 
 [mergetool "araxismergetool"] 
   cmd = /Users/adragomi/bin/araxisgitmerge "$PWD/$REMOTE" "$PWD/$BASE" "$PWD/$LOCAL" "$PWD/$MERGED"
