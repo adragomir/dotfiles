@@ -1,0 +1,4 @@
+#!/bin/bash
+rsync -a -v -z -e ssh --delete -S root@bucasit-01:/home/git/repositories /Users/adragomi/temp/bucasit-git.backup/repositories
+rsync -a -v -z -e ssh --delete -S root@bucasit-01:/var/www/git /Users/adragomi/temp/bucasit-git.backup/var_www_git
+rsync -a -v -z -e ssh --delete -S root@bucasit-01:/etc/gitweb.conf /Users/adragomi/temp/bucasit-git.backup/etc
