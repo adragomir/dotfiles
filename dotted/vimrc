@@ -14,7 +14,7 @@ set directory=/tmp            " temp directory
 set encoding=UTF-8            " file encoding
 set formatoptions=tcrqn21     " auto format
 "set textwidth=80             " text width
-set guioptions=crbie"M"m	  " aA BAD
+set guioptions=cr+bie"M"m	  " aA BAD
 set history=10000             " number of history items
 set ignorecase                " ignore case when searching
 set smartcase                 " ignore case when searching
