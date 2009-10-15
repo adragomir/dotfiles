@@ -132,6 +132,7 @@ sh_light_gray="\[\033[0;37m\]"
 sh_white="\[\033[1;37m\]"
 
 # TODO
+VERSIONER_PERL_PREFER_32_BIT=yes
 HOSTCOLOUR=${sh_green}
 
 function dollar_or_pound {
@@ -265,6 +266,7 @@ export FCSH_VIM_ROOT=/Users/adragomi/work/flex/sdk/bin
 #########
 
 # pssh 
+alias pssh_mia='pssh -P -l admin -h ~/.pssh/hosts_saasbase_miami'
 alias pssh_rtc='pssh -P -l hadoop -h ~/.pssh/hosts_rtc'
 alias pscp_rtc='pscp -l hadoop -h ~/.pssh/hosts_rtc'
 alias pssh_rtc='pssh -P -l admin -h ~/.pssh/hosts_staging_css'

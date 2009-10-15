@@ -116,7 +116,7 @@ EOT
   def get_ctags_location()
     os = `uname`
     if os.strip() == 'Darwin'
-      ctags = '/opt/local/bin/ctags'
+      ctags = '/usr/local/bin/ctags'
     else 
       ctags = 'ctags'
     end

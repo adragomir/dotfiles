@@ -12,7 +12,15 @@ servers = (
     chatnet = "QuakeNet";
     port = "6667";
   },
-  { address = "silc.silcnet.org"; chatnet = "SILC"; port = "706"; }
+  { address = "silc.silcnet.org"; chatnet = "SILC"; port = "706"; },
+  {
+    address = "irc.freenode.net";
+    chatnet = "freenode";
+    port = "6667";
+    use_ssl = "no";
+    ssl_verify = "no";
+    autoconnect = "yes";
+  }
 );
 
 chatnets = {
@@ -48,11 +56,19 @@ chatnets = {
     max_whois = "30";
   };
   SILC = { type = "SILC"; };
+  freenode = {
+    type = "IRC";
+    nick = "adragomir";
+    username = "adragomir";
+    realname = "Andrei Dragomir";
+  };
 };
 
 channels = (
   { name = "#irssi"; chatnet = "ircnet"; autojoin = "No"; },
-  { name = "silc"; chatnet = "silc"; autojoin = "No"; }
+  { name = "silc"; chatnet = "silc"; autojoin = "No"; },
+  { name = "#hbase"; chatnet = "freenode"; autojoin = "No"; },
+  { name = "#bookz"; chatnet = "Undernet"; }
 );
 
 aliases = {
@@ -90,7 +106,7 @@ aliases = {
   UMODE = "mode $N";
   WC = "window close";
   WN = "window new hide";
-  SV = "say Irssi $J ($V) - http://irssi.org/";
+  SV = "say MacIrssi 0.8.6.6 (Core: irssi 0.8.14) - http://www.sysctl.co.uk/projects/macirssi/";
   GOTO = "sb goto";
   CHAT = "dcc chat";
   RUN = "SCRIPT LOAD";
@@ -219,20 +235,32 @@ settings = {
   core = {
     real_name = "Andrei DRAGOMIR";
     user_name = "level45";
-    nick = "level45";
+    nick = "god";
     proxy_address = "sj-proxy.corp.adobe.com";
     proxy_port = "80";
+    proxy_password = "";
+    proxy_string = "CONNECT %s:%d HTTP/1.0\015\012\015\012";
+    use_proxy = "no";
   };
   "fe-common/core" = {
-    use_status_window = "no";
-    autocreate_windows = "no";
-    autocreate_query_level = "DCCMSGS";
-    autoclose_windows = "no";
+    autocreate_own_query = "yes";
+    autoclose_query = "no";
+    autocreate_windows = "on";
+    autoclose_windows = "on";
     reuse_unused_windows = "yes";
-    theme = "default";
+    window_auto_change = "off";
+    use_status_window = "yes";
+    use_msgs_window = "no";
+    autocreate_query_level = "DCCMSGS";
+    theme = "agon";
+    window_history = "no";
+    term_charset = "utf-8";
+    autolog_path = "~/.irssi/logs/$tag/$0.log";
+    autolog = "yes";
   };
   "irc/dcc" = {
     dcc_download_path = "/Users/adragomi/Downloads/irssi";
     dcc_autoget = "yes";
   };
 };
+logs = { };
