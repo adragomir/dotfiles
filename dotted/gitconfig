@@ -27,7 +27,7 @@
 #  renames = true
 
 [mergetool "araxismergetool"] 
-  cmd = /Users/adragomi/bin/araxisgitmerge "$PWD/$REMOTE" "$PWD/$BASE" "$PWD/$LOCAL" "$PWD/$MERGED"
+  cmd = /usr/local/bin/araxisgitmerge "$PWD/$REMOTE" "$PWD/$BASE" "$PWD/$LOCAL" "$PWD/$MERGED"
   trustExitCode = false
 
 [mergetool]
