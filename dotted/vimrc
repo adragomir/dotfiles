@@ -1,3 +1,30 @@
+if has("macunix") && has("gui_running") && system('ps xw | grep -c "[V]im -psn"') > 0
+  " Get the value of $PATH from a login shell.
+  if $SHELL =~ '/\(sh\|csh\|bash\|tcsh\|zsh\)$'
+    let s:path = system("echo echo VIMPATH'${PATH}' | $SHELL -l")
+    let $PATH = matchstr(s:path, 'VIMPATH\zs.\{-}\ze\n')
+  endif
+endif
+
+set runtimepath+=$HOME/.vim/vimfiles
+set runtimepath+=$HOME/.vim/andrei
+set runtimepath+=$HOME/.vim/fuf
+set runtimepath+=$HOME/.vim/fuf-fizzy
+set runtimepath+=$HOME/.vim/NERD_commenter
+set runtimepath+=$HOME/.vim/matchit
+set runtimepath+=$HOME/.vim/surround
+set runtimepath+=$HOME/.vim/snipMate
+set runtimepath+=$HOME/.vim/ruby
+set runtimepath+=$HOME/.vim/vjde
+
+set runtimepath+=$HOME/.vim/mkd
+set runtimepath+=$HOME/.vim/visualmark
+set runtimepath+=$HOME/.vim/conque
+set runtimepath+=$HOME/.vim/bufexplorer
+set runtimepath+=$HOME/.vim/indent_finder
+set runtimepath+=$HOME/.vim/sudo
+
+ 
 " settings
 set nocompatible              " use VI incompatible features
 set noautochdir
@@ -14,7 +41,10 @@ set directory=/tmp            " temp directory
 set encoding=UTF-8            " file encoding
 set formatoptions=tcrqn21     " auto format
 "set textwidth=80             " text width
-set guioptions=cr+bie"M"m	  " aA BAD
+"set guioptions=cr+bie"M"m	  " aA BAD
+set guioptions=AceiMgrb       " NEVER EVER put ''a in here
+set guioptions=+
+
 set history=10000             " number of history items
 set ignorecase                " ignore case when searching
 set smartcase                 " ignore case when searching
@@ -43,7 +73,7 @@ set wildignore=*.o,*.obj,*.pyc,*.d
 set winaltkeys=no
 set writebackup
 set writeany
-set iskeyword+=@-@,48-57,128-167,224-235,_,"
+set iskeyword=@,48-57,128-167,224-235,_
 set showtabline=2
 set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
@@ -192,6 +222,27 @@ let w:m2=matchadd('LineOverflow', '\%80v', -1)
 set suffixes+=.lo,.o,.moc,.la,.closure,.loT
 
 " my functions
+
+function! OnTabLeave()
+  if UselessBuffer('%')
+    bwipeout
+  endif
+endfunction
+
+function! UselessBuffer(...)
+  let l:bufname = a:0 == 1 ? a:1 : '%'
+
+  if (getbufvar(l:bufname, '&mod') == 0 && index(['', '[No Name]', '[No File]'], bufname(l:bufname)) >= 0)
+    return 1
+  end
+  return 0
+endfunction
+
+function! Tabnew()
+  if (!UselessBuffer('%'))
+    tabnew
+  endif
+endfunction
 
 " tab settings
 function! IndentingGeneralSettings()
@@ -885,7 +936,6 @@ function! FuzzyReIndex(dir)
 endfunction
 
 let g:CWD = ""
-
 function! Cd(cd)
   exec "cd " . a:cd
   let g:CWD = getcwd()
@@ -951,13 +1001,17 @@ function! CwdDown()
   end
 endfunction
 
-" commands
-command! W :browse confirm saveas
-command! -bar Hexmode call ToggleHex()
+function! CreateNewFile(newfile)
+  "call inputsave()
+  "let newfilename= input("Please give file name: ")
+  "call inputrestore()
+  let crtbufdir = expand("%:p:h")
+  if a:newfile == ""
+    return
+  endif
+  exec "e " . crtbufdir . "/" . a:newfile
+endfunction
 
-" key mappings
-let mapleader = "\\"
-let maplocalleader = "\\"
 
 call KeyMap('n', '', '', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>')
 call KeyMap('i', '<silent>', '', '<S-Space>', ':call ExpandTemplate(1)<CR>')
@@ -999,6 +1053,16 @@ call KeyMap('n', '<silent>',  'CDLM', '\',       ':call FuzzyReIndexCwd()<CR>')
 call KeyMap('n', '<silent>',  'L', 'r',       ':call InsertDateTime()<CR>')
 
 inoremap <C-space> <C-p>
+
+" key mappings
+let mapleader = "\\"
+let maplocalleader = "\\"
+
+"""""""""" macvim
+if has("gui_macvim")
+  let macvim_skip_cmd_opt_movement = 1
+  let macvim_hig_shift_movement = 0
+endif
 
 " disable middle mouse pasting
 map  <MiddleMouse>  <Nop>
@@ -1157,56 +1221,21 @@ let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
 
 " auto commands
-autocmd GUIEnter * call GuiEnter()
-autocmd Filetype ruby let b:foldsearchprefix='\v^\s*(#.*)?$'
-autocmd BufRead *.mxml set filetype=xml
-autocmd! FileType xml,sgml,entity,xslt,svg,xhtml,xsl,xsd
-	\ if !exists("b:match_words") |
-	\ let b:match_ignorecase=0 | let b:match_words =
-	\ '<:>,' .
-	\ '<\@<=!--:-->,'.
-	\ '<\@<=?\k\+:?>,'.
-	\ '<\@<=\([^ \t>/]\+\)\%(\s\+[^>]*\%([^/]>\|$\)\|>\|$\):<\@<=/\1>,'.
-	\ '<\@<=\%([^ \t>/]\+\)\%(\s\+[^/>]*\|$\):/>'
-	\ | endif
-autocmd BufNewFile,BufRead *.html let g:snip_start_tag = "@"
-autocmd BufNewFile,BufRead *.html let g:snip_end_tag = "@"
-autocmd BufNewFile,BufRead *.mxml,*.as :nmap <C-B> :!bash /Users/adragomi/work/flex/sdk/bin/fcshcmp.sh %:p
-autocmd FileType python set omnifunc=pythoncomplete#Complete
-autocmd FileType python setlocal autoindent expandtab
-autocmd BufRead *.as set filetype=actionscript
 
-autocmd BufNewFile,BufRead,BufEnter *.java set cfu=VjdeCompletionFun0
-autocmd FileType java set cfu=VjdeCompletionFun0
-"autocmd VimEnter * let mapleader=","
+" remove all buffers on exit so we don't have them as hidden on reopen
+autocmd VimLeavePre * 1,255bwipeout
+
+" remove empty or otherwise dead buffers when moving away from them
+autocmd TabLeave    * call OnTabLeave()
+
+"autocmd GUIEnter * call GuiEnter()
+"autocmd GUIEnter    * set fullscreen
 
 set guitablabel=%{GuiTabLabel()}
 set tabline=%!MyTabLine()
 
-" python
-python << EOF
-import os
-import sys
-import vim
-for p in sys.path:
-    if os.path.isdir(p):
-        vim.command(r"set path+=%s" % (p.replace(" ", r"\ ")))
-EOF
-set tags+=$HOME/.vim/tags/python.ctags
-autocmd FileType python set omnifunc=pythoncomplete#Complete
-autocmd BufRead *.py set makeprg=python\ -c\ \"import\ py_compile,sys;\ sys.stderr=sys.stdout;\ py_compile.compile(r'%')\"
-autocmd BufRead *.py set efm=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\ ]%\\@=%m
-
-python << EOL
-import vim
-def EvaluateCurrentRange():
-	eval(compile('\n'.join(vim.current.range),'','exec'),globals())
-EOL
-map <C-h> :py EvaluateCurrentRange()
-
 " autocmds to automatically enter hex mode and handle file writes properly
 if has("autocmd")
-
   " vim -b : edit binary using xxd-format!
   augroup Binary
     autocmd!
