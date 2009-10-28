@@ -24,6 +24,10 @@ set runtimepath+=$HOME/.vim/bufexplorer
 set runtimepath+=$HOME/.vim/indent_finder
 set runtimepath+=$HOME/.vim/sudo
 
+" user after paths
+" set runtimepath+=one for each plugin
+set runtimepath+=$HOME/.vim/vimfiles/after
+set runtimepath+=$HOME/.vim/snipMate/after
  
 " settings
 set nocompatible              " use VI incompatible features
@@ -87,10 +91,6 @@ set guiheadroom=0
 set hidden
 set splitbelow                " split windows below current one
 set title
-
-if has("gui_macvim")
-  let macvim_skip_cmd_opt_movement = 1
-endif
 
 " settings: line endings
 "set ff=unix
