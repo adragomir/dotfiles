@@ -16,6 +16,7 @@ set runtimepath+=$HOME/.vim/surround
 set runtimepath+=$HOME/.vim/snipMate
 set runtimepath+=$HOME/.vim/ruby
 set runtimepath+=$HOME/.vim/vjde
+set runtimepath+=$HOME/.vim/vimclojure
 
 set runtimepath+=$HOME/.vim/mkd
 set runtimepath+=$HOME/.vim/visualmark
@@ -1219,6 +1220,10 @@ let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 " tex
 let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
+
+" clojure
+let vimclojure#NailgunClient = "/Users/adragomi/work/tools/clojure_trunk/ng"
+let clj_want_gorilla = 1
 
 " auto commands
 
