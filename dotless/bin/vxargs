@@ -73,7 +73,6 @@ def parse_hosts_string(target):
         if string.count(target_suffix, ",") > 0:
             for arg in string.split(target_suffix, ","):
                 ranger = 0
-                print arg + "**********************"
                 if string.count(arg, "-") == 1:
                     range_limits = string.split(arg, "-")
                     for limit in range_limits: test_for_numeric(limit)
@@ -96,7 +95,6 @@ def parse_hosts_string(target):
                     target_list = target_list + next_target_list
         elif string.count(target_suffix, "-") == 1 and string.count(target_suffix, ",") == 0:
             range_limits = string.split(target_suffix, "-")
-            print repr(range_limits) + "**********************"
             for limit in range_limits: test_for_numeric(limit)
             if int(range_limits[0]) < int(range_limits[1]):
                 lenny = len(range_limits[0])
@@ -106,7 +104,7 @@ def parse_hosts_string(target):
                 next_target_list = list(range(lowerlimit, upperlimit+1))
                 target_list = target_list + next_target_list
             else:
-                raise Exception("Invalid targetting ***********")
+                raise Exception("Invalid targetting")
 
         elif string.count(target_suffix,"-")>1 and string.count(target_suffix,",") == 0: raise Exception("Invalid targetting")
 
