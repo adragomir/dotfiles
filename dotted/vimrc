@@ -17,6 +17,7 @@ set runtimepath+=$HOME/.vim/snipMate
 set runtimepath+=$HOME/.vim/ruby
 set runtimepath+=$HOME/.vim/vjde
 set runtimepath+=$HOME/.vim/vimclojure
+set runtimepath+=$HOME/.vim/go
 
 set runtimepath+=$HOME/.vim/mkd
 set runtimepath+=$HOME/.vim/visualmark
@@ -57,6 +58,7 @@ set hlsearch                  " highlight last search
 set incsearch                 " show matches while searching
 set laststatus=2              " always show status line
 set scrolloff=2               " minlines to show around cursor
+set cursorline
 set sidescrolloff=4           " minchars to show around cursor
 set shortmess=aTI             " supress some file messages
 set showbreak=>               " character to show that a line is wrapped
@@ -112,8 +114,8 @@ let &sw=4
 
 " look & feel
 if has("gui_running") && has("macunix")
-  set noantialias
-  set guifont=Terminus:h16
+  set guifont=DejaVuSansMono:h16
+  set antialias
 endif
 
 "nnoremap <silent> Q
@@ -200,7 +202,7 @@ set t_Co=256
 map H ^
 map L $
 
-colorscheme desert
+colorscheme espressolibre
 highlight SignColor guibg=red guifg=White
 hi LineProximity guibg=yellow
 hi LineOverflow guibg=red
