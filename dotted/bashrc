@@ -136,6 +136,8 @@ source ~/.bash/git-completion.bash
 source ~/.bash/todo_completer.sh
 complete -F _todo_sh -o default t
 
+VERSIONER_PERL_PREFER_32_BIT=yes
+
 #prompt
 sh_norm="\[\033[0m\]"
 sh_black="\[\033[0;30m\]"
@@ -156,18 +158,22 @@ sh_light_gray="\[\033[0;37m\]"
 sh_white="\[\033[1;37m\]"
 
 # TODO
-VERSIONER_PERL_PREFER_32_BIT=yes
 HOSTCOLOUR=${sh_green}
 
 function dollar_or_pound {
   if [ $(whoami) == "root" ]; then
     echo "#"
   else
-    echo "→"
+    echo "➔"
   fi
 }
 
-export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w][${sh_red}\$(__git_ps1 '%s')${sh_yellow}]\n${sh_yellow}\$(dollar_or_pound) ${sh_norm}"
+function git_dirty_flag() {
+  [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo "⚡"
+  #git status 2> /dev/null | grep -c : | awk '{if ($1 > 0) print "☠"}'
+}
+
+export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w][${sh_red}\$(__git_ps1 '%s')${sh_yellow}][${sh_red}\$(git_dirty_flag)${sh_yellow}]\n${sh_yellow}\$(dollar_or_pound) ${sh_norm}"
 
 #########
 # Path 
@@ -222,7 +228,7 @@ export PYTHONPATH=/opt/local/lib/python2.5/site-packages:/Users/adragomi/.python
 export PYTHONPATH=$PYTHONPATH:/Users/adragomi/.python
 export JMETER_HOME=~/work/tools/jakarta-jmeter-2.3.2
 PATH=$PATH:$JMETER_HOME/bin
-export PATH
+export PATH=$PATH:/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/
 
 ####################
 ### history settings
@@ -449,3 +455,5 @@ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/spidermonkey/lib
 export GOROOT=/Users/adragomi/temp/svn_other_projects/go
 export GOOS=darwin
 export GOARCH=amd64
+export GOBIN=/Users/adragomi/bin/go
+export PATH=$PATH:/Users/adragomi/bin/go
