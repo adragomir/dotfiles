@@ -80,9 +80,9 @@ export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
 #export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
 export PAGER=less
-export EDITOR='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim'
-export VISUAL='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim'
-export LC_ALL="en_US"
+export EDITOR='vim'
+export VISUAL='vim'
+export LC_ALL="en_US.utf8"
 # Fancy PWD display function
 # The home directory (HOME) is replaced with a ~
 # /home/me/stuff          -> ~/stuff               if USER=me
@@ -178,14 +178,14 @@ export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w][${s
 #########
 # Path 
 #########
-export CURLY_LOCATION=/Users/adragomi/bin/ozzy
+export CURLY_LOCATION=$HOME/bin/ozzy
 export PATH=/usr/local/php5/bin:$PATH
-export PATH=$PATH:/usr/local/bin:/Users/adragomi/bin:/Users/adragomi/bin/ozzy:/Users/adragomi/andrei/leo/bin
-export PATH=$PATH:/Users/adragomi/work/flexsdk/bin
+export PATH=$PATH:/usr/local/bin:$HOME/bin:$HOME/bin/ozzy:$HOME/andrei/leo/bin
+export PATH=$PATH:$HOME/work/flexsdk/bin
 export PATH=$PATH:"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin"
-export PATH=$PATH:"/Users/adragomi/Applications/Graphics/Graphviz.app/Contents/MacOS"
+export PATH=$PATH:"$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS"
 export PATH=$PATH:/usr/local/lib/ocaml_godi/bin/
-export PATH=$PATH:"/Users/adragomi/Applications/PLT Scheme v372/bin/"
+export PATH=$PATH:"$HOME/Applications/PLT Scheme v372/bin/"
 
 #export DISPLAY=:0.0
 
@@ -194,14 +194,14 @@ export CLICOLOR=1
 export LSCOLORS=ExFxCxDxBxegedabagacad
 
 # Flex & Apollo
-export FLEX_SDK=/Users/adragomi/temp/svn_other_projects/flexsdk
-export FLEX_HOME=/Users/adragomi/temp/svn_other_projects/flexsdk
-export TAMARIN_HOME=/Users/adragomi/temp/svn_other_projects/lang.tamarin-central
-export FLEX_SDK_HOME=/Users/adragomi/temp/svn_other_projects/flexsdk
-export ASC=/Users/adragomi/temp/svn_other_projects/flexsdk/lib/asc.jar
+export FLEX_SDK=$HOME/temp/svn_other_projects/flexsdk
+export FLEX_HOME=$HOME/temp/svn_other_projects/flexsdk
+export TAMARIN_HOME=$HOME/temp/svn_other_projects/lang.tamarin-central
+export FLEX_SDK_HOME=$HOME/temp/svn_other_projects/flexsdk
+export ASC=$HOME/temp/svn_other_projects/flexsdk/lib/asc.jar
 export ASC_COMMAND="java -ea -DAS3 -DAVMPLUS -classpath ${ASC} macromedia.asc.embedding.ScriptCompiler  -abcfuture "
-export AVMSHELL_COMMAND=/Users/adragomi/temp/svn_other_projects/lang.tamarin-central/__build/shell/avmshell
-export AVMSHELL_DEBUG_COMMAND=/Users/adragomi/temp/svn_other_projects/lang.tamarin-central/__build_debugger/shell/avmshell
+export AVMSHELL_COMMAND=$HOME/temp/svn_other_projects/lang.tamarin-central/__build/shell/avmshell
+export AVMSHELL_DEBUG_COMMAND=$HOME/temp/svn_other_projects/lang.tamarin-central/__build_debugger/shell/avmshell
 
 #ant
 
@@ -221,11 +221,11 @@ export PATH
 
 # Setting PATH for MacPython 2.5
 # The orginal version is saved in .profile.pysave
-PATH=$PATH:/Users/adragomi/Applications/zero-1.0.0.P20070702-1062
+PATH=$PATH:$HOME/Applications/zero-1.0.0.P20070702-1062
 export PATH
 
-export PYTHONPATH=/opt/local/lib/python2.5/site-packages:/Users/adragomi/.python
-export PYTHONPATH=$PYTHONPATH:/Users/adragomi/.python
+export PYTHONPATH=/opt/local/lib/python2.5/site-packages:$HOME/.python
+export PYTHONPATH=$PYTHONPATH:$HOME/.python
 export JMETER_HOME=~/work/tools/jakarta-jmeter-2.3.2
 PATH=$PATH:$JMETER_HOME/bin
 export PATH=$PATH:/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/
@@ -233,7 +233,7 @@ export PATH=$PATH:/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin
 ####################
 ### history settings
 ####################
-export HISTFILE=/Users/adragomi/.history/`date +%Y%m%d`.hist
+export HISTFILE=$HOME/.history/`date +%Y%m%d`.hist
 export HISTSIZE=100000
 export HISTCONTROL=ignoredups
 
@@ -255,8 +255,8 @@ shopt -s histverify
 
 
 export P4CONFIG=.p4conf
-export HTML_TIDY=/Users/adragomi/.tidyconf
-export FCSH_VIM_ROOT=/Users/adragomi/work/flex/sdk/bin
+export HTML_TIDY=$HOME/.tidyconf
+export FCSH_VIM_ROOT=$HOME/work/flex/sdk/bin
 
 #########
 # aliases
@@ -269,11 +269,11 @@ alias pscp_rtc='pscp -l hadoop -h ~/.pssh/hosts_rtc'
 alias pssh_rtc='pssh -P -l admin -h ~/.pssh/hosts_staging_css'
 alias pscp_rtc='pscp -l admin -h ~/.pssh/hosts_staging_css'
 # bochs
-alias bochs='LTDL_LIBRARY_PATH=/Users/adragomi/work/tools/bochs/lib/bochs/plugins BXSHARE=/Users/adragomi/work/tools/bochs/share/bochs /Users/adragomi/work/tools/bochs/bin/bochs'
+alias bochs='LTDL_LIBRARY_PATH=$HOME/work/tools/bochs/lib/bochs/plugins BXSHARE=$HOME/work/tools/bochs/share/bochs $HOME/work/tools/bochs/bin/bochs'
 
 #editor
-alias gvim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim -g'
-alias vim='/Users/adragomi/Applications/MacVim.app/Contents/MacOS/Vim'
+alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g'
+alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim'
 
 # git commands
 alias gss="git stash save"
@@ -308,9 +308,9 @@ alias avm='$AVMSHELL_COMMAND'
 alias avm_debug='$AVMSHELL_DEBUG_COMMAND'
 
 # clojure
-export CLOJURE_HOME=/Users/adragomi/work/tools/clojure_trunk
+export CLOJURE_HOME=$HOME/work/tools/clojure_trunk
 alias clojure='rlwrap java -cp $CLOJURE_HOME/clojure.jar:$CLOJURE_HOME/clojure-contrib.jar:$CLOJURE_HOME/clojure-sources.jar:src clojure.main'
-export PATH=$PATH:/Users/adragomi/work/tools/clojure_trunk/bin
+export PATH=$PATH:$HOME/work/tools/clojure_trunk/bin
 
 #builtin commands
 # make top default to ordering by CPU usage:
@@ -347,13 +347,13 @@ alias ri='ri -Tf ansi'
 alias tu='top -o cpu'
 alias tm='top -o vsize'
 
-alias t="~/bin/todo.py -d '/Users/adragomi/Documents/personal/life/exploded/todo@/'"
+alias t="~/bin/todo.py -d '$HOME/Documents/personal/life/exploded/todo@/'"
 
 # text 2 html
 alias textile='/usr/bin/redcloth'
 alias markdown='/usr/local/bin/markdown'
 
-alias math='rlwrap /Users/adragomi/Applications/Mathematica.app/Contents/MacOS/MathKernel'
+alias math='rlwrap $HOME/Applications/Mathematica.app/Contents/MacOS/MathKernel'
 
 function ps? {
   idx=0
@@ -424,26 +424,26 @@ alias h="sudo hostname adragomi-mac.corp.adobe.com"
 export MONO_GAC_PREFIX=/usr/local
 
 export PATH=$PATH:$CINTSYSDIR
-export PATH=$PATH:/Users/adragomi/Applications/dev/Factor
+export PATH=$PATH:$HOME/Applications/dev/Factor
 
 export PYTHONSTARTUP=~/.pythonstartup
 
 
 # luatext
 #export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c/
-#export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,/usr/local/texlive/texmf-local/scripts/context/lua,/Users/adragomi/texmf/scripts/context/lua}'
-#export TEXMF='{/Users/adragomi/.texlive2008/texmf-config,/Users/adragomi/.texlive2008/texmf-var,/Users/adragomi/texmf,/usr/local/texlive/2008/texmf-config,/usr/local/texlive/2008/texmf-var,/usr/local/texlive/2008/texmf,/usr/local/texlive/texmf-local,/usr/local/texlive/2008/texmf-dist,/usr/local/texlive/2008/texmf.gwtex}'
+#export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,/usr/local/texlive/texmf-local/scripts/context/lua,$HOME/texmf/scripts/context/lua}'
+#export TEXMF='{$HOME/.texlive2008/texmf-config,$HOME/.texlive2008/texmf-var,$HOME/texmf,/usr/local/texlive/2008/texmf-config,/usr/local/texlive/2008/texmf-var,/usr/local/texlive/2008/texmf,/usr/local/texlive/texmf-local,/usr/local/texlive/2008/texmf-dist,/usr/local/texlive/2008/texmf.gwtex}'
 export TEXMFCACHE=/tmp
 #export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
 
 #export PATH=$PATH:/usr/local/texlive/2008/bin/universal-darwin
 
 export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
-export ANT_HOME=/Users/adragomi/work/tools/apache-ant-1.7.1
+export ANT_HOME=$HOME/work/tools/apache-ant-1.7.1
 #export MAVEN_HOME=/usr/share/maven
 #export JUNIT_HOME=/usr/share/junit
 
-export PATH=$PATH:/Users/adragomi/work/tools/emulator/Vice/tools
+export PATH=$PATH:$HOME/work/tools/emulator/Vice/tools
 # haxe
 #export HAXE_LIBRARY_PATH=/usr/local/haxe/std:.
 #export NEKOPATH=/usr/local/neko
@@ -455,15 +455,15 @@ export LANDINGPAD=
 test -r /sw/bin/init.sh && . /sw/bin/init.sh
 
 # wiki
-export WIKI=/Users/adragomi/Documents/personal/life/exploded/
-export DVA_HOME=/Users/adragomi/work/theoden/depot/shared_code/adobe/dva/adobe
+export WIKI=$HOME/Documents/personal/life/exploded/
+export DVA_HOME=$HOME/work/theoden/depot/shared_code/adobe/dva/adobe
 
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/spidermonkey/lib
 
 
 #GO
-export GOROOT=/Users/adragomi/temp/svn_other_projects/go
+export GOROOT=$HOME/temp/svn_other_projects/go
 export GOOS=darwin
 export GOARCH=amd64
-export GOBIN=/Users/adragomi/bin/go
-export PATH=$PATH:/Users/adragomi/bin/go
+export GOBIN=$HOME/bin/go
+export PATH=$PATH:$HOME/bin/go
