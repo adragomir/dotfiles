@@ -272,8 +272,15 @@ alias pscp_rtc='pscp -l admin -h ~/.pssh/hosts_staging_css'
 alias bochs='LTDL_LIBRARY_PATH=$HOME/work/tools/bochs/lib/bochs/plugins BXSHARE=$HOME/work/tools/bochs/share/bochs $HOME/work/tools/bochs/bin/bochs'
 
 #editor
-alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g'
-alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim'
+case $HOSTNAME in
+    adragomi-mac*)
+    alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g'
+    alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim'
+    ;;
+    sheeva*)
+    alias vim='/usr/bin/vim'
+    ;;
+esac
 
 # git commands
 alias gss="git stash save"
