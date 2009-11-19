@@ -25,6 +25,7 @@ set runtimepath+=$HOME/.vim/conque
 set runtimepath+=$HOME/.vim/bufexplorer
 set runtimepath+=$HOME/.vim/indent_finder
 set runtimepath+=$HOME/.vim/sudo
+set runtimepath+=$HOME/.vim/fontsize
 
 " user after paths
 " set runtimepath+=one for each plugin
@@ -114,7 +115,7 @@ let &sw=4
 
 " look & feel
 if has("gui_running") && has("macunix")
-  set guifont=DejaVuSansMono:h16
+  set guifont=Consolas:h14
   set antialias
 endif
 
@@ -203,9 +204,8 @@ map H ^
 map L $
 
 colorscheme espressolibre
-highlight SignColor guibg=red guifg=White
-hi LineProximity guibg=yellow
-hi LineOverflow guibg=red
+"hi LineProximity guibg=yellow
+"hi LineOverflow guibg=red
 
 " syntax highlighting
 syntax enable
@@ -213,6 +213,7 @@ syntax on
 filetype on
 filetype indent on
 filetype plugin on
+hi SignColor guibg=red
 
 let w:m1=matchadd('LineProximity', '\%71v', -1)
 let w:m2=matchadd('LineOverflow', '\%80v', -1)

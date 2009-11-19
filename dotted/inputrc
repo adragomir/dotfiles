@@ -3,11 +3,15 @@ set bind-tty-special-chars off
 set bell-style none 
 set completion-ignore-case on 
 set page-completions off
+set mark-symlinked-directories on
 set completion-query-items 1000
 set show-all-if-ambiguous on
 #set show-all-if-unmodified on
 set meta-flag on
 set input-meta on
+#
+set output-meta on
+set convert-meta off
 
 "\e[1~": beginning-of-line
 "\e[4~": end-of-line

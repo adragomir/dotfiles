@@ -240,7 +240,7 @@ settings = {
     proxy_port = "80";
     proxy_password = "";
     proxy_string = "CONNECT %s:%d HTTP/1.0\015\012\015\012";
-    use_proxy = "no";
+    use_proxy = "yes";
   };
   "fe-common/core" = {
     autocreate_own_query = "yes";

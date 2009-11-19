@@ -656,13 +656,13 @@ function! vimclojure#InitBuffer()
 			if &previewwindow
 				let b:vimclojure_namespace = "user"
 			else
-				"try
+				try
 					let content = getbufline(bufnr("%"), 1, line("$"))
 					let b:vimclojure_namespace =
 								\ vimclojure#ExecuteNailWithInput(
 								\   "NamespaceOfFile", content)
-				"catch /.*/
-				"endtry
+				catch /.*/
+				endtry
 			endif
 		endif
 	endif

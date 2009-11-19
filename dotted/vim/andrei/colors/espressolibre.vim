@@ -18,12 +18,13 @@ if exists("syntax_on")
 	syntax reset
 endif
 
-let colors_name = "espressolibregui"
+let colors_name = "espressolibre"
 
 set background=dark
 
 if has("gui_running")
 
+    hi SignColor      guibg=#990000
 	" -> Text; Miscellaneous
 	hi Normal         guibg=#2A211C guifg=#BDAE9D gui=none
 	hi SpecialKey     guibg=#2A211C guifg=#BFBFBF gui=none
@@ -108,7 +109,7 @@ if has("gui_running")
     "Macro
     "PreCondit
     
-	hi Type           guibg=#2A211C guifg=#43A8ED gui=none
+	hi Type           guibg=#2A211C guifg=#FFEE68 gui=none
     "hi StorageClass
     "Structure
     "Typedef
@@ -126,7 +127,7 @@ if has("gui_running")
 	hi Ignore         guibg=#2A211C guifg=#BDAE9D gui=none
 	hi Underlined     guibg=#2A211C guifg=#FC4234 gui=underline
 
-	hi MatchParen     guibg=#889AFF gui=none
+	hi MatchParen     gui=underline
 
 endif
 
@@ -136,4 +137,7 @@ if has("spell")
 	hi SpellCap   guisp=#70BDF1 gui=undercurl
 	hi SpellLocal guisp=#FFEE68 gui=undercurl
 	hi SpellRare  guisp=#6DF584 gui=undercurl
+
+    hi SignColor      guibg=#990000
+    
 endif

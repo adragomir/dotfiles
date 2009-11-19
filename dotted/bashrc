@@ -355,6 +355,16 @@ alias markdown='/usr/local/bin/markdown'
 
 alias math='rlwrap /Users/adragomi/Applications/Mathematica.app/Contents/MacOS/MathKernel'
 
+function ps? {
+  idx=0
+  for i in $*; do
+    grepstr=[${i:0:1}]${i:1:${#i}}
+    tmp=`ps axwww | grep $grepstr | awk '{print $1}'`
+    echo "${i}: ${tmp/\\n/,}"
+  done
+}
+
+
 function cdgem {
   cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
 }
