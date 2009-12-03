@@ -1,3 +1,19 @@
+# Notes: ----------------------------------------------------------
+# When you start an interactive shell (log in, open terminal or iTerm in OS X,
+# or create a new tab in iTerm) the following files are read and run, in this order:
+# profile
+# bashrc
+# .bash_profile
+# .bashrc (only because this file is run (sourced) in .bash_profile)
+#
+# When an interactive shell, that is not a login shell, is started
+# (when you run "bash" from inside a shell, or when you start a shell in
+# xwindows [xterm/gnome-terminal/etc] ) the following files are read and executed,
+# in this order:
+# bashrc
+# .bashrc
+ 
+
 function cl() { cd "$@" && l; }
 function cs () {
   cd "$@"
@@ -19,94 +35,117 @@ function gco {
 
 # autojump
 j() {
- # change jfile if you already have a .j file for something else
- local jfile=$HOME/.j
- if [ "$1" = "--add" ]; then
-  shift
-  # we're in $HOME all the time, let something else get all the good letters
-  [ "$*" = "$HOME" ] && return
-  awk -v q="$*" -F"|" '
-   $2 >= 1 { 
-    if( $1 == q ) { l[$1] = $2 + 1; found = 1 } else l[$1] = $2
-    count += $2
-   }
-   END {
-    found || l[q] = 1
-    if( count > 1000 ) {
-     for( i in l ) print i "|" 0.9*l[i] # aging
-    } else for( i in l ) print i "|" l[i]
-   }
-  ' $jfile 2>/dev/null > $jfile.tmp
-  mv -f $jfile.tmp $jfile
- elif [ "$1" = "" -o "$1" = "--l" ];then
-  shift
-  awk -v q="$*" -F"|" '
-   BEGIN { split(q,a," ") }
-   { for( i in a ) $1 !~ a[i] && $1 = ""; if( $1 ) print $2 "\t" $1 }
-  ' $jfile 2>/dev/null | sort -n
- # for completion
- elif [ "$1" = "--complete" ];then
-  awk -v q="$2" -F"|" '
-   BEGIN { split(substr(q,3),a," ") }
-   { for( i in a ) $1 !~ a[i] && $1 = ""; if( $1 ) print $1 }
-  ' $jfile 2>/dev/null
- # if we hit enter on a completion just go there (ugh, this is ugly)
- elif [[ "$*" =~ "/" ]]; then
-  local x=$*; x=/${x#*/}; [ -d "$x" ] && cd "$x"
- else
-  # prefer case sensitive
-  local cd=$(awk -v q="$*" -F"|" '
-   BEGIN { split(q,a," ") }
-   { for( i in a ) $1 !~ a[i] && $1 = ""; if( $1 ) { print $2 "\t" $1; x = 1 } }
-   END {
-    if( x ) exit
-    close(FILENAME)
-    while( getline < FILENAME ) {
-     for( i in a ) tolower($1) !~ tolower(a[i]) && $1 = ""
-     if( $1 ) print $2 "\t" $1
+  # change jfile if you already have a .j file for something else
+  local jfile=$HOME/.j
+  if [ "$1" = "--add" ]; then
+    shift
+    # we're in $HOME all the time, let something else get all the good letters
+    [ "$*" = "$HOME" ] && return
+    awk -v q="$*" -F"|" '
+    $2 >= 1 { 
+      if( $1 == q ) { l[$1] = $2 + 1; found = 1 } else l[$1] = $2
+      count += $2
     }
-   }
-  ' $jfile 2>/dev/null | sort -nr | head -n 1 | cut -f 2)
-  [ "$cd" ] && cd "$cd"
- fi
+    END {
+      found || l[q] = 1
+      if( count > 1000 ) {
+        for( i in l ) print i "|" 0.9*l[i] # aging
+      } else for( i in l ) print i "|" l[i]
+    }
+    ' $jfile 2>/dev/null > $jfile.tmp
+    mv -f $jfile.tmp $jfile
+  elif [ "$1" = "" -o "$1" = "--l" ];then
+    shift
+    awk -v q="$*" -F"|" '
+      BEGIN { split(q,a," ") }
+      { for( i in a ) $1 !~ a[i] && $1 = ""; if( $1 ) print $2 "\t" $1 }
+    ' $jfile 2>/dev/null | sort -n
+    # for completion
+  elif [ "$1" = "--complete" ];then
+    awk -v q="$2" -F"|" '
+      BEGIN { split(substr(q,3),a," ") }
+      { for( i in a ) $1 !~ a[i] && $1 = ""; if( $1 ) print $1 }
+    ' $jfile 2>/dev/null
+    # if we hit enter on a completion just go there (ugh, this is ugly)
+  elif [[ "$*" =~ "/" ]]; then
+    local x=$*; x=/${x#*/}; [ -d "$x" ] && cd "$x"
+  else
+    # prefer case sensitive
+    local cd=$(awk -v q="$*" -F"|" '
+      BEGIN { split(q,a," ") }
+      { for( i in a ) $1 !~ a[i] && $1 = ""; if( $1 ) { print $2 "\t" $1; x = 1 } }
+      END {
+        if( x ) exit
+        close(FILENAME)
+        while( getline < FILENAME ) {
+          for( i in a ) tolower($1) !~ tolower(a[i]) && $1 = ""
+          if( $1 ) print $2 "\t" $1
+        }
+    }
+    ' $jfile 2>/dev/null | sort -nr | head -n 1 | cut -f 2)
+    [ "$cd" ] && cd "$cd"
+  fi
 }
+
+extract () {
+  if [ -f $1 ] ; then
+    case $1 in
+      *.tar.bz2) tar xvjf $1 ;;
+      *.tar.gz) tar xvzf $1 ;;
+      *.bz2) bunzip2 $1 ;;
+      *.rar) rar x $1 ;;
+      *.gz) gunzip $1 ;;
+      *.tar) tar xvf $1 ;;
+      *.tbz2) tar xvjf $1 ;;
+      *.tgz) tar xvzf $1 ;;
+      *.zip) unzip $1 ;;
+      *.Z) uncompress $1 ;;
+      *.7z) 7z x $1 ;;
+      *) echo "don't know how to extract '$1'..." ;;
+    esac
+  else
+    echo "'$1' is not a valid file!"
+  fi
+}
+
 # bash completions for j
 complete -C 'j --complete "$COMP_LINE"' j
 
 ###
 ###
 ###
+export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/scons-1.2.0"
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
 #export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
 export PAGER=less
 export EDITOR='vim'
 export VISUAL='vim'
-export LC_ALL="en_US.utf8"
+export LC_ALL="en_US.UTF-8"
 # Fancy PWD display function
 # The home directory (HOME) is replaced with a ~
 # /home/me/stuff          -> ~/stuff               if USER=me
 # /usr/share/big_dir_name -> ../share/big_dir_name if pwdmaxlen=20
 bash_prompt_command() {
-	if [ $? -ne 0 ]
-	then
-		ERROR_FLAG=1
-	else
-		ERROR_FLAG=
-	fi
-    # How many characters of the $PWD should be kept
-    local pwdmaxlen=25
-    # Indicate that there has been dir truncation
-    local trunc_symbol=".."
-    local dir=${PWD##*/}
-    pwdmaxlen=$(( ( pwdmaxlen < ${#dir} ) ? ${#dir} : pwdmaxlen ))
-    NEW_PWD=${PWD/#$HOME/\~}
-    local pwdoffset=$(( ${#NEW_PWD} - pwdmaxlen ))
-    if [ ${pwdoffset} -gt "0" ]
-    then
-        NEW_PWD=${NEW_PWD:$pwdoffset:$pwdmaxlen}
-        NEW_PWD=${trunc_symbol}/${NEW_PWD#*/}
-    fi
+  if [ $? -ne 0 ]
+  then
+    ERROR_FLAG=1
+  else
+    ERROR_FLAG=
+  fi
+  # How many characters of the $PWD should be kept
+  local pwdmaxlen=25
+  # Indicate that there has been dir truncation
+  local trunc_symbol=".."
+  local dir=${PWD##*/}
+  pwdmaxlen=$(( ( pwdmaxlen < ${#dir} ) ? ${#dir} : pwdmaxlen ))
+  NEW_PWD=${PWD/#$HOME/\~}
+  local pwdoffset=$(( ${#NEW_PWD} - pwdmaxlen ))
+  if [ ${pwdoffset} -gt "0" ]
+  then
+      NEW_PWD=${NEW_PWD:$pwdoffset:$pwdmaxlen}
+      NEW_PWD=${trunc_symbol}/${NEW_PWD#*/}
+  fi
 }
 
 # Tab complete for sudo
@@ -137,6 +176,7 @@ source ~/.bash/todo_completer.sh
 complete -F _todo_sh -o default t
 
 VERSIONER_PERL_PREFER_32_BIT=yes
+PERL_BADLANG=0
 
 #prompt
 sh_norm="\[\033[0m\]"
@@ -181,7 +221,6 @@ export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w][${s
 export CURLY_LOCATION=$HOME/bin/ozzy
 export PATH=/usr/local/php5/bin:$PATH
 export PATH=$PATH:/usr/local/bin:$HOME/bin:$HOME/bin/ozzy:$HOME/andrei/leo/bin
-export PATH=$PATH:$HOME/work/flexsdk/bin
 export PATH=$PATH:"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin"
 export PATH=$PATH:"$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS"
 export PATH=$PATH:/usr/local/lib/ocaml_godi/bin/
@@ -194,16 +233,23 @@ export CLICOLOR=1
 export LSCOLORS=ExFxCxDxBxegedabagacad
 
 # Flex & Apollo
-export FLEX_SDK=$HOME/temp/svn_other_projects/flexsdk
-export FLEX_HOME=$HOME/temp/svn_other_projects/flexsdk
+# don't know which is used
+export FLEX_HOME=$HOME/work/tools/flex-4.0.0
+export FLEX_SDK=$FLEX_HOME
+export FLEX_SDK_HOME=$FLEX_HOME
+
+# tamarin, asc and friends
 export TAMARIN_HOME=$HOME/temp/svn_other_projects/lang.tamarin-central
-export FLEX_SDK_HOME=$HOME/temp/svn_other_projects/flexsdk
 export ASC=$HOME/temp/svn_other_projects/flexsdk/lib/asc.jar
 export ASC_COMMAND="java -ea -DAS3 -DAVMPLUS -classpath ${ASC} macromedia.asc.embedding.ScriptCompiler  -abcfuture "
 export AVMSHELL_COMMAND=$HOME/temp/svn_other_projects/lang.tamarin-central/__build/shell/avmshell
 export AVMSHELL_DEBUG_COMMAND=$HOME/temp/svn_other_projects/lang.tamarin-central/__build_debugger/shell/avmshell
 
+export PATH=$PATH:$FLEX_HOME/bin
+
 #ant
+export ANT_HOME=$HOME/work/tools/apache-ant-1.7.1
+export ANT_OPTS="-Xms256m -Xmx512m"
 
 # maven
 export PATH=$PATH:/usr/local/maven-2.0.4/bin
@@ -446,7 +492,6 @@ export TEXMFCACHE=/tmp
 #export PATH=$PATH:/usr/local/texlive/2008/bin/universal-darwin
 
 export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
-export ANT_HOME=$HOME/work/tools/apache-ant-1.7.1
 #export MAVEN_HOME=/usr/share/maven
 #export JUNIT_HOME=/usr/share/junit
 
@@ -474,3 +519,5 @@ export GOOS=darwin
 export GOARCH=amd64
 export GOBIN=$HOME/bin/go
 export PATH=$PATH:$HOME/bin/go
+export PATH=$PATH:$HOME/work/tools/rhino1_7R2/
+

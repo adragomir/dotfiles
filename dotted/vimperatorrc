@@ -7,6 +7,8 @@ set showtabline=1
 
 " Abbreviations
 
+map <Leader>d :emenu Tools.DownThemAll! Tools.DownThemAll!...<CR>
+
 source! ~/.vimperatorrc.local
 
 " vim: set ft=vimperator:

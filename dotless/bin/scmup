@@ -4,8 +4,8 @@ require 'find'
 require 'yaml'
 $s = ARGV[0] || Dir.pwd 
 
-$yp = __FILE__.gsub(/\/[^\/]*$/, "/") + "svnup.yaml"
-$st = File.open( $yp, "rb+" ) { |yf| YAML::load( yf ) } || {}
+#$yp = __FILE__.gsub(/\/[^\/]*$/, "/") + "svnup.yaml"
+#$st = File.open( $yp, "rb+" ) { |yf| YAML::load( yf ) } || {}
 
 actions = {
     '.svn' => proc { |path|
@@ -44,7 +44,6 @@ actions = {
     }, 
     '.git' => proc { |path|
         Dir.chdir(path) do
-
             puts("  current dir: " + Dir.pwd)
             system("git pull")
             #system("hg update")
@@ -52,10 +51,10 @@ actions = {
     } 
 }
 
-def add_or_replace_flag(folder)
-    $st[folder] = Time.now
-    File.open( $yp, "wb+" ) { |yf| yf.write($st.to_yaml) }
-end
+#def add_or_replace_flag(folder)
+    #$st[folder] = Time.now
+    #File.open( $yp, "wb+" ) { |yf| yf.write($st.to_yaml) }
+#end
 
 
 Find.find($s) { |path|
@@ -71,11 +70,11 @@ Find.find($s) { |path|
             memo
         }
         if has_source_control
-            mins = (Time.now - ($st[path] || Time.mktime(1970, 1, 1))) / 60
+            #mins = (Time.now - ($st[path] || Time.mktime(1970, 1, 1))) / 60
             if 1
                 puts "Found #{actions.index(active_hash)} source control in " + path
-                puts active_hash.call(path)
-                add_or_replace_flag(path)
+                active_hash.call(path)
+                #add_or_replace_flag(path)
             else 
                 puts "too soon for " + path
             end

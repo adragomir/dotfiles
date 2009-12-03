@@ -11,15 +11,14 @@
 # First, check "All the Usual Suspects" for the location of the Vim.app bundle.
 # You can short-circuit this by setting the VIM_APP_DIR environment variable
 # or by un-commenting and editing the following line:
-VIM_APP_DIR=/Users/adragomi/Applications
-VIM_APP_NAME=MacVim.app
+# VIM_APP_DIR=/Applications
 
 if [ -z "$VIM_APP_DIR" ]
 then
 	myDir="`dirname "$0"`"
 	myAppDir="$myDir/../Applications"
 	for i in ~/Applications ~/Applications/vim $myDir $myDir/vim $myAppDir $myAppDir/vim /Applications /Applications/vim /Applications/Utilities /Applications/Utilities/vim; do
-		if [ -x "$i/$VIM_APP+NAME" ]; then
+		if [ -x "$i/MacVim.app" ]; then
 			VIM_APP_DIR="$i"
 			break
 		fi
@@ -27,10 +26,10 @@ then
 fi
 if [ -z "$VIM_APP_DIR" ]
 then
-	echo "Sorry, cannot find $VIM_APP_NAME.  Try setting the VIM_APP_DIR environment variable to the directory containing $VIM_APP_NAME."
+	echo "Sorry, cannot find MacVim.app.  Try setting the VIM_APP_DIR environment variable to the directory containing MacVim.app."
 	exit 1
 fi
-binary="$VIM_APP_DIR/$VIM_APP_NAME/Contents/MacOS/Vim"
+binary="$VIM_APP_DIR/MacVim.app/Contents/MacOS/Vim"
 
 # Next, peek at the name used to invoke this script, and set options
 # accordingly.
@@ -40,18 +39,21 @@ gui=
 opts=
 
 # GUI mode, implies forking
-case "$name" in m*|g*|rg*) gui=true ;; esac
+case "$name" in m*|g*|rm*|rg*) gui=true ;; esac
 
 # Restricted mode
 case "$name" in r*) opts="$opts -Z";; esac
 
-# vimdiff and view
+# vimdiff, view, and ex mode
 case "$name" in
 	*vimdiff)
 		opts="$opts -dO"
 		;;
 	*view)
 		opts="$opts -R"
+		;;
+	*ex)
+		opts="$opts -e"
 		;;
 esac
 

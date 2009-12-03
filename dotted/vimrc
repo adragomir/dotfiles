@@ -16,8 +16,9 @@ set runtimepath+=$HOME/.vim/surround
 set runtimepath+=$HOME/.vim/snipMate
 set runtimepath+=$HOME/.vim/ruby
 set runtimepath+=$HOME/.vim/vjde
-set runtimepath+=$HOME/.vim/vimclojure
+"set runtimepath+=$HOME/.vim/vimclojure
 set runtimepath+=$HOME/.vim/go
+set runtimepath+=$HOME/.vim/javascript
 
 set runtimepath+=$HOME/.vim/mkd
 set runtimepath+=$HOME/.vim/visualmark
@@ -49,8 +50,8 @@ set encoding=UTF-8            " file encoding
 set formatoptions=tcrqn21     " auto format
 "set textwidth=80             " text width
 "set guioptions=cr+bie"M"m	  " aA BAD
-set guioptions=AceiMgrb       " NEVER EVER put ''a in here
-set guioptions=+
+set guioptions=AciMgrb       " NEVER EVER put ''a in here
+"set guioptions=+
 
 set history=10000             " number of history items
 set ignorecase                " ignore case when searching
@@ -87,6 +88,9 @@ set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
 set completeopt=menu,menuone,preview
 set gdefault
+"
+set noguipty
+"set clipboard+=unnamed
 
 " settings: windows and buffers
 "set noequalalways
@@ -95,13 +99,14 @@ set guiheadroom=0
 set hidden
 set splitbelow                " split windows below current one
 set title
+set exrc
 
 " settings: line endings
 "set ff=unix
 "set ffs=unix
 
 " settings: grep
-set grepprg=/Users/adragomi/bin/ack\ --noenv
+set grepprg=$HOME/bin/ack\ --noenv
 set grepformat=%f:%l:%m
 
 " settings: tabs and indenting
@@ -115,7 +120,7 @@ let &sw=4
 
 " look & feel
 if has("gui_running") && has("macunix")
-  set guifont=Consolas:h14
+  set guifont=Monaco:h12
   set antialias
 endif
 
@@ -204,8 +209,6 @@ map H ^
 map L $
 
 colorscheme espressolibre
-"hi LineProximity guibg=yellow
-"hi LineOverflow guibg=red
 
 " syntax highlighting
 syntax enable
@@ -214,9 +217,6 @@ filetype on
 filetype indent on
 filetype plugin on
 hi SignColor guibg=red
-
-let w:m1=matchadd('LineProximity', '\%71v', -1)
-let w:m2=matchadd('LineOverflow', '\%80v', -1)
 
 " enable autosaving
 "set updatecount=0 updatetime=500
@@ -1225,8 +1225,11 @@ let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
 
 " clojure
-let vimclojure#NailgunClient = "/Users/adragomi/work/tools/clojure_trunk/ng"
+let vimclojure#NailgunClient = "$HOME/work/tools/clojure_trunk/ng"
 let clj_want_gorilla = 1
+
+" javascript
+let javaScript_fold=1
 
 " auto commands
 
@@ -1239,7 +1242,7 @@ autocmd TabLeave    * call OnTabLeave()
 "autocmd GUIEnter * call GuiEnter()
 "autocmd GUIEnter    * set fullscreen
 
-set guitablabel=%{GuiTabLabel()}
+"set guitablabel=%{GuiTabLabel()}
 set tabline=%!MyTabLine()
 
 " autocmds to automatically enter hex mode and handle file writes properly

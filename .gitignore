@@ -1,4 +1,9 @@
+.DS_Store
 dotless/bin/araxis*
 dotless/bin/p4
 dotless/bin/svnup.yaml
 dotted/irssi/*
+dotted/vim/.VimballRecord
+dotted/vim/.netrwhist
+dotless/bin/go/*
+dotless/bin/svnup.yaml
