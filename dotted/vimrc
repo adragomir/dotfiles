@@ -48,7 +48,7 @@ set keymodel=startsel         ",stopsel
 set autoread                  " read outside modified files
 set directory=/tmp            " temp directory
 set encoding=UTF-8            " file encoding
-set formatoptions=tcrqn21     " auto format
+set formatoptions=tcroqn1     " auto format
 "set textwidth=80             " text width
 "set guioptions=cr+bie"M"m	  " aA BAD
 set guioptions=AciMgrb       " NEVER EVER put ''a in here
@@ -84,6 +84,7 @@ set winaltkeys=no
 set writebackup
 set writeany
 set iskeyword=@,48-57,128-167,224-235,_
+set listchars=tab:>.,trail:.,extends:>,precedes:<,eol:$
 set showtabline=2
 set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
@@ -102,6 +103,8 @@ set splitbelow                " split windows below current one
 set title
 set exrc
 
+set switchbuf=usetab
+
 " settings: line endings
 "set ff=unix
 "set ffs=unix
@@ -111,13 +114,12 @@ set grepprg=$HOME/bin/ack\ --noenv
 set grepformat=%f:%l:%m
 
 " settings: tabs and indenting
-set autoindent
-set smartindent
+set autoindent nocindent nosmartindent
 set smarttab
-set indentexpr=none
-set expandtab
-set tabstop=4
-let &sw=4
+set indentexpr=
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 
 " look & feel
 if has("gui_running") && has("macunix")
@@ -130,9 +132,9 @@ endif
 
 if has("gui_running")
   " behave mswin
-  set selectmode=key,mouse
+  set selectmode=mouse "key,mouse
   set mousemodel=popup
-  set keymodel=startsel,stopsel
+  set keymodel=startsel ",stopsel
   set selection=exclusive
 
   " source $VIMRUNTIME/mswin.vim
@@ -378,83 +380,6 @@ function! InsertBrace()
 	let s:seq = s:seq . "{\<CR>}\<Left>\<CR>\<Up>\<Tab>"
 	execute "normal a" . s:seq
 endfunction
-
-"function! KeyMap(modifier, key, action, mode, target)
-"	if strlen(a:mode) > 0
-"		let s:mode = " <" . a:mode . "> "
-"	else
-"		let s:mode = " "
-"	endif
-"	if StrMatchNo(a:action, '<CR>') > 1 || a:action =~ 'e' || a:action !~ '<CR>$'
-"		let s:insert{"pre"} = " <Esc>"
-"		let s:insert{"post"} = "a"
-"	else
-"		let s:insert{"pre"} = " <C-o>"
-"		let s:insert{"post"} = ""
-"	endif
-"	if a:target =~ '_'
-"		let s:insert{"pre"} = " "
-"		let s:insert{"post"} = ""
-"	endif
-"	" modifier: <M> meta
-"	if a:modifier == "M"
-"		if a:target =~ 'n'
-"			execute "nnoremap" . s:mode . "<M-" . a:key . "> " . a:action
-"		endif
-"		if a:target =~ 'i'
-"			execute "inoremap" . s:mode . "<M-" . a:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
-"		endif
-"		if a:target =~ 'v'
-"			execute "vnoremap" . s:mode . "<M-" . a:key . "> " . a:action
-"		endif
-"	" modifier: <D> meta
-"	elseif a:modifier == "D"
-"		if a:target =~ 'n'
-"			execute "nnoremap" . s:mode . "<D-" . a:key . "> " . a:action
-"		endif
-"		if a:target =~ 'i'
-"			execute "inoremap" . s:mode . "<D-" . a:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
-"		endif
-"		if a:target =~ 'v'
-"			execute "vnoremap" . s:mode . "<D-" . a:key . "> " . a:action
-"		endif
-"	" modifier: <C> control
-"	elseif a:modifier == "C"
-"		let s:key = substitute(a:key, '[<>]', '', 'g')
-"		if a:target =~ 'n'
-"			execute "nnoremap" . s:mode . "<C-" . s:key . "> " . a:action
-"		endif
-"		if a:target =~ 'i'
-"			execute "inoremap" . s:mode . "<C-" . s:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
-"		endif
-"		if a:target =~ 'v'
-"			execute "vnoremap" . s:mode . "<C-" . s:key . "> " . a:action
-"		endif
-"	" modifier: <S> shift
-"	elseif a:modifier == "C"
-"		let s:key = substitute(a:key, '[<>]', '', 'g')
-"		if a:target =~ 'n'
-"			execute "nnoremap" . s:mode . "<S-" . s:key . "> " . a:action
-"		endif
-"		if a:target =~ 'i'
-"			execute "inoremap" . s:mode . "<S-" . s:key . ">" . s:insert{"pre"} . a:action . s:insert{"post"}
-"		endif
-"		if a:target =~ 'v'
-"			execute "vnoremap" . s:mode . "<S-" . s:key . "> " . a:action
-"		endif
-"	" modifier: none
-"	else
-"		if a:target =~ 'n'
-"			execute "nnoremap" . s:mode . a:key . " " . a:action
-"		endif
-"		if a:target =~ 'i'
-"			execute "inoremap" . s:mode . a:key . s:insert{"pre"} . a:action . s:insert{"post"}
-"		endif
-"		if a:target =~ 'v'
-"			execute "vnoremap" . s:mode . a:key . " " . a:action
-"		endif
-"	endif
-"endfunction
 
 " calls KeyMapExec for all combinations of modes and modifiers
 function! KeyMap(modes, special, modifiers, key, action)
@@ -923,30 +848,24 @@ endfunction
 function! CwdShort()
   return substitute(PathToShortHome(getcwd()), "\\", "/", "g")
 endfunction
-" 
-function! FuzzyReIndexCwd()
-  call FuzzyReIndex(getcwd())
+ 
+function! FizzyReIndexCwd()
+  call FizzyReIndex(getcwd())
 endfunction
-
-function! FuzzyReIndex(dir)
-  " dir is not:
-  "   work/archive
-  " and dir is:
-  "   work/*/*
-  "   src/*
-  if ((a:dir !~ 'work\/(archive)') && (a:dir =~ 'work\/\w\w*\/\w\w*' || a:dir =~ 'work\/\w\w*'))
+function! FizzyReIndex(dir)
+  " if (a:dir =~ 'work\/projects\/\w\w*')
     echo "reindexing " . a:dir
-    FuzzyFinderTextMateRefreshFiles
-  endif
+    FizzyFileRenewCache
+    FizzyDirRenewCache
+  " endif
 endfunction
 
 let g:CWD = ""
 function! Cd(cd)
-  exec "cd " . a:cd
+  exec 'cd ' . escape(a:cd, " ")
   let g:CWD = getcwd()
   return getcwd()
 endfunction
-
 function! CdReset()
   if g:CWD == ""
     let g:CWD = getcwd()
@@ -973,7 +892,6 @@ endfunction
 
 function! CwdCurrent()
   call Cd(GetCwdCurrent())
-  call FuzzyReIndexCwd()
 endfunction
 
 function! CwdUp()
@@ -1017,6 +935,51 @@ function! CreateNewFile(newfile)
   exec "e " . crtbufdir . "/" . a:newfile
 endfunction
 
+function! CreateNewFile(newfile)
+  "call inputsave()
+  "let newfilename= input("Please give file name: ")
+  "call inputrestore()
+  let crtbufdir = expand("%:p:h")
+  if a:newfile == ""
+    return
+  endif
+  exec "e " . crtbufdir . "/" . a:newfile
+endfunction
+
+function! BrowserFromCurrentDir()
+  " Explore deletes the quote register. Need to revive the mofo!
+  " TODO check if still the case
+  let g:OLDQUOTEREGISTER = @"
+  let dirname = Slashify(expand('%:p:h'))
+  call Tabnew()
+  exec "Explore"
+  let @" = g:OLDQUOTEREGISTER
+endfunction
+
+function! BrowserFromCurrentFilePath()
+  let g:OLDQUOTEREGISTER = @"
+  let dirname = Slashify(expand('%:p:h'))
+  call Tabnew()
+  exec "Explore " . dirname
+  let @" = g:OLDQUOTEREGISTER
+endfunction
+
+function! MoveTabLeft()
+  let newtabnr = tabpagenr() - 2
+  if newtabnr == -1
+    let newtabnr = v:lnum
+  end
+  exec ":tabmove " . newtabnr
+endfunction
+
+function! MoveTabRight()
+  let newtabnr = tabpagenr()
+  if newtabnr == v:lnum
+    let newtabnr = 0
+  end
+  exec ":tabmove " . newtabnr
+endfunction
+
 
 call KeyMap('n', '', '', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>')
 call KeyMap('i', '<silent>', '', '<S-Space>', ':call ExpandTemplate(1)<CR>')
@@ -1050,12 +1013,19 @@ call KeyMap('ni', '<silent>', 'D', 'Space', '<C-X><C-O>')
 call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
 call KeyMap('ni', '<silent>', '', '<F5>', ':BufExplorer<CR>')
 
+" fuf-fizzy
+call KeyMap('n', '<silent>', 'DL', 'r', ':call Tabnew()<CR>:FufFizzyFile<CR>')
+call KeyMap('n', '<silent>', 'DL', 'R', ':call Tabnew()<CR>:FufFizzyDir<CR>')
+call KeyMap('n', '<silent>', 'DL', '\', ':FizzyFileRenewCache<CR>')
+
 " files & folders mapping
 call KeyMap('n', '<silent>',  'CDLM', '-',       ':call CwdUp()<CR>')
 call KeyMap('n', '<silent>',  'CDLM', '=',       ':call CwdDown()<CR>')
 call KeyMap('n', '<silent>',  'CDLM', '0',       ':call CwdCurrent()<CR>')
-call KeyMap('n', '<silent>',  'CDLM', '\',       ':call FuzzyReIndexCwd()<CR>')
-call KeyMap('n', '<silent>',  'L', 'r',       ':call InsertDateTime()<CR>')
+
+" directory browsing
+call KeyMap('n','<silent>', 'DL', 'e', ':call BrowserFromCurrentDir()<CR>')      " open a file browser in a new tab
+call KeyMap('n','<silent>', 'DL', 'E', ':call BrowserFromCurrentFilePath()<CR>') " open a file browser in a new tab
 
 inoremap <C-space> <C-p>
 
@@ -1170,8 +1140,6 @@ else
   noremap c <Esc>:tabclose<Cr>
 endif
 
-map <leader>t :FuzzyFinderTextMate<CR>
-
 " macros 
 map ]xx :Explore<cr>2jp<c-w>H20<c-w><
 
@@ -1211,6 +1179,7 @@ let g:fuzzy_path_display = 'path'
 let g:NERDMapleader = '<space>'
 let g:NERDRemoveExtraSpaces = 1
 let g:NERDSpaceDelims = 0
+let g:NERDMenuMode=0
 
 " omni cpp complete
 let OmniCpp_GlobalScopeSearch = 1
@@ -1232,16 +1201,20 @@ let clj_want_gorilla = 1
 " javascript
 let javaScript_fold=1
 
+" netrw
+let g:netrw_browsex_viewer="open"
+
+" fuf, fuf-fizzy
+let g:fuf_modes = ['fizzyfile', 'fizzydir', 'buffer', 'tag']
+
 " auto commands
+command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 
 " remove all buffers on exit so we don't have them as hidden on reopen
 autocmd VimLeavePre * 1,255bwipeout
 
 " remove empty or otherwise dead buffers when moving away from them
 autocmd TabLeave    * call OnTabLeave()
-
-"autocmd GUIEnter * call GuiEnter()
-"autocmd GUIEnter    * set fullscreen
 
 "set guitablabel=%{GuiTabLabel()}
 set tabline=%!MyTabLine()
