@@ -409,7 +409,6 @@ alias markdown='/usr/local/bin/markdown'
 alias math='rlwrap $HOME/Applications/Mathematica.app/Contents/MacOS/MathKernel'
 
 function ps? {
-  idx=0
   for i in $*; do
     grepstr=[${i:0:1}]${i:1:${#i}}
     tmp=`ps axwww | grep $grepstr | awk '{print $1}'`
