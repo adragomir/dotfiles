@@ -114,10 +114,11 @@ set switchbuf=usetab
 set grepprg=$HOME/bin/ack\ --noenv
 set grepformat=%f:%l:%m
 
-" settings: tabs and indenting
+" settings: tabs and indentin
 set autoindent nocindent nosmartindent
-set smarttab
-set indentexpr=
+#set smarttab
+#set indentexpr=
+set expandtab
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
