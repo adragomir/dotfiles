@@ -2,8 +2,8 @@
 
 if [[ -f "${1}" ]] ;
 then
-	open -a /Users/adragomi/Applications/MacVim.app "$@"
+	open -a $HOME/Applications/MacVim.app "$@"
 else
 	`touch ${1}`
-	open -a /Users/adragomi/Applications/MacVim.app "$@"
+	open -a $HOME/Applications/MacVim.app "$@"
 fi

@@ -319,7 +319,7 @@ alias bochs='LTDL_LIBRARY_PATH=$HOME/work/tools/bochs/lib/bochs/plugins BXSHARE=
 
 #editor
 case "$HOSTNAME" in
-    adragomi-mac*)
+    $USER-mac*)
     alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g';
     alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim';
     ;;
@@ -471,7 +471,7 @@ function mycd {
 calc () 
 { echo "$*" | bc -l; }
 
-alias h="sudo hostname adragomi-mac.corp.adobe.com"
+alias h="sudo hostname $USER-mac.corp.adobe.com"
 
 export MONO_GAC_PREFIX=/usr/local
 
