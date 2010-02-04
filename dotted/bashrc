@@ -252,6 +252,7 @@ export ANT_HOME=$HOME/work/tools/apache-ant-1.7.1
 export ANT_OPTS="-Xms256m -Xmx512m"
 
 # maven
+export MAVEN_REPO=$HOME/.m2/repository
 export PATH=$PATH:/usr/local/maven-2.0.4/bin
 #
 # Your previous .profile  (if any) is saved as .profile.dpsaved
@@ -360,10 +361,12 @@ alias asc_tamarin_shell='$FLEX_HOME/bin/asc -AS3 -import $TAMARIN_HOME/core/buil
 alias avm='$AVMSHELL_COMMAND'
 alias avm_debug='$AVMSHELL_DEBUG_COMMAND'
 
+
 # clojure
-export CLOJURE_HOME=$HOME/work/tools/clojure_trunk
-alias clojure='rlwrap java -cp $CLOJURE_HOME/clojure.jar:$CLOJURE_HOME/clojure-contrib.jar:$CLOJURE_HOME/clojure-sources.jar:src clojure.main'
-export PATH=$PATH:$HOME/work/tools/clojure_trunk/bin
+alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
+alias clojure_boot='rlwrap java -Xbootclasspath/a:$MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
+alias clj='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
+alias ng-server='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/vimclojure/vimclojure/2.2.0-SNAPSHOT/vimclojure-2.2.0-SNAPSHOT.jar com.martiansoftware.nailgun.NGServer 127.0.0.1'
 
 #builtin commands
 # make top default to ordering by CPU usage:

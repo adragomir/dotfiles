@@ -2,3 +2,11 @@ sudo
 username
 inline
 SaasBase
+HBase
+contrib
+RegionServer
+LogFile
+HRegions
+HRegionServer
+HLogFile
+realtime

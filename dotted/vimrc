@@ -19,8 +19,7 @@ set runtimepath+=$HOME/.vim/vjde
 set runtimepath+=$HOME/.vim/vimclojure
 set runtimepath+=$HOME/.vim/go
 set runtimepath+=$HOME/.vim/javascript
-set runtimepath+=$HOME/.vim/confluencewiki
-"set runtimepath+=$HOME/.vim/slimv
+"set runtimepath+=$HOME/.vim/confluencewiki
 
 set runtimepath+=$HOME/.vim/mkd
 set runtimepath+=$HOME/.vim/visualmark
@@ -29,6 +28,7 @@ set runtimepath+=$HOME/.vim/bufexplorer
 set runtimepath+=$HOME/.vim/indent_finder
 set runtimepath+=$HOME/.vim/sudo
 set runtimepath+=$HOME/.vim/fontsize
+set runtimepath+=$HOME/.vim/pastie
 
 " user after paths
 " set runtimepath+=one for each plugin
@@ -1197,7 +1197,10 @@ let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
 
 " clojure
-let vimclojure#NailgunClient = "$HOME/work/tools/clojure_trunk/ng"
+let vimclojure#NailgunClient = "$HOME/bin/ng"
+let vimclojure#SplitPos = "right"
+let g:clj_highlight_builtins = 1
+let g:clj_highlight_contrib = 1
 let clj_want_gorilla = 1
 
 " javascript
