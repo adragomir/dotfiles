@@ -13,22 +13,24 @@ set runtimepath+=$HOME/.vim/fuf-fizzy
 set runtimepath+=$HOME/.vim/NERD_commenter
 set runtimepath+=$HOME/.vim/matchit
 set runtimepath+=$HOME/.vim/surround
-set runtimepath+=$HOME/.vim/snipMate
+set runtimepath+=$HOME/.vim/mkd
 set runtimepath+=$HOME/.vim/ruby
 set runtimepath+=$HOME/.vim/vjde
 set runtimepath+=$HOME/.vim/vimclojure
 set runtimepath+=$HOME/.vim/go
 set runtimepath+=$HOME/.vim/javascript
+set runtimepath+=$HOME/.vim/pandoc
 "set runtimepath+=$HOME/.vim/confluencewiki
 
-set runtimepath+=$HOME/.vim/mkd
 set runtimepath+=$HOME/.vim/visualmark
 set runtimepath+=$HOME/.vim/conque
+set runtimepath+=$HOME/.vim/align
 set runtimepath+=$HOME/.vim/bufexplorer
 set runtimepath+=$HOME/.vim/indent_finder
 set runtimepath+=$HOME/.vim/sudo
 set runtimepath+=$HOME/.vim/fontsize
 set runtimepath+=$HOME/.vim/pastie
+set runtimepath+=$HOME/.vim/snipMate
 
 " user after paths
 " set runtimepath+=one for each plugin
@@ -116,8 +118,8 @@ set grepformat=%f:%l:%m
 
 " settings: tabs and indentin
 set autoindent nocindent nosmartindent
-#set smarttab
-#set indentexpr=
+"set smarttab
+"set indentexpr=
 set expandtab
 set tabstop=2
 set shiftwidth=2
@@ -231,6 +233,21 @@ hi SignColor guibg=red
 set suffixes+=.lo,.o,.moc,.la,.closure,.loT
 
 " my functions
+
+function! WordFrequency() range
+  let all = split(join(getline(a:firstline, a:lastline)), '\A\+')
+  let frequencies = {}
+  for word in all
+    let frequencies[word] = get(frequencies, word, 0) + 1
+  endfor
+  new
+  setlocal buftype=nofile bufhidden=hide noswapfile tabstop=20
+  for [key,value] in items(frequencies)
+    call append('$', key."\t".value)
+  endfor
+  sort i
+endfunction
+command! -range=% WordFrequency <line1>,<line2>call WordFrequency()
 
 function! OnTabLeave()
   if UselessBuffer('%')
@@ -1211,6 +1228,10 @@ let g:netrw_browsex_viewer="open"
 
 " fuf, fuf-fizzy
 let g:fuf_modes = ['fizzyfile', 'fizzydir', 'buffer', 'tag']
+"let g:fuf_file_exclude = '\v\~$|\.o$|\.exe$|\.bak$|\.swp$|\.class$|\.jar$|\.pdf$'
+"let g:fuf_dir_exclude = '\vbuild.*$'
+
+
 
 " auto commands
 command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)

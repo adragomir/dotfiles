@@ -225,6 +225,12 @@ export PATH=$PATH:"/System/Library/Frameworks/Ruby.framework/Versions/Current/us
 export PATH=$PATH:"$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS"
 export PATH=$PATH:/usr/local/lib/ocaml_godi/bin/
 export PATH=$PATH:"$HOME/Applications/PLT Scheme v372/bin/"
+export PATH=$PATH:"$HOME/.cabal/bin/"
+export PATH=$PATH:/usr/hla
+
+
+export hlalib=/usr/hla/hlalib
+export hlainc=/usr/hla/include
 
 #export DISPLAY=:0.0
 

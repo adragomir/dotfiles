@@ -1632,23 +1632,23 @@ end
 
 
 # ____________________misc____________________
-define hook-stop
+#define hook-stop
 
-    # this makes 'context' be called at every BP/step
-    if ($SHOW_CONTEXT > 0)
-        context
-    end
-    if ($SHOW_NEST_INSN > 0)
-        set $x = $_nest
-        while ($x > 0)
-            printf "\t"
-            set $x = $x - 1
-        end
-    end
-end
-document hook-stop
-!!! FOR INTERNAL USE ONLY - DO NOT CALL !!!
-end
+    ## this makes 'context' be called at every BP/step
+    #if ($SHOW_CONTEXT > 0)
+        #context
+    #end
+    #if ($SHOW_NEST_INSN > 0)
+        #set $x = $_nest
+        #while ($x > 0)
+            #printf "\t"
+            #set $x = $x - 1
+        #end
+    #end
+#end
+#document hook-stop
+#!!! FOR INTERNAL USE ONLY - DO NOT CALL !!!
+#end
 
 # original by Tavis Ormandy (http://my.opera.com/taviso/blog/index.dml/tag/gdb) (great fix!)
 # modified to work with Mac OS X by fG!
