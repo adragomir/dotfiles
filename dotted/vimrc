@@ -8,8 +8,8 @@ endif
 
 set runtimepath+=$HOME/.vim/vimfiles
 set runtimepath+=$HOME/.vim/andrei
-set runtimepath+=$HOME/.vim/fuf
-set runtimepath+=$HOME/.vim/fuf-fizzy
+"set runtimepath+=$HOME/.vim/fuf
+"set runtimepath+=$HOME/.vim/fuf-fizzy
 set runtimepath+=$HOME/.vim/NERD_commenter
 set runtimepath+=$HOME/.vim/matchit
 set runtimepath+=$HOME/.vim/surround
@@ -20,6 +20,7 @@ set runtimepath+=$HOME/.vim/vimclojure
 set runtimepath+=$HOME/.vim/go
 set runtimepath+=$HOME/.vim/javascript
 set runtimepath+=$HOME/.vim/pandoc
+set runtimepath+=$HOME/.vim/commandt
 "set runtimepath+=$HOME/.vim/confluencewiki
 
 set runtimepath+=$HOME/.vim/visualmark
@@ -31,6 +32,9 @@ set runtimepath+=$HOME/.vim/sudo
 set runtimepath+=$HOME/.vim/fontsize
 set runtimepath+=$HOME/.vim/pastie
 set runtimepath+=$HOME/.vim/snipMate
+set runtimepath+=$HOME/.vim/zencoding
+set runtimepath+=$HOME/.vim/gccsense
+set runtimepath+=$HOME/.vim/supertab
 
 " user after paths
 " set runtimepath+=one for each plugin
@@ -1033,9 +1037,9 @@ call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
 call KeyMap('ni', '<silent>', '', '<F5>', ':BufExplorer<CR>')
 
 " fuf-fizzy
-call KeyMap('n', '<silent>', 'DL', 'r', ':call Tabnew()<CR>:FufFizzyFile<CR>')
-call KeyMap('n', '<silent>', 'DL', 'R', ':call Tabnew()<CR>:FufFizzyDir<CR>')
-call KeyMap('n', '<silent>', 'DL', '\', ':FizzyFileRenewCache<CR>')
+"call KeyMap('n', '<silent>', 'DL', 'r', ':call Tabnew()<CR>:FufFizzyFile<CR>')
+"call KeyMap('n', '<silent>', 'DL', 'R', ':call Tabnew()<CR>:FufFizzyDir<CR>')
+"call KeyMap('n', '<silent>', 'DL', '\', ':FizzyFileRenewCache<CR>')
 
 " files & folders mapping
 call KeyMap('n', '<silent>',  'CDLM', '-',       ':call CwdUp()<CR>')
@@ -1244,6 +1248,20 @@ autocmd TabLeave    * call OnTabLeave()
 
 "set guitablabel=%{GuiTabLabel()}
 set tabline=%!MyTabLine()
+
+let g:user_zen_settings = {
+  'php' : {
+    'extends' : 'html',
+    'filters' : 'c',
+  },
+  'xml' : {
+    'extends' : 'html',
+  },
+  'haml' : {
+    'extends' : 'html',
+  },
+}
+
 
 " autocmds to automatically enter hex mode and handle file writes properly
 if has("autocmd")

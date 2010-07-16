@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 '''
-Core Zen Coding library. Contains various text manupulation functions:
+Core Zen Coding library. Contains various text manipulation functions:
 
 == Expand abbreviation
 Expands abbreviation like ul#nav>li*5>a into a XHTML string.
@@ -9,7 +9,7 @@ Expands abbreviation like ul#nav>li*5>a into a XHTML string.
 First, you have to extract current string (where cursor is) from your test 
 editor and use <code>find_abbr_in_line()</code> method to extract abbreviation. 
 If abbreviation was found, this method will return it as well as position index
-of abbreviation inside current line. If abbreation wasn't 
+of abbreviation inside current line. If abbreviation wasn't 
 found, method returns empty string. With abbreviation found, you should call
 <code>parse_into_tree()</code> method to transform abbreviation into a tag tree. 
 This method returns <code>Tag</code> object on success, None on failure. Then
@@ -318,7 +318,9 @@ def parse_into_tree(abbr, doc_type='html'):
 	token_expander.last = None
 	
 	
-	abbr = re.sub(token, lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7)), abbr)
+#	abbr = re.sub(token, lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7)), abbr)
+	# Issue from Einar Egilsson
+	abbr = token.sub(lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7)), abbr)
 	
 	root.last = token_expander.last
 	
@@ -420,6 +422,7 @@ class Tag(object):
 		name = name.lower()
 		
 		abbr = get_abbreviation(doc_type, name)
+		
 		if abbr and abbr.type == stparser.TYPE_REFERENCE:
 			abbr = get_abbreviation(doc_type, abbr.value)
 		
@@ -592,6 +595,9 @@ class Tag(object):
 		cursor = profile['place_cursor'] and '|' or ''
 		self_closing = ''
 		
+		is_empty = self.is_empty() and not self.children
+		
+		
 		if profile['self_closing_tag'] == 'xhtml':
 			self_closing = ' /'
 		elif profile['self_closing_tag'] == True:
@@ -612,7 +618,7 @@ class Tag(object):
 		deepest_child = self.find_deepest_child()
 		
 		# output children
-		if not self.is_empty():
+		if not is_empty:
 			if deepest_child and self.repeat_by_lines:
 				deepest_child.set_content(content_placeholder)
 			
@@ -626,7 +632,7 @@ class Tag(object):
 		# define opening and closing tags
 		if self.name:
 			tag_name = profile['tag_case'] == 'upper' and self.name.upper() or self.name.lower()
-			if self.is_empty():
+			if is_empty:
 				start_tag = '<%s%s%s>' % (tag_name, attrs, self_closing)
 			else:
 				start_tag, end_tag = '<%s%s>' % (tag_name, attrs), '</%s>' % tag_name
@@ -642,7 +648,7 @@ class Tag(object):
 			if self.name:
 				if content:
 					content = pad_string(content, profile['indent'] and 1 or 0)
-				elif not self.is_empty():
+				elif not is_empty:
 					start_tag += cursor
 		
 		# repeat tag by lines count
@@ -749,5 +755,7 @@ setup_profile('html', {'self_closing_tag': False});
 setup_profile('xml', {'self_closing_tag': True, 'tag_nl': True});
 setup_profile('plain', {'tag_nl': False, 'indent': False, 'place_cursor': False});
 
-# init settings
-#zen_settings = stparser.get_settings()
+# This method call explicity loads default settings from zen_settings.py on start up
+# Comment this line if you want to load data from other resources (like editor's 
+# native snippet) 
+update_settings(stparser.get_settings())
