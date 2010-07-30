@@ -7,7 +7,7 @@ if has("macunix") && has("gui_running") && system('ps xw | grep -c "[V]im -psn"'
 endif
 
 set runtimepath+=$HOME/.vim/andrei
-set runtimepath+=$HOME/.vim/NERD_commenter
+set runtimepath+=$HOME/.vim/nerd_commenter
 set runtimepath+=$HOME/.vim/matchit
 set runtimepath+=$HOME/.vim/surround
 set runtimepath+=$HOME/.vim/mkd
@@ -26,14 +26,14 @@ set runtimepath+=$HOME/.vim/indent_finder
 set runtimepath+=$HOME/.vim/sudo
 set runtimepath+=$HOME/.vim/fontsize
 set runtimepath+=$HOME/.vim/pastie
-set runtimepath+=$HOME/.vim/snipMate
+set runtimepath+=$HOME/.vim/snipmate
 set runtimepath+=$HOME/.vim/zencoding
 set runtimepath+=$HOME/.vim/gccsense
 set runtimepath+=$HOME/.vim/supertab
 
 " user after paths
 " set runtimepath+=one for each plugin
-set runtimepath+=$HOME/.vim/snipMate/after
+set runtimepath+=$HOME/.vim/snipmate/after
  
 " settings
 set nocompatible              " use VI incompatible features
