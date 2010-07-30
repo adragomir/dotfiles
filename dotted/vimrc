@@ -6,10 +6,7 @@ if has("macunix") && has("gui_running") && system('ps xw | grep -c "[V]im -psn"'
   endif
 endif
 
-set runtimepath+=$HOME/.vim/vimfiles
 set runtimepath+=$HOME/.vim/andrei
-"set runtimepath+=$HOME/.vim/fuf
-"set runtimepath+=$HOME/.vim/fuf-fizzy
 set runtimepath+=$HOME/.vim/NERD_commenter
 set runtimepath+=$HOME/.vim/matchit
 set runtimepath+=$HOME/.vim/surround
@@ -21,8 +18,6 @@ set runtimepath+=$HOME/.vim/go
 set runtimepath+=$HOME/.vim/javascript
 set runtimepath+=$HOME/.vim/pandoc
 set runtimepath+=$HOME/.vim/commandt
-"set runtimepath+=$HOME/.vim/confluencewiki
-
 set runtimepath+=$HOME/.vim/visualmark
 set runtimepath+=$HOME/.vim/conque
 set runtimepath+=$HOME/.vim/align
@@ -38,7 +33,6 @@ set runtimepath+=$HOME/.vim/supertab
 
 " user after paths
 " set runtimepath+=one for each plugin
-set runtimepath+=$HOME/.vim/vimfiles/after
 set runtimepath+=$HOME/.vim/snipMate/after
  
 " settings
@@ -1220,9 +1214,8 @@ let g:tex_flavor = "/usr/texbin/pdftex"
 " clojure
 let vimclojure#NailgunClient = "$HOME/bin/ng"
 let vimclojure#SplitPos = "right"
-let g:clj_highlight_builtins = 1
-let g:clj_highlight_contrib = 1
-let clj_want_gorilla = 1
+let vimclojure#HightlightBuiltins = 1
+let vimclojure#WantNailgun = 1
 
 " javascript
 let javaScript_fold=1
@@ -1249,18 +1242,18 @@ autocmd TabLeave    * call OnTabLeave()
 "set guitablabel=%{GuiTabLabel()}
 set tabline=%!MyTabLine()
 
-let g:user_zen_settings = {
-  'php' : {
-    'extends' : 'html',
-    'filters' : 'c',
-  },
-  'xml' : {
-    'extends' : 'html',
-  },
-  'haml' : {
-    'extends' : 'html',
-  },
-}
+"let g:user_zen_settings = {
+  "'php' : {
+    "'extends' : 'html',
+    "'filters' : 'c',
+  "},
+  "'xml' : {
+    "'extends' : 'html',
+  "},
+  "'haml' : {
+    "'extends' : 'html',
+  "},
+"}
 
 
 " autocmds to automatically enter hex mode and handle file writes properly
