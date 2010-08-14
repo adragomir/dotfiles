@@ -29,7 +29,13 @@ set runtimepath+=$HOME/.vim/pastie
 set runtimepath+=$HOME/.vim/snipmate
 set runtimepath+=$HOME/.vim/zencoding
 set runtimepath+=$HOME/.vim/gccsense
+set runtimepath+=$HOME/.vim/taglist
 set runtimepath+=$HOME/.vim/supertab
+set runtimepath+=$HOME/.vim/yankring
+set runtimepath+=$HOME/.vim/bufkill
+set runtimepath+=$HOME/.vim/ctk
+set runtimepath+=$HOME/.vim/easytags
+set runtimepath+=$HOME/.vim/nerd_tree
 
 " user after paths
 " set runtimepath+=one for each plugin
