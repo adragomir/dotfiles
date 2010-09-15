@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in `find $GOROOT/src/ -iname "*.go"`; do
+  if ! [[ $i =~ "_test" ]]; then
+    gotags $i >> tags
+  fi
+done
