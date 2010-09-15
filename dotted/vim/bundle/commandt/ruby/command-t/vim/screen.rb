@@ -21,20 +21,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-module VIM
-  class Window
-    def select
-      return true if selected?
-      initial = $curwin
-      while true do
-        VIM::command 'wincmd w'             # cycle through windows
-        return true if $curwin == self      # have selected desired window
-        return false if $curwin == initial  # have already looped through all
+module CommandT
+  module VIM
+    module Screen
+      def self.lines
+        ::VIM::evaluate('&lines').to_i
       end
-    end
-
-    def selected?
-      $curwin == self
-    end
-  end # class Window
-end # module VIM
+    end # module Screen
+  end # module VIM
+end # module CommandT

@@ -1,11 +1,13 @@
-*slimv.txt*                    Slimv                 Last Change: 15 Nov 2009
+*slimv.txt*                    Slimv                 Last Change: 11 Sep 2010
 
 Slimv                                                                  *slimv*
-                               Version 0.5.4
+                               Version 0.6.3
 
 The Superior Lisp Interaction Mode for Vim.
 This plugin is aimed to help Lisp development by interfacing between Vim and
 the Lisp REPL, similarly to Emacs/SLIME.
+Slimv works on Windows, Linux, and Mac OS X, however the newly introduced
+paredit mode is operating system independent.
 
 |slimv-installation|         Installation
 |slimv-customization|        Customization
@@ -14,6 +16,7 @@ the Lisp REPL, similarly to Emacs/SLIME.
 |slimv-clojure|              Clojure support
 |slimv-profiling|            Profiling
 |slimv-hyperspec|            Hyperspec lookup and Completion
+|slimv-paredit|              Paredit mode
 |slimv-external|             External utilities
 |slimv-faq|                  Frequently Asked Questions
 |slimv-changelog|            Change Log
@@ -59,6 +62,7 @@ To install the script:
        ftplugin/clojure/slimv-clojure.vim
        ftplugin/lisp/slimv-lisp.vim
        indent/clojure.vim
+       plugin/paredit.vim
        syntax/clojure/slimv-syntax-clojure.vim
 
     You might already have an ftdetect/clojure.vim file if you already use
@@ -77,13 +81,23 @@ To install the script:
   - Start Vim or goto an existing instance of Vim.
   - Execute the following command:
 >
-      :helptag <your runtime directory/doc
+      :helptags <your runtime directory/doc
 <
     This will generate all the help tags for any file located in the doc
     directory.
   - Enter path definitions into your vimrc (if the default values are not
     valid for your Vim/Python/Lisp installation, which is highly probable).
     See |slimv-customization| below on how to do this.
+  - On Linux some login shells (like fish) might be incompatible with the Vim
+    temporary file generation, which results in getting random E484 errors.
+    This is because Vim expects a POSIX-compliant shell and the problem might
+    occur in other Vim scripts as well.
+    One solution is to add a similar block to the top of .vimrc:
+
+        if $SHELL =~ 'bin/fish'
+            set shell=/bin/sh
+        endif
+
 
 Upgrade from previous script versions:
 
@@ -115,6 +129,7 @@ Uninstallation:
        ftplugin/clojure/slimv-clojure.vim
        ftplugin/lisp/slimv-lisp.vim
        indent/clojure.vim
+       plugin/paredit.vim
        syntax/clojure/slimv-syntax-clojure.vim
 
     (Special note on metering.lisp: if the profiler was compiled, then the
@@ -133,6 +148,14 @@ CUSTOMIZATION                                             *slimv-customization*
 
 The list below contains an alphabetical collection of Slimv options.
 Below that list follows the detailed explanation on each option.
+
+|g:paredit_matchlines|       Number of lines to look backward and forward
+                             when checking if the current form is balanced.
+
+|g:paredit_mode|             If nonzero, paredit mode is switched on.
+
+|g:paredit_shortmaps|        If nonzero, paredit is remapping some one-letter
+                             Vim commands that are not frequently used.
 
 |g:slimv_clhs_root|          Base URL for the Common Lisp Hyperspec.
 
@@ -171,6 +194,8 @@ Below that list follows the detailed explanation on each option.
 |g:slimv_logfile|            Name of the logfile to use for debug messages.
                              Also see |g:slimv_debug|.
 
+|g:slimv_logfreq|            Flushing frequency to logfile.
+
 |g:slimv_menu|               If nonzero, Slimv menu is added to the Vim menu.
 
 |g:slimv_port|               TCP/IP port number to use in the Slimv client-
@@ -185,11 +210,16 @@ Below that list follows the detailed explanation on each option.
 |g:slimv_repl_open|          If nonzero, Slimv opens the Lisp REPL buffer
                              inside Vim when the server is started.
 
+|g:slimv_repl_return|        If nonzero, the cursor is returned to the editor
+                             window from the REPL buffer after evaluation.
+
 |g:slimv_repl_split|         Open the Lisp REPL buffer in a split window
                              or in a separate buffer.
 
 |g:slimv_repl_wait|          Number of seconds to wait for the REPL output
                              to finish. Zero means inifinity.
+
+|g:slimv_repl_wrap|          Set wrap mode for the REPL buffer.
 
 
 Note: Most options require to restart the Vim session when modified.
@@ -311,6 +341,12 @@ when setting up a custom |g:slimv_client| command.
 Name of the Slimv logfile. Defaults to slimv.log.
 Used only when |g:slimv_debug| level is nonzero.
 
+                                                              *g:slimv_logfreq*
+Flushing frequency to logfile.
+Writing to logfile generates extra Vim messages, so setting a relatively high
+flush frequency helps to get rid of them. The log messages are flushed when
+exiting Vim.
+
                                                                 *g:slimv_ctags*
 It is possible to generate tags file from within Vim. By default Slimv assumes
 that ctags.exe is stored somewhere along with the standard Vim path designated
@@ -331,6 +367,24 @@ The <Leader> is set to ',' by default.
                                                                  *g:slimv_menu*
 If nonzero then the Slimv menu is added to the end of the global menu.
 Also the Slimv menu can be shown by pressing <Leader>, (defaults to ,,).
+
+
+                                                         *g:paredit_matchlines*
+Number of lines to look backward and forward when checking if the current
+top level form is balanced in paredit mode. Default is 100.
+
+
+                                                               *g:paredit_mode*
+If nonzero then paredit mode is switched on, i.e. Slimv tries to keep the
+balanced state of parens. See |g:slimv-paredit|.
+
+
+                                                          *g:paredit_shortmaps*
+If nonzero, paredit is remapping some one-letter normal mode Vim commands that
+are not frequently used. These are <, >, J, O, W, S. The original function of
+these maps then can be reached via the <Leader> prefix (which is the ","
+character by default in Slimv).
+Otherwise these paredit functions can be reached via the <Leader> prefix.
 
 
                                                              *g:slimv_repl_dir*
@@ -359,6 +413,12 @@ separate REPL window can be used for checking the output.
 The |g:slimv_repl_open| = 0 option can be used to disable the built-in REPL
 buffer, so that only the separate REPL window is opened.
 
+                                                          *g:slimv_repl_return*
+By default the cursor is placed in the REPL buffer and it stays there when
+evaluating a form in the editor window. If |g:slimv_repl_open| is set then
+the cursor is returned to the editor window after the evaluation is performed
+and the timeout defined in |g:slimv_repl_wait| elapsed.
+
                                                            *g:slimv_repl_split*
 Open the Lisp REPL buffer in a split window or in a separate buffer in Vim.
 Used only when |g:slimv_repl_open| is nonzero.
@@ -368,6 +428,15 @@ Number of seconds to wait for the REPL output to finish. Zero means inifinity.
 While waiting, the output is displayed continuously. During that time the
 regular Vim commands are not available. For the posssible commands see
 |slimv-repl|.
+
+                                                            *g:slimv_repl_wrap*
+Set wrap mode for the REPL buffer, which means the lines longer than the
+window width will not be hidden to the right. Instead they will be continued
+in the next display line.
+This is the default behaviour as it is how regular REPL windows work. This
+mode also enables keybindings for cursor movements, so that an <Up> keypress
+will move the cursor one line on the display and not one line in the document.
+
 
                                                             *g:slimv_clhs_root*
                                                           *g:slimv_cljapi_root*
@@ -407,10 +476,10 @@ multi-line Vim command.
                                                               *slimv_templates*
 
 Many Slimv commands are performed by creating a special Lisp form from the
-selected symbol (or form) and send it to the REPL for execution.
+selected symbol (or list) and send it to the REPL for execution.
 Slimv defines various templates to build these special Lisp forms.
 You can override them to suit your needs. Use %1 for substituting the selected
-symbol's name or the selected form.
+symbol's name or the selected list.
 Here follows a list of the templates defined in Slimv.
 
                                                       *g:slimv_template_pprint*
@@ -508,6 +577,10 @@ The default keybindings (|g:slimv_keybindings|=1) and another easy to remember
 built in keybinding set (|g:slimv_keybindings|=2) for Slimv are the following.
 Please note that the leading ',' key below refers to <Leader>, which is set
 by Slimv to ',' by default.
+Vim defines timeout values for mapped key sequences. If you find that Vim does
+not allow you enough time between pressing ',' and the last key(s) of the
+sequence, then you may want to fine tune these Vim options:
+|timeout|, |ttimeout|, |timeoutlen|, |ttimeoutlen|.
 
     Set#1   Set#2    Command
     ---------------------------------------------------
@@ -518,10 +591,10 @@ by Slimv to ',' by default.
     <C-X><C-O>       Complete-Symbol
 
     Evaluation commands:
-    ,d      ,ed      Eval Defun
-    ,e      ,ee      Eval Last Expression
+    ,d      ,ed      Eval Defun (current top level form)
+    ,e      ,ee      Eval Last Expression (current subform)
     ,E      ,ep      Pprint Eval Last Expression
-    ,r      ,er      Eval Region
+    ,r      ,er      Eval Region (visual selection)
     ,b      ,eb      Eval Buffer
     ,v      ,ei      Interactive Eval
     ,u      ,eu      Undefine Function
@@ -567,13 +640,13 @@ by Slimv to ',' by default.
     ,.      ,rs      Send Input
     ,/      ,ro      Close and Send Input
     <C-C>   <C-C>    Interrupt Lisp Process
-    ,<      ,rp      Previous Input
-    ,>      ,rn      Next Input
+    ,<Up>   ,rp      Previous Input
+    ,<Down> ,rn      Next Input
     ,z      ,rr      Refresh REPL Buffer
     ,Z      ,rw      Refresh REPL Now
 
 
-Also see *slimv-repl* for additional keybindings valid only in the REPL buffer.
+Also see |slimv-repl| for additional keybindings valid only in the REPL buffer.
 
 
 ===============================================================================
@@ -592,6 +665,13 @@ enter them and under what conditions.
 It is possible to interrupt a running Lisp program by pressing Ctrl-C,
 at least in some Lisp implementations, like CLISP (does not work for example
 with SBCL).
+In Clojure Ctrl-C exits the REPL by default, but it is possible to change this
+behaviour via the add-break-thread! function:
+    user=> (use 'clojure.contrib.repl-utils)
+    nil
+    user=> (add-break-thread!)
+Then pressing Ctrl-C results in a SIGINT exception in the current thread.
+This may however make bad things to your JVM, so use it with caution.
 
 To end the Lisp session press EOF (Ctrl-D on Linux, Ctrl-Z on Windows)
 in the Lisp REPL window. After exiting the REPL it is possible to open
@@ -634,7 +714,7 @@ Insert Mode:
     <CR>           Sends the command typed in the last line to the Lisp REPL
                    for evaluation.
 
-    <C-CR>         Adds missing closing parens at the end of the command,
+    <C-CR>         Adds missing closing parentheses at the end of the command,
                    then sends the command to the Lisp REPL for evaluation.
 
     <BS>           In the last line it deletes characters to the left only
@@ -680,7 +760,7 @@ Here follows an example, which starts c:\Clojure\clojure.jar on Windows.
 Remember to escape the backslashes:
 
   let g:slimv_lisp =
-  \ '"java -cp c:\\Clojure\\clojure.jar;c:\\Clojure\\clojure-contrib.jar clojure.lang.Repl"'
+  \ '"java -cp c:\\Clojure\\clojure.jar;c:\\Clojure\\clojure-contrib.jar clojure.main"'
 
 
 ===============================================================================
@@ -753,6 +833,270 @@ completion functions built in Vim.
 
 
 ===============================================================================
+PAREDIT MODE                                          *paredit* *slimv-paredit*
+
+Paredit mode is a special editing mode that keeps all matched characters
+(parentheses, square brackets, double quotes) balanced, i.e. all opening
+characters have a matching closing character. Most text entering and erasing
+commands try to maintain the balanced state, so no single matched character is
+added or deleted, they are entered or removed in pairs.
+The function takes care of strings and comments, so no parenthesis and square
+bracket balancing is performed inside a string or comment.
+
+The idea is taken from the paredit mode of Emacs, but not all paredit.el
+editing functions are implemented or behave exactly the same way as they do
+in Emacs.
+
+When you enter a '(' then a matching ')' is automatically inserted.
+If needed, spaces before and/or after the '()' pair are added.
+
+When you press ')' in insert mode then there's no need to insert a closing
+parenthesis mark (it is already there), so the cursor is simply advanced past
+the next closing parenthesis (then the next outer closing parenthesis, etc.).
+The result of this is however that when entering text with paredit mode
+you can use the same keystrokes as without paredit mode and you get the same
+result. Of course you can choose to not enter the closing parenthesis (as
+required without paredit mode), because it is already there.
+
+When you are trying to delete a ')' alone then it is not possible, the cursor
+is simply moved inside the list, where all regular characters can be deleted.
+When the list is finally empty: '()', then the deletion of the opening '('
+makes both parentheses erased at once, so the balanced state is maintained.
+
+All the above holds for [...] and "..." character pairs.
+
+When you are deleting multiple characters at once, e.g. deleting a whole line,
+or deleting till the end of the line, etc, then the deletion logic of a single
+character is iterated. This means that the whole line or the characters till
+the end of the line, etc are not necessarily deleted all. Depending on the
+number of open/close parentheses, square brackets, double quotes some of them
+might be kept in order to maintain the balanced state.
+For example if you press D in Normal mode to delete till the end of line
+between the a and b parameters of the following Clojure function definition:
+
+(defn myfunc [a b c] (+ a b c))
+               ^--- press D here
+
+then the closing ] as well as the last closing ) will not be deleted, because
+in the list you have an ( and a [ to be matched, so the result will be:
+
+(defn myfunc [a])
+
+If you are deleting multiple lines, then the above process is performed for
+all lines involved. If a line was not completely cleared, then it is joined
+with the next line and the process continues.
+
+
+Of course not all Vim commands are compatible with the paredit mode (e.g.
+you can yank and paste unbalanced code snippet, or comment out an asymmetrical
+part of the code), and there is also the possibility to edit the source code
+with paredit mode switched off or with another editor to make it unbalanced.
+When paredit mode detects that the underlying code is not balanced, then the
+paredit functionality is suspended until the top level form balance is fixed.
+As soon as all parens are matched, the paredit mode is automatically resumed.
+Paredit needs "syntax on" to identify the syntax elements of the underlying
+code, so if syntax is switched off, then paredit will not be suspended inside
+comments or strings.
+
+
+Slurpage and Barfage known from Emacs is also possible but in a different
+fashion: you don't move the symbols but move the opening or closing parenthesis
+over the symbol or a sub-list. This way you can move any symbol or sub-list
+into or out of the current list. It is not possible to move the parenthesis
+over its pair, so for example if you move the opening parenthesis to the right,
+then it will stop at the matched closing parenthesis.
+
+
+Paredit mode is set by default for .lisp and .clj files, but it is possible
+to switch it out by putting the following statement in the .vimrc file:
+
+    let g:paredit_mode = 0
+
+You can enable paredit mode for other file types as well. Here is how to set
+it for Scheme files (meant to be added to your .vimrc file):
+
+    au BufNewFile,BufRead *.scm call PareditInitBuffer()
+
+It is also possible to use the paredit mode alone, without the other parts of
+Slimv. The easiest way to do it is to delete all Slimv related files from the 
+ftplugin directory. If you don't intend to use Slimv's indentation and syntax
+files, then you need to keep only plugin/paredit.vim.
+Another way to prevent Slimv from loading by adding this to your .vimrc file:
+
+    let g:slimv_loaded = 1
+
+Slimv core will not be loaded but paredit will be loaded and assigned to
+.lisp and .clj files.
+
+
+Here follows a list of paredit keybindings:
+
+
+Insert Mode:
+
+    (              Inserts '()' and moves the cursor inside. Also adds leading
+                   or trailing spaces when needed.
+                   Inserts '(' when inside comment or string.
+
+    )              Moves the cursor to the next closing parenthesis mark of
+                   the current list. When pressed again then moves to the next
+                   outer closing parenthesis, etc, until the closing of the
+                   top level form is reached.
+                   Inserts ')' when inside comment or string.
+
+    [              Inserts '[]' and moves the cursor inside. Also adds leading
+                   or trailing spaces when needed.
+                   Inserts '[' when inside comment or string.
+
+    ]              Moves the cursor to the next closing square bracket of the
+                   current list. When pressed again then moves to the next
+                   outer closing square bracket, etc, until the closing of the
+                   top level form is reached.
+                   Inserts ']' when inside comment or string.
+
+    "              When outside of string, inserts '""' and moves the cursor
+                   inside. When inside string then moves to the closing '"'.                   
+                   Inserts '"' when inside comment. Also insert '"' when inside
+                   string and preceded by a '\'.
+
+    <BS>           When about to delete a (, ), [, ], or " and there are other
+                   characters inside, then just skip it to the left. When
+                   about to delete the opening part of the matched character
+                   with nothing inside, then the whole empty list is removed.
+
+    <Del>          When about to delete a (, ), [, ], or " and there are other
+                   characters inside, then just skip it to the right. When
+                   about to delete the closing part of the matched character
+                   with nothing inside, then the whole empty list is removed.
+
+
+Normal Mode:
+
+    (              Finds opening '(' of the current list. Can be pressed
+                   repeatedly until the opening of the top level form reached.
+
+    )              Finds closing ')' of the current list. Can be pressed
+                   repeatedly until the closing of the top level form reached.
+
+    <Leader><      If standing on a delimiter (parenthesis or square bracket)
+                   then moves it to the left by slurping or barfing the
+                   s-expression to the left, depending on the direction of the
+                   delimiter:
+                   Pressing '<' when standing on a ')' makes the s-expression
+                   to the left of the ')' going out of the current list.
+                   Pressing '<' when standing on a '(' makes the s-expression
+                   to the left of the '(' coming into the current list.
+                   For example pressing <Leader>< at position marked with |:
+                       (aaa bbb|)        --->    (aaa) bbb
+                       aaa |(bbb)        --->    (aaa bbb)
+
+    <Leader>>      If standing on a delimiter (parenthesis or square bracket)
+                   then moves it to the right by slurping or barfing the
+                   s-expression to the right, depending on the direction of the
+                   delimiter:
+                   Pressing '>' when standing on a '(' makes the s-expression
+                   to the right of the '(' going out of the current list.
+                   Pressing '>' when standing on a ')' makes the s-expression
+                   to the right of the ')' coming into the current list.
+                   For example pressing <Leader>< at position marked with |:
+                       (aaa|) bbb        --->    (aaa bbb)
+                       |(aaa bbb)        --->    aaa (bbb)
+
+    <Leader>J      Join two subsequent lists or strings. The first one must end
+                   before the cursor, the second one must start after the
+                   cursor position.
+                   For example pressing <Leader>J at position marked with |:
+                       (aaa)| (bbb)      --->    (aaa bbb)
+                       "aaa"| "bbb"      --->    "aaa bbb"
+
+    <Leader>O      Split ("Open") current list or string at the cursor position.
+                   Opposite of Join. Key O is selected because for the original
+                   Vim mapping J and O are also kind of opposites.
+                   For example pressing <Leader>O at position marked with |:
+                       (aaa |bbb)        --->    (aaa) (bbb)
+                       "aaa|bbb"         --->    "aaa" "bbb"
+
+    <Leader>W      Wrap the current symbol in a pair of parentheses. The cursor
+    <Leader>w(     is then positioned on the opening parenthesis, as wrapping
+                   is usually done because one wants to call a function with
+                   the symbol as parameter, so by pressing "a" one can enter
+                   the function name right after the newly inserted "(".
+                   For example pressing <Leader>W at position marked with |:
+                       (aaa b|bb ccc)    --->    (aaa (bbb) ccc)
+
+    <Leader>w[     Wrap the current symbol in a pair of square brackets,
+                   similarly to <Leader>W.
+                   For example pressing <Leader>w[ at position marked with |:
+                       (aaa b|bb ccc)    --->    (aaa [bbb] ccc)
+
+    <Leader>w"     Wrap the current symbol in a pair of double quotes,
+                   similarly to <Leader>W.
+                   For example pressing <Leader>w" at position marked with |:
+                       (aaa b|bb ccc)    --->    (aaa "bbb" ccc)
+
+    <Leader>S      Splice the current list into the containing list, i.e.
+                   remove the opening and closing parens. Opposite of wrap.
+                   For example pressing <Leader>S at position marked with |:
+                       (aaa (b|bb) ccc)  --->    (aaa bbb ccc)
+
+    x  or  <Del>   When about to delete a (, ), [, ], or " and there are other
+                   characters inside, then just skip it to the right. When
+                   about to delete the closing part of the matched character
+                   with nothing inside, then the whole empty list is removed.
+                   When preceded by a <count> value then delete this many
+                   characters.
+
+    X              When about to delete a (, ), [, ], or " and there are other
+                   characters inside, then just skip it to the left. When
+                   about to delete the opening part of the matched character
+                   with nothing inside, then the whole empty list is removed.
+
+    D              Keep deleting characters towards the end of line,
+                   maintaining the balanced state, i.e. keep the number of
+                   opening and closing parens the same.
+
+    C              Same as 'D' but go to insert mode at the end.
+
+    s              Same as 'x' but go to insert mode at the end.
+
+    dd             Delete whole line by keeping the balanced state, i.e.
+                   keep the number of opening and closing parens the same.
+                   When preceded by a <count> value then delete this many
+                   lines.
+
+    <Leader>S      Same as 'dd' but go to insert mode at the end.
+
+
+Visual Mode:
+
+    (              Finds opening '(' of the current list and selects the whole
+                   list. Can be pressed repeatedly until the top level form
+                   selected.
+
+    )              Finds closing ')' of the current list and selects the whole
+                   list. Can be pressed repeatedly until the top level form
+                   selected.
+
+    <Leader>W      Wrap the current visual selection in a pair of parentheses.
+    <Leader>w(     The visual selection is kept.
+
+    <Leader>w[     Wrap the current visual selection in a pair of square
+                   brackets. The visual selection is kept.
+
+    <Leader>w"     Wrap the current visual selection in a pair of double
+                   quotes. The visual selection is kept.
+
+
+Please note that if variable |g:paredit_shortmaps| is nonzero then the
+following normal mode mappings don't get a <Leader> prefix, they are mapped
+to existing (but infrequently used) Vim functions and instead the original Vim
+functions are mapped with the <Leader> prefix:
+
+                   <, >, J, O, W, S
+
+
+
+===============================================================================
 EXTERNAL UTILITIES                                             *slimv-external*
 
 This section is about utilities, settings, etc., not related strongly to Slimv,
@@ -786,33 +1130,35 @@ such mappings are not defined by Slimv.
 
     ==                      Reindent current line.
 
-    vab=   or    [(v%=      Select current form and reindent it.
+    vab=   or    [(v%=      Select current list and reindent it.
 
     99[(v%=                 Select top level form and reindent it.
 
 
 3. Parenthesis handling
 
-Vim obtains many tools to aid working with parentheses. This is a very important
-topic for a Lisp programmer.
+First of all there is paredit mode. If you don't like it, Vim still obtains
+many tools to aid working with parentheses. This is a very important topic
+for a Lisp programmer.
 
-    :inoremap ( ()<Esc>i    Automatically insert closing paren when an opening
-                            one is inserted.
+    :inoremap ( ()<Esc>i    Automatically insert closing parenthesis mark when
+                            an opening one is inserted.
 
-    :inoremap [ []<Esc>i    Same as above but for brackets.
+    :inoremap [ []<Esc>i    Same as above but for square brackets.
 
-    :set showmatch          Briefly jump with the cursor to the matching paren
-                            or bracket when a closing pair is inserted.
+    :set showmatch          Briefly jump with the cursor to the matching
+                            parenthesis or square bracket when a closing pair
+                            is inserted.
 
-    %                       Go to the matching paren or bracket.
+    %                       Go to the matching parenthesis or square bracket.
 
     :source $VIMRUNTIME/macros/matchit.vim
                             Adds extended matching with "%" to Vim.
 
-    vab    or    [(v%       Select current form.
-    vib                     Select current form without enclosing parens.
-    yab                     Yank current form.
-    dab                     Delete current form.
+    vab    or    [(v%       Select current list.
+    vib                     Select current list without enclosing parentheses.
+    yab                     Yank current list.
+    dab                     Delete current list.
 
     99[(v%                  Select top level form.
 
@@ -932,6 +1278,46 @@ FAQ                                                                 *slimv-faq*
 ===============================================================================
 CHANGE LOG                                                    *slimv-changelog*
 
+0.6.3  - Added option g:slimv_repl_return to return cursor to the editor window
+         from REPL buffer after evaluating an s-expression.
+       - Wrap: if standing on a paren then wrap the whole s-expression.
+       - Wrap selection: exit visual mode after command.
+       - Bugfix: inserting double quotes in paredit mode (like "\"").
+       - Bugfix: dd in paredit mode when unbalanced form is inside comment.
+       - Bugfix: reopen REPL buffer after closing it via :q.
+       - Bugfix: comment and string detection error with noignorecase setting
+         (thanks to Brian Kropf).
+       - Bugfix: wrong positioning when moving parenthesis to the right.
+       - Bugfix: defmacro detection problem (thanks to Philipp Marek).
+       - Bugfix: paredit wrap selection missed last character when 'selection'
+         was not "exclusive".
+
+0.6.2  - Added support for Mac OS X via Terminal.app (on behalf of Vlad Hanciuta).
+       - Added string "clj" as a detector for Clojure (by Vlad Hanciuta).
+       - Bugfix: paredit wrap function missed last character when 'selection'
+         was not "exclusive" (thanks to Marcin Fatyga).
+       - Bugfix: input was stuck inside SBCL debugger
+         (on behalf of Philipp Marek and Dmitry Petukhov).
+       - Bugfix: occasional error messages during REPL buffer update.
+       - Bugfix: REPL menu was sometimes missing.
+       - Bugfix: occasional command line color problems.
+
+0.6.1  - Added Split, Join, Wrap, Splice functions to Paredit Mode.
+       - Added g:paredit_shortmaps to select short/long paredit keymaps.
+       - Bugfix: delete commands put erased characters into yank buffer.
+       - Bugfix: D deletes only characters after the cursor position.
+
+0.6.0  - Added paredit mode.
+       - Set wrap mode for REPL buffer with keybindings.
+
+0.5.6  - Improved REPL buffer response time.
+       - Added debug log flushing frequency.
+       - Bugfix: early exit of REPL refresh mode on some machines.
+
+0.5.5  - Updated Clojure API to 1.1.
+       - Expand tilde-prefix to home directory on Linux.
+       - Autodetect Clojure in the user home directory on Linux.
+
 0.5.4  - Added autodetection for clojure-contrib.jar.
        - Added autodetection for Clozure CL.
        - Applied lisp_rainbow to Clojure's [].
@@ -1037,23 +1423,18 @@ ISSUES, LIMITATIONS, KNOWN BUGS                                  *slimv-issues*
 ===============================================================================
 TODO                                                               *slimv-todo*
 
-- Add Compile System.
-- Add Cross Reference functions.
-- Add Debugger.
-- Start client and server separately having two simpler commands for client
-  and server startup, instead of the existing g:slimv_client solution.
-- Implement an own main loop in Vim for the REPL buffer, poll REPL output
-  regularly, handle all Vim keypresses and commands inside the main loop,
-  continuously update the REPL buffer.
-- Rewrite client/server in Lisp, so that no Python would be needed,
-- Or put the (Python) client part back into the .vim script, rewrite only the
-  server part in Lisp.
-- Handle specific REPL output in Vim (like compilation notes).
+- Add package and namespace support.
+- Add a new way of refreshing the REPL buffer via checktime and autoread.
+- Update to Clojure 1.2.
+- Add Swank support, i.e. send commands to SLIME's Swank server.
 
 ===============================================================================
 CREDITS                                                         *slimv-credits*
 
 Author: Tamas Kovacs <kovisoft at gmail dot com>
+
+Please send comments, bug reports, suggestions, etc. to the e-mail address
+above.
 
 Credit must go out to Bram Moolenaar and all the Vim developers for making
 the world's (one of the) best editor.
@@ -1061,8 +1442,11 @@ Thanks to Eric Marsden and all the Emacs/SLIME developers for making SLIME.
 Special thanks to Mark Kantrowitz, Chris McConnell, Skef Wholey and
 Rob MacLachlan for creating the Metering System.
 Also special thanks to Erik Naggum, Yuji Minejima and others for making the
-Common Lisp Hyperspec lookup packages for SLIME.
-Thanks to the Vim community for testing and commenting the script.
+Common Lisp Hyperspec lookup packages for SLIME, and thanks to
+Taylor R. Campbell for the Emacs paredit.el script.
+Thanks to the Vim community for testing, commenting and patching the script,
+especially to Philipp Marek, Vlad Hanciuta, Marcin Fatyga, Dmitry Petukhov,
+Daniel Solano Gómez, Brian Kropf, Len Weincier.
 Last but not least many thanks to my wife Andrea (for the Italians out there:
 hey, this is a female name in Hungary :) for her support and patience.
 

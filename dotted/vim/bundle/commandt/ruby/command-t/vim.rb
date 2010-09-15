@@ -21,14 +21,23 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-module VIM
-  module Screen
-    def self.lines
-      VIM.evaluate('&lines').to_i
+require 'command-t/vim/screen'
+require 'command-t/vim/window'
+
+module CommandT
+  module VIM
+    def self.has_syntax?
+      ::VIM::evaluate('has("syntax")').to_i != 0
     end
 
-    def self.columns
-      VIM.evaluate('&columns').to_i
+    def self.pwd
+      ::VIM::evaluate 'getcwd()'
     end
-  end # module Screen
-end # module VIM
+
+    # Escape a string for safe inclusion in a Vim single-quoted string
+    # (single quotes escaped by doubling, everything else is literal)
+    def self.escape_for_single_quotes str
+      str.gsub "'", "''"
+    end
+  end # module VIM
+end # module CommandT

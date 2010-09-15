@@ -8,6 +8,7 @@ endif
 
 set runtimepath+=$HOME/.vim/andrei
 "source $HOME/.vim/autoload/pathogen.vim
+call pathogen#helptags()
 call pathogen#runtime_append_all_bundles() 
 
 " settings
@@ -55,9 +56,11 @@ set noerrorbells
 set whichwrap=<,>,h,l,b,s,~,[,]
 set wildmenu
 set wildmode=list:longest,full
-set wildignore=*.o,*.obj,*.pyc,*.d
+set wildignore=*.o,*.obj,*.pyc,*.d,*.swp,*.bak,*.hi,*.class,*.6,*.out
 set winaltkeys=no
 set writebackup
+set nobackup
+set noswapfile
 set writeany
 set iskeyword=@,48-57,128-167,224-235,_
 set listchars=tab:>.,trail:.,extends:>,precedes:<,eol:$
@@ -94,7 +97,10 @@ set grepprg=$HOME/bin/ack\ --noenv
 set grepformat=%f:%l:%m
 
 " settings: tabs and indentin
-set autoindent nocindent nosmartindent
+set autoindent
+set nocindent
+set nosmartindent
+set copyindent
 "set smarttab
 "set indentexpr=
 set expandtab
@@ -110,6 +116,8 @@ endif
 
 "nnoremap <silent> Q
 "nnoremap <silent> gQ
+
+nnoremap ; :
 
 if has("gui_running")
   " behave mswin
@@ -1026,8 +1034,8 @@ call KeyMap('n','<silent>', 'DL', 'E', ':call BrowserFromCurrentFilePath()<CR>')
 inoremap <C-space> <C-p>
 
 " key mappings
-let mapleader = "\\"
-let maplocalleader = "\\"
+let mapleader = ","
+let maplocalleader = ","
 
 """""""""" macvim
 if has("gui_macvim")

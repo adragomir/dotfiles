@@ -1,0 +1,11 @@
+:HighlightTags	easytags.txt	/*:HighlightTags*
+:HighlightTags	easytags.txt	/*:HighlightTags*
+:UpdateTags	easytags.txt	/*:UpdateTags*
+easytags.txt	easytags.txt	/*easytags.txt*
+g:easytags_always_enabled	easytags.txt	/*g:easytags_always_enabled*
+g:easytags_autorecurse	easytags.txt	/*g:easytags_autorecurse*
+g:easytags_cmd	easytags.txt	/*g:easytags_cmd*
+g:easytags_file	easytags.txt	/*g:easytags_file*
+g:easytags_include_members	easytags.txt	/*g:easytags_include_members*
+g:easytags_on_cursorhold	easytags.txt	/*g:easytags_on_cursorhold*
+g:easytags_resolve_links	easytags.txt	/*g:easytags_resolve_links*

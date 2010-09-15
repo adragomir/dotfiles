@@ -20,6 +20,7 @@ RequireFileAll	clojure.txt	/*RequireFileAll*
 RunTests	clojure.txt	/*RunTests*
 SourceLookupInteractive	clojure.txt	/*SourceLookupInteractive*
 SourceLookupWord	clojure.txt	/*SourceLookupWord*
+StartLocalRepl	clojure.txt	/*StartLocalRepl*
 StartRepl	clojure.txt	/*StartRepl*
 aw	clojure.txt	/*aw*
 clj-nailgun-server	clojure.txt	/*clj-nailgun-server*
@@ -44,6 +45,7 @@ mw	clojure.txt	/*mw*
 rF	clojure.txt	/*rF*
 rf	clojure.txt	/*rf*
 rt	clojure.txt	/*rt*
+sR	clojure.txt	/*sR*
 si	clojure.txt	/*si*
 sr	clojure.txt	/*sr*
 sw	clojure.txt	/*sw*
