@@ -20,6 +20,7 @@ set runtimepath+=$HOME/.vim/pandoc
 set runtimepath+=$HOME/.vim/commandt
 set runtimepath+=$HOME/.vim/visualmark
 set runtimepath+=$HOME/.vim/conque
+set runtimepath+=$HOME/.vim/gist
 set runtimepath+=$HOME/.vim/align
 set runtimepath+=$HOME/.vim/bufexplorer
 set runtimepath+=$HOME/.vim/indent_finder
@@ -36,6 +37,7 @@ set runtimepath+=$HOME/.vim/bufkill
 set runtimepath+=$HOME/.vim/ctk
 set runtimepath+=$HOME/.vim/easytags
 set runtimepath+=$HOME/.vim/nerd_tree
+set runtimepath+=$HOME/.vim/ooc
 
 " user after paths
 " set runtimepath+=one for each plugin
@@ -100,6 +102,10 @@ set gdefault
 "
 set noguipty
 "set clipboard+=unnamed
+
+" vim 7.3
+set undofile
+set undodir=/Users/adragomi/.vim/tmp/vimundos
 
 " settings: windows and buffers
 "set noequalalways
@@ -1228,6 +1234,9 @@ let javaScript_fold=1
 
 " netrw
 let g:netrw_browsex_viewer="open"
+
+let g:gist_clip_command = 'pbcopy'
+let g:gist_open_browser_after_post = 1
 
 " fuf, fuf-fizzy
 let g:fuf_modes = ['fizzyfile', 'fizzydir', 'buffer', 'tag']
