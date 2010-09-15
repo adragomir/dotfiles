@@ -7,42 +7,9 @@ if has("macunix") && has("gui_running") && system('ps xw | grep -c "[V]im -psn"'
 endif
 
 set runtimepath+=$HOME/.vim/andrei
-set runtimepath+=$HOME/.vim/nerd_commenter
-set runtimepath+=$HOME/.vim/matchit
-set runtimepath+=$HOME/.vim/surround
-set runtimepath+=$HOME/.vim/mkd
-set runtimepath+=$HOME/.vim/ruby
-set runtimepath+=$HOME/.vim/vjde
-set runtimepath+=$HOME/.vim/vimclojure
-set runtimepath+=$HOME/.vim/go
-set runtimepath+=$HOME/.vim/javascript
-set runtimepath+=$HOME/.vim/pandoc
-set runtimepath+=$HOME/.vim/commandt
-set runtimepath+=$HOME/.vim/visualmark
-set runtimepath+=$HOME/.vim/conque
-set runtimepath+=$HOME/.vim/gist
-set runtimepath+=$HOME/.vim/align
-set runtimepath+=$HOME/.vim/bufexplorer
-set runtimepath+=$HOME/.vim/indent_finder
-set runtimepath+=$HOME/.vim/sudo
-set runtimepath+=$HOME/.vim/fontsize
-set runtimepath+=$HOME/.vim/pastie
-set runtimepath+=$HOME/.vim/snipmate
-set runtimepath+=$HOME/.vim/zencoding
-set runtimepath+=$HOME/.vim/gccsense
-set runtimepath+=$HOME/.vim/taglist
-set runtimepath+=$HOME/.vim/supertab
-set runtimepath+=$HOME/.vim/yankring
-set runtimepath+=$HOME/.vim/bufkill
-set runtimepath+=$HOME/.vim/ctk
-set runtimepath+=$HOME/.vim/easytags
-set runtimepath+=$HOME/.vim/nerd_tree
-set runtimepath+=$HOME/.vim/ooc
+"source $HOME/.vim/autoload/pathogen.vim
+call pathogen#runtime_append_all_bundles() 
 
-" user after paths
-" set runtimepath+=one for each plugin
-set runtimepath+=$HOME/.vim/snipmate/after
- 
 " settings
 set nocompatible              " use VI incompatible features
 set noautochdir
