@@ -212,7 +212,7 @@ export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w][${s
 #########
 export CURLY_LOCATION=$HOME/bin/ozzy
 export PATH=/usr/local/php5/bin:$PATH
-export PATH=$PATH:/usr/local/bin:$HOME/bin:$HOME/bin/ozzy:$HOME/andrei/leo/bin
+export PATH=/usr/local/bin:$PATH:$HOME/bin:$HOME/bin/ozzy:$HOME/andrei/leo/bin
 export PATH=$PATH:"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin"
 export PATH=$PATH:"$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS"
 export PATH=$PATH:/usr/local/lib/ocaml_godi/bin/
@@ -251,7 +251,7 @@ export ANT_OPTS="-Xms256m -Xmx512m"
 
 # maven
 export MAVEN_REPO=$HOME/.m2/repository
-export PATH=$PATH:/usr/local/maven-2.0.4/bin
+export PATH=/Users/adragomi/work/tools/apache-maven-3.0/bin/:$PATH
 #
 # Your previous .profile  (if any) is saved as .profile.dpsaved
 # Setting the path for DarwinPorts.
@@ -319,13 +319,13 @@ alias bochs='LTDL_LIBRARY_PATH=$HOME/work/tools/bochs/lib/bochs/plugins BXSHARE=
 
 #editor
 case "$HOSTNAME" in
-    $USER-mac*)
-    alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g';
-    alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim';
-    ;;
-    sheeva*)
-    alias vim='/usr/bin/vim';
-    ;;
+  $USER-mac*)
+  alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g';
+  alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim';
+  ;;
+  sheeva*)
+  alias vim='/usr/bin/vim';
+  ;;
 esac
 
 # git commands
@@ -480,6 +480,12 @@ function mycd {
 #functions
 ##########
 
+# mkdir, cd into it
+mkcd () {
+  mkdir -p "$*"
+  cd "$*"
+}
+
 calc () 
 { echo "$*" | bc -l; }
 
@@ -545,3 +551,4 @@ export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
 export PATH=$PATH:$ROO_HOME/bin
 
 export M2_HOME=/usr/share/maven
+export NOTES=$HOME/Documents/personal/life/notes@/
