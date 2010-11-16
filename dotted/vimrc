@@ -11,19 +11,39 @@ set runtimepath+=$HOME/.vim/andrei
 call pathogen#helptags()
 call pathogen#runtime_append_all_bundles() 
 
-" settings
+" general settings
 set nocompatible              " use VI incompatible features
 set noautochdir
+set history=10000             " number of history items
 "set autowriteall
-set ruler showcmd
+
+" backup settings
+set nobackup " do not keep backups after close
+set nowritebackup " do not keep a backup while working
+set noswapfile " don't keep swp files either
+set backupdir=~/.vim/backup " store backups under ~/.vim/backup
+set backupcopy=yes " keep attributes of original file
+set backupskip=/tmp/*,$TMPDIR/*,$TMP/*,$TEMP/*
+set directory=~/.vim/swap,~/tmp,. " keep swp files under ~/.vim/swap
+
+" ui settings
+set ruler                     " show the cursor position all the time
+set scrolloff=3               " start scrolling before end
+set showcmd                   " show incomplete commands
 set number                    " show line numbers
+set wildmenu
+set wildmode=list:longest,full
+set wildignore=*.o,*.obj,*.pyc,*.d,*.swp,*.bak,*.hi,*.6,*.out
+set whichwrap=<,>,h,l,b,s,~,[,]
+set shortmess=aTI             " supress some file messages
+set sidescrolloff=4           " minchars to show around cursor
+
 if has("gui_running")
     set mouse=a
 endif
 set selectmode=mouse,key      " select model
 set keymodel=startsel         ",stopsel
 set autoread                  " read outside modified files
-set directory=/tmp            " temp directory
 set encoding=UTF-8            " file encoding
 set formatoptions=tcroqn1     " auto format
 "set textwidth=80             " text width
@@ -31,16 +51,13 @@ set formatoptions=tcroqn1     " auto format
 set guioptions=AciMgrb       " NEVER EVER put ''a in here
 "set guioptions=+
 
-set history=10000             " number of history items
+" visual cues
 set ignorecase                " ignore case when searching
 set smartcase                 " ignore case when searching
 set hlsearch                  " highlight last search
 set incsearch                 " show matches while searching
 set laststatus=2              " always show status line
-set scrolloff=2               " minlines to show around cursor
 "set cursorline
-set sidescrolloff=4           " minchars to show around cursor
-set shortmess=aTI             " supress some file messages
 set showbreak=>               " character to show that a line is wrapped
 set showcmd                   " show number of selected chars/lines in status
 set showmatch                 " briefly jump to matching brace
@@ -53,21 +70,14 @@ set viminfo=%,h,'1000,"1000,:1000,n~/.viminfo
 set virtualedit=block
 set novisualbell
 set noerrorbells
-set whichwrap=<,>,h,l,b,s,~,[,]
-set wildmenu
-set wildmode=list:longest,full
-set wildignore=*.o,*.obj,*.pyc,*.d,*.swp,*.bak,*.hi,*.class,*.6,*.out
 set winaltkeys=no
-set writebackup
-set nobackup
-set noswapfile
 set writeany
 set iskeyword=@,48-57,128-167,224-235,_
 set listchars=tab:>.,trail:.,extends:>,precedes:<,eol:$
 set showtabline=2
 set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
-set completeopt=menu,menuone,preview
+set completeopt=menu,preview,longest
 set gdefault
 "
 set noguipty
@@ -110,7 +120,7 @@ set softtabstop=2
 
 " look & feel
 if has("gui_running") && has("macunix")
-  set guifont=Monaco:h12
+  set guifont=Inconsolata:h13
   set antialias
 endif
 
@@ -200,7 +210,8 @@ set t_Co=256
 map H ^
 map L $
 
-colorscheme xoria256
+let g:molokai_original = 1
+colorscheme molokai
 
 " syntax highlighting
 syntax enable
@@ -1204,6 +1215,10 @@ let vimclojure#SplitPos = "right"
 let vimclojure#HightlightBuiltins = 1
 let vimclojure#WantNailgun = 1
 
+" ruby
+let g:rubycomplete_buffer_loading = 1
+let g:rubycomplete_classes_in_global = 1
+
 " javascript
 let javaScript_fold=1
 
@@ -1213,18 +1228,16 @@ let g:netrw_browsex_viewer="open"
 let g:gist_clip_command = 'pbcopy'
 let g:gist_open_browser_after_post = 1
 
-" fuf, fuf-fizzy
-let g:fuf_modes = ['fizzyfile', 'fizzydir', 'buffer', 'tag']
-"let g:fuf_file_exclude = '\v\~$|\.o$|\.exe$|\.bak$|\.swp$|\.class$|\.jar$|\.pdf$'
-"let g:fuf_dir_exclude = '\vbuild.*$'
-
-
+let g:molokai_original = 1
 
 " auto commands
 command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 
 " remove all buffers on exit so we don't have them as hidden on reopen
 autocmd VimLeavePre * 1,255bwipeout
+
+autocmd Filetype java setlocal omnifunc=javacomplete#Complete
+autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 
 " remove empty or otherwise dead buffers when moving away from them
 autocmd TabLeave    * call OnTabLeave()
