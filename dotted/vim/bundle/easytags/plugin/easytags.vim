@@ -84,8 +84,8 @@ function! s:CheckCtags(name, version)
       " to throw an error when the first one doesn't!
       return
     endtry
-    let pattern = 'Exuberant Ctags \zs\d\+\(\.\d\+\)*'
-    let g:easytags_ctags_version = matchstr(listing, pattern)
+    let pattern = 'Exuberant Ctags'
+    let g:easytags_ctags_version = '5.8' "matchstr(listing, pattern)
     return s:VersionToNumber(g:easytags_ctags_version) >= a:version
   endif
 endfunction
