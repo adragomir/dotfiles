@@ -7,3 +7,6 @@ dotted/vim/.VimballRecord
 dotted/vim/.netrwhist
 dotless/bin/go/*
 dotless/bin/svnup.yaml
+dotted/vim/bundle/javacomplete/java
+dotted/vim/tmp/
+dotted/vim/.simplenoterc
