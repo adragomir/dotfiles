@@ -223,13 +223,17 @@ function! javacomplete#Complete(findstart, base)
     let result = []
     if b:dotexpr !~ '^\s*$'
         if b:context_type == s:CONTEXT_AFTER_DOT
+        	call s:Trace("%% CompleteAfterDot")
             let result = s:CompleteAfterDot(b:dotexpr)
         elseif b:context_type == s:CONTEXT_IMPORT || b:context_type == s:CONTEXT_IMPORT_STATIC || b:context_type == s:CONTEXT_PACKAGE_DECL || b:context_type == s:CONTEXT_NEED_TYPE
+        	call s:Trace("%% GetMembers")
             let result = s:GetMembers(b:dotexpr[:-2])
         elseif b:context_type == s:CONTEXT_METHOD_PARAM
             if b:incomplete == '+'
+                call s:Trace("%% GetConstructorList")
                 let result = s:GetConstructorList(b:dotexpr)
             else
+                call s:Trace("%% CompleteAfterDot 2")
                 let result = s:CompleteAfterDot(b:dotexpr)
             endif
         endif
@@ -279,6 +283,7 @@ endfunction
 " Precondition:	incomplete must be a word without '.'.
 " return all the matched, variables, fields, methods, types, packages
 fu! s:CompleteAfterWord(incomplete)
+    call s:Trace("Complete after word *******: " . a:incomplete)
     " packages in jar files
     if !exists('s:all_packages_in_jars_loaded')
         call s:DoGetPackageInfoByReflection('-', '-P')
@@ -288,6 +293,7 @@ fu! s:CompleteAfterWord(incomplete)
     let pkgs = []
     let types = []
     for key in keys(s:cache)
+        call s:Trace("Complete after word search in key: " . key)
         if key =~# '^' . a:incomplete
             if type(s:cache[key]) == type('') || get(s:cache[key], 'tag', '') == 'PACKAGE'
                 call add(pkgs, {'kind': 'P', 'word': key})
@@ -306,11 +312,25 @@ fu! s:CompleteAfterWord(incomplete)
     if b:context_type != s:CONTEXT_PACKAGE_DECL
         " single type import
         for fqn in s:GetImports('imports_fqn')
+            call s:Trace("Complete after word search in fqn: " . fqn)
             let name = fqn[strridx(fqn, ".")+1:]
             if name =~ '^' . a:incomplete
                 call add(types, {'kind': 'C', 'word': name})
             endif
         endfor
+
+        call s:Trace("package: " . s:GetPackageName())
+        let packageName = s:GetPackageName()
+        let dp = get(s:cache, packageName, {})
+        if dp != {}
+            for shortClassName in get(dp, 'classes', {})
+                let fullClassName = packageName . "." . shortClassName
+                let name = fullClassName[strridx(fullClassName, ".")+1:]
+                if name =~ '^' . a:incomplete
+                    call add(types, {'kind': 'C', 'word': name})
+                endif
+            endfor
+        endif
 
         " current file
         let lnum_old = line('.')
@@ -351,6 +371,7 @@ endfu
 " return members of the value of expression
 function! s:CompleteAfterDot(expr)
     let items = s:ParseExpr(a:expr)		" TODO: return a dict containing more than items
+    call s:Trace("CompleteAfterDot: " . string(items))
     if empty(items)
         return []
     endif
@@ -383,6 +404,8 @@ function! s:CompleteAfterDot(expr)
         let items[i] = substitute(items[i], '\s', '', 'g')
         let i += 1
     endwhile
+
+    call s:Trace("CompleteAfterDot items: " . string(items))
 
     if i > 1
         " cases: "this.|", "super.|", "ClassName.this.|", "ClassName.super.|", "TypeName.class.|"
@@ -1198,6 +1221,7 @@ fu! s:SearchForName(name, first, fullmatch)
         return result
     endif
 
+    call s:Trace("SearchForName: " . a:name)
     " use java_parser.vim
     if javacomplete#GetSearchdeclMethod() == 4
         " declared in current file
@@ -1206,6 +1230,7 @@ fu! s:SearchForName(name, first, fullmatch)
         let targetPos = java_parser#MakePos(line('.')-1, col('.')-1)
         let trees = s:SearchNameInAST(unit, a:name, targetPos, a:fullmatch)
         for tree in trees
+            call s:Trace("SearchForName tree: " . string(tree))
             if tree.tag == 'VARDEF'
                 call add(result[2], tree)
             elseif tree.tag == 'METHODDEF'
@@ -1251,6 +1276,20 @@ function! s:GetDeclaredClassName(var)
     " use java_parser.vim
     if javacomplete#GetSearchdeclMethod() == 4
         let variable = get(s:SearchForName(var, 1, 1)[2], -1, {})
+        if get(variable, 'tag', '') == 'VARDEF'
+        	let tmp = java_parser#type2Str(variable.vartype)
+        	if type(variable.vartype) == type({})
+                if variable.vartype.clazz.name == 'Entry' && get(variable.vartype.clazz, 'selected', {}) != {}
+                    return variable.vartype.clazz.selected.name . "." . tmp
+                else
+                    return tmp
+                endif
+        	else
+        	    return tmp
+        	endif
+        else
+        	return get(variable, 't', '')
+        endif
         return get(variable, 'tag', '') == 'VARDEF' ? java_parser#type2Str(variable.vartype) : get(variable, 't', '')
     endif
 
@@ -2004,6 +2043,9 @@ fu! s:DoGetTypeInfoForFQN(fqns, srcpath, ...)
     "call s:Info('FQN1&2: ' . string(keys(files)))
     for fqn in a:fqns
         call s:Trace("DoGetTypeInfoForFQN fqn for: ** " . fqn)
+        if stridx(fqn, ".") >= 0
+            call s:Trace("DoGetTypeInfoForFQN COMPOSITE ******" . fqn[0 : stridx(fqn, ".") - 1])
+        endif
         if !has_key(s:cache, fqn) " || get(get(s:files, files[fqn], {}), 'modifiedtime', 0) != getftime(files[fqn])
             let ti = s:GetClassInfoFromSource(fqn, '')
             if !empty(ti)
@@ -2219,7 +2261,7 @@ fu! s:Tree2ClassInfo(t)
     endfor
 
     " convert type name in extends to fqn for class defined in source files
-    if !has_key(a:t, 'classpath') && has_key(a:t, 'extends')
+    if !has_key(a:t, 'classpath') && has_key(a:t, 'parent')
         if has_key(a:t, 'filepath') && a:t.filepath != s:GetCurrentFileKey()
             let filepath = a:t.filepath
             let packagename = get(s:files[filepath].unit, 'package', '')
@@ -2228,7 +2270,7 @@ fu! s:Tree2ClassInfo(t)
             let packagename = s:GetPackageName()
         endif
 
-        let extends = a:t.extends
+        let extends = a:t.parent
         let i = 0
         while i < len(extends)
             let ci = s:DoGetClassInfo(java_parser#type2Str(extends[i]), filepath, packagename)
@@ -2390,7 +2432,7 @@ fu! s:SearchMember(ci, name, fullmatch, kind, returnAll, memberkind, ...)
     " key `classpath` indicates it is a loaded class from classpath
     " All public members of a loaded class are stored in current ci
     if !has_key(a:ci, 'classpath') || (a:kind == 1 || a:kind == 2)
-        for i in get(a:ci, 'extends', [])
+        for i in get(a:ci, 'parent', [])
             let ci = s:DoGetClassInfo(java_parser#type2Str(i))
             let members = s:SearchMember(ci, a:name, a:fullmatch, a:kind == 1 ? 2 : a:kind, a:returnAll, a:memberkind)
             let result[0] += members[0]

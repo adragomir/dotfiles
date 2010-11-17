@@ -2828,13 +2828,13 @@ fu! s:classDeclaration(mods, dc)
   " extends
   if b:token == 'EXTENDS'
     call s:nextToken()
-    let type.extends = [s:type()]
+    let type.parent = [s:type()]
   endif
 
   " implements
   if b:token == 'IMPLEMENTS'
     call s:nextToken()
-    let type.implements = s:typeList()
+    let type.impl = s:typeList()
   endif
 
   let type.defs = s:classOrInterfaceBody(type.name, 0)
@@ -2854,7 +2854,7 @@ fu! s:interfaceDeclaration(mods, dc)
   " extends
   if b:token == 'EXTENDS'
     call s:nextToken()
-    let type.extends = s:typeList()
+    let type.parent = s:typeList()
   endif
 
   let type.defs = s:classOrInterfaceBody(type.name, 1)
@@ -2871,7 +2871,7 @@ fu! s:enumDeclaration(mods, dc)
 
   if b:token == 'IMPLEMENTS'
     call s:nextToken()
-    let type.implements = s:typeList()
+    let type.impl = s:typeList()
   endif
 
   let type.defs = s:enumBody(type.name)
