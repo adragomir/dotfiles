@@ -1237,6 +1237,7 @@ command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 autocmd VimLeavePre * 1,255bwipeout
 
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
+autocmd Filetype java map <leader>b :call javacomplete#GoToDefinition()<CR>
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 
 " remove empty or otherwise dead buffers when moving away from them
