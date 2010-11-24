@@ -2,7 +2,7 @@
 dotless/bin/araxis*
 dotless/bin/p4
 dotless/bin/svnup.yaml
-dotted/irssi/*
+.irssi/logs/*
 dotted/vim/.VimballRecord
 dotted/vim/.netrwhist
 dotless/bin/go/*
