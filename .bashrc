@@ -462,7 +462,6 @@ alias mkdir='mkdir -p'
 alias reload="source ~/.profile"
 alias rc='v ~/.profile && source ~/.profile'
 alias finde='find -E'
-alias g='gvim.sh'
 
 alias ack="ack -i -a"
 alias pgrep='pgrep -lf'

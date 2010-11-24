@@ -1,4 +1,4 @@
-#!/opt/local/bin/ruby
+#!/usr/bin/env ruby
 #
 require 'find'
 $start = Dir.pwd
@@ -28,11 +28,7 @@ actions = {
     }, 
     '.bzr' => proc { |path|
         Dir.chdir(path) do
-            if File.file?(path + "/.bzr/branch/bound")
-                "  repository: " + IO.read(path + "/.bzr/branch/bound").gsub(/[\r\n]/, "")
-            else
-                "  repository: " + IO.read(path + "/.bzr/branch/parent").gsub(/[\r\n]/, "") + IO.read(path + "/.bzr/branch/branch-name").gsub(/[\r\n]/, "")
-            end
+            "  repository: " + `bzr info | tail -n 1`
         end
     }, 
     '.git' => proc { |path|
