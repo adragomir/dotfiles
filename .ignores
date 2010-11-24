@@ -21,6 +21,7 @@ Library/
 .vampkey
 .vim-fuf
 .vimfuzzyfinder
+.vimtags
 .viminfo
 .Xauthority
 .mc/cedit/cooledit.macros
@@ -30,3 +31,5 @@ Library/
 .mc/Tree
 tags
 tags-ja
+.vim/tmp
+.bin/.DS_Store

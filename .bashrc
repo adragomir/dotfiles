@@ -308,6 +308,21 @@ export FCSH_VIM_ROOT=$HOME/work/flex/sdk/bin
 # aliases
 #########
 
+# common
+alias ack="ack -i -a"
+alias vidir="EDITOR=v vidir"
+alias vi="v"
+alias vim="v"
+alias gvim="g"
+alias c="clear"
+alias l="ls -AGlFT"
+alias lt="ls -AGlFTtr"
+alias g?="grep -e $1"
+alias gem="sudo gem"
+alias macgem="sudo macgem"
+#alias git=hub
+ 
+
 # pssh 
 alias pssh_mia='pssh -P -l admin -h ~/.pssh/hosts_saasbase_miami'
 alias pssh_rtc='pssh -P -l hadoop -h ~/.pssh/hosts_rtc'
@@ -360,7 +375,6 @@ alias asc_tamarin_shell='$FLEX_HOME/bin/asc -AS3 -import $TAMARIN_HOME/core/buil
 alias avm='$AVMSHELL_COMMAND'
 alias avm_debug='$AVMSHELL_DEBUG_COMMAND'
 
-
 # clojure
 alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
 alias clojure_boot='rlwrap java -Xbootclasspath/a:$MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
@@ -384,6 +398,7 @@ alias cdd='cd - '
 alias mkdir='mkdir -p'
 
 alias reload="source ~/.profile"
+alias rc='v ~/.profile && source ~/.profile'
 alias finde='find -E'
 alias g='gvim.sh'
 
