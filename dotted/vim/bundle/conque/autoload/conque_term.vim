@@ -102,6 +102,7 @@ function! conque_term#set_buffer_settings(command, pre_hooks) "{{{
     setlocal foldmethod=manual " don't fold on {{{}}} and stuff
     setlocal bufhidden=hide    " when buffer is no longer displayed, don't wipe it out
     setfiletype conque_term    " useful
+    setlocal nolist            " MSch
     sil exe "setlocal syntax=" . g:ConqueTerm_Syntax
 
 endfunction " }}}

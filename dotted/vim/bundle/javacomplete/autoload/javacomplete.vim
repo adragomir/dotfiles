@@ -95,7 +95,7 @@ let b:errormsg = ''
 let s:cache = {}    " FQN -> member list, e.g. {'java.lang.StringBuffer': classinfo, 'java.util': packageinfo, '/dir/TopLevelClass.java': compilationUnit}
 let s:files = {}    " source file path -> properties, e.g. {filekey: {'unit': compilationUnit, 'changedtick': tick, }}
 let s:history = {}    " 
-let s:nailgun_started = 0
+let g:nailgun_started = 0
 
 " FindStart function for completion {{{1
 function! s:FindStart()
@@ -209,6 +209,38 @@ function! s:FindStart()
     return -1
 endf
 
+func! s:EditExisting(fname, command)
+    " Get the window number of the file in the current tab page.
+    let winnr = bufwinnr(a:fname)
+    if winnr <= 0
+        " Not found, look in other tab pages.
+        let bufnr = bufnr(a:fname)
+        for i in range(tabpagenr('$'))
+            if index(tabpagebuflist(i + 1), bufnr) >= 0
+                " Make this tab page the current one and find the window number.
+                exe 'tabnext ' . (i + 1)
+                let winnr = bufwinnr(a:fname)
+                break
+            endif
+        endfor
+    endif
+
+    if winnr > 0
+        exe winnr . "wincmd w"
+    elseif exists('*fnameescape')
+        exe "tabedit " . fnameescape(a:fname)
+    else
+        exe "tabedit " . escape(a:fname, " \t\n*?[{`$\\%#'\"|!<")
+    endif
+
+    if a:command != ''
+        call s:Trace("command: " . a:command)
+        exe a:command
+    endif
+
+    redraw
+endfunc
+
 function! javacomplete#GoToDefinition()
     call s:Trace("GoToDefinition")
     call s:FindStart()
@@ -235,16 +267,17 @@ function! javacomplete#GoToDefinition()
                 let type = trees[0].t
                 let ci = s:DoGetClassInfo(type)
                 if get(ci, 'source', '') != ''
-                    exec "tabedit " . get(ci, 'source', '')
                     if other != ''
                         for f in get(ci, 'fields', [])
                             if f.n ==# other
-                                call setpos(".", [0, f.pos[0], f.pos[1], 0])
+                                call s:EditExisting(get(ci, 'source', ''), 'call setpos(".", [0, ' . f.pos[0]. ', ' . f.pos[1] . ', ' .  '0])')
+                                "call setpos(".", [0, f.pos[0], f.pos[1], 0])
                             endif
                         endfor
                         for f in get(ci, 'methods', [])
                             if f.n ==# other
-                                call setpos(".", [0, f.pos[0], f.pos[1], 0])
+                                call s:EditExisting(get(ci, 'source', ''), 'call setpos(".", [0, ' . f.pos[0]. ', ' . f.pos[1] . ', ' .  '0])')
+                                "call setpos(".", [0, f.pos[0], f.pos[1], 0])
                             endif
                         endfor
                     else
@@ -253,19 +286,19 @@ function! javacomplete#GoToDefinition()
                 endif
             endif
         else
-            call s:Trace("is type: " . ident)
             let ci = s:DoGetClassInfo(ident)
             if get(ci, 'source', '') != ''
-                exec "tabedit " . get(ci, 'source', '')
+                call s:EditExisting(get(ci, 'source', ''), '')
+                "exec "tabedit " . get(ci, 'source', '')
                 if other != ''
                     for f in get(ci, 'fields', [])
                         if f.n ==# other
-                            call setpos(".", [0, f.pos[0], f.pos[1], 0])
+                            call s:EditExisting(get(ci, 'source', ''), 'call setpos(".", [0, ' . f.pos[0]. ', ' . f.pos[1] . ', ' .  '0])')
                         endif
                     endfor
                     for f in get(ci, 'methods', [])
                         if f.n ==# other
-                            call setpos(".", [0, f.pos[0], f.pos[1], 0])
+                            call s:EditExisting(get(ci, 'source', ''), 'call setpos(".", [0, ' . f.pos[0]. ', ' . f.pos[1] . ', ' .  '0])')
                         endif
                     endfor
                 else
@@ -285,12 +318,12 @@ function! javacomplete#Complete(findstart, base)
         return s:FindStart()
     endif
 
-    "if s:nailgun_started == 0
-        "let classfile = globpath(&rtp, 'java/target/java_vim_sense-1.0-jar-with-dependencies.jar')
-        "call s:Trace("Starting classfile: " . classfile)
-        "call s:System("java -Xmx512m " . classfile . " com.martiansoftware.nailgun.NGServer 2114 &", "Complete")
-        "let s:nailgun_started = 1
-    "endif
+    if g:nailgun_started == 0
+        let classfile = globpath(&rtp, 'java/target/java_vim_sense-1.0-jar-with-dependencies.jar')
+        call s:Trace("Starting classfile: " . classfile)
+        call s:System("java -Xmx512m " . classfile . " com.martiansoftware.nailgun.NGServer 2114 &", "Complete")
+        let g:nailgun_started = 1
+    endif
 
     " Return list of matches.
     call s:Trace('b:context_type: "' . b:context_type . '"  b:incomplete: "' . b:incomplete . '"  b:dotexpr: "' . b:dotexpr . '"')
@@ -2054,7 +2087,7 @@ fu! s:Info(msg)
 endfu
 
 fu! s:Log(level, key, ...)
-    if a:level >= -1 "javacomplete#GetLogLevel()
+    if a:level >= -1"javacomplete#GetLogLevel()
 ruby <<EOF
         key = VIM::evaluate("a:key")
         File.open("/Users/adragomi/javacomplete.txt", "a+") { |f|

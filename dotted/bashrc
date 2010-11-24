@@ -530,6 +530,8 @@ export DVA_HOME=$HOME/work/theoden/depot/shared_code/adobe/dva/adobe
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/spidermonkey/lib
 export DYLD_FRAMEWORK_PATH=$DYLD_FRAMEWORK_PATH:"$HOME/Applications/Racket v5.0.1/lib/"
 
+export PATH=/Users/adragomi/work/tools/gradle-0.9-rc-3/bin/:$PATH
+
 
 #GO
 export GOROOT=$HOME/temp/svn_other_projects/go
