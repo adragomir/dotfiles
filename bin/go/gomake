@@ -1,0 +1,3 @@
+#!/bin/sh
+export GOROOT=${GOROOT:-/Users/adragomi/temp/svn_other_projects/go}
+exec make "$@"
