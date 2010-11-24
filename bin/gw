@@ -4,4 +4,4 @@ if [ -z $1 ];then
 else
   FILES=$*
 fi
-~/Apps/MacVim.app/Contents/MacOS/Vim -g -u ~/.vimrc -U ~/.gvimrc --servername CHELU --remote-tab-wait-silent $FILES
+$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g -u ~/.vimrc -U ~/.gvimrc --servername CHELU --remote-tab-wait-silent $FILES
