@@ -14,6 +14,8 @@
 # .bashrc
  
 
+bind Space:magic-space
+
 function cl() { cd "$@" && l; }
 function cs () {
   cd "$@"
@@ -108,6 +110,32 @@ extract () {
   fi
 }
 
+# hack & ship
+function current_git_branch {
+  git branch 2> /dev/null | grep '\*' | awk '{print $2}'
+}
+
+hack()
+{
+  CURRENT=$(current_git_branch)
+  git checkout master
+  git pull origin master
+  git checkout ${CURRENT}
+  git rebase master
+  unset CURRENT
+}
+ 
+ship()
+{
+  CURRENT=$(current_git_branch)
+  git checkout master
+  git merge ${CURRENT}
+  git push origin master
+  git checkout ${CURRENT}
+  unset CURRENT
+}
+
+
 # bash completions for j
 complete -C 'j --complete "$COMP_LINE"' j
 
@@ -118,9 +146,12 @@ export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/sc
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
 #export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
+export LESS="-rX"
 export PAGER=less
-export EDITOR='vim'
+export EDITOR=g
+export GIT_EDITOR=gw
 export VISUAL='vim'
+export INPUTRC=~/.inputrc
 export LC_ALL="en_US.UTF-8"
 # Fancy PWD display function
 # The home directory (HOME) is replaced with a ~
@@ -148,6 +179,11 @@ bash_prompt_command() {
   fi
 }
 
+complete -C ~/.bash_completion.d/rake-complete.rb -o default rake
+source ~/.bash_completion.d/git-completion.bash
+source ~/.bash_completion.d/go
+complete -o default -o nospace -F _git gh
+
 # Tab complete for sudo
 complete -cf sudo
 # type and which complete on commands
@@ -171,8 +207,6 @@ set -o ignoreeof
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
 
-source ~/.bash/git-completion.bash
-source ~/.bash/todo_completer.sh
 complete -F _todo_sh -o default t
 
 VERSIONER_PERL_PREFER_32_BIT=yes
@@ -200,6 +234,35 @@ sh_white="\[\033[1;37m\]"
 # TODO
 HOSTCOLOUR=${sh_green}
 
+function git_current_branch {
+  git branch 2>/dev/null | awk '/^\* /{print $2 }'
+}
+function git_dirty {
+  git st 2> /dev/null | grep -c : | awk '{if ($1 > 0) print "*"}'
+}
+function git_formatted_current_branch_with_dirty {
+  if [ -n "$(git_current_branch)" ]; then
+    echo " ($(git_current_branch)$(git_dirty))"
+  fi
+  #awk '{if ($(git_current_branch)) print " (" $(git_current_branch)$(git_dirty) ")"}'
+}
+function dollar_or_pound {
+  if [ $(whoami) == "root" ]; then
+    echo "#"
+  else
+    echo "$"
+  fi
+}
+# bleh, el ugly :/
+function git_status {
+  if [ -n "$(git status 2>/dev/null)" ]; then
+    #echo "$(git status 2>/dev/null)"
+    echo "["
+  else
+    echo "["
+  fi
+}
+
 function git_dirty_flag() {
   [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo "⚡"
   #git status 2> /dev/null | grep -c : | awk '{if ($1 > 0) print "☠"}'
@@ -210,9 +273,8 @@ export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w][${s
 #########
 # Path 
 #########
-export CURLY_LOCATION=$HOME/bin/ozzy
 export PATH=/usr/local/php5/bin:$PATH
-export PATH=/usr/local/bin:$PATH:$HOME/bin:$HOME/bin/ozzy:$HOME/andrei/leo/bin
+export PATH=/usr/local/bin:$PATH:$HOME/bin:$HOME/bin/binary:$HOME/andrei/leo/bin
 export PATH=$PATH:"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin"
 export PATH=$PATH:"$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS"
 export PATH=$PATH:/usr/local/lib/ocaml_godi/bin/
@@ -224,7 +286,7 @@ export PATH=$PATH:/usr/hla
 export hlalib=/usr/hla/hlalib
 export hlainc=/usr/hla/include
 
-#export DISPLAY=:0.0
+export DISPLAY=:0.0
 
 # colors in terminal
 export CLICOLOR=1
@@ -280,7 +342,7 @@ export PATH=$PATH:/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin
 ####################
 export HISTFILE=$HOME/.history/`date +%Y%m%d`.hist
 export HISTSIZE=100000
-export HISTCONTROL=ignoredups
+export HISTCONTROL=erasedups
 
 # browser
 export BROWSER=/Applications/Firefox.app/Contents/MacOS/firefox-bin
