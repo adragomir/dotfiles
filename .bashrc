@@ -281,6 +281,7 @@ export PATH=$PATH:/usr/local/lib/ocaml_godi/bin/
 export PATH=$PATH:"$HOME/Applications/Racket v5.0.1/bin/"
 export PATH=$HOME/.cabal/bin/:$PATH
 export PATH=$PATH:/usr/hla
+export PATH=$PATH:$HOME/temp/svn_other_projects/sshuttle
 
 
 export hlalib=/usr/hla/hlalib
