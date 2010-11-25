@@ -1236,6 +1236,8 @@ command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 " remove all buffers on exit so we don't have them as hidden on reopen
 autocmd VimLeavePre * 1,255bwipeout
 
+let g:javacomplete_ng=/Users/adragomi/dotfiles/bin/binary/ng
+
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
 autocmd Filetype java map <leader>b :call javacomplete#GoToDefinition()<CR>
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
