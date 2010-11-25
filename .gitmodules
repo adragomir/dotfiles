@@ -34,3 +34,6 @@
 [submodule ".vim/bundle/nerdtree"]
 	path = .vim/bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree.git
+[submodule ".vim/bundle/pastie"]
+	path = .vim/bundle/pastie
+	url = https://github.com/tpope/vim-pastie.git
