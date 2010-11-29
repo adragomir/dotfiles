@@ -16,9 +16,6 @@
 [submodule ".vim/bundle/gist"]
 	path = .vim/bundle/gist
 	url = https://github.com/mattn/gist-vim.git
-[submodule ".vim/bundle/javacomplete"]
-	path = .vim/bundle/javacomplete
-	url = https://github.com/adragomir/javacomplete.git
 [submodule ".vim/bundle/ku"]
 	path = .vim/bundle/ku
 	url = https://github.com/kana/vim-ku.git
@@ -73,3 +70,6 @@
 [submodule ".vim/bundle/delimitmate"]
 	path = .vim/bundle/delimitmate
 	url = https://github.com/Raimondi/delimitMate.git
+[submodule ".vim/bundle/vimpdb"]
+	path = .vim/bundle/vimpdb
+	url = https://github.com/gotcha/vimpdb.git
