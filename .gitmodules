@@ -73,3 +73,6 @@
 [submodule ".vim/bundle/vimpdb"]
 	path = .vim/bundle/vimpdb
 	url = https://github.com/gotcha/vimpdb.git
+[submodule ".vim/bundle/javacomplete"]
+	path = .vim/bundle/javacomplete
+	url = git://github.com/adragomir/javacomplete.git
