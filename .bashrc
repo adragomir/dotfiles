@@ -13,8 +13,10 @@
 # bashrc
 # .bashrc
  
-
 bind Space:magic-space
+test -r /sw/bin/init.sh && . /sw/bin/init.sh
+
+# functions {{{
 
 function cl() { cd "$@" && l; }
 function cs () {
@@ -135,24 +137,101 @@ ship()
   unset CURRENT
 }
 
+function ps? {
+  for i in $*; do
+    grepstr=[${i:0:1}]${i:1:${#i}}
+    tmp=`ps axwww | grep $grepstr | awk '{print $1}'`
+    echo "${i}: ${tmp/\\n/,}"
+  done
+}
 
+function cdgem {
+  cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
+}
+
+function cdpython {
+  cd /Library/Frameworks/Python.framework/Versions/2.4/lib/python2.4/site-packages/;
+}
+
+function mycd {
+
+    MYCD=/tmp/mycd.txt
+    touch ${MYCD}
+
+    typeset -i x
+    typeset -i ITEM_NO
+    typeset -i i
+    x=0
+
+    if [[ -n "${1}" ]]; then
+       if [[ -d "${1}" ]]; then
+          print "${1}" >> ${MYCD}
+          sort -u ${MYCD} > ${MYCD}.tmp
+          mv ${MYCD}.tmp ${MYCD}
+          FOLDER=${1}
+       else
+          i=${1}
+          FOLDER=$(sed -n "${i}p" ${MYCD})
+       fi
+    fi
+
+    if [[ -z "${1}" ]]; then
+       print ""
+       cat ${MYCD} | while read f; do
+          x=$(expr ${x} + 1)
+          print "${x}. ${f}"
+       done
+       print "\nSelect #"
+       read ITEM_NO
+       FOLDER=$(sed -n "${ITEM_NO}p" ${MYCD})
+    fi
+
+    if [[ -d "${FOLDER}" ]]; then
+       cd ${FOLDER}
+    fi
+}
+
+# mkdir, cd into it
+mkcd () {
+  mkdir -p "$*"
+  cd "$*"
+}
+
+calc () { echo "$*" | bc -l; }
+
+# }}}
+
+# completion {{{
 # bash completions for j
 complete -C 'j --complete "$COMP_LINE"' j
 
-###
-###
-###
-export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/scons-1.2.0"
-export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
+complete -C ~/.bash_completion.d/rake-complete.rb -o default rake
+source ~/.bash_completion.d/git-completion.bash
+source ~/.bash_completion.d/go
+complete -o default -o nospace -F _git gh
 
-#export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
-export LESS="-rX"
-export PAGER=less
-export EDITOR=g
-export GIT_EDITOR=gw
-export VISUAL='vim'
-export INPUTRC=~/.inputrc
-export LC_ALL="en_US.UTF-8"
+# Tab complete for sudo
+complete -cf sudo
+# type and which complete on commands
+complete -c command type which
+# builtin completes on builtins
+#complete -b builtin
+# shopt completes with shopt options
+#complete -A shopt shopt
+# set completes with set options
+complete -A setopt set
+# readonly and unset complete with shell variables
+complete -v readonly unset
+# bg completes with stopped jobs
+complete -A stopped -P '%' bg
+# other job commands
+complete -j -P '%' fg jobs disown
+
+complete -F _todo_sh -o default t
+
+# }}}
+
+# prompt {{{
 # Fancy PWD display function
 # The home directory (HOME) is replaced with a ~
 # /home/me/stuff          -> ~/stuff               if USER=me
@@ -179,40 +258,7 @@ bash_prompt_command() {
   fi
 }
 
-complete -C ~/.bash_completion.d/rake-complete.rb -o default rake
-source ~/.bash_completion.d/git-completion.bash
-source ~/.bash_completion.d/go
-complete -o default -o nospace -F _git gh
-
-# Tab complete for sudo
-complete -cf sudo
-# type and which complete on commands
-complete -c command type which
-# builtin completes on builtins
-#complete -b builtin
-# shopt completes with shopt options
-#complete -A shopt shopt
-# set completes with set options
-complete -A setopt set
-# readonly and unset complete with shell variables
-complete -v readonly unset
-# bg completes with stopped jobs
-complete -A stopped -P '%' bg
-# other job commands
-complete -j -P '%' fg jobs disown
-
-#stops ctrl+d from logging me out
-set -o ignoreeof
-
-# Turn on extended globbing and programmable completion
-shopt -s extglob progcomp
-
-complete -F _todo_sh -o default t
-
-VERSIONER_PERL_PREFER_32_BIT=yes
-PERL_BADLANG=0
-
-#prompt
+# prompt
 sh_norm="\[\033[0m\]"
 sh_black="\[\033[0;30m\]"
 sh_darkgray="\[\033[1;30m\]"
@@ -270,84 +316,15 @@ function git_dirty_flag() {
 
 export PS1="${sh_yellow}[<\u@${HOSTCOLOUR}\h${sh_norm}${sh_yellow}>][\t][\w][${sh_red}\$(__git_ps1 '%s')${sh_yellow}]\n${sh_yellow}$ ${sh_norm}"
 
-#########
-# Path 
-#########
-export PATH=/usr/local/php5/bin:$PATH
-export PATH=/usr/local/bin:$PATH:$HOME/bin:$HOME/bin/binary:$HOME/andrei/leo/bin
-export PATH=$PATH:"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin"
-export PATH=$PATH:"$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS"
-export PATH=$PATH:/usr/local/lib/ocaml_godi/bin/
-export PATH=$PATH:"$HOME/Applications/Racket v5.0.1/bin/"
-export PATH=$HOME/.cabal/bin/:$PATH
-export PATH=$PATH:/usr/hla
-export PATH=$PATH:$HOME/temp/svn_other_projects/sshuttle
+# }}}
 
+# options {{{
 
-export hlalib=/usr/hla/hlalib
-export hlainc=/usr/hla/include
+# #stops ctrl+d from logging me out
+set -o ignoreeof
 
-export DISPLAY=:0.0
-
-# colors in terminal
-export CLICOLOR=1
-export LSCOLORS=ExFxCxDxBxegedabagacad
-
-# Flex & Apollo
-# don't know which is used
-export FLEX_HOME=$HOME/work/tools/flex-3.4.1
-export FLEX_SDK=$FLEX_HOME
-export FLEX_SDK_HOME=$FLEX_HOME
-
-# tamarin, asc and friends
-export TAMARIN_HOME=$HOME/temp/svn_other_projects/lang.tamarin-central
-export ASC=$HOME/temp/svn_other_projects/flexsdk/lib/asc.jar
-export ASC_COMMAND="java -ea -DAS3 -DAVMPLUS -classpath ${ASC} macromedia.asc.embedding.ScriptCompiler  -abcfuture "
-export AVMSHELL_COMMAND=$HOME/temp/svn_other_projects/lang.tamarin-central/__build/shell/avmshell
-export AVMSHELL_DEBUG_COMMAND=$HOME/temp/svn_other_projects/lang.tamarin-central/__build_debugger/shell/avmshell
-
-export PATH=$PATH:$FLEX_HOME/bin
-
-#ant
-export ANT_HOME=$HOME/work/tools/apache-ant-1.7.1
-export ANT_OPTS="-Xms256m -Xmx512m"
-
-# maven
-export MAVEN_REPO=$HOME/.m2/repository
-export PATH=/Users/adragomi/work/tools/apache-maven-3.0/bin/:$PATH
-#
-# Your previous .profile  (if any) is saved as .profile.dpsaved
-# Setting the path for DarwinPorts.
-export PATH=$PATH:/opt/local/bin:/opt/local/sbin
-export PATH=$PATH:/opt/local/jruby/bin
-export LC_CTYPE=en_US.UTF-8
-
-# Setting PATH for MacPython 2.5
-# The orginal version is saved in .profile.pysave
-PATH="/usr/local/mysql/bin:${PATH}"
-export PATH
-
-# Setting PATH for MacPython 2.5
-# The orginal version is saved in .profile.pysave
-PATH=$PATH:$HOME/Applications/zero-1.0.0.P20070702-1062
-export PATH
-
-export PYTHONPATH=/opt/local/lib/python2.5/site-packages:$HOME/.python
-export PYTHONPATH=$PYTHONPATH:$HOME/.python
-export JMETER_HOME=~/work/tools/jakarta-jmeter-2.3.2
-PATH=$PATH:$JMETER_HOME/bin
-export PATH=$PATH:/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/
-
-####################
-### history settings
-####################
-export HISTFILE=$HOME/.history/`date +%Y%m%d`.hist
-export HISTSIZE=100000
-export HISTCONTROL=erasedups
-
-# browser
-export BROWSER=/Applications/Firefox.app/Contents/MacOS/firefox-bin
-
+# Turn on extended globbing and programmable completion
+shopt -s extglob progcomp
 # shell options
 # extended globbing
 shopt -s extglob
@@ -363,13 +340,151 @@ shopt -s histverify
 shopt -s globstar
 shopt -s autocd
 
+# history settings
+export HISTFILE=$HOME/.history/`date +%Y%m%d`.hist
+export HISTSIZE=100000
+export HISTCONTROL=erasedups
+
+# browser
+export BROWSER=/Applications/Firefox.app/Contents/MacOS/firefox-bin
+
+# }}}
+
+# program settings & paths {{{
+export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/scons-1.2.0"
+export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
+
+# flex & air
+export FLEX_HOME=$HOME/work/tools/flex-3.4.1
+export FLEX_SDK=$FLEX_HOME
+export FLEX_SDK_HOME=$FLEX_HOME
+
+# tamarin, asc and friends
+export TAMARIN_HOME=$HOME/temp/svn_other_projects/lang.tamarin-central
+export ASC=$HOME/temp/svn_other_projects/flexsdk/lib/asc.jar
+export ASC_COMMAND="java -ea -DAS3 -DAVMPLUS -classpath ${ASC} macromedia.asc.embedding.ScriptCompiler  -abcfuture "
+export AVMSHELL_COMMAND=$HOME/temp/svn_other_projects/lang.tamarin-central/__build/shell/avmshell
+export AVMSHELL_DEBUG_COMMAND=$HOME/temp/svn_other_projects/lang.tamarin-central/__build_debugger/shell/avmshell
+
+# python
+export PYTHONPATH=/opt/local/lib/python2.5/site-packages:$HOME/.python
+export PYTHONPATH=$PYTHONPATH:$HOME/.python
+export PYTHONSTARTUP=$HOME/.pythonstartup
+
+#ant
+export ANT_HOME=$HOME/work/tools/apache-ant-1.7.1
+export ANT_OPTS="-Xms256m -Xmx512m"
+
+# maven
+export MAVEN_REPO=$HOME/.m2/repository
+
+#export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
+export LESS="-rX"
+export PAGER=less
+export EDITOR=g
+export GIT_EDITOR=gw
+export VISUAL='vim'
+export INPUTRC=~/.inputrc
+export LC_ALL="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
+export VERSIONER_PERL_PREFER_32_BIT=yes
+export PERL_BADLANG=0
+export DISPLAY=:0.0
+
+# hla
+export hlalib=/usr/hla/hlalib
+export hlainc=/usr/hla/include
+
+# colors in terminal
+export CLICOLOR=1
+export LSCOLORS=ExFxCxDxBxegedabagacad
+
+#GO
+export GOROOT=$HOME/temp/svn_other_projects/go
+export GOOS=darwin
+export GOARCH=amd64
+export GOBIN=$HOME/bin/go
+
 export P4CONFIG=.p4conf
 export HTML_TIDY=$HOME/.tidyconf
 export FCSH_VIM_ROOT=$HOME/work/flex/sdk/bin
 
-#########
-# aliases
-#########
+export WIKI=$HOME/Documents/personal/life/exploded/
+
+export JAQL_HOME=$HOME/work/saasbase_env/jaql
+export HADOOP_HOME=$HOME/work/saasbase_env/hadoop
+
+export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
+
+export MONO_GAC_PREFIX=/usr/local
+
+# luatext
+#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c/
+#export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,/usr/local/texlive/texmf-local/scripts/context/lua,$HOME/texmf/scripts/context/lua}'
+#export TEXMF='{$HOME/.texlive2008/texmf-config,$HOME/.texlive2008/texmf-var,$HOME/texmf,/usr/local/texlive/2008/texmf-config,/usr/local/texlive/2008/texmf-var,/usr/local/texlive/2008/texmf,/usr/local/texlive/texmf-local,/usr/local/texlive/2008/texmf-dist,/usr/local/texlive/2008/texmf.gwtex}'
+export TEXMFCACHE=/tmp
+#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
+
+# java
+export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
+#export MAVEN_HOME=/usr/share/maven
+#export JUNIT_HOME=/usr/share/junit
+
+# haxe
+#export HAXE_LIBRARY_PATH=/usr/local/haxe/std:.
+#export NEKOPATH=/usr/local/neko
+
+
+#export M2_HOME=/usr/share/maven
+export NOTES=$HOME/Documents/personal/life/notes@/
+
+# }}}
+
+# path {{{
+export PATH=\
+/usr/local/bin:\
+/usr/local/php5/bin:\
+$HOME/bin:\
+$HOME/bin/binary:\
+"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin":\
+"$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
+$HOME/work/tools/apache-maven-3.0/bin/:\
+/usr/local/lib/ocaml_godi/bin/:\
+"$HOME/Applications/Racket v5.0.1/bin/":\
+$HOME/.cabal/bin/:\
+$PATH:/usr/hla:\
+$HOME/temp/svn_other_projects/sshuttle/:\
+$FLEX_HOME/bin:\
+/opt/local/bin:\
+/opt/local/sbin:\
+/opt/local/jruby/bin:\
+/usr/local/mysql/bin:\
+$HOME/Applications/zero-1.0.0.P20070702-1062:\
+$HOME/Applications/dev/Factor:\
+$HOME/work/tools/emulator/Vice/tools:\
+$HOME/work/tools/gradle-0.9-rc-3/bin/:\
+$HOME/bin/go:\
+$HOME/work/tools/rhino1_7R2/:\
+$HOME/work/tools/nasm/:\
+$HOME/temp/svn_other_projects/rock/bin:\
+$HOME/.cljr/bin:\
+$PATH:$ROO_HOME/bin\
+$PATH
+
+export MANPATH=\
+/opt/loca/share/man:\
+/usr/local/man:\
+$MANPATH
+
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:\
+/usr/local/spidermonkey/lib
+
+export DYLD_FRAMEWORK_PATH=$DYLD_FRAMEWORK_PATH:\
+"$HOME/Applications/Racket v5.0.1/lib/"
+
+# }}}
+
+# aliases {{{
 
 # common
 alias ack="ack -i -a"
@@ -383,15 +498,14 @@ alias lt="ls -AGlFTtr"
 alias g?="grep -e $1"
 alias gem="sudo gem"
 alias macgem="sudo macgem"
-#alias git=hub
  
-
 # pssh 
 alias pssh_mia='pssh -P -l admin -h ~/.pssh/hosts_saasbase_miami'
 alias pssh_rtc='pssh -P -l hadoop -h ~/.pssh/hosts_rtc'
 alias pscp_rtc='pscp -l hadoop -h ~/.pssh/hosts_rtc'
 alias pssh_rtc='pssh -P -l admin -h ~/.pssh/hosts_staging_css'
 alias pscp_rtc='pscp -l admin -h ~/.pssh/hosts_staging_css'
+
 # bochs
 alias bochs='LTDL_LIBRARY_PATH=$HOME/work/tools/bochs/lib/bochs/plugins BXSHARE=$HOME/work/tools/bochs/share/bochs $HOME/work/tools/bochs/bin/bochs'
 
@@ -409,23 +523,16 @@ esac
 # git commands
 alias gss="git stash save"
 alias gsp="git stash pop"
-# git
 alias gl="git log"
 alias ga="git add"
 alias gr="git reset"
 alias gs="git status"
 alias gst="git status"
-
-# git diff
 alias gd="git diff"
 alias gdc="git diff --cached"
-
 alias g-update-deleted="git ls-files -z --deleted | git update-index -z --remove --stdin"
-
-#git branch
 alias gb="git branch"
 alias gba="git branch -a -v"
-
 alias gfr="git fetch && git rebase refs/remotes/origin/master"
 alias gci="git commit"
 alias gco="git checkout"
@@ -444,7 +551,8 @@ alias clojure_boot='rlwrap java -Xbootclasspath/a:$MAVEN_REPO/org/clojure/clojur
 alias clj='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
 alias ng-server='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/vimclojure/vimclojure/2.2.0-SNAPSHOT/vimclojure-2.2.0-SNAPSHOT.jar com.martiansoftware.nailgun.NGServer 127.0.0.1'
 
-#builtin commands
+# builtin commands
+
 # make top default to ordering by CPU usage:
 alias top='top -ocpu'
 # more lightweight version of top which doesn't use so much CPU itself:
@@ -455,21 +563,15 @@ alias l="ls -AGlFT"
 alias la='ls -A'
 alias lt="ls -AGlFTtr"
 alias lc="cl"
-
 alias cdd='cd - '
-
 alias mkdir='mkdir -p'
-
 alias reload="source ~/.profile"
 alias rc='v ~/.profile && source ~/.profile'
 alias finde='find -E'
-
 alias ack="ack -i -a"
 alias pgrep='pgrep -lf'
-
 alias df='df -h'
 alias du='du -h -c'
-
 alias psa='ps auxwww'
 alias ping='ping -c 5'
 alias grep='grep --colour'
@@ -478,13 +580,13 @@ alias irb='irb --readline -r irb/completion -rubygems'
 alias ri='ri -Tf ansi'
 alias tu='top -o cpu'
 alias tm='top -o vsize'
-
 alias t="~/bin/todo.py -d '$HOME/Documents/personal/life/exploded/todo@/'"
 
 # text 2 html
 alias textile='/usr/bin/redcloth'
 alias markdown='/usr/local/bin/markdown'
 
+# mathematica
 alias math='rlwrap $HOME/Applications/Mathematica.app/Contents/MacOS/MathKernel'
 
 # hadoop, hbase, etc
@@ -496,138 +598,4 @@ alias zk='$HOME/work/saasbase_env/zookeeper/bin/zkCli.sh'
 alias saasbase='$HOME/work/saasbase_env/saasbase/src/saasbase_thrift/bin/saasbase'
 alias psall='ps? NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer'
 
-alias nasm='$HOME/work/tools/nasm/nasm'
-
-function ps? {
-  for i in $*; do
-    grepstr=[${i:0:1}]${i:1:${#i}}
-    tmp=`ps axwww | grep $grepstr | awk '{print $1}'`
-    echo "${i}: ${tmp/\\n/,}"
-  done
-}
-
-function cdgem {
-  cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
-}
-
-function cdpython {
-  cd /Library/Frameworks/Python.framework/Versions/2.4/lib/python2.4/site-packages/;
-}
-
-function mycd {
-
-    MYCD=/tmp/mycd.txt
-    touch ${MYCD}
-
-    typeset -i x
-    typeset -i ITEM_NO
-    typeset -i i
-    x=0
-
-    if [[ -n "${1}" ]]; then
-       if [[ -d "${1}" ]]; then
-          print "${1}" >> ${MYCD}
-          sort -u ${MYCD} > ${MYCD}.tmp
-          mv ${MYCD}.tmp ${MYCD}
-          FOLDER=${1}
-       else
-          i=${1}
-          FOLDER=$(sed -n "${i}p" ${MYCD})
-       fi
-    fi
-
-    if [[ -z "${1}" ]]; then
-       print ""
-       cat ${MYCD} | while read f; do
-          x=$(expr ${x} + 1)
-          print "${x}. ${f}"
-       done
-       print "\nSelect #"
-       read ITEM_NO
-       FOLDER=$(sed -n "${ITEM_NO}p" ${MYCD})
-    fi
-
-    if [[ -d "${FOLDER}" ]]; then
-       cd ${FOLDER}
-    fi
-}
-
-
-##########
-#functions
-##########
-
-# mkdir, cd into it
-mkcd () {
-  mkdir -p "$*"
-  cd "$*"
-}
-
-calc () 
-{ echo "$*" | bc -l; }
-
-alias h="sudo hostname $USER-mac.corp.adobe.com"
-
-export MONO_GAC_PREFIX=/usr/local
-
-export PATH=$PATH:$CINTSYSDIR
-export PATH=$PATH:$HOME/Applications/dev/Factor
-
-export PYTHONSTARTUP=~/.pythonstartup
-
-
-# luatext
-#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c/
-#export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,/usr/local/texlive/texmf-local/scripts/context/lua,$HOME/texmf/scripts/context/lua}'
-#export TEXMF='{$HOME/.texlive2008/texmf-config,$HOME/.texlive2008/texmf-var,$HOME/texmf,/usr/local/texlive/2008/texmf-config,/usr/local/texlive/2008/texmf-var,/usr/local/texlive/2008/texmf,/usr/local/texlive/texmf-local,/usr/local/texlive/2008/texmf-dist,/usr/local/texlive/2008/texmf.gwtex}'
-export TEXMFCACHE=/tmp
-#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
-
-#export PATH=$PATH:/usr/local/texlive/2008/bin/universal-darwin
-
-export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
-#export MAVEN_HOME=/usr/share/maven
-#export JUNIT_HOME=/usr/share/junit
-
-export PATH=$PATH:$HOME/work/tools/emulator/Vice/tools
-# haxe
-#export HAXE_LIBRARY_PATH=/usr/local/haxe/std:.
-#export NEKOPATH=/usr/local/neko
-#export PATH=$PATH:/usr/local/arm-apple-darwin/bin/
-export MANPATH=/opt/local/share/man:/usr/local/man:$MANPATH
-
-export LANDINGPAD=
-
-test -r /sw/bin/init.sh && . /sw/bin/init.sh
-
-# wiki
-export WIKI=$HOME/Documents/personal/life/exploded/
-export DVA_HOME=$HOME/work/theoden/depot/shared_code/adobe/dva/adobe
-
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/spidermonkey/lib
-export DYLD_FRAMEWORK_PATH=$DYLD_FRAMEWORK_PATH:"$HOME/Applications/Racket v5.0.1/lib/"
-
-export PATH=/Users/adragomi/work/tools/gradle-0.9-rc-3/bin/:$PATH
-
-
-#GO
-export GOROOT=$HOME/temp/svn_other_projects/go
-export GOOS=darwin
-export GOARCH=amd64
-export GOBIN=$HOME/bin/go
-
-export PATH=$PATH:$HOME/bin/go
-export PATH=$PATH:$HOME/work/tools/rhino1_7R2/
-export PATH=$PATH:$HOME/work/tools/nasm/
-# ooc
-export PATH=$PATH:$HOME/temp/svn_other_projects/rock/bin
-
-export JAQL_HOME=$HOME/work/saasbase_env/jaql
-export HADOOP_HOME=$HOME/work/saasbase_env/hadoop
-
-export PATH=$HOME/.cljr/bin:$PATH
-export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
-export PATH=$PATH:$ROO_HOME/bin
-
-export M2_HOME=/usr/share/maven
-export NOTES=$HOME/Documents/personal/life/notes@/
+# }}}
