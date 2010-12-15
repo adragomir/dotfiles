@@ -79,9 +79,6 @@
 [submodule ".vim/bundle/gundo"]
 	path = .vim/bundle/gundo
 	url = https://github.com/sjl/gundo.vim.git
-[submodule ".oh-my-zsh"]
-	path = .oh-my-zsh
-	url = https://adragomir@github.com/adragomir/oh-my-zsh.git
 [submodule ".vim/bundle/vimorganizer"]
 	path = .vim/bundle/vimorganizer
 	url = https://github.com/hsitz/VimOrganizer.git
