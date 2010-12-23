@@ -651,7 +651,7 @@ ship()
 
 function pswhich {
   for i in $*; do
-    grepstr=[${i:0:1}]${i:1:${#i}}
+    grepstr=[${i[1,2]}]${i[2,${#i}]}
     tmp=`ps axwww | grep $grepstr | awk '{print $1}'`
     echo "${i}: ${tmp/\\n/,}"
   done
@@ -811,7 +811,7 @@ $HOME/bin:\
 $HOME/bin/binary:\
 "/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin":\
 "$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
-$HOME/work/tools/apache-maven-3.0/bin/:\
+#$HOME/work/tools/apache-maven-3.0/bin/:\
 /usr/local/lib/ocaml_godi/bin/:\
 "$HOME/Applications/Racket v5.0.1/bin/":\
 $HOME/.cabal/bin/:\
@@ -959,7 +959,13 @@ alias mapred='$HOME/work/saasbase_env/hadoop/bin/mapred'
 alias hbase='$HOME/work/saasbase_env/hbase/bin/hbase'
 alias zk='$HOME/work/saasbase_env/zookeeper/bin/zkCli.sh'
 alias saasbase='$HOME/work/saasbase_env/saasbase/src/saasbase_thrift/bin/saasbase'
-alias psall='ps? NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer'
+alias psall='pswhich NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer'
 
 # }}}
 
+# {{{ modules
+zmodload zsh/datetime
+zmodload zsh/stat
+zmodload zsh/mathfunc
+
+# }}}
