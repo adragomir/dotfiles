@@ -48,7 +48,7 @@ set encoding=UTF-8            " file encoding
 set formatoptions=tcroqn1     " auto format
 "set textwidth=80             " text width
 "set guioptions=cr+bie"M"m	  " aA BAD
-set guioptions=AciMgrb       " NEVER EVER put ''a in here
+set guioptions=AciMgrbe       " NEVER EVER put ''a in here
 "set guioptions=+
 
 " visual cues
@@ -64,7 +64,7 @@ set showmatch                 " briefly jump to matching brace
 set matchtime=1               " show matching brace time (1/10 seconds)
 set showmode                  " show mode in status when not in normal mode
 set nostartofline             " don't move to start of line after commands
-set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=%(%-5([%R%H%W]\ %)\ %10([%Y]%{ShowFileFormatFlag(&fileformat)}\ %)\ %L\ lines%)
+set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[Byte:\ %3b]\ [Offset:\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y]%{ShowFileFormatFlag(&fileformat)}\ %)\ %L\ lines%)
 set undolevels=10000
 set viminfo=%,h,'1000,"1000,:1000,n~/.viminfo
 set virtualedit=block
@@ -1238,6 +1238,7 @@ autocmd VimLeavePre * 1,255bwipeout
 
 let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
 
+autocmd Filetype java setlocal expandtab tabstop=2 shiftwidth=2
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
 autocmd Filetype java map <leader>b :call javacomplete#GoToDefinition()<CR>
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
@@ -1245,8 +1246,8 @@ autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 " remove empty or otherwise dead buffers when moving away from them
 autocmd TabLeave    * call OnTabLeave()
 
-"set guitablabel=%{GuiTabLabel()}
-set tabline=%!MyTabLine()
+set guitablabel=%{GuiTabLabel()}
+"set tabline=%!MyTabLine()
 
 "let g:user_zen_settings = {
   "'php' : {
@@ -1295,4 +1296,9 @@ if has("autocmd")
     \ endif
 endif
 
-"set noantialias
+" hosts {{{
+let hostfile=$HOME . '.vim/hosts/' . hostname() . ".vim"
+if filereadable(hostfile)
+    exe 'source ' . hostfile
+endif
+" }}}
