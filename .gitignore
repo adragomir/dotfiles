@@ -5,8 +5,8 @@ bin/svnup.yaml
 .irssi/logs/*
 .vim/.VimballRecord
 .vim/.netrwhist
-bin/go/*
 .bin/svnup.yaml
 .vim/bundle/javacomplete/java
 .vim/tmp/
 .vim/.simplenoterc
+bin/binary/*
