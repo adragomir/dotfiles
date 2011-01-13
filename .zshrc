@@ -766,7 +766,7 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 export GOROOT=$HOME/temp/svn_other_projects/go
 export GOOS=darwin
 export GOARCH=amd64
-export GOBIN=$HOME/bin/go
+export GOBIN=$HOME/bin/binary/go
 
 export P4CONFIG=.p4conf
 export HTML_TIDY=$HOME/.tidyconf
@@ -826,7 +826,7 @@ $HOME/Applications/zero-1.0.0.P20070702-1062:\
 $HOME/Applications/dev/Factor:\
 $HOME/work/tools/emulator/Vice/tools:\
 $HOME/work/tools/gradle-0.9-rc-3/bin/:\
-$HOME/bin/go:\
+$HOME/bin/binary/go:\
 $HOME/work/tools/rhino1_7R2/:\
 $HOME/work/tools/nasm/:\
 $HOME/temp/svn_other_projects/rock/bin:\
