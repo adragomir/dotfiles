@@ -88,3 +88,6 @@
 [submodule ".vim/bundle/neverland-vim-theme"]
 	path = .vim/bundle/neverland-vim-theme
 	url = https://github.com/trapd00r/neverland-vim-theme.git
+[submodule ".vim/bundle/chapa"]
+	path = .vim/bundle/chapa
+	url = https://github.com/alfredodeza/chapa.vim.git
