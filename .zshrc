@@ -649,6 +649,11 @@ ship()
   unset CURRENT
 }
 
+git-pull-rebase () {
+  git fetch origin
+  git rebase -p origin/master
+}
+
 function pswhich {
   for i in $*; do
     grepstr=[${i[1,2]}]${i[2,${#i}]}
@@ -802,6 +807,7 @@ export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
 export NOTES=$HOME/Documents/personal/life/notes@/
 
 # }}}
+
 
 # path {{{
 export PATH=\
@@ -1226,3 +1232,5 @@ _zsh_highlight-install() {
 _zsh_highlight-install "${(@f)"$(zle -la)"}"
 
 # }}}
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"  # This loads RVM into a shell session.
