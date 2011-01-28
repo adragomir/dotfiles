@@ -73,13 +73,15 @@ if !exists('g:loaded_ctk')
     command! -nargs=? -bar -bang -count=0 RUN call s:find_and_call('s:run',
                 \ [<count>, <q-args>, <q-bang>])
 
-    amenu &Tools.&CTK.&Start :StartCTK<CR>
-    amenu &Tools.&CTK.&Stop  :StopCTK<CR>
-    amenu &Tools.&CTK.-Sep- :
-    amenu <silent> &Tools.&CTK.&Add\ a\ modeline :exec 'AddFlags '.(has('gui_running') ? inputdialog("Please input the text in modeline:", "flags += ''") : input("Modeline:", "flags += ''"))<CR>
-    amenu &Tools.&CTK.&List\ All\ Compiler :ListCompiler all<CR>
-    amenu &Tools.&CTK.&Compile :CC<CR>
-    amenu &Tools.&CTK.&Run :RUN<CR>
+    if &go =~ '\Cm'
+        amenu &Tools.&CTK.&Start :StartCTK<CR>
+        amenu &Tools.&CTK.&Stop  :StopCTK<CR>
+        amenu &Tools.&CTK.-Sep- :
+        amenu <silent> &Tools.&CTK.&Add\ a\ modeline :exec 'AddFlags '.(has('gui_running') ? inputdialog("Please input the text in modeline:", "flags += ''") : input("Modeline:", "flags += ''"))<CR>
+        amenu &Tools.&CTK.&List\ All\ Compiler :ListCompiler all<CR>
+        amenu &Tools.&CTK.&Compile :CC<CR>
+        amenu &Tools.&CTK.&Run :RUN<CR>
+    endif
 
     " small functions {{{2
     let s:sfile = expand('<sfile>')
