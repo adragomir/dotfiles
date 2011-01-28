@@ -48,7 +48,7 @@ set encoding=UTF-8            " file encoding
 set formatoptions=tcroqn1     " auto format
 "set textwidth=80             " text width
 "set guioptions=cr+bie"M"m	  " aA BAD
-set guioptions=AciMgrbe       " NEVER EVER put ''a in here
+set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
 "set guioptions=+
 
 " visual cues
@@ -1215,10 +1215,6 @@ let vimclojure#SplitPos = "right"
 let vimclojure#HightlightBuiltins = 1
 let vimclojure#WantNailgun = 1
 
-" ruby
-let g:rubycomplete_buffer_loading = 1
-let g:rubycomplete_classes_in_global = 1
-
 " javascript
 let javaScript_fold=1
 
@@ -1229,6 +1225,9 @@ let g:gist_clip_command = 'pbcopy'
 let g:gist_open_browser_after_post = 1
 
 let g:molokai_original = 1
+
+" yankrung
+let g:yankring_default_menu_mode = 0
 
 " auto commands
 command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
@@ -1246,7 +1245,8 @@ autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 " remove empty or otherwise dead buffers when moving away from them
 autocmd TabLeave    * call OnTabLeave()
 
-set guitablabel=%{GuiTabLabel()}
+"set guitablabel=%{GuiTabLabel()}
+set guitablabel=%{MyTabLine()}
 "set tabline=%!MyTabLine()
 
 "let g:user_zen_settings = {
