@@ -80,7 +80,7 @@ set complete=.,w,b,u,t,i	" completion by Ctrl-N
 set completeopt=menu,preview,longest
 set gdefault
 "
-set noguipty
+set guipty
 "set clipboard+=unnamed
 
 " vim 7.3
@@ -995,6 +995,11 @@ function! MoveTabRight()
   exec ":tabmove " . newtabnr
 endfunction
 
+" ConqueTerm wrapper
+function StartTerm()
+  execute 'ConqueTerm ' . $SHELL . ' --login'
+  setlocal listchars=tab:\ \ 
+endfunction
 
 call KeyMap('n', '', '', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>')
 call KeyMap('i', '<silent>', '', '<S-Space>', ':call ExpandTemplate(1)<CR>')
@@ -1041,6 +1046,7 @@ call KeyMap('n', '<silent>',  'CDLM', '0',       ':call CwdCurrent()<CR>')
 " directory browsing
 call KeyMap('n','<silent>', 'DL', 'e', ':call BrowserFromCurrentDir()<CR>')      " open a file browser in a new tab
 call KeyMap('n','<silent>', 'DL', 'E', ':call BrowserFromCurrentFilePath()<CR>') " open a file browser in a new tab
+call KeyMap('n','<silent>', 'DL', 'F', ':Ack<space>') " open a file browser in a new tab
 
 inoremap <C-space> <C-p>
 
@@ -1225,6 +1231,9 @@ let g:gist_clip_command = 'pbcopy'
 let g:gist_open_browser_after_post = 1
 
 let g:molokai_original = 1
+
+" ack
+let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 
 " yankrung
 let g:yankring_default_menu_mode = 0

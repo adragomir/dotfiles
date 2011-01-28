@@ -857,7 +857,7 @@ export DYLD_FRAMEWORK_PATH=$DYLD_FRAMEWORK_PATH:\
 # aliases {{{
 
 # common
-alias ack="ack -i -a"
+#alias ack="ack -i -a"
 alias vidir="EDITOR=v vidir"
 alias vi="v"
 alias vim="v"
@@ -938,7 +938,6 @@ alias mkdir='mkdir -p'
 alias reload="source ~/.profile"
 alias rc='v ~/.profile && source ~/.profile'
 alias finde='find -E'
-alias ack="ack -i -a"
 alias pgrep='pgrep -lf'
 alias df='df -h'
 alias du='du -h -c'
