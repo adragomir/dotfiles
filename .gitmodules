@@ -127,6 +127,3 @@
 [submodule ".vim/bundle/indent-object"]
 	path = .vim/bundle/indent-object
 	url = https://github.com/michaeljsmith/vim-indent-object.git
-[submodule "bundle/markdown"]
-	path = bundle/markdown
-	url = https://github.com/plasticboy/vim-markdown.git
