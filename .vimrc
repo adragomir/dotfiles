@@ -77,7 +77,7 @@ set listchars=tab:>.,trail:.,extends:>,precedes:<,eol:$
 set showtabline=2
 set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
-set completeopt=menu,preview,longest
+set completeopt=menu,menuone,preview,longest
 set gdefault
 "
 set guipty
@@ -717,6 +717,7 @@ function! GuiTabLabel()
 
 	let guifname = bufname(bufnrlist[tabpagewinnr(v:lnum) - 1])
 	let guifname = substitute(guifname, '^\(.*\)/\([^/]*\)$', '\2', '')
+	echom guifname
 	" Append the buffer name
 	return label . guifname
 endfunction
@@ -1161,6 +1162,11 @@ else
   noremap c <Esc>:tabclose<Cr>
 endif
 
+" completion
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <expr> <C-n> pumvisible() ? '<C-n>' : '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>' 
+inoremap <expr> <M-,> pumvisible() ? '<C-n>' : '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+
 " macros 
 map ]xx :Explore<cr>2jp<c-w>H20<c-w><
 
@@ -1232,6 +1238,7 @@ let g:gist_open_browser_after_post = 1
 
 let g:molokai_original = 1
 
+let g:loaded_delimitMate = 1
 " ack
 let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 

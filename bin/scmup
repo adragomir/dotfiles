@@ -72,7 +72,7 @@ Find.find($s) { |path|
         if has_source_control
             #mins = (Time.now - ($st[path] || Time.mktime(1970, 1, 1))) / 60
             if 1
-                puts "Found #{actions.index(active_hash)} source control in " + path
+                puts "Found #{actions.key(active_hash)} source control in " + path
                 active_hash.call(path)
                 #add_or_replace_flag(path)
             else 

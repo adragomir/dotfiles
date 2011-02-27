@@ -106,8 +106,14 @@ unsetopt flowcontrol
 setopt auto_menu         # show completion menu on succesive tab press
 setopt complete_in_word
 setopt always_to_end
+setopt c_bases
+setopt extended_glob
+setopt print_eight_bit
+setopt no_correct
+setopt complete_in_word
 
 WORDCHARS=''
+WORDCHARS=${WORDCHARS//[&=\/;\!#%\{]}
 
 autoload -U compinit
 compinit -i
@@ -123,6 +129,7 @@ else
 fi
 
 zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' squeeze-slashes true
 
 # should this be in keybindings?
 bindkey -M menuselect '^o' accept-and-infer-next-history
@@ -130,6 +137,10 @@ bindkey -M menuselect '^o' accept-and-infer-next-history
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
 zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
+zstyle ':completion:*:*:*:*:processes*'    force-list always
+zstyle ':completion:*:*:kill:*:processes'  sort false
+zstyle ':completion:*:*:kill:*:processes'  command 'ps -u "$USER"'
+zstyle ':completion:*:processes-names'     command "ps -eo cmd= | sed 's:\([^ ]*\).*:\1:;s:\(/[^ ]*/\)::;/^\[/d'"
 
 # disable named-directories autocompletion
 zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
@@ -167,16 +178,29 @@ zstyle '*' single-ignored show
 
 
 # {{{
-setopt correct_all
+#setopt correct_all
 
-alias man='nocorrect man'
-alias mv='nocorrect mv'
-alias mysql='nocorrect mysql'
-alias mkdir='nocorrect mkdir'
-alias gist='nocorrect gist'
-alias heroku='nocorrect heroku'
-alias ebuild='nocorrect ebuild'
-alias hpodder='nocorrect hpodder'
+#alias man='nocorrect man'
+#alias mv='nocorrect mv'
+#alias mysql='nocorrect mysql'
+#alias mkdir='nocorrect mkdir'
+#alias gist='nocorrect gist'
+#alias heroku='nocorrect heroku'
+#alias ebuild='nocorrect ebuild'
+#alias hpodder='nocorrect hpodder'
+# }}}
+
+# {{{ filename completion
+# Force file name completion on C-x TAB, Shift-TAB.
+zle -C complete-files complete-word _generic
+zstyle ':completion:complete-files:*' completer _files
+bindkey "^Q" complete-files
+bindkey "^[[Z" complete-files
+
+# Force menu on C-x RET.
+zle -C complete-first complete-word _generic
+zstyle ':completion:complete-first:*' menu yes
+bindkey "^W" complete-first
 # }}}
 
 # {{{
@@ -782,6 +806,10 @@ export WIKI=$HOME/Documents/personal/life/exploded/
 export JAQL_HOME=$HOME/work/saasbase_env/jaql
 export HADOOP_HOME=$HOME/work/saasbase_env/hadoop
 
+# saasbase
+export SAASBASE_HOME=$HOME/work/saasbase_env
+export SAASBASE_DATAROOT=/var
+
 export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
 
 export MONO_GAC_PREFIX=/usr/local
@@ -812,14 +840,13 @@ export NOTES=$HOME/Documents/personal/life/notes@/
 # path {{{
 export PATH=\
 /usr/local/bin:\
+/usr/local/git/bin:\
 /usr/local/php5/bin:\
 $HOME/bin:\
 $HOME/bin/binary:\
 "/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin":\
 "$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
-#$HOME/work/tools/apache-maven-3.0/bin/:\
 /usr/local/lib/ocaml_godi/bin/:\
-"$HOME/Applications/Racket v5.0.1/bin/":\
 $HOME/.cabal/bin/:\
 $PATH:/usr/hla:\
 $HOME/temp/svn_other_projects/sshuttle/:\
@@ -839,8 +866,12 @@ $HOME/temp/svn_other_projects/rock/bin:\
 $HOME/.cljr/bin:\
 $ROO_HOME/bin:\
 $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64/:\
+"$HOME/Applications/Racket v5.0.2/bin/":\
+$HOME/work/tools/android-sdk-mac_x86/platform-tools/:\
 $PATH
 
+# $HOME/work/tools/apache-maven-3.0/bin/:\
+  
 export MANPATH=\
 /opt/loca/share/man:\
 /usr/local/man:\
