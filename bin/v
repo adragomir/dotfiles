@@ -1,7 +1,0 @@
-#!/bin/bash
-if [ -z $1 ];then
-  FILES=.
-else
-  FILES=\"\$@\"
-fi
-eval $HOME/Applications/MacVim.app/Contents/MacOS/Vim -p $FILES
