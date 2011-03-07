@@ -774,7 +774,7 @@ export MAVEN_REPO=$HOME/.m2/repository
 export LESS="-rX"
 export PAGER=less
 export EDITOR=g
-export GIT_EDITOR=gw
+export GIT_EDITOR=vim
 export VISUAL='vim'
 export INPUTRC=~/.inputrc
 export LC_ALL="en_US.UTF-8"
@@ -834,6 +834,7 @@ export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
 #export M2_HOME=/usr/share/maven
 export NOTES=$HOME/Documents/personal/life/notes@/
 
+export VIMRUNTIME=/Users/adragomi/Applications/MacVim.app/Contents/Resources/vim/runtime/
 # }}}
 
 
@@ -890,8 +891,6 @@ export DYLD_FRAMEWORK_PATH=$DYLD_FRAMEWORK_PATH:\
 # common
 #alias ack="ack -i -a"
 alias vidir="EDITOR=v vidir"
-alias vi="v"
-alias vim="v"
 alias gvim="g"
 alias c="clear"
 alias l="ls -AGlFT"
@@ -911,7 +910,7 @@ alias pscp_rtc='pscp -l admin -h ~/.pssh/hosts_staging_css'
 alias bochs='LTDL_LIBRARY_PATH=$HOME/work/tools/bochs/lib/bochs/plugins BXSHARE=$HOME/work/tools/bochs/share/bochs $HOME/work/tools/bochs/bin/bochs'
 
 #editor
-case "$HOSTNAME" in
+case "$HOST" in
   $USER-mac*)
   alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g';
   alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim';
@@ -1261,6 +1260,13 @@ _zsh_highlight-install() {
 }
 _zsh_highlight-install "${(@f)"$(zle -la)"}"
 
+# }}}
+
+# {{{ amazon
+export EC2_HOME=~/.ec2
+export PATH=$PATH:$EC2_HOME/bin
+export EC2_PRIVATE_KEY=$HOME/.ec2/pk-K4LZHNKVKAPXO5VGN47ZQ5YFZFMNSJZZ.pem
+export EC2_CERT=$HOME/.ec2/cert-K4LZHNKVKAPXO5VGN47ZQ5YFZFMNSJZZ.pem
 # }}}
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"  # This loads RVM into a shell session.
