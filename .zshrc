@@ -747,7 +747,7 @@ export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/sc
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
 # flex & air
-export FLEX_HOME=$HOME/work/tools/flex-3.4.1
+export FLEX_HOME=$HOME/work/tools/flex-sdk-4.5.0
 export FLEX_SDK=$FLEX_HOME
 export FLEX_SDK_HOME=$FLEX_HOME
 
@@ -773,8 +773,8 @@ export MAVEN_REPO=$HOME/.m2/repository
 #export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
 export LESS="-rX"
 export PAGER=less
-export EDITOR=g
-export GIT_EDITOR=vim
+export EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
+export GIT_EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
 export VISUAL='vim'
 export INPUTRC=~/.inputrc
 export LC_ALL="en_US.UTF-8"
@@ -859,7 +859,7 @@ $FLEX_HOME/bin:\
 $HOME/Applications/zero-1.0.0.P20070702-1062:\
 $HOME/Applications/dev/Factor:\
 $HOME/work/tools/emulator/Vice/tools:\
-$HOME/work/tools/gradle-0.9-rc-3/bin/:\
+$HOME/work/tools/gradle-1.0-milestone-1/bin/:\
 $HOME/bin/binary/go:\
 $HOME/work/tools/rhino1_7R2/:\
 $HOME/work/tools/nasm/:\
@@ -869,6 +869,9 @@ $ROO_HOME/bin:\
 $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64/:\
 "$HOME/Applications/Racket v5.0.2/bin/":\
 $HOME/work/tools/android-sdk-mac_x86/platform-tools/:\
+$HOME/work/tools/whirr-0.3.0-CDH3B4/bin/:\
+$HOME/work/tools/elastic-mapreduce/:\
+$HOME/work/tools/leiningen/:\
 $PATH
 
 # $HOME/work/tools/apache-maven-3.0/bin/:\
@@ -946,10 +949,10 @@ alias avm='$AVMSHELL_COMMAND'
 alias avm_debug='$AVMSHELL_DEBUG_COMMAND'
 
 # clojure
-alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
-alias clojure_boot='rlwrap java -Xbootclasspath/a:$MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
-alias clj='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
-alias ng-server='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/vimclojure/vimclojure/2.2.0-SNAPSHOT/vimclojure-2.2.0-SNAPSHOT.jar com.martiansoftware.nailgun.NGServer 127.0.0.1'
+#alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
+#alias clojure_boot='rlwrap java -Xbootclasspath/a:$MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
+#alias clj='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
+#alias ng-server='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/vimclojure/vimclojure/2.2.0-SNAPSHOT/vimclojure-2.2.0-SNAPSHOT.jar com.martiansoftware.nailgun.NGServer 127.0.0.1'
 
 # builtin commands
 
@@ -1265,8 +1268,13 @@ _zsh_highlight-install "${(@f)"$(zle -la)"}"
 # {{{ amazon
 export EC2_HOME=~/.ec2
 export PATH=$PATH:$EC2_HOME/bin
-export EC2_PRIVATE_KEY=$HOME/.ec2/pk-K4LZHNKVKAPXO5VGN47ZQ5YFZFMNSJZZ.pem
-export EC2_CERT=$HOME/.ec2/cert-K4LZHNKVKAPXO5VGN47ZQ5YFZFMNSJZZ.pem
+# }}}
+
+# {{{ virtualenvs
+export WORKON_HOME=$HOME/.virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh
 # }}}
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"  # This loads RVM into a shell session.
+[[ -s "$HOME/.zshrc_secret" ]] && . "$HOME/.zshrc_secret"  # secrets
+
