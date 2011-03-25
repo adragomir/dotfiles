@@ -13,6 +13,7 @@ call pathogen#runtime_append_all_bundles()
 
 " general settings
 set nocompatible              " use VI incompatible features
+let no_buffers_menu=1
 set noautochdir
 set history=10000             " number of history items
 "set autowriteall
@@ -32,8 +33,8 @@ set scrolloff=3               " start scrolling before end
 set showcmd                   " show incomplete commands
 set number                    " show line numbers
 set wildmenu
+set wildignore=*.o,*.obj,*.pyc,*.d,*.swp,*.bak,*.hi,*.6,*.out,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*.class,*.dll,*.so,*.dylib
 set wildmode=list:longest,full
-set wildignore=*.o,*.obj,*.pyc,*.d,*.swp,*.bak,*.hi,*.6,*.out
 set whichwrap=<,>,h,l,b,s,~,[,]
 set shortmess=aTI             " supress some file messages
 set sidescrolloff=4           " minchars to show around cursor
@@ -77,8 +78,11 @@ set listchars=tab:>.,trail:.,extends:>,precedes:<,eol:$
 set showtabline=2
 set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
-set completeopt=menu,menuone,preview,longest
+set completeopt=menu,menuone,longest
+set ttyfast
 set gdefault
+
+nnoremap <leader><space> :nohlsearch<cr>
 "
 set guipty
 "set clipboard+=unnamed
@@ -95,6 +99,7 @@ set hidden
 set splitbelow                " split windows below current one
 set title
 set exrc
+set gcr=a:blinkon0
 
 set switchbuf=usetab
 
@@ -118,6 +123,9 @@ set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 
+set cmdheight=2
+set laststatus=2
+
 " look & feel
 if has("gui_running") && has("macunix")
   set guifont=Inconsolata:h13
@@ -131,6 +139,7 @@ nnoremap ; :
 
 if has("gui_running")
   " behave mswin
+  set fuoptions=maxvert,maxhorz
   set selectmode=mouse "key,mouse
   set mousemodel=popup
   set keymodel=startsel ",stopsel
@@ -220,6 +229,7 @@ filetype on
 filetype indent on
 filetype plugin on
 hi SignColor guibg=red
+autocmd BufEnter * :syntax sync fromstart
 
 " enable autosaving
 "set updatecount=0 updatetime=500
@@ -1051,6 +1061,23 @@ call KeyMap('n','<silent>', 'DL', 'F', ':Ack<space>') " open a file browser in a
 
 inoremap <C-space> <C-p>
 
+" quicker window switching
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+nnoremap <leader>. :lcd %:p:h<CR>
+
+" ; is an alias for :
+nnoremap ; :
+
+" Thank you vi
+nnoremap Y y$
+
+" sudo write this
+cmap w!! w !sudo tee % >/dev/null
+
 " key mappings
 let mapleader = ","
 let maplocalleader = ","
@@ -1242,7 +1269,8 @@ let g:loaded_delimitMate = 1
 " ack
 let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 
-" yankrung
+" yankring
+let g:yankring_history_dir = "$HOME/.vim/tmp"
 let g:yankring_default_menu_mode = 0
 
 " auto commands
@@ -1253,6 +1281,7 @@ autocmd VimLeavePre * 1,255bwipeout
 
 let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
 
+autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4
 autocmd Filetype java setlocal expandtab tabstop=2 shiftwidth=2
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
 autocmd Filetype java map <leader>b :call javacomplete#GoToDefinition()<CR>
@@ -1318,3 +1347,6 @@ if filereadable(hostfile)
     exe 'source ' . hostfile
 endif
 " }}}
+
+
+let g:ctk_defoutput = "$HOME/.vim/tmp/output"
