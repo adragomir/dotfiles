@@ -18,14 +18,16 @@
 # Config
 ##############################################################################
 
+import sys
+
 toread_tag='toread'
 instaliciousd_tag='instaliciousd'
 
-delicious_username='sundog'
-delicious_password='specialk1'
+delicious_username=sys.argv[1]
+delicious_password=sys.argv[2]
 
-instapaper_username='adragomir@gmail.com'
-instapaper_password='specialk'
+instapaper_username=sys.argv[3]
+instapaper_password=sys.argv[4]
 
 ##############################################################################
 # No need to change anything below here
@@ -82,5 +84,4 @@ def _auth_call(url, auth_username, auth_password):
 for bookmark in download_delicious_bookmarks(delicious_username, toread_tag):
   add_to_instapaper(bookmark["u"], instapaper_username, instapaper_password)
   # untag_from_delicious(bookmark, toread_tag, instaliciousd_tag, delicious_username, delicious_password)
-
 
