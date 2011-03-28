@@ -82,7 +82,8 @@ set completeopt=menu,menuone,longest
 set ttyfast
 set gdefault
 
-nnoremap <leader><space> :nohlsearch<cr>
+" GRB: clear the search buffer when hitting return
+nnoremap <CR> :nohlsearch<CR>/<BS>
 "
 set guipty
 "set clipboard+=unnamed
@@ -136,6 +137,9 @@ endif
 "nnoremap <silent> gQ
 
 nnoremap ; :
+" no Ex mode
+map Q gq
+nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 
 if has("gui_running")
   " behave mswin
@@ -1283,9 +1287,20 @@ let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
 
 autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4
 autocmd Filetype java setlocal expandtab tabstop=2 shiftwidth=2
+autocmd FileType ruby,haml,eruby,yaml,html,javascript,sass set ai sw=2 sts=2 et
+
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
 autocmd Filetype java map <leader>b :call javacomplete#GoToDefinition()<CR>
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
+autocmd FileType text setlocal textwidth=78
+autocmd BufReadPost *
+  \ if line("'\"") > 0 && line("'\"") <= line("$") |
+  \   exe "normal g`\"" |
+  \ endif
+augroup mkd
+    autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
+    autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;
+augroup END
 
 " remove empty or otherwise dead buffers when moving away from them
 autocmd TabLeave    * call OnTabLeave()

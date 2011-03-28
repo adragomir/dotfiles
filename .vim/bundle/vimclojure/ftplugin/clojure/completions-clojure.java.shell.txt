@@ -1,0 +1,5 @@
+*sh-dir*
+*sh-env*
+sh
+with-sh-dir
+with-sh-env
