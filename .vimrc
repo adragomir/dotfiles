@@ -1253,10 +1253,11 @@ let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
 
 " clojure
-let vimclojure#NailgunClient = "$HOME/bin/ng"
-let vimclojure#SplitPos = "right"
+"let vimclojure#NailgunClient = "$HOME/bin/ng"
+"let vimclojure#SplitPos = "right"
 let vimclojure#HightlightBuiltins = 1
-let vimclojure#WantNailgun = 1
+let vimclojure#WantNailgun = 0
+let vimclojure#ParenRainbow = 1
 
 " javascript
 let javaScript_fold=1
