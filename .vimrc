@@ -47,7 +47,6 @@ set keymodel=startsel         ",stopsel
 set autoread                  " read outside modified files
 set encoding=UTF-8            " file encoding
 set formatoptions=tcroqn1     " auto format
-"set textwidth=80             " text width
 "set guioptions=cr+bie"M"m	  " aA BAD
 set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
 "set guioptions=+
@@ -1252,6 +1251,10 @@ let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
 
+" clang
+let g:clang_use_library = 1
+let g:clang_library_path = "/Developer/usr/clang-ide/lib/"
+
 " clojure
 "let vimclojure#NailgunClient = "$HOME/bin/ng"
 "let vimclojure#SplitPos = "right"
@@ -1261,6 +1264,9 @@ let vimclojure#ParenRainbow = 1
 
 " javascript
 let javaScript_fold=1
+
+" factor
+let g:FactorRoot="$HOME/temp/svn_other_projects/factor"
 
 " netrw
 let g:netrw_browsex_viewer="open"
@@ -1293,7 +1299,7 @@ autocmd FileType ruby,haml,eruby,yaml,html,javascript,sass set ai sw=2 sts=2 et
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
 autocmd Filetype java map <leader>b :call javacomplete#GoToDefinition()<CR>
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
-autocmd FileType text setlocal textwidth=78
+autocmd FileType text,markdown,mkd,pandoc setlocal textwidth=120
 autocmd BufReadPost *
   \ if line("'\"") > 0 && line("'\"") <= line("$") |
   \   exe "normal g`\"" |
@@ -1302,6 +1308,8 @@ augroup mkd
     autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
     autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;
 augroup END
+
+autocmd BufRead *.f  set ft=forth
 
 " remove empty or otherwise dead buffers when moving away from them
 autocmd TabLeave    * call OnTabLeave()

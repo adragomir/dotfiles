@@ -857,7 +857,7 @@ $FLEX_HOME/bin:\
 /opt/local/jruby/bin:\
 /usr/local/mysql/bin:\
 $HOME/Applications/zero-1.0.0.P20070702-1062:\
-$HOME/Applications/dev/Factor:\
+$HOME/temp/svn_other_projects/factor:\
 $HOME/work/tools/emulator/Vice/tools:\
 $HOME/work/tools/gradle-1.0-milestone-1/bin/:\
 $HOME/bin/binary/go:\
