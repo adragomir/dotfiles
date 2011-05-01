@@ -133,3 +133,6 @@
 [submodule ".vim/bundle/taglist-plus"]
 	path = .vim/bundle/taglist-plus
 	url = https://github.com/int3/vim-taglist-plus.git
+[submodule ".vim/bundle/textile"]
+	path = .vim/bundle/textile
+	url = https://github.com/timcharper/textile.vim
