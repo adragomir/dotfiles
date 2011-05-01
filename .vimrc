@@ -128,7 +128,7 @@ set laststatus=2
 
 " look & feel
 if has("gui_running") && has("macunix")
-  set guifont=Inconsolata:h13
+  set guifont=Inconsolata:h16
   set antialias
 endif
 
@@ -223,7 +223,8 @@ map H ^
 map L $
 
 let g:molokai_original = 1
-colorscheme molokai
+set background=dark
+colorscheme solarized
 
 " syntax highlighting
 syntax enable
@@ -728,11 +729,46 @@ function! GuiTabLabel()
 		let label .= ' '
 	endif
 
-	let guifname = bufname(bufnrlist[tabpagewinnr(v:lnum) - 1])
-	let guifname = substitute(guifname, '^\(.*\)/\([^/]*\)$', '\2', '')
-	echom guifname
+	let guifname = bufname(bufnrlist[tabpagewinnr(v:lnum) - 1])"MyTabLabel(bufnrlist[tabpagewinnr(v:lnum) - 1]) "
+  let guifname = substitute(guifname, '^\(.*\)/\([^/]*\)$', '\2', '')
 	" Append the buffer name
 	return label . guifname
+endfunction
+
+function! MyTabLine()
+  let s = ""
+  for i in range(tabpagenr('$'))
+    " select the highlighting
+    if i + 1 == tabpagenr()
+      let s .= '%#TabLineSel#'
+    else
+      let s .= '%#TabLine#'
+    endif
+
+    " set the tab page number (for mouse clicks)
+    let s .= '%' . (i + 1) . 'T'
+
+    " the label is made by MyTabLabel()
+    let s .= ' %{MyTabLabel(' . (i + 1) . ')} '
+  endfor
+
+  " after the last tab fill with TabLineFill and reset tab page nr
+  let s .= '%#TabLineFill#%T'
+
+  " right-align the label to close the current tab page
+  if tabpagenr('$') > 1
+    let s .= '%=%#TabLine#%999Xclose'
+  endif
+
+  return s
+endfunction
+
+function! MyTabLabel(n)
+  let buflist = tabpagebuflist(a:n)
+  let winnr = tabpagewinnr(a:n)
+  let guifname = bufname(buflist[winnr - 1])
+  let guifname = substitute(guifname, '^\(.*\)/\([^/]*\)$', '\2', '')
+  return '[' . string(a:n) . ']' . guifname
 endfunction
 
 function! OpenAllBuffersInTabs()
@@ -816,7 +852,6 @@ endfunction
 
 function! OpenNewTabOnFileOpen()
 	let fName = expand('<afile>')
-	echom "fname: " . fName
 	if fName != ""
 		exe 'tablast | tabe <afile>'
 	else
@@ -830,42 +865,6 @@ function! ToggleScratch()
   else
     Sscratch
   endif
-endfunction
-
-function! MyTabLine()
-  let s = ''
-  for i in range(tabpagenr('$'))
-    " select the highlighting
-    if i + 1 == tabpagenr()
-      let s .= '%#TabLineSel#'
-    else
-      let s .= '%#TabLine#'
-    endif
-
-    " set the tab page number (for mouse clicks)
-    let s .= '%' . (i + 1) . 'T'
-
-    " the label is made by MyTabLabel()
-    let s .= ' %{MyTabLabel(' . (i + 1) . ')} '
-  endfor
-
-  " after the last tab fill with TabLineFill and reset tab page nr
-  let s .= '%#TabLineFill#%T'
-
-  " right-align the label to close the current tab page
-  if tabpagenr('$') > 1
-    let s .= '%=%#TabLine#%999Xclose'
-  endif
-
-  return s
-endfunction
-
-function! MyTabLabel(n)
-  let buflist = tabpagebuflist(a:n)
-  let winnr = tabpagewinnr(a:n)
-  let guifname = bufname(buflist[winnr - 1])
-  let guifname = substitute(guifname, '^\(.*\)/\([^/]*\)$', '\2', '')
-  return '[' . string(a:n) . ']' . guifname
 endfunction
 
 " files & folders functions
@@ -1010,7 +1009,7 @@ function! MoveTabRight()
 endfunction
 
 " ConqueTerm wrapper
-function StartTerm()
+function! StartTerm()
   execute 'ConqueTerm ' . $SHELL . ' --login'
   setlocal listchars=tab:\ \ 
 endfunction
@@ -1296,6 +1295,8 @@ autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4
 autocmd Filetype java setlocal expandtab tabstop=2 shiftwidth=2
 autocmd FileType ruby,haml,eruby,yaml,html,javascript,sass set ai sw=2 sts=2 et
 
+autocmd Filetype html setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd Filetype css setlocal omnifunc=csscomplete#CompleteCSS
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
 autocmd Filetype java map <leader>b :call javacomplete#GoToDefinition()<CR>
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
@@ -1314,8 +1315,8 @@ autocmd BufRead *.f  set ft=forth
 " remove empty or otherwise dead buffers when moving away from them
 autocmd TabLeave    * call OnTabLeave()
 
-"set guitablabel=%{GuiTabLabel()}
-set guitablabel=%{MyTabLine()}
+set guitablabel=%{GuiTabLabel()}
+"set guitablabel=MyTabLine()
 "set tabline=%!MyTabLine()
 
 "let g:user_zen_settings = {
