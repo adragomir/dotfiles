@@ -748,9 +748,11 @@ export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/sc
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
 # flex & air
-export FLEX_HOME=$HOME/work/tools/flex-sdk-4.5.0
+export FLEX_HOME=$HOME/work/tools/air-sdk-4.5.0
 export FLEX_SDK=$FLEX_HOME
 export FLEX_SDK_HOME=$FLEX_HOME
+export AIR_SDK=$FLEX_HOME
+export AIR_SDK_HOME=$FLEX_HOME
 
 # tamarin, asc and friends
 export TAMARIN_HOME=$HOME/temp/svn_other_projects/lang.tamarin-central
@@ -850,7 +852,6 @@ $HOME/bin/binary:\
 "$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
 /usr/local/lib/ocaml_godi/bin/:\
 $HOME/.cabal/bin/:\
-$PATH:/usr/hla:\
 $HOME/temp/svn_other_projects/sshuttle/:\
 $FLEX_HOME/bin:\
 /opt/local/bin:\
@@ -873,9 +874,11 @@ $HOME/work/tools/android-sdk-mac_x86/platform-tools/:\
 $HOME/work/tools/whirr-0.3.0-CDH3B4/bin/:\
 $HOME/work/tools/elastic-mapreduce/:\
 $HOME/work/tools/leiningen/:\
+$HOME/work/tools/apache-maven-3.0.3/bin/:\
+$PATH:/usr/hla:\
+$HOME/work/tools/scala-2.9.0.1/bin/:\
 $PATH
 
-# $HOME/work/tools/apache-maven-3.0/bin/:\
   
 export MANPATH=\
 /opt/loca/share/man:\
@@ -1275,6 +1278,9 @@ export PATH=$PATH:$EC2_HOME/bin
 export WORKON_HOME=$HOME/.virtualenvs
 source /usr/local/bin/virtualenvwrapper.sh
 # }}}
+#
+export ANDROID_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
+export AIR_ANDROID_SDK_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"  # This loads RVM into a shell session.
 [[ -s "$HOME/.zshrc_secret" ]] && . "$HOME/.zshrc_secret"  # secrets
