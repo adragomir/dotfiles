@@ -877,6 +877,7 @@ $HOME/work/tools/leiningen/:\
 $HOME/work/tools/apache-maven-3.0.3/bin/:\
 $PATH:/usr/hla:\
 $HOME/work/tools/scala-2.9.0.1/bin/:\
+/usr/local/Ice/bin:\
 $PATH
 
   
