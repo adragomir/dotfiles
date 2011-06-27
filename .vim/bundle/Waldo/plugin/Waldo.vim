@@ -22,7 +22,7 @@ set cpo&vim
 
 function s:LaunchWaldoViaVim()
   let cwd = getcwd()
-  silent exe  "!open 'waldo://" . shellescape(cwd)
+  silent exe  "!/usr/bin/open 'waldo://" . cwd . "'"
 endfunction
 
 command! Waldo :call <SID>LaunchWaldoViaVim()
@@ -31,5 +31,5 @@ noremap <unique> <script> <Plug>Waldo <SID>Launch
 noremap <SID>Launch :call <SID>LaunchWaldoViaVim()<CR>
 
 if !hasmapto('<Plug>Waldo')
-  map <unique> <silent> <Leader>f <Plug>Waldo
+  map <unique> <silent> <Leader>g <Plug>Waldo
 endif

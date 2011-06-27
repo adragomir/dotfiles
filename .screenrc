@@ -1,5 +1,5 @@
 vbell off
-deflogin on
+#deflogin on
 autodetach on
 defnonblock on
 multiuser on
