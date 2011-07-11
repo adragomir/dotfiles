@@ -767,7 +767,7 @@ export PYTHONPATH=$PYTHONPATH:$HOME/.python
 export PYTHONSTARTUP=$HOME/.pythonstartup
 
 #ant
-export ANT_HOME=$HOME/work/tools/apache-ant-1.7.1
+export ANT_HOME=$HOME/work/tools/apache-ant-1.8.2
 export ANT_OPTS="-Xms256m -Xmx512m"
 
 # maven
@@ -939,8 +939,6 @@ alias gst="git status"
 alias gd="git diff"
 alias gdc="git diff --cached"
 alias g-update-deleted="git ls-files -z --deleted | git update-index -z --remove --stdin"
-alias gb="git branch"
-alias gba="git branch -a -v"
 alias gfr="git fetch && git rebase refs/remotes/origin/master"
 alias gci="git commit"
 alias gco="git checkout"
