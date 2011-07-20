@@ -12,3 +12,6 @@ sass=.sass
 
 --type-set
 haml=.haml
+
+--type-add
+go=.go,.goc
