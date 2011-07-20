@@ -7,9 +7,6 @@ if has("macunix") && has("gui_running") && system('ps xw | grep -c "[V]im -psn"'
 endif
 
 set runtimepath+=$HOME/.vim/andrei
-"source $HOME/.vim/autoload/pathogen.vim
-call pathogen#helptags()
-call pathogen#runtime_append_all_bundles() 
 
 " general settings
 set nocompatible              " use VI incompatible features
@@ -33,7 +30,7 @@ set scrolloff=3               " start scrolling before end
 set showcmd                   " show incomplete commands
 set number                    " show line numbers
 set wildmenu
-set wildignore=*.o,*.obj,*.pyc,*.d,*.swp,*.bak,*.hi,*.6,*.out,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*.class,*.dll,*.so,*.dylib
+set wildignore=*.o,*.obj,*.pyc,*.d,*.swp,*.bak,*.hi,*.6,*.out,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*.class,*.dll,*.so,*.dylib,.svn,CVS,.git,.hg,*.a,*.mo,*.la,*.so,*.obj,*.swp,*.jpg,*.png,*.xpm,*.gif
 set wildmode=list:longest,full
 set whichwrap=<,>,h,l,b,s,~,[,]
 set shortmess=aTI             " supress some file messages
@@ -66,10 +63,13 @@ set showmode                  " show mode in status when not in normal mode
 set nostartofline             " don't move to start of line after commands
 set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[Byte:\ %3b]\ [Offset:\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y]%{ShowFileFormatFlag(&fileformat)}\ %)\ %L\ lines%)
 set undolevels=10000
+set pumheight=10
 set viminfo=%,h,'1000,"1000,:1000,n~/.viminfo
+set scrolljump=10
 set virtualedit=block
 set novisualbell
 set noerrorbells
+set t_vb=
 set winaltkeys=no
 set writeany
 set iskeyword=@,48-57,128-167,224-235,_
@@ -83,9 +83,21 @@ set gdefault
 
 " GRB: clear the search buffer when hitting return
 nnoremap <CR> :nohlsearch<CR>/<BS>
+nnoremap <silent> <Leader>/ :nohlsearch<CR>
+
+nnoremap / /\v
+vnoremap / /\v
+
+" Sudo write {{{
+command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
+" }}}
+" Write and make file executable {{{
+command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
+" }}}
+
 "
 set guipty
-"set clipboard+=unnamed
+set clipboard= "unnamed ",unnamedplus,autoselect
 
 " vim 7.3
 set undofile
@@ -125,6 +137,9 @@ set softtabstop=2
 
 set cmdheight=2
 set laststatus=2
+
+call pathogen#helptags()
+call pathogen#runtime_append_all_bundles() 
 
 " look & feel
 if has("gui_running") && has("macunix")
@@ -1283,6 +1298,20 @@ let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 let g:yankring_history_dir = "$HOME/.vim/tmp"
 let g:yankring_default_menu_mode = 0
 
+"easymotion
+let g:EasyMotion_mapping_e = '<Leader>ee'
+let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
+
+"syntastic
+let g:syntastic_enable_signs = 1
+let g:syntastic_auto_loc_list=0
+let g:syntastic_quiet_warnings=1
+let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
 " auto commands
 command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 
@@ -1372,6 +1401,5 @@ if filereadable(hostfile)
     exe 'source ' . hostfile
 endif
 " }}}
-
 
 let g:ctk_defoutput = "$HOME/.vim/tmp/output"

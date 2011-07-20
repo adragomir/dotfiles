@@ -41,6 +41,8 @@ alias dtrace-providers="sudo dtrace -l | perl -pe 's/^.*?\S+\s+(\S+?)([0-9]|\s).
 # ls colors
 autoload colors; colors;
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
+export LS_COLORS="*.tar.bz2=38;5;226:*.tar.xz=38;5;130:*PKGBUILD=48;5;233;38;5;160:*.html=38;5;213:*.htm=38;5;213:*.vim=38;5;142:*.css=38;5;209:*.screenrc=38;5;120:*.procmailrc=38;5;120:*.zshrc=38;5;120:*.bashrc=38;5;120:*.xinitrc=38;5;120:*.vimrc=38;5;120:*.htoprc=38;5;120:*.muttrc=38;5;120:*.gtkrc-2.0=38;5;120:*.fehrc=38;5;120:*.rc=38;5;120:*.md=38;5;130:*.markdown=38;5;130:*.conf=38;5;148:*.h=38;5;81:*.rb=38;5;192:*.c=38;5;110:*.diff=38;5;31:*.yml=38;5;208:*.pl=38;5;178:*.csv=38;5;136:tw=38;5;003:*.chm=38;5;144:*.bin=38;5;249:*.pdf=38;5;203:*.mpg=38;5;38:*.ts=38;5;39:*.sfv=38;5;191:*.m3u=38;5;172:*.txt=38;5;192:*.log=38;5;190:*.swp=38;5;241:*.swo=38;5;240:*.theme=38;5;109:*.zsh=38;5;173:*.nfo=38;5;113:mi=38;5;124:or=38;5;160:ex=38;5;197:ln=target:pi=38;5;130:ow=38;5;208:fi=38;5;007:so=38;5;167:di=38;5;30:*.pm=38;5;197:*.pl=38;5;166:*.sh=38;5;243:*.patch=38;5;37:*.tar=38;5;118:*.tar.gz=38;5;172:*.zip=38;5;11::*.rar=38;5;11:*.tgz=38;5;11:*.7z=38;5;11:*.mp3=38;5;173:*.flac=38;5;166:*.mkv=38;5;115:*.avi=38;5;114:*.wmv=38;5;113:*.jpg=38;5;66:*.jpeg=38;5;67:*.png=38;5;68:*.pacnew=38;5;33"
+
 #export LS_COLORS
 
 # Enable ls colors
@@ -50,7 +52,7 @@ then
   ls --color -d . &>/dev/null 2>&1 && alias ls='ls --color=tty' || alias ls='ls -G'
 fi
 
-#setopt no_beep
+setopt no_beep
 setopt auto_cd
 setopt multios
 setopt cdablevarS
@@ -109,9 +111,14 @@ setopt complete_in_word
 setopt always_to_end
 setopt c_bases
 setopt extended_glob
+setopt no_match
 setopt print_eight_bit
 setopt no_correct
 setopt complete_in_word
+setopt list_packed # Compact completion lists
+setopt list_types # Show types in completion
+setopt rec_exact # Recognize exact, ambiguous matches
+setopt short_loops
 
 WORDCHARS=''
 WORDCHARS=${WORDCHARS//[&=\/;\!#%\{]}
@@ -136,12 +143,32 @@ zstyle ':completion:*' squeeze-slashes true
 bindkey -M menuselect '^o' accept-and-infer-next-history
 
 zstyle ':completion:*:*:*:*:*' menu select
-zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
+zstyle ':completion:*' squeeze-slashes true
+zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
 zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
 zstyle ':completion:*:*:*:*:processes*'    force-list always
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
 zstyle ':completion:*:*:kill:*:processes'  sort false
 zstyle ':completion:*:*:kill:*:processes'  command 'ps -u "$USER"'
-zstyle ':completion:*:processes-names'     command "ps -eo cmd= | sed 's:\([^ ]*\).*:\1:;s:\(/[^ ]*/\)::;/^\[/d'"
+zstyle ':completion:*:*:killall:*:processes' command 'ps --forest -A -o pid,user,cmd'
+zstyle ':completion:*:processes-names'     command "ps axho cmd= | sed 's:\([^ ]*\).*:\1:;s:\(/[^ ]*/\)::;/^\[/d'"
+zstyle ':completion:*:processes' command 'ps -au$USER -o pid,time,cmd|grep -v "ps -au$USER -o pid,time,cmd"'
+zstyle ':completion:*:matches' group yes
+zstyle ':completion:*:options' description yes
+zstyle ':completion:*:options' auto-description '%d'
+zstyle ':completion:*:descriptions' format $'\e[01;33m-- %d --\e[0m'
+zstyle ':completion:*:messages' format $'\e[01;35m-- %d --\e[0m'
+zstyle ':completion:*:warnings' format $'\e[01;31m-- no matches found --\e[0m'
+zstyle ':completion:*:manuals' separate-sections true
+zstyle ':completion:*:manuals.*' insert-sections   true
+zstyle ':completion:*:man:*' menu yes select
+zstyle ':completion:*:rm:*' ignore-line yes
+zstyle ':completion:*:cp:*' ignore-line yes
+zstyle ':completion:*:mv:*' ignore-line yes
+
+compdef _gnu_generic slrnpull make df du mv cp makepkg
+
 
 # disable named-directories autocompletion
 zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
@@ -341,6 +368,7 @@ git_prompt_status() {
 #
 export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;32'
+export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
 
 # {{{
 ## Command history configuration
@@ -379,6 +407,9 @@ bindkey "^[[6~" down-line-or-history
 # make search up and down work, so partially type and hit up/down to find relevant stuff
 bindkey '^[[A' up-line-or-search
 bindkey '^[[B' down-line-or-search
+
+bindkey "^[[7~" beginning-of-line # Home
+bindkey "^[[8~" end-of-line # End
 
 bindkey "^[[H" beginning-of-line
 bindkey "^[[1~" beginning-of-line
@@ -428,7 +459,6 @@ setopt long_list_jobs
 
 ## pager
 export PAGER=less
-export LC_CTYPE=en_US.UTF-8
 
 # }}}
 
@@ -550,7 +580,7 @@ alias ggpnp='git pull origin $(current_branch) && git push origin $(current_bran
 
 
 fpath=($HOME/.zsh/ $fpath)
-autoload -U compinit
+autoload -Uz compinit
 compinit -i
 
 # functions {{{
@@ -782,6 +812,19 @@ export VISUAL='vim'
 export INPUTRC=~/.inputrc
 export LC_ALL="en_US.UTF-8"
 export LC_CTYPE="en_US.UTF-8"
+export LC_NUMERIC="en_US.utf8"
+export LC_TIME="en_US.utf8"
+export LC_COLLATE="en_US.utf8"
+export LC_MONETARY="en_US.utf8"
+export LC_MESSAGES="en_US.utf8"
+export LC_PAPER="en_US.utf8"
+export LC_NAME="en_US.utf8"
+export LC_ADDRESS="en_US.utf8"
+export LC_TELEPHONE="en_US.utf8"
+export LC_MEASUREMENT="en_US.utf8"
+export LC_IDENTIFICATION="en_US.utf8"
+export LC_ALL=""
+
 export VERSIONER_PERL_PREFER_32_BIT=yes
 export PERL_BADLANG=0
 export DISPLAY=:0.0
