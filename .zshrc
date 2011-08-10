@@ -810,6 +810,8 @@ export EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
 export GIT_EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
 export VISUAL='vim'
 export INPUTRC=~/.inputrc
+export LANG="en_US.UTF-8"
+export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 export LC_CTYPE="en_US.UTF-8"
 export LC_NUMERIC="en_US.utf8"
@@ -947,8 +949,6 @@ alias c="clear"
 alias l="ls -AGlFT"
 alias lt="ls -AGlFTtr"
 alias gwhat="grep -e $1"
-alias gem="sudo gem"
-alias macgem="sudo macgem"
  
 # pssh 
 alias pssh_mia='pssh -P -l admin -h ~/.pssh/hosts_saasbase_miami'
@@ -1313,14 +1313,24 @@ _zsh_highlight-install "${(@f)"$(zle -la)"}"
 
 # {{{ amazon
 export EC2_HOME=~/.ec2
+export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/HEAD/jars"
+export AWS_CREDENTIAL_FILE=$HOME/.aws-credentials-master
+export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/pk-*.pem)"
+export EC2_CERT="$(/bin/ls $HOME/.ec2/cert-*.pem)"
+export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
+export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
 export PATH=$PATH:$EC2_HOME/bin
 # }}}
 
 # {{{ virtualenvs
-export WORKON_HOME=$HOME/.virtualenvs
-source /usr/local/bin/virtualenvwrapper.sh
+#export WORKON_HOME=$HOME/.virtualenvs
+#source /usr/local/bin/virtualenvwrapper.sh
 # }}}
-#
+
+# {{{ tmuxinator
+[[ -s $HOME/.tmuxinator/scripts/tmuxinator ]] && source $HOME/.tmuxinator/scripts/tmuxinator
+# }}}
+
 export ANDROID_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
 export AIR_ANDROID_SDK_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
 
