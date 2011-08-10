@@ -6,15 +6,19 @@ multiuser on
 defutf8 on
 altscreen on
 startup_message off
-defscrollback 10000
+nethack off
+pow_detach_msg "Screen session of \$LOGNAME \$:cr:\$:nl:ended."
+defscrollback 15000
 hardstatus alwayslastline "%{kG}%50>%-w%{ky}%n %t%{-}%+w%{-} [Host: %H] %>%=%{ky}Ctrl-A ?%{-} for help %{S}"
 #hardstatus alwayslastline "%-Lw %{= kG}Host: %{Y}%H%? %{c}(%1`) %{= kG} %-=Load: %{Y}%l%{kG}  %{= kG}Date: %{Y}%m/%d/%y%{= kG}  Time: %{Y}%C:%s%a%{= kG}%{W}" 
 caption always "%-Lw%{= bw}%51>%n %t%{-}%+Lw%<" 
 
 term xterm-256color
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
 
 # bindings
 bind b eval "writebuf" "exec sh -c 'pbcopy < /tmp/screen-exchange'"
+attrcolor b ".I"
 
 screen -l -a -t main
 screen -l -a -t ssh
