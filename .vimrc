@@ -80,6 +80,10 @@ set complete=.,w,b,u,t,i	" completion by Ctrl-N
 set completeopt=menu,menuone,longest
 set ttyfast
 set gdefault
+"set notimeout
+"set ttimeout
+set timeoutlen=500
+set ttimeoutlen=200
 
 " GRB: clear the search buffer when hitting return
 nnoremap <CR> :nohlsearch<CR>/<BS>
@@ -139,11 +143,15 @@ set cmdheight=2
 set laststatus=2
 
 call pathogen#helptags()
-call pathogen#runtime_append_all_bundles() 
+call pathogen#infect() 
 
+" key mappings
+let mapleader = ","
+let maplocalleader = ","
+ 
 " look & feel
 if has("gui_running") && has("macunix")
-  set guifont=Inconsolata:h16
+  set guifont=Inconsolata:h14
   set antialias
 endif
 
@@ -238,6 +246,7 @@ map H ^
 map L $
 
 let g:molokai_original = 1
+"let g:solarized_termcolors=256
 set background=dark
 colorscheme solarized
 
@@ -1061,10 +1070,8 @@ call KeyMap('ni', '<silent>', 'D', 'Space', '<C-X><C-O>')
 call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
 call KeyMap('ni', '<silent>', '', '<F5>', ':BufExplorer<CR>')
 
-" fuf-fizzy
-"call KeyMap('n', '<silent>', 'DL', 'r', ':call Tabnew()<CR>:FufFizzyFile<CR>')
-"call KeyMap('n', '<silent>', 'DL', 'R', ':call Tabnew()<CR>:FufFizzyDir<CR>')
-"call KeyMap('n', '<silent>', 'DL', '\', ':FizzyFileRenewCache<CR>')
+" fuzzyfinder
+call KeyMap('n', '<silent>', 'DL', 'r', ':call Tabnew()<CR>:FufFile **/<CR>')
 
 " files & folders mapping
 call KeyMap('n', '<silent>',  'CDLM', '-',       ':call CwdUp()<CR>')
@@ -1090,14 +1097,10 @@ nnoremap <leader>. :lcd %:p:h<CR>
 nnoremap ; :
 
 " Thank you vi
-nnoremap Y y$
+"nnoremap Y y$
 
 " sudo write this
 cmap w!! w !sudo tee % >/dev/null
-
-" key mappings
-let mapleader = ","
-let maplocalleader = ","
 
 """""""""" macvim
 if has("gui_macvim")
@@ -1126,7 +1129,7 @@ nnoremap <silent> <Home> :call HomeKey()<CR>
 nmap <MapLocalLeader>h :AT<CR>
 nmap ,h :AT<CR>
 
-map <leader>s :call ToggleScratch()<CR>
+map <Leader>s :call ToggleScratch()<CR>
 
 " make word back / forward to be cooloer
 "noremap W b
@@ -1198,6 +1201,9 @@ if !has("gui_running")
   noremap l <Esc>:tabnext<Cr>
   noremap n <Esc>:tabnew<Cr>
   noremap c <Esc>:tabclose<Cr>
+  noremap { <Esc>:tabprev<Cr>
+  noremap } <Esc>:tabnext<Cr>
+  noremap d <Esc>:tabnew<Cr>
 else
   " working with tabs
   noremap h <Esc>:tabprev<Cr>
@@ -1328,6 +1334,8 @@ autocmd Filetype html setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd Filetype css setlocal omnifunc=csscomplete#CompleteCSS
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
 autocmd Filetype java map <leader>b :call javacomplete#GoToDefinition()<CR>
+autocmd Filetype java map <leader>s :call javacomplete#ReplaceWithImportAndShortName()<CR>
+
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 autocmd FileType text,markdown,mkd,pandoc setlocal textwidth=120
 autocmd BufReadPost *
@@ -1346,7 +1354,7 @@ autocmd TabLeave    * call OnTabLeave()
 
 set guitablabel=%{GuiTabLabel()}
 "set guitablabel=MyTabLine()
-"set tabline=%!MyTabLine()
+set tabline=%!MyTabLine()
 
 "let g:user_zen_settings = {
   "'php' : {
