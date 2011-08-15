@@ -35,6 +35,7 @@ alias sl=ls # often screw this up
 
 alias afind='ack-grep -il'
 alias dtrace-providers="sudo dtrace -l | perl -pe 's/^.*?\S+\s+(\S+?)([0-9]|\s).*/\1/' | sort | uniq"
+alias tail_java_complete="tail -f $HOME/javacomplete.txt $HOME/dotfiles/.vim/bundle/javacomplete/java/javacomplete_java.log"
 # }}}
 
 # {{{
@@ -901,7 +902,6 @@ $HOME/temp/svn_other_projects/sshuttle/:\
 $FLEX_HOME/bin:\
 /opt/local/bin:\
 /opt/local/sbin:\
-/opt/local/jruby/bin:\
 /usr/local/mysql/bin:\
 $HOME/Applications/zero-1.0.0.P20070702-1062:\
 $HOME/temp/svn_other_projects/factor:\
