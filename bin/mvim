@@ -37,6 +37,7 @@ binary="$VIM_APP_DIR/MacVim.app/Contents/MacOS/Vim"
 name="`basename "$0"`"
 gui=
 opts=
+tabs=true
 
 # GUI mode, implies forking
 case "$name" in m*|g*|rm*|rg*) gui=true ;; esac
@@ -57,6 +58,20 @@ case "$name" in
 		;;
 esac
 
+while [[ $# -gt 0 && ${1:0:1} == "-" ]]; do
+  case "$1" in
+    -s|--servername)
+              SERVERNAME="$2"
+              shift
+              ;;
+  esac
+  shift       # Check next set of parameters.
+done
+
+if [[ "x$SERVERNAME" == "x" ]]; then
+  SERVERNAME="VIM"
+fi
+
 # Last step:  fire up vim.
 # The program should fork by default when started in GUI mode, but it does
 # not; we work around this when this script is invoked as "gvim" or "rgview"
@@ -66,7 +81,7 @@ if [ "$gui" ]; then
 	# terminal instead of the console log.
 	# But if you use open instead, you will need to fully qualify the
 	# path names for any filenames you specify, which is hard.
-	exec "$binary" -g $opts ${1:+"$@"}
+	exec "$binary" -g $opts --servername $SERVERNAME --remote-tab-silent ${1:+"$@"}
 else
 	exec "$binary" $opts ${1:+"$@"}
 fi
