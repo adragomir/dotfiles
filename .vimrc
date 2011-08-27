@@ -1324,6 +1324,7 @@ command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 " remove all buffers on exit so we don't have them as hidden on reopen
 autocmd VimLeavePre * 1,255bwipeout
 
+let g:nailgun_port=2114
 let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
 
 autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4
@@ -1333,8 +1334,8 @@ autocmd FileType ruby,haml,eruby,yaml,html,javascript,sass set ai sw=2 sts=2 et
 autocmd Filetype html setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd Filetype css setlocal omnifunc=csscomplete#CompleteCSS
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
-autocmd Filetype java map <leader>b :call javacomplete#GoToDefinition()<CR>
-autocmd Filetype java map <leader>s :call javacomplete#ReplaceWithImportAndShortName()<CR>
+autocmd Filetype java map <leader>b :JavaCompleteGoToDefinition<CR>
+autocmd Filetype java map <leader>s :JavaCompleteReplaceWithImport<CR>
 
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 autocmd FileType text,markdown,mkd,pandoc setlocal textwidth=120
