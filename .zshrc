@@ -799,7 +799,7 @@ export PYTHONSTARTUP=$HOME/.pythonstartup
 
 #ant
 export ANT_HOME=$HOME/work/tools/apache-ant-1.8.2
-export ANT_OPTS="-Xms256m -Xmx512m"
+export ANT_OPTS="-Xms256m -Xmx512m -XX:MaxPermSize=512m -XX:PermSize=256m"
 
 # maven
 export MAVEN_REPO=$HOME/.m2/repository
@@ -915,6 +915,7 @@ $HOME/.cljr/bin:\
 $ROO_HOME/bin:\
 $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64/:\
 "$HOME/Applications/Racket v5.0.2/bin/":\
+$HOME/work/tools/android-sdk-mac_x86/tools/:\
 $HOME/work/tools/android-sdk-mac_x86/platform-tools/:\
 $HOME/work/tools/whirr-0.3.0-CDH3B4/bin/:\
 $HOME/work/tools/elastic-mapreduce/:\
