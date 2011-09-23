@@ -1324,7 +1324,8 @@ command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 " remove all buffers on exit so we don't have them as hidden on reopen
 autocmd VimLeavePre * 1,255bwipeout
 
-let g:nailgun_port=2114
+" let the javacomplete find its own port 
+let g:first_nailgun_port=2114
 let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
 
 autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4
