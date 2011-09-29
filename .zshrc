@@ -1335,6 +1335,8 @@ export PATH=$PATH:$EC2_HOME/bin
 export ANDROID_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
 export AIR_ANDROID_SDK_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"  # This loads RVM into a shell session.
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
+
 [[ -s "$HOME/.zshrc_secret" ]] && . "$HOME/.zshrc_secret"  # secrets
 
