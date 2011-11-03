@@ -120,5 +120,5 @@ function! GCCSenseDiagnose()
     echo "Finish!"
 endfunction
 
-autocmd FileType c call SetupGCCSense()
-autocmd FileType cpp call SetupGCCSense()
+"autocmd FileType c call SetupGCCSense()
+"autocmd FileType cpp call SetupGCCSense()

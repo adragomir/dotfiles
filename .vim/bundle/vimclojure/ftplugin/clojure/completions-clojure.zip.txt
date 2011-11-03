@@ -22,7 +22,6 @@ rightmost
 rights
 root
 seq-zip
-up
 vector-zip
 xml-zip
 zipper

@@ -854,6 +854,9 @@ export WIKI=$HOME/Documents/personal/life/exploded/
 
 export JAQL_HOME=$HOME/work/saasbase_env/jaql
 export HADOOP_HOME=$HOME/work/saasbase_env/hadoop
+export HBASE_HOME=$HOME/work/saasbase_env/hbase
+export ZOOKEEPER_HOME=$HOME/work/saasbase_env/zookeeper
+export STORM_HOME=$HOME/work/saasbase_env/storm
 
 # saasbase
 export SAASBASE_HOME=$HOME/work/saasbase_env
@@ -871,7 +874,7 @@ export TEXMFCACHE=/tmp
 #export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
 
 # java
-export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0_27-b07-395.jdk/Contents/Home/
 #export MAVEN_HOME=/usr/share/maven
 #export JUNIT_HOME=/usr/share/junit
 
@@ -894,6 +897,7 @@ export PATH=\
 /usr/local/php5/bin:\
 $HOME/bin:\
 $HOME/bin/binary:\
+$HOME/bin/binary/clic:\
 "/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin":\
 "$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
 /usr/local/lib/ocaml_godi/bin/:\
@@ -920,9 +924,9 @@ $HOME/work/tools/android-sdk-mac_x86/platform-tools/:\
 $HOME/work/tools/whirr-0.3.0-CDH3B4/bin/:\
 $HOME/work/tools/elastic-mapreduce/:\
 $HOME/work/tools/leiningen/:\
-$HOME/work/tools/apache-maven-3.0.3/bin/:\
+$HOME/work/tools/apache-maven-2.2.1/bin/:\
 $PATH:/usr/hla:\
-$HOME/work/tools/scala-2.9.0.1/bin/:\
+$HOME/work/tools/scala-2.9.1/bin/:\
 /usr/local/Ice/bin:\
 $PATH
 
@@ -1045,7 +1049,7 @@ alias mapred='$HOME/work/saasbase_env/hadoop/bin/mapred'
 alias hbase='$HOME/work/saasbase_env/hbase/bin/hbase'
 alias zk='$HOME/work/saasbase_env/zookeeper/bin/zkCli.sh'
 alias saasbase='$HOME/work/saasbase_env/saasbase/src/saasbase_thrift/bin/saasbase'
-alias psall='pswhich NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer ReportServer'
+alias psall='pswhich NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer ReportServer storm.daemon.nimbus storm.ui.core'
 
 # }}}
 
@@ -1335,6 +1339,7 @@ export PATH=$PATH:$EC2_HOME/bin
 export ANDROID_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
 export AIR_ANDROID_SDK_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
 
+export ICE_HOME=/usr/local/Ice
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
 

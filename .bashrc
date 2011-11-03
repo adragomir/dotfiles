@@ -446,6 +446,7 @@ export PATH=\
 /usr/local/php5/bin:\
 $HOME/bin:\
 $HOME/bin/binary:\
+$HOME/bin/binary/clic:\
 "/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin":\
 "$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
 $HOME/work/tools/apache-maven-3.0/bin/:\

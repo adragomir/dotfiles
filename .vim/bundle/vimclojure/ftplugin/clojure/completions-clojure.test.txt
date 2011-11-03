@@ -17,7 +17,6 @@ file-position
 function?
 get-possibly-unbound-var
 inc-report-counter
-is
 join-fixtures
 report
 run-all-tests

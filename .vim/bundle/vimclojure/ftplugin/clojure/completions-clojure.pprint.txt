@@ -11,12 +11,12 @@ formatter
 formatter-out
 fresh-line
 get-pretty-writer
-pp
 pprint
 pprint-indent
 pprint-logical-block
 pprint-newline
 pprint-tab
+print-length-loop
 print-table
 set-pprint-dispatch
 simple-dispatch

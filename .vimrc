@@ -1038,6 +1038,46 @@ function! StartTerm()
   setlocal listchars=tab:\ \ 
 endfunction
 
+
+highlight WHITE_ON_BLACK ctermfg=white
+
+map <silent> ;; :call DemoCommand()<CR>
+vmap <silent> ;; :<C-U>call DemoCommand(1)<CR>
+
+function! DemoCommand (...)
+  " Remember how everything was before we did this...
+  let orig_buffer = getline('w0','w$')
+  let orig_match  = matcharg(1)
+
+  " Select either the visual region, or the current paragraph...
+  if a:0
+    let @@ = join(getline("'<","'>"), "\n")
+  else
+    silent normal vipy
+  endif
+
+  " Highlight the selection in red to give feedback...
+  let matchid = matchadd('WHITE_ON_RED','\%V')
+  redraw
+  sleep 500m
+
+  " Remove continuations and convert shell commands, then execute...
+  let command = @@
+  let command = substitute(command, '^\s*".\{-}\n', '',     'g')
+  let command = substitute(command, '\n\s*\\',      ' ',    'g')
+  let command = substitute(command, '^\s*>\s',      ':! ',  '' )
+  execute command
+
+  " If the buffer changed, hold the highlighting an extra second...
+  if getline('w0','w$') != orig_buffer
+    redraw
+    sleep 1000m
+  endif
+
+  " Remove the highlighting...
+  call matchdelete(matchid)
+endfunction
+
 call KeyMap('n', '', '', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>')
 call KeyMap('i', '<silent>', '', '<S-Space>', ':call ExpandTemplate(1)<CR>')
 call KeyMap('ni', '', 'D', 'q', ':q<CR>')
@@ -1272,14 +1312,20 @@ let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
 
 " clang
+"let g:clang_complete_copen = 1
+"let g:clang_user_options='|| exit 0'
+let g:clang_complete_auto = 1
+let g:clang_complete_macros = 1
+let g:clang_debug = 1
 let g:clang_use_library = 1
 let g:clang_library_path = "/Developer/usr/clang-ide/lib/"
 
 " clojure
-"let vimclojure#NailgunClient = "$HOME/bin/ng"
+let vimclojure#NailgunClient = "$HOME/bin/ng"
 "let vimclojure#SplitPos = "right"
 let vimclojure#HightlightBuiltins = 1
 let vimclojure#WantNailgun = 0
+let vimclojure#NailgunPort = "2200"
 let vimclojure#ParenRainbow = 1
 
 " javascript
@@ -1338,8 +1384,11 @@ autocmd Filetype java setlocal omnifunc=javacomplete#Complete
 autocmd Filetype java map <leader>b :JavaCompleteGoToDefinition<CR>
 autocmd Filetype java map <leader>s :JavaCompleteReplaceWithImport<CR>
 
+autocmd Filetype c set ts=4 sw=4
+
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 autocmd FileType text,markdown,mkd,pandoc setlocal textwidth=120
+autocmd FileType puppet setlocal sw=2 ts=2 expandtab
 autocmd BufReadPost *
   \ if line("'\"") > 0 && line("'\"") <= line("$") |
   \   exe "normal g`\"" |

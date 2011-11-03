@@ -31,5 +31,5 @@ noremap <unique> <script> <Plug>Waldo <SID>Launch
 noremap <SID>Launch :call <SID>LaunchWaldoViaVim()<CR>
 
 if !hasmapto('<Plug>Waldo')
-  map <unique> <silent> <Leader>g <Plug>Waldo
+  "map <unique> <silent> <Leader>g <Plug>Waldo
 endif

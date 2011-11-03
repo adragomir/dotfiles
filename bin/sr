@@ -1,7 +1,4 @@
 #!/bin/bash
 for fl in `find . -iname $1`; do
 echo $fl
-mv $fl $fl.old
-sed 's/$2/$3/g' $fl.old > $fl
-rm -f $fl.old
 done

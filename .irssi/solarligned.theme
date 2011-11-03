@@ -1,6 +1,6 @@
-# clean theme for irssi 0.8.4 by sabi <irssi@sabi.net>
-# 1.0.9 of 15 June 2002
-# very loosely based on IamCyan.theme by marmot
+# An irssi theme that looks decent with the light solarized theme.
+# by Luke Macken <lmacken@redhat.com>
+# based on the clean theme by sabi <irssi@sabi.net>
 
 replaces = { };
 
@@ -13,8 +13,8 @@ abstracts = {
   line_start = "";
 
   # timestamp styling, nothing by default
-  # timestamp = "$0";
   timestamp = "%b$0";
+
   # any kind of text that needs hilighting, default is to bold
   hilight = "%m$0%n";
 
@@ -22,7 +22,7 @@ abstracts = {
   error = "%R$0-%n";
 
   # channel name is printed
-  channel = "%m$0-%n";
+  channel = "%g$0-%n";
 
   # nick is printed
   nick = "%_$0-%_";
@@ -65,7 +65,7 @@ abstracts = {
   ##
 
   # the basic styling of how to print message, $0 = nick mode, $1 = nick
-  msgnick = "$_%b$0%n$1-%9>%n %|";
+  msgnick = "$_%b$0%B$1-%B>%n %|";
 
   # message from you is printed. "msgownnick" specifies the styling of the
   # nick ($0 part in msgnick) and "ownmsgnick" specifies the styling of the
@@ -84,7 +84,7 @@ abstracts = {
   #  privmsgnick = "%K{msgnick  %R$0-%K}%n";
 
   # $0 = nick mode, $1 = nick
-  ownmsgnick = "%b$0%n$1%n%R>%n %|";
+  ownmsgnick = "%b$0%n$1%n%R>%n%|";
   ownnick = "$0-";
 
   # public message in channel, $0 = nick mode, $1 = nick
@@ -92,12 +92,12 @@ abstracts = {
   pubnick = "$0-";
 
   # public message in channel meant for me, $0 = nick mode, $1 = nick
-  pubmsgmenick = "%b$0%r$1-%b%9>%n %|";
+  pubmsgmenick = "%b$0%r$1-%b%9>%n%|";
   menick = "$0-";
 
   # public highlighted message in channel
   # $0 = highlight color, $1 = nick mode, $2 = nick
-  pubmsghinick = "%b$1$2-> %|";
+  pubmsghinick = "%b$1$2->%|";
 
   # channel name is printed with message
   msgchannel = "%w|%c$0-";
@@ -120,10 +120,10 @@ abstracts = {
   ##
 
   # used internally by this theme
-  action_core = "%m*%n $0-";
+  action_core = "%n$0-%m*";
 
   # generic one that's used by most actions
-  action = "{action_core $0-} ";
+  action = "{action_core $0-}";
 
   # own action, both private/public
   ownaction = "{action $0-}";
@@ -187,7 +187,7 @@ abstracts = {
 
   # default background for all statusbars. You can also give
   # the default foreground color for statusbar items.
-  sb_background = "%3%k";
+  sb_background = "%7%k";
   # background for active window
   sb_window_bg = "%2%k";
 
@@ -236,8 +236,15 @@ formats = {
     part = "%M-%n {channick $0} {chanhost $1} left {channel $2} {reason $3}";
     kick = "%M!%n {channick $0} was kicked from {channel $1} by {nick $2} {reason $3}";
     quit = "%M=%n {channick $0} {chanhost $1} quit {reason $2}";
+    pubmsg = "%b%w$2\00310$[-10]0%b%n $1";
+    pubmsg_channel = "%b%w$3\00310$[-8]0%b%n%Y$[2]1%n $2";
+    pubmsg_hilight = "{pubmsghinick $0 $3 $[-10]1}$2";
+    pubmsg_me = "{pubmsgmenick $2 {menick $[-10]0}}$1";
+    own_msg = "{ownmsgnick $2 {ownnick $[-10]0}}$1";
   };
   "fe-common/irc" = {
+    own_action = " {ownaction $[-10]0}$1";
+    action_public = " {pubaction $[-10]0}$1";
     chanmode_change = "%M~%n {nick $2} set {mode $1} on {channel $0}";
     whois = "{nick $0} {nickhost $1@$2}%: ircname : $3";
     server_chanmode_change = "{netsplit ServerMode}/{channelhilight $0}: {mode $1} by {nick $2}";

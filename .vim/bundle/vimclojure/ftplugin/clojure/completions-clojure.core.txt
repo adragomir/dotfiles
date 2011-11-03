@@ -1,8 +1,3 @@
-*
-*'
-*1
-*2
-*3
 *agent*
 *allow-unresolved-vars*
 *assert*
@@ -10,10 +5,10 @@
 *command-line-args*
 *compile-files*
 *compile-path*
-*e
 *err*
 *file*
 *flush-on-newline*
+*fn-loader*
 *in*
 *math-context*
 *ns*
@@ -27,23 +22,11 @@
 *source-path*
 *unchecked-math*
 *use-context-classloader*
+*verbose-defrecords*
 *warn-on-reflection*
-+
-+'
--
--'
-->
 ->>
 -cache-protocol-fn
 -reset-methods
-..
-/
-<
-<=
-=
-==
->
->=
 EMPTY-NODE
 accessor
 aclone
@@ -203,6 +186,7 @@ error-handler
 error-mode
 eval
 even?
+every-pred
 every?
 extend
 extend-protocol
@@ -226,7 +210,6 @@ float-array
 float?
 floats
 flush
-fn
 fn?
 fnext
 fnil
@@ -339,7 +322,6 @@ not-any?
 not-empty
 not-every?
 not=
-ns
 ns-aliases
 ns-imports
 ns-interns
@@ -357,7 +339,6 @@ number?
 numerator
 object-array
 odd?
-or
 parents
 partial
 partition
@@ -371,7 +352,6 @@ pop
 pop!
 pop-thread-bindings
 pos?
-pr
 pr-str
 prefer-method
 prefers
@@ -412,6 +392,7 @@ re-seq
 read
 read-line
 read-string
+realized?
 reduce
 reductions
 ref
@@ -466,6 +447,7 @@ shuffle
 shutdown-agents
 slurp
 some
+some-fn
 sort
 sort-by
 sorted-map
