@@ -151,3 +151,6 @@
 [submodule ".vim/bundle/ultisnips"]
 	path = .vim/bundle/ultisnips
 	url = https://github.com/vim-scripts/UltiSnips
+[submodule ".vim/bundle/puppet-vim"]
+	path = .vim/bundle/puppet-vim
+	url = https://github.com/ajf/puppet-vim.git
