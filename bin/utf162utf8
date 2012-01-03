@@ -1,0 +1,10 @@
+#!/bin/bash
+exec 3< $1
+while read l <&3;
+do
+  f=$l
+  fout=${l}.out
+  iconv -f UCS-2 -t UTF-8 "${f}" > "${fout}"
+  mv "${fout}" "${f}"
+  echo $fout
+done

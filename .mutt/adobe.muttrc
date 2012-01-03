@@ -1,0 +1,12 @@
+###
+# gmx specific options
+###
+
+color status cyan default
+
+set from      = "adragomi@adobe.com"
+set sendmail  = "/usr/bin/msmtp -a adobe"
+set mbox      = "+Adobe/INBOX"
+unset record
+#set record    = "+Adobe/Sent"
+set postponed = "+Adobe/Drafts"

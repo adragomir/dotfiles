@@ -1,0 +1,84 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          hbase services
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Description:       Hbase services
+# Short-Description: Enable Hbase services including hdfs
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+HBASE_BIN=$HBASE_HOME/bin
+NAME=hbase
+DESC=hbase
+USER=adragomi
+ROTATE_SUFFIX=
+test -x $HBASE_BIN || exit 0
+RETVAL=0
+set -e
+cd /
+
+start_hbase () {
+    set +e
+    $HBASE_BIN/start-hbase.sh
+    case "$?" in
+      0)
+        echo SUCCESS
+        RETVAL=0
+        ;;
+      1)
+        echo TIMEOUT - check /var/log/hbase/startup_log
+        RETVAL=1
+        ;;
+      *)
+        echo FAILED - check /var/log/hbase/startup_log
+        RETVAL=1
+        ;;
+    esac
+    set -e
+}
+
+stop_hbase () {
+    set +e
+    if [ $RETVAL = 0 ] ; then
+        $HBASE_BIN/stop-hbase.sh
+        RETVAL=$?
+        if [ $RETVAL != 0 ] ; then
+            echo FAILED - check /var/log/hbase/shutdown_log
+        fi
+    else
+        echo No nodes running
+        RETVAL=0
+    fi
+    set -e
+}
+
+restart_hbase() {
+    stop_hbase
+    start_hbase
+}
+
+case "$1" in
+    start)
+        echo -n "Starting $DESC: "
+        start_hbase
+        echo "$NAME."
+        ;;
+    stop)
+        echo -n "Stopping $DESC: "
+        stop_hbase
+        echo "$NAME."
+        ;;
+    force-reload|restart)
+        echo -n "Restarting $DESC: "
+        restart_hbase
+        echo "$NAME."
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|force-reload}" >&2
+        RETVAL=1
+        ;;
+esac
+exit $RETVAL

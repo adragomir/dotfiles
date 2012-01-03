@@ -61,7 +61,7 @@ set showmatch                 " briefly jump to matching brace
 set matchtime=1               " show matching brace time (1/10 seconds)
 set showmode                  " show mode in status when not in normal mode
 set nostartofline             " don't move to start of line after commands
-set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[Byte:\ %3b]\ [Offset:\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y]%{ShowFileFormatFlag(&fileformat)}\ %)\ %L\ lines%)
+set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[tab:%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [offset:\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y]%{ShowFileFormatFlag(&fileformat)}\ %)\ %L\ lines%)
 set undolevels=10000
 set pumheight=10
 set viminfo=%,h,'1000,"1000,:1000,n~/.viminfo
@@ -151,16 +151,16 @@ let maplocalleader = ","
  
 " look & feel
 if has("gui_running") && has("macunix")
-  set guifont=Inconsolata:h14
+  set guifont=Inconsolata:h13
   set antialias
 endif
 
 "nnoremap <silent> Q
 "nnoremap <silent> gQ
 
-nnoremap ; :
+"nnoremap ; :
 " no Ex mode
-map Q gq
+"map Q gq
 nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 
 if has("gui_running")
@@ -1041,8 +1041,8 @@ endfunction
 
 highlight WHITE_ON_BLACK ctermfg=white
 
-map <silent> ;; :call DemoCommand()<CR>
-vmap <silent> ;; :<C-U>call DemoCommand(1)<CR>
+"map <silent> ;; :call DemoCommand()<CR>
+"vmap <silent> ;; :<C-U>call DemoCommand(1)<CR>
 
 function! DemoCommand (...)
   " Remember how everything was before we did this...
@@ -1134,7 +1134,7 @@ nnoremap <C-l> <C-w>l
 nnoremap <leader>. :lcd %:p:h<CR>
 
 " ; is an alias for :
-nnoremap ; :
+"nnoremap ; :
 
 " Thank you vi
 "nnoremap Y y$
@@ -1297,6 +1297,9 @@ let g:NERDMapleader = '<space>'
 let g:NERDRemoveExtraSpaces = 1
 let g:NERDSpaceDelims = 0
 let g:NERDMenuMode=0
+let g:NERDCustomDelimiters = {
+  \ 'puppet': { 'left': '#' }
+  \ }
 
 " omni cpp complete
 let OmniCpp_GlobalScopeSearch = 1
@@ -1319,6 +1322,10 @@ let g:clang_complete_macros = 1
 let g:clang_debug = 1
 let g:clang_use_library = 1
 let g:clang_library_path = "/Developer/usr/clang-ide/lib/"
+
+" ensime / async
+let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'} 
+let g:ensime = {'ensime-script': "/Users/adragomi/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
 
 " clojure
 let vimclojure#NailgunClient = "$HOME/bin/ng"

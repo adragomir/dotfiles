@@ -1,0 +1,85 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          hadoop services
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Description:       Hadoop services
+# Short-Description: Enable Hadoop services including hdfs
+### END INIT INFO
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+HADOOP_BIN=$HADOOP_HOME/bin
+NAME=hadoop
+DESC=hadoop
+USER=adragomi
+ROTATE_SUFFIX=
+test -x $HADOOP_BIN || exit 0
+RETVAL=0
+set -e
+cd /
+
+start_hadoop () {
+    set +e
+    $HADOOP_BIN/start-dfs.sh
+    $HADOOP_BIN/start-mapred.sh
+    case "$?" in
+      0)
+        echo SUCCESS
+        RETVAL=0
+        ;;
+      1)
+        echo TIMEOUT - check /var/log/hadoop/startup_log
+        RETVAL=1
+        ;;
+      *)
+        echo FAILED - check /var/log/hadoop/startup_log
+        RETVAL=1
+        ;;
+    esac
+    set -e
+}
+
+stop_hadoop () {
+    set +e
+    if [ $RETVAL = 0 ] ; then
+        $HADOOP_BIN/stop-mapred.sh
+        $HADOOP_BIN/stop-dfs.sh
+        RETVAL=$?
+        if [ $RETVAL != 0 ] ; then
+            echo FAILED - check /var/log/hadoop/shutdown_log
+        fi
+    else
+        echo No nodes running
+        RETVAL=0
+    fi
+    set -e
+}
+
+restart_hadoop() {
+    stop_hadoop
+    start_hadoop
+}
+
+case "$1" in
+    start)
+        echo -n "Starting $DESC: "
+        start_hadoop
+        echo "$NAME."
+        ;;
+    stop)
+        echo -n "Stopping $DESC: "
+        stop_hadoop
+        echo "$NAME."
+        ;;
+    force-reload|restart)
+        echo -n "Restarting $DESC: "
+        restart_hadoop
+        echo "$NAME."
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|force-reload}" >&2
+        RETVAL=1
+        ;;
+esac
+exit $RETVAL

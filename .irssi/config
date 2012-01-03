@@ -20,6 +20,14 @@ servers = (
     use_ssl = "no";
     ssl_verify = "no";
     autoconnect = "yes";
+  },
+  {
+    address = "bucasit-build.corp.adobe.com";
+    chatnet = "worknet";
+    port = "6669";
+    use_ssl = "no";
+    ssl_verify = "no";
+    autoconnect = "yes";
   }
 );
 
@@ -61,14 +69,17 @@ chatnets = {
     nick = "adragomir";
     username = "adragomir";
     realname = "Andrei Dragomir";
+    autosendcmd = "/msg nickserv identify ***REMOVED*** ;wait 2000";
   };
+  worknet = { type = "IRC"; };
 };
 
 channels = (
   { name = "#irssi"; chatnet = "ircnet"; autojoin = "No"; },
   { name = "silc"; chatnet = "silc"; autojoin = "No"; },
   { name = "#hbase"; chatnet = "freenode"; autojoin = "No"; },
-  { name = "#bookz"; chatnet = "Undernet"; }
+  { name = "#bookz"; chatnet = "Undernet"; },
+  { name = "#asit"; chatnet = "worknet"; autojoin = "yes"; }
 );
 
 aliases = {
@@ -179,7 +190,6 @@ statusbar = {
         window = { };
         window_empty = { };
         lag = { priority = "-1"; };
-        act = { priority = "10"; };
         more = { priority = "-1"; alignment = "right"; };
         barend = { priority = "100"; alignment = "right"; };
       };
@@ -207,7 +217,7 @@ statusbar = {
       placement = "bottom";
       # we want to be at the bottom always
       position = "100";
-      visible = "always";
+      visible = "active";
       items = {
         prompt = { priority = "-1"; };
         prompt_empty = { priority = "-1"; };
@@ -229,38 +239,91 @@ statusbar = {
         topicbarend = { priority = "100"; alignment = "right"; };
       };
     };
+    awl_0 = {
+      items = {
+        barstart = { priority = "100"; };
+        awl_0 = { };
+        barend = { priority = "100"; alignment = "right"; };
+      };
+    };
   };
 };
 settings = {
   core = {
     real_name = "Andrei DRAGOMIR";
     user_name = "level45";
-    nick = "god";
+    nick = "adragomir";
     proxy_address = "sj-proxy.corp.adobe.com";
     proxy_port = "80";
     proxy_password = "";
     proxy_string = "CONNECT %s:%d HTTP/1.0\015\012\015\012";
     use_proxy = "yes";
+    recode_fallback = "utf-8";
+    recode_out_default_charset = "utf-8";
   };
   "fe-common/core" = {
-    autocreate_own_query = "yes";
-    autoclose_query = "no";
+    autocreate_own_query = "no";
+    autoclose_query = "0";
     autocreate_windows = "on";
-    autoclose_windows = "on";
-    reuse_unused_windows = "yes";
+    autoclose_windows = "no";
+    reuse_unused_windows = "no";
     window_auto_change = "off";
     use_status_window = "yes";
-    use_msgs_window = "no";
+    use_msgs_window = "yes";
     autocreate_query_level = "DCCMSGS";
-    theme = "agon";
+    theme = "solarized-universal";
     window_history = "no";
     term_charset = "utf-8";
     autolog_path = "~/.irssi/logs/$tag/$0.log";
     autolog = "yes";
+    windows_auto_renumber = "no";
+    print_active_channel = "yes";
   };
   "irc/dcc" = {
     dcc_download_path = "/Users/adragomi/Downloads/irssi";
     dcc_autoget = "yes";
   };
+  "fe-text" = { actlist_sort = "refnum"; };
+  "perl/core/scripts" = {
+    awl_display_key = "$Q%K|%n$H$C$S";
+    awl_block = "-15";
+  };
 };
 logs = { };
+hilights = ( { text = "nick"; nick = "yes"; word = "yes"; } );
+windows = {
+  1 = {
+    immortal = "yes";
+    name = "(status)";
+    level = "CRAP PUBLICS NOTICES SNOTES CTCPS JOINS PARTS QUITS KICKS MODES TOPICS WALLOPS INVITES NICKS DCC CLIENTNOTICES CLIENTCRAP CLIENTERRORS HILIGHTS";
+  };
+  2 = {
+    immortal = "yes";
+    name = "(msgs)";
+    servertag = "freenode";
+    level = "MSGS ACTIONS DCCMSGS";
+  };
+  3 = {
+    level = "PUBLICS NOTICES CTCPS ACTIONS JOINS PARTS QUITS KICKS MODES TOPICS WALLOPS INVITES NICKS DCC DCCMSGS CLIENTNOTICES CLIENTCRAP CLIENTERRORS HILIGHTS";
+    items = (
+      {
+        type = "CHANNEL";
+        chat_type = "IRC";
+        name = "#wurbe";
+        tag = "freenode";
+      }
+    );
+  };
+  4 = {
+    items = (
+      {
+        type = "CHANNEL";
+        chat_type = "IRC";
+        name = "#asit";
+        tag = "worknet";
+      }
+    );
+  };
+  5 = { };
+};
+mainwindows = { 4 = { first_line = "1"; lines = "56"; }; };

@@ -1,0 +1,11 @@
+###
+# gmail specific options
+###
+
+color status green default
+
+set from      = "adragomir@gmail.com"
+set sendmail  = "/usr/bin/msmtp -a gmail"
+set mbox      = "+Gmail/INBOX"
+unset record
+set postponed = "+Gmail/drafts"
