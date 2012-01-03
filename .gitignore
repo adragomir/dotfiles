@@ -9,4 +9,7 @@ bin/svnup.yaml
 .vim/bundle/javacomplete/java
 .vim/tmp/
 .vim/.simplenoterc
+.irssi/config.autosave
+.irssi/fnotify
+.vim/hosts/*
 bin/binary/*
