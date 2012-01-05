@@ -5,7 +5,7 @@
 color status cyan default
 
 set from      = "adragomi@adobe.com"
-set sendmail  = "/usr/bin/msmtp -a adobe"
+set sendmail  = "/usr/local/bin/msmtp -a adragomi@adobe.com"
 set mbox      = "+Adobe/INBOX"
 unset record
 #set record    = "+Adobe/Sent"

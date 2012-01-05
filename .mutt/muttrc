@@ -8,7 +8,7 @@ set alias_file          = ~/.mutt/alias                         # alias file
 set header_cache        = ~/.mutt/cache/headers                 # where to store headers        
 set message_cachedir    = ~/.mutt/cache/bodies                  # where to store bodies
 set certificate_file    = ~/.mutt/certificates                  # where to store certs
-set mailcap_path        = ~/.mutt/mailcap                       # entrys for filetypes
+set mailcap_path        = ~/.mailcap                       # entrys for filetypes
 set signature           = ~/.mutt/sig                           # my signature file
 set tmpdir              = ~/.mutt/temp                          # where to keep temp files
 set editor              = "$HOME/Applications/MacVim.app/Contents/MacOS/Vim +/^$"                   # use vim and skip to first blank line
@@ -71,6 +71,7 @@ set reply_to                                                    # reply to Reply
 set reverse_name                                                # reply as whomever it was to
 set include                                                     # include message in replies
 set forward_quote                                               # include message in forwards
+set query_command = "echo ; run-parts -a '%s' $HOME/.mutt/address-providers/|grep '@'"
 
 # headers to show
 ignore *                                                        # ignore all headers
@@ -240,10 +241,13 @@ color body          color160        color234        "([a-z][a-z0-9+-]*://(((([a-
 ## sidebar
 # settings
 set sidebar_visible = yes
-set sidebar_width   = 25
+set sidebar_width   = 50
 
 set sidebar_delim =               '│'
 set status_format = "-%r- %v ──────┴────/ %f %m%?n? [+%n]?%?d? [-%d]?%?t? [*%t]? /%?p?───/ %p waiting to send /?─%>─(%P)───"
+
+macro index b '<enter-command>toggle sidebar_visible<enter>'
+macro pager b '<enter-command>toggle sidebar_visible<enter>'
 
 # colors
 color sidebar_new brightyellow default
@@ -264,27 +268,34 @@ bind index i           noop
 # bindings
 bind pager i           exit
 bind pager /           search
-bind pager <up>        previous-line
-bind pager <down>      next-line
+bind index,pager <up>        previous-line
+bind index,pager <down>      next-line
 bind pager k           previous-line
 bind pager j           next-line
 bind pager gg          top
 bind pager G           bottom
 bind index gg          first-entry
 bind index G           last-entry
-bind pager K           previous-undeleted
 bind pager J           next-undeleted
-bind index K           previous-unread
+bind pager K           previous-undeleted
+bind index j           noop
+bind index k           noop
+bind index j           next-entry
+bind index k           previous-entry
 bind index J           next-unread
+bind index K           previous-unread
 bind index,pager R     group-reply
 
 # macros
 macro index \Cr "<tag-prefix><clear-flag>N" "mark tagged messages as read"
 macro index B   "<limit>~b "                "search message bodies"
 macro index I   "<change-folder>!<enter>"   "go to Inbox"
+macro index \cb "|urlview\n" "open url with urlview" 
+macro pager \cb "|urlview\n" "open url with urlview" 
 
 # save a decoded copy in ~
 macro index P   "<pipe-message>cat > ~/"    "save message as"
 
 # quick-sync ~/Mail immediately with offlineimap
-macro index <f5>   "<shell-escape>/usr/local/bin/offlineimap -u quiet -q -o<enter>" "sync IMAP"
+macro index <f5>   "<shell-escape>/usr/local/bin/offlineimap -a Adobe -u quiet -q -o -f INBOX<enter>" "sync Adobe INBOX and Sent IMAP"
+macro index <f6>   "<shell-escape>/usr/local/bin/offlineimap -u quiet -q -o<enter>" "sync ALL IMAP"

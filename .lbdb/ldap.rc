@@ -1,0 +1,21 @@
+%ldap_server_db = (
+  'localhost' => [
+    'localhost:1389', 
+    'ou=people', 
+    'cn sn uid mail givenName', 
+    'givenName sn cn uid mail', 
+    '${mail}', '${givenName} ${sn}', 
+    '${o}' 
+  ]
+);
+
+$ldap_server           = 'localhost:1389';
+$search_base           = 'ou=people';
+$ldap_search_fields    = 'cn sn uid mail givenName';
+$ldap_expected_answers = 'givenName sn cn uid mail';
+$ldap_result_email     = '${mail}';
+$ldap_result_realname  = '${givenName} ${sn}';
+$ldap_result_comment   = '(LDAP)';
+$ignorant              = 0;
+$ldap_bind_dn          = "adragomi";
+$ldap_bind_password    = do{my $s=`/usr/bin/security find-internet-password -a adragomi -s localhost -g 2>&1`; ($password) = ($s =~ /password: "(.*)"/); $password};

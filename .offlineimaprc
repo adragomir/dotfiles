@@ -1,0 +1,50 @@
+# Sample minimal config file.  Copy this to ~/.offlineimaprc and edit to
+# suit to get started fast.
+
+[general]
+pythonfile = ~/.mutt/offlineimap.py
+accounts = Adobe,Gmail
+metadata = ~/.offlineimap
+maxsyncaccounts = 2
+ui = ttyui
+
+[Account Gmail]
+localrepository = GmailLocal
+remoterepository = GmailRemote
+
+[Account Adobe]
+localrepository = AdobeLocal
+remoterepository = AdobeRemote
+
+[Repository GmailLocal]
+type = Maildir
+localfolders = ~/Mail/Gmail
+
+[Repository AdobeLocal]
+type = Maildir
+localfolders = ~/Mail/Adobe
+
+[Repository GmailRemote]
+type = Gmail
+remotehost = imap.gmail.com
+remoteuser = adragomir@gmail.com
+remotepasseval = get_keychain_pass(account="adragomir@gmail.com", server="smtp.gmail.com")
+idlefolders = [ 'INBOX' ]
+ssl = yes
+maxconnections = 3
+holdconnectionopen = no
+folderfilter = lambda foldername: foldername in ["INBOX", "Drafts", "Sent"]
+keepalive = 60
+realdelete = yes
+
+[Repository AdobeRemote]
+type = IMAP
+remotehost = localhost
+remoteport = 1143
+remoteuser = adragomi
+remotepasseval = get_keychain_pass(account="adragomi", server="localhost")
+idlefolders = [ 'INBOX' ]
+maxconnections = 3
+holdconnectionopen = yes
+keepalive = 60
+folderfilter = lambda foldername: foldername in ["INBOX", "Drafts", "Trash", "Sent", "@archive", "@personal", "mailing lists", "mailing lists/alladobe@adobe.com", "mailing lists/apple-os@adobe.com", "mailing lists/compete", "mailing lists/DL-asit-eng", "mailing lists/DL-Biz Wednesdays", "mailing lists/DL-Bucharest Misc", "mailing lists/DL-Bucharest-Engineering", "mailing lists/DL-CC-Analytics-Eng", "mailing lists/DL-Cloud interest", "mailing lists/DL-Convo Notes", "mailing lists/DL-Distributed-RO", "mailing lists/DL-SaaSBase-Eng", "mailing lists/DL-SaasBase-Review", "mailing lists/DL-SocialSky-eng", "mailing lists/DL-Socialsky-Users", "mailing lists/SaasBase alerts", "mailing lists/SaasBase alerts/la-prod", "mailing lists/SaasBase alerts/nj-prod", "mailing lists/saasbase-jira"]
