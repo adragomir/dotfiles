@@ -12,4 +12,6 @@ bin/svnup.yaml
 .irssi/config.autosave
 .irssi/fnotify
 .vim/hosts/*
+.mutt/cache
+.mutt/temp
 bin/binary/*
