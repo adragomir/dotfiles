@@ -16,6 +16,6 @@ $ldap_expected_answers = 'givenName sn cn uid mail';
 $ldap_result_email     = '${mail}';
 $ldap_result_realname  = '${givenName} ${sn}';
 $ldap_result_comment   = '(LDAP)';
-$ignorant              = 0;
+$ignorant              = 1;
 $ldap_bind_dn          = "adragomi";
 $ldap_bind_password    = do{my $s=`/usr/bin/security find-internet-password -a adragomi -s localhost -g 2>&1`; ($password) = ($s =~ /password: "(.*)"/); $password};

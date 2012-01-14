@@ -57,7 +57,7 @@
 #
 
 # the tmp directory to use.
-tmpdir="$HOME/tmp/mutt_attach"
+tmpdir="/tmp/mutt_attach"
 
 # the name of the debug file if debugging is turned on.
 debug_file=$tmpdir/debug
@@ -92,13 +92,13 @@ fi
 
 # if the type is empty then try to figure it out.
 if [ -z $type ]; then
-    type=`file -bi $1 | cut -d"/" -f2`
+    type=`file -b --mime-type $1 | cut -d"/" -f2`
 fi
 
 # if the type is '-' then we don't want to mess with type.
 # Otherwise we are rebuilding the name.  Either from the
 # type that was passed in or from the type we discerned.
-if [ $type = "-" ]; then
+if [ "z$type" = "z-" ]; then
     newfile=$filename
 else
     newfile=$file.$type

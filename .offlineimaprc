@@ -29,11 +29,10 @@ type = Gmail
 remotehost = imap.gmail.com
 remoteuser = adragomir@gmail.com
 remotepasseval = get_keychain_pass(account="adragomir@gmail.com", server="smtp.gmail.com")
-idlefolders = [ 'INBOX' ]
 ssl = yes
 maxconnections = 3
 holdconnectionopen = no
-folderfilter = lambda foldername: foldername in ["INBOX", "Drafts", "Sent"]
+folderfilter = lambda foldername: foldername in ["INBOX", "Drafts", "Sent Mail", "@mailing hadoop-user", "@mailing hadoop-dev", "@mailing hbase-user", "@mailing hbase-dev"]
 keepalive = 60
 realdelete = yes
 
@@ -43,7 +42,6 @@ remotehost = localhost
 remoteport = 1143
 remoteuser = adragomi
 remotepasseval = get_keychain_pass(account="adragomi", server="localhost")
-idlefolders = [ 'INBOX' ]
 maxconnections = 3
 holdconnectionopen = yes
 keepalive = 60

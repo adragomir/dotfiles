@@ -11,7 +11,7 @@ set certificate_file    = ~/.mutt/certificates                  # where to store
 set mailcap_path        = ~/.mailcap                       # entrys for filetypes
 set signature           = ~/.mutt/sig                           # my signature file
 set tmpdir              = ~/.mutt/temp                          # where to keep temp files
-set editor              = "$HOME/Applications/MacVim.app/Contents/MacOS/Vim +/^$"                   # use vim and skip to first blank line
+set editor              = "$HOME/Applications/MacVim.app/Contents/MacOS/Vim --servername VIM --remote-tab-wait +/^$"                   # use vim and skip to first blank line
 
 # main options
 set mbox_type           = Maildir                               # mailbox type
@@ -48,6 +48,22 @@ unset markers                                                   # no ugly plus s
 auto_view text/html                                             # view html automatically
 alternative_order text/plain text/enriched text/html            # save html for last
 set quote_regexp        = "^( {0,4}[>|:#%]| {0,4}[a-z0-9]+[>|]+)+"
+set config_charset=utf-8
+set assumed_charset="windows-1252:utf-8"
+set charset="UTF-8"
+charset-hook ^us-ascii$ CP1252
+charset-hook ^iso-8859-1$ WINDOWS-1252
+charset-hook US-ASCII     ISO-8859-1
+charset-hook x-unknown    WINDOWS-1252
+charset-hook windows-1250 CP1250
+charset-hook windows-1251 CP1251
+charset-hook windows-1252 CP1252
+charset-hook windows-1253 CP1253
+charset-hook windows-1254 CP1254
+charset-hook windows-1255 CP1255
+charset-hook windows-1256 CP1256
+charset-hook windows-1257 CP1257
+charset-hook windows-1258 CP1258
 
 # formats
 set date_format         = "%m/%d/%y at %I:%M%P"
@@ -63,7 +79,7 @@ set fast_reply                                                  # skip to compos
 set sendmail_wait       = -1                                    # don't wait for sending... to complete
 set askcc                                                       # ask for CC:
 set fcc_attach                                                  # save attachments with the body
-unset mime_forward                                              # forward attachments as part of body
+set mime_forward = yes                                              # forward attachments as part of body
 set forward_format      = "Fwd: %s"                             # format for subject when forwarding
 set forward_decode                                              # decode when forwarding
 set attribution         = "On %d, %n wrote:"                    # set the attribution
@@ -79,8 +95,8 @@ unignore from: to: cc: date: subject:                           # show only thes
 hdr_order from: to: cc: date: subject:                          # and in this order
 
 # boxes
-mailboxes +GMail/INBOX
-mailboxes +Adobe/INBOX +Adobe/@archive +Adobe/@personal +Adobe/Drafts +Adobe/Sent "+Adobe/mailing lists" "+Adobe/mailing lists.DL-Biz Wednesdays" "+Adobe/mailing lists.DL-Bucharest Misc" "+Adobe/mailing lists.DL-Bucharest-Engineering" "+Adobe/mailing lists.DL-CC-Analytics-Eng" "+Adobe/mailing lists.DL-Cloud interest" "+Adobe/mailing lists.DL-Convo Notes" "+Adobe/mailing lists.DL-Distributed-RO" "+Adobe/mailing lists.DL-SaaSBase-Eng" "+Adobe/mailing lists.DL-SaasBase-Review" "+Adobe/mailing lists.DL-SocialSky-eng" "+Adobe/mailing lists.DL-Socialsky-Users" "+Adobe/mailing lists.DL-asit-eng" "+Adobe/mailing lists.SaasBase alerts" "+Adobe/mailing lists.SaasBase alerts.la-prod" "+Adobe/mailing lists.SaasBase alerts.nj-prod" "+Adobe/mailing lists.alladobe@adobe.com" "+Adobe/mailing lists.apple-os@adobe.com" "+Adobe/mailing lists.compete" "+Adobe/mailing lists.hstack" "+Adobe/mailing lists.hstack.common-dev@hadoop.apache.org" "+Adobe/mailing lists.hstack.common-user@hadoop.apache.org" "+Adobe/mailing lists.hstack.core-dev@hadoop.apache.org" "+Adobe/mailing lists.hstack.core-user@hadoop.apache.org" "+Adobe/mailing lists.hstack.hbase-dev@apache.org" "+Adobe/mailing lists.hstack.hbase-user@apache.org" "+Adobe/mailing lists.saasbase-jira"
+mailboxes +GMail/INBOX +GMail/Drafts "+GMail/@mailing hadoop-user" "+GMail/@mailing hadoop-dev" "+GMail/@mailing hbase-user" "+GMail/@mailing hbase-dev"
+mailboxes +Adobe/INBOX +Adobe/@archive +Adobe/@personal +Adobe/Drafts +Adobe/Sent "+Adobe/mailing lists.DL-Biz Wednesdays" "+Adobe/mailing lists.DL-Bucharest Misc" "+Adobe/mailing lists.DL-Bucharest-Engineering" "+Adobe/mailing lists.DL-CC-Analytics-Eng" "+Adobe/mailing lists.DL-Cloud interest" "+Adobe/mailing lists.DL-Convo Notes" "+Adobe/mailing lists.DL-Distributed-RO" "+Adobe/mailing lists.DL-SaaSBase-Eng" "+Adobe/mailing lists.DL-SaasBase-Review" "+Adobe/mailing lists.DL-SocialSky-eng" "+Adobe/mailing lists.DL-Socialsky-Users" "+Adobe/mailing lists.DL-asit-eng" "+Adobe/mailing lists.SaasBase alerts.la-prod" "+Adobe/mailing lists.SaasBase alerts.nj-prod" "+Adobe/mailing lists.alladobe@adobe.com" "+Adobe/mailing lists.apple-os@adobe.com" "+Adobe/mailing lists.compete" "+Adobe/mailing lists.saasbase-jira"
 
 # always sourced
 source $alias_file                                              # required for functionality
@@ -245,17 +261,23 @@ set sidebar_width   = 50
 
 set sidebar_delim =               '│'
 set status_format = "-%r- %v ──────┴────/ %f %m%?n? [+%n]?%?d? [-%d]?%?t? [*%t]? /%?p?───/ %p waiting to send /?─%>─(%P)───"
+set rfc2047_parameters
+set wait_key = no
+set fast_reply = yes
+set narrow_tree = yes
 
-macro index b '<enter-command>toggle sidebar_visible<enter>'
-macro pager b '<enter-command>toggle sidebar_visible<enter>'
+macro attach E <save-entry><kill-line>$HOME/Documents/attachments/<enter>
+macro index \Cw '<enter-command>toggle sidebar_visible<enter>'
+macro pager \Cw '<enter-command>toggle sidebar_visible<enter>'
 
 # colors
 color sidebar_new brightyellow default
 
 # bindings
-bind index,pager \CJ sidebar-next
-bind index,pager \CK sidebar-prev
-bind index,pager \CL sidebar-open
+
+bind index,pager \Cp sidebar-prev
+bind index,pager \Cn sidebar-next
+bind index,pager \Co sidebar-open
 
 source ~/.mutt/adobe.muttrc                                     # source gmail as default
 folder-hook Gmail/* source ~/.mutt/gmail.muttrc
@@ -264,6 +286,7 @@ folder-hook Adobe/* source ~/.mutt/adobe.muttrc
 # these just give me headaches
 bind index,pager \#    noop
 bind index i           noop
+bind index x           noop
 
 # bindings
 bind pager i           exit

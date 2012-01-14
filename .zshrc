@@ -334,6 +334,11 @@ parse_git_dirty () {
   fi
 }
 
+function tree() {
+  find . | sed -e 's/[^\/]*\//|--/g' -e 's/-- |/    |/g' | $PAGER
+}
+
+
 # get the status of the working tree
 git_prompt_status() {
   INDEX=$(git status --porcelain 2> /dev/null)
@@ -873,6 +878,7 @@ export SCALA_HOME=$HOME/work/tools/scala-2.9.1
 # path {{{
 export PATH=\
 /usr/local/bin:\
+/usr/local/sbin:\
 /usr/local/php5/bin:\
 $HOME/bin:\
 $HOME/bin/binary:\
@@ -1708,6 +1714,6 @@ fi
   fi
 } >> "$_F_SINK" 2>&1
 
-[[ -s "$HOME/.zshrc_secret" ]] && . "$HOME/.zshrc_secret"  # secrets
+[[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
 eval `direnv hook $0`

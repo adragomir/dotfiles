@@ -1,3 +1,4 @@
+" set PATH correctly {{{
 if has("macunix") && has("gui_running") && system('ps xw | grep -c "[V]im -psn"') > 0
   " Get the value of $PATH from a login shell.
   if $SHELL =~ '/\(sh\|csh\|bash\|tcsh\|zsh\)$'
@@ -5,37 +6,31 @@ if has("macunix") && has("gui_running") && system('ps xw | grep -c "[V]im -psn"'
     let $PATH = matchstr(s:path, 'VIMPATH\zs.\{-}\ze\n')
   endif
 endif
+"}}}
 
+" Settings {{{
 set runtimepath+=$HOME/.vim/andrei
-
 " general settings
 set nocompatible              " use VI incompatible features
 let no_buffers_menu=1
 set noautochdir
 set history=10000             " number of history items
+set shiftround
 "set autowriteall
-
 " backup settings
 set nobackup " do not keep backups after close
 set nowritebackup " do not keep a backup while working
 set noswapfile " don't keep swp files either
-set backupdir=~/.vim/backup " store backups under ~/.vim/backup
 set backupcopy=yes " keep attributes of original file
-set backupskip=/tmp/*,$TMPDIR/*,$TMP/*,$TEMP/*
-set directory=~/.vim/swap,~/tmp,. " keep swp files under ~/.vim/swap
-
+set backupskip=/tmp/*,/private/tmp/*,$TMPDIR/*,$TMP/*,$TEMP/*
 " ui settings
 set ruler                     " show the cursor position all the time
 set scrolloff=3               " start scrolling before end
 set showcmd                   " show incomplete commands
 set number                    " show line numbers
-set wildmenu
-set wildignore=*.o,*.obj,*.pyc,*.d,*.swp,*.bak,*.hi,*.6,*.out,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*.class,*.dll,*.so,*.dylib,.svn,CVS,.git,.hg,*.a,*.mo,*.la,*.so,*.obj,*.swp,*.jpg,*.png,*.xpm,*.gif
-set wildmode=list:longest,full
 set whichwrap=<,>,h,l,b,s,~,[,]
 set shortmess=aTI             " supress some file messages
 set sidescrolloff=4           " minchars to show around cursor
-
 if has("gui_running")
     set mouse=a
 endif
@@ -43,19 +38,23 @@ set selectmode=mouse,key      " select model
 set keymodel=startsel         ",stopsel
 set autoread                  " read outside modified files
 set encoding=UTF-8            " file encoding
+set modelines=0
 set formatoptions=tcroqn1     " auto format
+set colorcolumn=+1
 "set guioptions=cr+bie"M"m	  " aA BAD
 set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
 "set guioptions=+
-
 " visual cues
 set ignorecase                " ignore case when searching
 set smartcase                 " ignore case when searching
 set hlsearch                  " highlight last search
 set incsearch                 " show matches while searching
+set gdefault
+
 set laststatus=2              " always show status line
 "set cursorline
-set showbreak=>               " character to show that a line is wrapped
+set showbreak=↪               " character to show that a line is wrapped
+set fillchars=diff:⣿
 set showcmd                   " show number of selected chars/lines in status
 set showmatch                 " briefly jump to matching brace
 set matchtime=1               " show matching brace time (1/10 seconds)
@@ -64,49 +63,33 @@ set nostartofline             " don't move to start of line after commands
 set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[tab:%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [offset:\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y]%{ShowFileFormatFlag(&fileformat)}\ %)\ %L\ lines%)
 set undolevels=10000
 set pumheight=10
-set viminfo=%,h,'1000,"1000,:1000,n~/.viminfo
+set viminfo=%,h,'1000,"1000,:1000,n~/.vim/tmp/.viminfo
 set scrolljump=10
-set virtualedit=block
+set virtualedit+=block
 set novisualbell
 set noerrorbells
 set t_vb=
 set winaltkeys=no
 set writeany
 set iskeyword=@,48-57,128-167,224-235,_
-set listchars=tab:>.,trail:.,extends:>,precedes:<,eol:$
+set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮,trail:.
 set showtabline=2
 set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
 set completeopt=menu,menuone,longest
 set ttyfast
-set gdefault
 "set notimeout
 "set ttimeout
 set timeoutlen=500
 set ttimeoutlen=200
-
-" GRB: clear the search buffer when hitting return
-nnoremap <CR> :nohlsearch<CR>/<BS>
-nnoremap <silent> <Leader>/ :nohlsearch<CR>
-
-nnoremap / /\v
-vnoremap / /\v
-
-" Sudo write {{{
-command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
-" }}}
-" Write and make file executable {{{
-command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
-" }}}
-
-"
 set guipty
 set clipboard= "unnamed ",unnamedplus,autoselect
-
-" vim 7.3
 set undofile
-set undodir=/Users/adragomi/.vim/tmp/vimundos
-
+set undoreload=10000
+set undodir=~/.vim/tmp/undo/
+set backupdir=~/.vim/tmp/backup " store backups under ~/.vim/backup
+set backup
+set directory=~/.vim/tmp/swap " keep swp files under ~/.vim/swap
 " settings: windows and buffers
 "set noequalalways
 set guiheadroom=0
@@ -114,19 +97,17 @@ set guiheadroom=0
 set hidden
 set splitbelow                " split windows below current one
 set title
+set linebreak
+set dictionary=/usr/share/dict/words
 set exrc
 set gcr=a:blinkon0
-
 set switchbuf=usetab
-
 " settings: line endings
 "set ff=unix
 "set ffs=unix
-
 " settings: grep
 set grepprg=$HOME/bin/ack\ --noenv
 set grepformat=%f:%l:%m
-
 " settings: tabs and indentin
 set autoindent
 set nocindent
@@ -138,31 +119,50 @@ set expandtab
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
-
 set cmdheight=2
 set laststatus=2
+set suffixes+=.lo,.o,.moc,.la,.closure,.loT
+set suffixes+=.bak,~,.o,.h,.info,.swp,.obj
+set suffixes+=class,.6
+"}}}
 
+" wildmenu settings {{{
+set wildmenu
+set wildmode=list:longest,full
+set wildignore+=.svn,CVS,.git,.hg
+set wildignore+=*.aux,*.out,*.toc " latex files
+set wildignore+=*.o,*.d,*.obj,*.dylib,*.so,*.exe,*.manifest,*.a,*.mo,*.la " objects
+set wildignore+=*.class,*.jar
+set wildignore+=*.jpg,*.jpeg,*.png,*.gif,*.tiff,*.xmp
+set wildignore+=*.sw?,*.bak
+set wildignore+=*.6,*.out
+set wildignore+=.DS_Store
+set wildignore+=*.pyc,*.class,*.luac
+" }}}
+
+" pathogen {{{
 call pathogen#helptags()
 call pathogen#infect() 
+" }}}
 
-" key mappings
+" mapleader {{{
 let mapleader = ","
 let maplocalleader = ","
- 
-" look & feel
+" }}}
+
+" look & feel {{{
+set t_Co=256
+let g:molokai_original = 1
+"let g:solarized_termcolors=256
+set background=dark
+colorscheme solarized
 if has("gui_running") && has("macunix")
-  set guifont=Inconsolata:h13
+  set guifont=Inconsolata\ For\ Powerline:h15
   set antialias
 endif
+" }}}
 
-"nnoremap <silent> Q
-"nnoremap <silent> gQ
-
-"nnoremap ; :
-" no Ex mode
-"map Q gq
-nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
-
+" gui settings {{{
 if has("gui_running")
   " behave mswin
   set fuoptions=maxvert,maxhorz
@@ -241,16 +241,9 @@ if has("gui_running")
   omap <special> <D-a> <Esc><D-a>
   " end macmap.vim
 endif
-set t_Co=256
-map H ^
-map L $
+" }}}
 
-let g:molokai_original = 1
-"let g:solarized_termcolors=256
-set background=dark
-colorscheme solarized
-
-" syntax highlighting
+" syntax highlighting {{{
 syntax enable
 syntax on
 filetype on
@@ -258,15 +251,18 @@ filetype indent on
 filetype plugin on
 hi SignColor guibg=red
 autocmd BufEnter * :syntax sync fromstart
+" }}}
 
-" enable autosaving
-"set updatecount=0 updatetime=500
-"autocmd CursorHold,CursorHoldI * silent! wall
+" my functions {{{
 
-" suffixes
-set suffixes+=.lo,.o,.moc,.la,.closure,.loT
+function! EatChar(pat)
+    let c = nr2char(getchar(0))
+    return (c =~ a:pat) ? '' : c
+endfunction
 
-" my functions
+function! MakeSpacelessIabbrev(from, to)
+    execute "iabbrev <silent> ".a:from." ".a:to."<C-R>=EatChar('\\s')<CR>"
+endfunction
 
 function! WordFrequency() range
   let all = split(join(getline(a:firstline, a:lastline)), '\A\+')
@@ -1078,6 +1074,168 @@ function! DemoCommand (...)
   call matchdelete(matchid)
 endfunction
 
+function! s:VSetSearch()
+  let temp = @@
+  norm! gvy
+  let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
+  let @@ = temp
+endfunction
+
+function! MyFoldText() " {{{
+  let line = getline(v:foldstart)
+
+  let nucolwidth = &fdc + &number * &numberwidth
+  let windowwidth = winwidth(0) - nucolwidth - 3
+  let foldedlinecount = v:foldend - v:foldstart
+
+  " expand tabs into spaces
+  let onetab = strpart('          ', 0, &tabstop)
+  let line = substitute(line, '\t', onetab, 'g')
+
+  let line = strpart(line, 0, windowwidth - 2 -len(foldedlinecount))
+  let fillcharcount = windowwidth - len(line) - len(foldedlinecount)
+  return line . '…' . repeat(" ",fillcharcount) . foldedlinecount . '…' . ' '
+endfunction " }}}
+
+function! s:ExecuteInShell(command) " {{{
+    let command = join(map(split(a:command), 'expand(v:val)'))
+    let winnr = bufwinnr('^' . command . '$')
+    silent! execute  winnr < 0 ? 'botright vnew ' . fnameescape(command) : winnr . 'wincmd w'
+    setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap nonumber
+    echo 'Execute ' . command . '...'
+    silent! execute 'silent %!'. command
+    silent! redraw
+    silent! execute 'au BufUnload <buffer> execute bufwinnr(' . bufnr('#') . ') . ''wincmd w'''
+    silent! execute 'nnoremap <silent> <buffer> <LocalLeader>r :call <SID>ExecuteInShell(''' . command . ''')<CR>:AnsiEsc<CR>'
+    silent! execute 'nnoremap <silent> <buffer> q :q<CR>'
+    silent! execute 'AnsiEsc'
+    echo 'Shell command ' . command . ' executed.'
+endfunction " }}}
+command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
+nnoremap <leader>! :Shell 
+
+function! InsertCloseTag()
+" inserts the appropriate closing HTML tag; used for the \hc operation defined
+" above;
+" requires ignorecase to be set, or to type HTML tags in exactly the same case
+" that I do;
+" doesn't treat <P> as something that needs closing;
+" clobbers register z and mark z
+" 
+" by Smylers  http://www.stripey.com/vim/
+" 2000 May 3
+
+    " list of tags which shouldn't be closed:
+    let UnaryTags = ' Area Base Br DD DT HR Img Input Link Meta Param '
+
+    " remember current position:
+    normal! mz
+
+    " loop backwards looking for tags:
+    let Found = 0
+    while Found == 0
+      " find the previous <, then go forwards one character and grab the first
+      " character plus the entire word:
+      execute "normal! ?\<LT>\<CR>l"
+      normal! "zyl
+      let Tag = expand('<cword>')
+
+      " if this is a closing tag, skip back to its matching opening tag:
+      if @z == '/'
+        execute "normal! ?\<LT>" . Tag . "\<CR>"
+
+      " if this is a unary tag, then position the cursor for the next
+      " iteration:
+      elseif match(UnaryTags, ' ' . Tag . ' ') > 0
+        normal! h
+
+      " otherwise this is the tag that needs closing:
+      else
+        let Found = 1
+
+      endif
+    endwhile " not yet found match
+
+    " create the closing tag and insert it:
+    let @z = '</' . Tag . '>'
+    normal! `z"zp
+
+endfunction " InsertCloseTag()
+
+" }}}
+
+" settings after functions {{{ 
+set guitablabel=%{GuiTabLabel()}
+"set guitablabel=MyTabLine()
+set tabline=%!MyTabLine()
+" }}}
+
+" clean whitespace
+nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
+
+" Send visual selection to gist.github.com as a private, filetyped Gist
+" Requires the gist command line too (brew install gist)
+vnoremap <leader>G :w !gist -p -t %:e \| pbcopy<cr>
+
+" Change case
+nnoremap <C-u> gUiw
+inoremap <C-u> <esc>gUiwea
+
+" Substitute
+nnoremap <leader>s :%s//<left>
+
+" Formatting, TextMate-style
+nnoremap Q gqip
+
+" Split line (sister to [J]oin lines)
+" The normal use of S is covered by cc, so don't worry about shadowing it.
+nnoremap S i<cr><esc><right>
+
+" HTML tag closing
+inoremap <C-_> <Space><BS><Esc>:call InsertCloseTag()<cr>a
+
+" GRB: clear the search buffer when hitting return
+nnoremap <CR> :nohlsearch<CR>/<BS>
+nnoremap <silent> <Leader>/ :nohlsearch<CR>
+
+" Open a Quickfix window for the last search.
+nnoremap <silent> <leader>/ :execute 'vimgrep /'.@/.'/g %'<CR>:copen<CR>
+
+" Ack for the last search.
+nnoremap <silent> <leader>? :execute "Ack! '" . substitute(substitute(substitute(@/, "\\\\<", "\\\\b", ""), "\\\\>", "\\\\b", ""), "\\\\v", "", "") . "'"<CR>
+
+" Fix linewise visual selection of various text objects
+nnoremap VV V
+nnoremap Vit vitVkoj
+nnoremap Vat vatV
+nnoremap Vab vabV
+nnoremap VaB vaBV
+
+nnoremap <m-Down> :cnext<cr>zvzz
+nnoremap <m-Up> :cprevious<cr>zvzz
+
+noremap j gj
+noremap k gk
+
+" Fuck you, help key.
+noremap  <F1> :set invfullscreen<CR>
+inoremap <F1> <ESC>:set invfullscreen<CR>a
+nnoremap K <nop>
+inoremap # X<BS>#
+
+nnoremap / /\v
+vnoremap / /\v
+map H ^
+map L $
+
+"nnoremap <silent> Q
+"nnoremap <silent> gQ
+
+"nnoremap ; :
+" no Ex mode
+"map Q gq
+nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
+
 call KeyMap('n', '', '', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>')
 call KeyMap('i', '<silent>', '', '<S-Space>', ':call ExpandTemplate(1)<CR>')
 call KeyMap('ni', '', 'D', 'q', ':q<CR>')
@@ -1269,6 +1427,7 @@ iabbrev pritnf printf
 iabbrev stirng string
 iabbrev teh the
 
+" plugin settings {{{
 " python syntax settings
 let python_highlight_all = 1
 
@@ -1310,6 +1469,11 @@ let OmniCpp_ShowPrototypeInAbbr = 1
 let OmniCpp_ShowAccess = 1
 let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 
+" powerline
+let g:Powerline_symbols = 'fancy'
+let g:Powerline_cache_file = $HOME . '/.vim/tmp/Powerline_cache_file'
+let g:Powerline_theme = 'adr'
+
 " tex
 let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
@@ -1335,6 +1499,8 @@ let vimclojure#WantNailgun = 0
 let vimclojure#NailgunPort = "2200"
 let vimclojure#ParenRainbow = 1
 
+let MRU_File = $HOME . '/.vim/tmp/.vim_mru_files'
+
 " javascript
 let javaScript_fold=1
 
@@ -1357,6 +1523,8 @@ let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 let g:yankring_history_dir = "$HOME/.vim/tmp"
 let g:yankring_default_menu_mode = 0
 
+let g:fuf_dataDir = "$HOME/.vim/tmp/.vim-fuf-data"
+
 "easymotion
 let g:EasyMotion_mapping_e = '<Leader>ee'
 let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
@@ -1371,15 +1539,20 @@ set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
-" auto commands
-command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
-
-" remove all buffers on exit so we don't have them as hidden on reopen
-autocmd VimLeavePre * 1,255bwipeout
-
 " let the javacomplete find its own port 
 let g:first_nailgun_port=2114
 let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
+
+" }}}
+
+" commands {{{
+command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
+command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
+command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
+" }}}
+
+" remove all buffers on exit so we don't have them as hidden on reopen
+autocmd VimLeavePre * 1,255bwipeout
 
 autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4
 autocmd Filetype java setlocal expandtab tabstop=2 shiftwidth=2
@@ -1394,39 +1567,39 @@ autocmd Filetype java map <leader>s :JavaCompleteReplaceWithImport<CR>
 autocmd Filetype c set ts=4 sw=4
 
 autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
-autocmd FileType text,markdown,mkd,pandoc setlocal textwidth=120
+autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
 autocmd FileType puppet setlocal sw=2 ts=2 expandtab
 autocmd BufReadPost *
   \ if line("'\"") > 0 && line("'\"") <= line("$") |
   \   exe "normal g`\"" |
   \ endif
+
 augroup mkd
     autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
     autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;
+    au Filetype markdown nnoremap <buffer> <localleader>1 yypVr=
+    au Filetype markdown nnoremap <buffer> <localleader>2 yypVr-
+    au Filetype markdown nnoremap <buffer> <localleader>3 I### <ESC>
+augroup END
+
+augroup ft_quickfix
+    au!
+    au Filetype qf setlocal colorcolumn=0 nolist nocursorline nowrap
+augroup END
+
+" Make sure Vim returns to the same line when you reopen a file.
+augroup line_return
+    au!
+    au BufReadPost *
+        \ if line("'\"") > 0 && line("'\"") <= line("$") |
+        \     execute 'normal! g`"zvzz' |
+        \ endif
 augroup END
 
 autocmd BufRead *.f  set ft=forth
 
 " remove empty or otherwise dead buffers when moving away from them
 autocmd TabLeave    * call OnTabLeave()
-
-set guitablabel=%{GuiTabLabel()}
-"set guitablabel=MyTabLine()
-set tabline=%!MyTabLine()
-
-"let g:user_zen_settings = {
-  "'php' : {
-    "'extends' : 'html',
-    "'filters' : 'c',
-  "},
-  "'xml' : {
-    "'extends' : 'html',
-  "},
-  "'haml' : {
-    "'extends' : 'html',
-  "},
-"}
-
 
 " autocmds to automatically enter hex mode and handle file writes properly
 if has("autocmd")
