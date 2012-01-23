@@ -1,7 +1,6 @@
 # Path to your oh-my-zsh configuration.
 export ZSH=$HOME/.zsh
 
-
 # Set to this to use case-sensitive completion
 export CASE_SENSITIVE="true"
 
@@ -98,7 +97,7 @@ function battery_charge {
 setopt prompt_subst	# Enables additional prompt extentions
 autoload -U colors && colors	# Enables colours
 
-RPROMPT='[%(0?,,<%?> )][%F{cyan}%D{%e.%b.%y %H:%M:%S}%F{white}][$(battery_charge)']
+RPROMPT='[%(0?,,<%?> )][%F{cyan}%D{%e.%b.%y %H:%M:%S}%F{white}]'
 
 # }}}
 
@@ -425,6 +424,11 @@ bindkey ' ' magic-space    # also do history expansion on space
 
 bindkey '^[[Z' reverse-menu-complete
 
+bindkey '^[[3D' backward-word
+bindkey '^[[3C' forward-word
+
+bindkey '^[5D' backward-word
+bindkey '^[5C' forward-word
 
 bindkey '^[[5D' backward-word
 bindkey '^[[5C' forward-word
@@ -793,8 +797,15 @@ export MAVEN_REPO=$HOME/.m2/repository
 #export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
 export LESS="-rX"
 export PAGER=less
-export EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
-export GIT_EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
+
+if [ "`uname`" = "Darwin" ]; then
+  export EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
+  export GIT_EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
+else
+  export EDITOR=/usr/bin/vim
+  export GIT_EDITOR=/usr/bin/vim
+fi
+
 export VISUAL='vim'
 export INPUTRC=~/.inputrc
 export LANG="en_US.UTF-8"
@@ -860,7 +871,12 @@ export TEXMFCACHE=/tmp
 #export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
 
 # java
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0_27-b07-395.jdk/Contents/Home/
+if [ "`uname`" = "Darwin" ]; then
+  export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0_27-b07-395.jdk/Contents/Home/
+else
+  export JAVA_HOME=/usr/lib/jvm/default-jvm/
+fi
+
 #export JUNIT_HOME=/usr/share/junit
 
 # haxe
@@ -870,7 +886,9 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0_27-b07-395.jdk/Contents
 
 export NOTES=$HOME/Documents/personal/life/notes@/
 
-export VIMRUNTIME=/Users/adragomi/Applications/MacVim.app/Contents/Resources/vim/runtime/
+if [ "`uname`" = "Darwin" ]; then
+  export VIMRUNTIME=/Users/adragomi/Applications/MacVim.app/Contents/Resources/vim/runtime/
+fi  
 export SCALA_HOME=$HOME/work/tools/scala-2.9.1
 # }}}
 
@@ -881,8 +899,6 @@ export PATH=\
 /usr/local/sbin:\
 /usr/local/php5/bin:\
 $HOME/bin:\
-$HOME/bin/binary:\
-$HOME/bin/binary/clic:\
 "/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin":\
 "$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
 /usr/local/lib/ocaml_godi/bin/:\
@@ -896,7 +912,6 @@ $HOME/Applications/zero-1.0.0.P20070702-1062:\
 $HOME/temp/svn_other_projects/factor:\
 $HOME/work/tools/emulator/Vice/tools:\
 $HOME/work/tools/gradle-1.0-milestone-1/bin/:\
-$HOME/bin/binary/go:\
 $HOME/work/tools/rhino1_7R2/:\
 $HOME/work/tools/nasm/:\
 $HOME/temp/svn_other_projects/rock/bin:\
@@ -914,6 +929,13 @@ $SCALA_HOME/bin/:\
 $HOME/work/tools/play-2.0-beta/:\
 /usr/local/Ice/bin:\
 $PATH
+
+if [ "`uname`" = "Darwin" ]; then
+  export PATH=$PATH:\
+$HOME/bin/binary:\
+$HOME/bin/binary/clic:\
+$HOME/bin/binary/go
+fi
 
   
 export MANPATH=\
@@ -957,6 +979,9 @@ case "$HOST" in
   alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim';
   ;;
   sheeva*)
+  alias vim='/usr/bin/vim';
+  ;;
+  $USER-mbp*)
   alias vim='/usr/bin/vim';
   ;;
 esac
@@ -1329,7 +1354,9 @@ export AIR_ANDROID_SDK_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
 
 export ICE_HOME=/usr/local/Ice
 export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
+if [ "`uname`" = "Darwin" ]; then
+  eval "$(rbenv init -)"
+fi
 
 if [ "`uname`" = "Darwin" ]; then
   compctl -f -x 'p[2]' -s "`/bin/ls -d1 /Applications/*/*.app /Applications/*.app $HOME/Applications/*/*.app $HOME/Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g'`" -- open alias run='open -a'
@@ -1714,6 +1741,9 @@ fi
   fi
 } >> "$_F_SINK" 2>&1
 
+if [ "`uname`" = "Darwin" ]; then
+  eval `direnv hook $0`
+fi
+
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
-eval `direnv hook $0`

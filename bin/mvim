@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # This shell script passes all its arguments to the binary inside the
 # MacVim.app application bundle.  If you make links to this script as view,
@@ -11,25 +11,28 @@
 # First, check "All the Usual Suspects" for the location of the Vim.app bundle.
 # You can short-circuit this by setting the VIM_APP_DIR environment variable
 # or by un-commenting and editing the following line:
-VIM_APP_DIR=$HOME/Applications
-
-if [ -z "$VIM_APP_DIR" ]
-then
-	myDir="`dirname "$0"`"
-	myAppDir="$myDir/../Applications"
-	for i in ~/Applications ~/Applications/vim $myDir $myDir/vim $myAppDir $myAppDir/vim /Applications /Applications/vim /Applications/Utilities /Applications/Utilities/vim; do
-		if [ -x "$i/MacVim.app" ]; then
-			VIM_APP_DIR="$i"
-			break
-		fi
-	done
+if [ "`uname`" = "Darwin" ]; then
+  VIM_APP_DIR=$HOME/Applications
+  if [ -z "$VIM_APP_DIR" ]
+  then
+    myDir="`dirname "$0"`"
+    myAppDir="$myDir/../Applications"
+    for i in ~/Applications ~/Applications/vim $myDir $myDir/vim $myAppDir $myAppDir/vim /Applications /Applications/vim /Applications/Utilities /Applications/Utilities/vim; do
+      if [ -x "$i/MacVim.app" ]; then
+        VIM_APP_DIR="$i"
+        break
+      fi
+    done
+  fi
+  if [ -z "$VIM_APP_DIR" ]
+  then
+    echo "Sorry, cannot find MacVim.app.  Try setting the VIM_APP_DIR environment variable to the directory containing MacVim.app."
+    exit 1
+  fi
+  binary="$VIM_APP_DIR/MacVim.app/Contents/MacOS/Vim"
+else
+  binary="/usr/bin/gvim"
 fi
-if [ -z "$VIM_APP_DIR" ]
-then
-	echo "Sorry, cannot find MacVim.app.  Try setting the VIM_APP_DIR environment variable to the directory containing MacVim.app."
-	exit 1
-fi
-binary="$VIM_APP_DIR/MacVim.app/Contents/MacOS/Vim"
 
 # Next, peek at the name used to invoke this script, and set options
 # accordingly.

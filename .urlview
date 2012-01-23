@@ -1,1 +1,1 @@
-COMMAND open %s
+COMMAND ~/bin/allopen %s

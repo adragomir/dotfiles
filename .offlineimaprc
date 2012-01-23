@@ -28,7 +28,7 @@ localfolders = ~/Mail/Adobe
 type = Gmail
 remotehost = imap.gmail.com
 remoteuser = adragomir@gmail.com
-remotepasseval = get_keychain_pass(account="adragomir@gmail.com", server="smtp.gmail.com")
+remotepasseval = get_password(account="adragomir@gmail.com", server="smtp.gmail.com")
 ssl = yes
 maxconnections = 3
 holdconnectionopen = no
@@ -41,7 +41,7 @@ type = IMAP
 remotehost = localhost
 remoteport = 1143
 remoteuser = adragomi
-remotepasseval = get_keychain_pass(account="adragomi", server="localhost")
+remotepasseval = get_password(account="adragomi", server="localhost")
 maxconnections = 3
 holdconnectionopen = yes
 keepalive = 60

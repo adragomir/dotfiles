@@ -163,9 +163,10 @@ endif
 " }}}
 
 " gui settings {{{
-if has("gui_running")
+if has("gui_running") && has("macunix")
   " behave mswin
   set fuoptions=maxvert,maxhorz
+
   set selectmode=mouse "key,mouse
   set mousemodel=popup
   set keymodel=startsel ",stopsel
@@ -239,6 +240,82 @@ if has("gui_running")
   imap <special> <D-a> <Esc><D-a>
   cmap <special> <D-a> <C-C><D-a>
   omap <special> <D-a> <Esc><D-a>
+  " end macmap.vim
+elseif has("gui_running")
+  " behave mswin
+  set selectmode=mouse "key,mouse
+  set mousemodel=popup
+  set keymodel=startsel ",stopsel
+  set selection=exclusive
+
+  " source $VIMRUNTIME/mswin.vim
+  " mswin.vim, INLINE
+  " backspace and cursor keys wrap to previous/next line
+  set backspace=indent,eol,start whichwrap+=<,>,[,]
+
+  " backspace in Visual mode deletes selection
+  vnoremap <BS> d
+
+  " CTRL-X and SHIFT-Del are Cut
+  vnoremap <C-X> "+x
+  vnoremap <S-Del> "+x
+
+  " CTRL-C and CTRL-Insert are Copy
+  vnoremap <special> <C-C> "+y
+  vnoremap <C-Insert> "+y
+
+  " CTRL-V and SHIFT-Insert are Paste
+  map <C-V>		"+gP
+  map <S-Insert>		"+gP
+
+  cmap <C-V>		<C-R>+
+  cmap <S-Insert>		<C-R>+
+
+  " Pasting blockwise and linewise selections is not possible in Insert and
+  " Visual mode without the +virtualedit feature.  They are pasted as if they
+  " were characterwise instead.
+  " Uses the paste.vim autoload script.
+
+  exe 'inoremap <script> <C-V>' paste#paste_cmd['i']
+  exe 'vnoremap <script> <C-V>' paste#paste_cmd['v']
+
+  imap <S-Insert>		<C-V>
+  vmap <S-Insert>		<C-V>
+
+  " Use CTRL-Q to do what CTRL-V used to do
+  noremap <C-Q>		<C-V>
+
+  " For CTRL-V to work autoselect must be off.
+  " On Unix we have two selections, autoselect can be used.
+  if !has("unix")
+    set guioptions-=a
+  endif
+
+  " CTRL-A is Select all
+  noremap <C-A> gggH<C-O>G
+  inoremap <C-A> <C-O>gg<C-O>gH<C-O>G
+  cnoremap <C-A> <C-C>gggH<C-O>G
+  onoremap <C-A> <C-C>gggH<C-O>G
+  snoremap <C-A> <C-C>gggH<C-O>G
+  xnoremap <C-A> <C-C>ggVG
+  " end mswin.vim
+
+
+  "source $VIMRUNTIME/macmap.vim.old
+  " macmap.vim.old INLINE
+  vnoremap <special> <C-x> "+x
+  vnoremap <special> <C-c> "+y
+  cnoremap <special> <C-c> <C-Y>
+  nnoremap <special> <C-v> "+gP
+  cnoremap <special> <C-v> <C-R>+
+  execute 'vnoremap <script> <special> <C-v>' paste#paste_cmd['v']
+  execute 'inoremap <script> <special> <C-v>' paste#paste_cmd['i']
+
+  nnoremap <silent> <special> <C-a> :if &slm != ""<Bar>exe ":norm gggH<C-O>G"<Bar> else<Bar>exe ":norm ggVG"<Bar>endif<CR>
+  vmap <special> <C-a> <Esc><C-a>
+  imap <special> <C-a> <Esc><C-a>
+  cmap <special> <C-a> <C-C><C-a>
+  omap <special> <C-a> <Esc><C-a>
   " end macmap.vim
 endif
 " }}}
@@ -1220,7 +1297,7 @@ noremap k gk
 " Fuck you, help key.
 noremap  <F1> :set invfullscreen<CR>
 inoremap <F1> <ESC>:set invfullscreen<CR>a
-nnoremap K <nop>
+"nnoremap K <nop>
 inoremap # X<BS>#
 
 nnoremap / /\v
@@ -1238,38 +1315,36 @@ nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 
 call KeyMap('n', '', '', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>')
 call KeyMap('i', '<silent>', '', '<S-Space>', ':call ExpandTemplate(1)<CR>')
-call KeyMap('ni', '', 'D', 'q', ':q<CR>')
-call KeyMap('ni', '', 'D', 'Q', ':q!<CR>')
-call KeyMap('ni', '<silent>', 'D', 'w', ':call ConditionalExecute("write")<CR>')
-call KeyMap('n', '<silent>', 'D', 'a', 'gggH<C-O>G')
-call KeyMap('i', '<silent>', 'D', 'a', '<C-O>gg<C-O>gH<C-O>G')
-call KeyMap('n', '<silent>', 'D', 'y', '<C-R>')
-call KeyMap('i', '<silent>', 'D', 'y', '<C-O><C-R>')
-call KeyMap('ni', '<silent>', 'D', '`', ':maca selectNextWindow:<CR>')
-call KeyMap('ni', '<silent>', 'D', 'W', ':write!<CR>')
-call KeyMap('ni', '<silent>', 'D', '!', ':!!<CR>')
-call KeyMap('ni', '<silent>', 'D', '"', ':@:<CR>')
+call KeyMap('ni', '', 'DM', 'q', ':q<CR>')
+call KeyMap('ni', '', 'DM', 'Q', ':q!<CR>')
+call KeyMap('ni', '<silent>', 'DM', 'w', ':call ConditionalExecute("write")<CR>')
+call KeyMap('n', '<silent>', 'DM', 'a', 'gggH<C-O>G')
+call KeyMap('i', '<silent>', 'DM', 'a', '<C-O>gg<C-O>gH<C-O>G')
+call KeyMap('n', '<silent>', 'DM', 'y', '<C-R>')
+call KeyMap('i', '<silent>', 'DM', 'y', '<C-O><C-R>')
+call KeyMap('ni', '<silent>', 'DM', '`', ':maca selectNextWindow:<CR>')
+call KeyMap('ni', '<silent>', 'DM', 'W', ':write!<CR>')
+call KeyMap('ni', '<silent>', 'DM', '!', ':!!<CR>')
+call KeyMap('ni', '<silent>', 'DM', '"', ':@:<CR>')
 call KeyMap('ni', '<silent>', '', '<F9>', ':Tlist<CR>')
-call KeyMap('ni', '<silent>', 'D', 'd', ':bd<CR>')
-call KeyMap('ni', '<silent>', 'D', 'e', ':call OpenFileUnderCursor()<CR>')
+call KeyMap('ni', '<silent>', 'DM', 'd', ':bd<CR>')
+call KeyMap('ni', '<silent>', 'DM', 'e', ':call OpenFileUnderCursor()<CR>')
 call KeyMap('v', '<silent>', '', '<Tab>', '>gv')
 call KeyMap('v', '<silent>', '', '<S-Tab>', '<gv')
-call KeyMap('i', '<silent>', 'D', "'", ':call ExpandTemplate()<CR>')
+call KeyMap('i', '<silent>', 'DM', "'", ':call ExpandTemplate()<CR>')
 call KeyMap('i', '<silent>', 'C', 'z', ':u<CR>')
-call KeyMap('ni', '<silent>', 'D', 's', ':set scb<CR>')
-call KeyMap('ni', '<silent>', 'D', 'S', ':set noscb<CR>')
-call KeyMap('ni', '<silent>', 'D', 'u', 'guaw')
-call KeyMap('ni', '<silent>', 'D', 'U', 'gUaw')
-call KeyMap('ni', '<silent>', 'D', 'E', ':e .<CR>')
-call KeyMap('ni', '<silent>', 'D', 'Up', ':call SwapUp()<CR>')
-call KeyMap('ni', '<silent>', 'D', 'Down', ':call SwapDown()<CR>')
+call KeyMap('ni', '<silent>', 'DM', 'u', 'guaw')
+call KeyMap('ni', '<silent>', 'DM', 'U', 'gUaw')
+call KeyMap('ni', '<silent>', 'DM', 'E', ':e .<CR>')
+call KeyMap('ni', '<silent>', 'DM', 'Up', ':call SwapUp()<CR>')
+call KeyMap('ni', '<silent>', 'DM', 'Down', ':call SwapDown()<CR>')
 call KeyMap('ni', '<silent>', 'C', 'Space', '<C-p>')
-call KeyMap('ni', '<silent>', 'D', 'Space', '<C-X><C-O>')
+call KeyMap('ni', '<silent>', 'DM', 'Space', '<C-X><C-O>')
 call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
 call KeyMap('ni', '<silent>', '', '<F5>', ':BufExplorer<CR>')
 
 " fuzzyfinder
-call KeyMap('n', '<silent>', 'DL', 'r', ':call Tabnew()<CR>:FufFile **/<CR>')
+call KeyMap('n', '<silent>', 'DML', 'r', ':call Tabnew()<CR>:FufFile **/<CR>')
 
 " files & folders mapping
 call KeyMap('n', '<silent>',  'CDLM', '-',       ':call CwdUp()<CR>')
@@ -1277,9 +1352,9 @@ call KeyMap('n', '<silent>',  'CDLM', '=',       ':call CwdDown()<CR>')
 call KeyMap('n', '<silent>',  'CDLM', '0',       ':call CwdCurrent()<CR>')
 
 " directory browsing
-call KeyMap('n','<silent>', 'DL', 'e', ':call BrowserFromCurrentDir()<CR>')      " open a file browser in a new tab
-call KeyMap('n','<silent>', 'DL', 'E', ':call BrowserFromCurrentFilePath()<CR>') " open a file browser in a new tab
-call KeyMap('n','<silent>', 'DL', 'F', ':Ack<space>') " open a file browser in a new tab
+call KeyMap('n','<silent>', 'DML', 'e', ':call BrowserFromCurrentDir()<CR>')      " open a file browser in a new tab
+call KeyMap('n','<silent>', 'DML', 'E', ':call BrowserFromCurrentFilePath()<CR>') " open a file browser in a new tab
+call KeyMap('n','<silent>', 'DML', 'F', ':Ack<space>') " open a file browser in a new tab
 
 inoremap <C-space> <C-p>
 
@@ -1338,7 +1413,7 @@ map <Leader>s :call ToggleScratch()<CR>
 "vmap q <esc>
 
 " tab keys
-if has("gui_running")
+if has("gui_running") && has("macunix")
   map <D-t> :tabnew<CR>
   map <D-n> :new<CR>
   map <D-S-t> :browse tabe<CR>
@@ -1347,9 +1422,18 @@ if has("gui_running")
   map <D-[> :tabp<CR>
   imap <D-]> <C-o>:tabn<CR>
   imap <D-[> <C-o>:tabp<CR>
+elseif has("gui_running")
+  map <M-t> :tabnew<CR>
+  map <M-n> :new<CR>
+  map <M-S-t> :browse tabe<CR>
+  map <M-S-n> :browse split<CR>
+  map <M-]> :tabn<CR>
+  map <M-[> :tabp<CR>
+  imap <M-]> <C-o>:tabn<CR>
+  imap <M-[> <C-o>:tabp<CR>
 endif
 
-if has("gui_running")
+if has("gui_running") && has("macunix")
   imap <D-1> <C-o>1gt<CR>
   imap <D-2> <C-o>2gt<CR>
   imap <D-3> <C-o>3gt<CR>
@@ -1360,9 +1444,20 @@ if has("gui_running")
   imap <D-8> <C-o>8gt<CR>
   imap <D-9> <C-o>9gt<CR>
   imap <D-0> <C-o>10gt<CR>
+elseif has("gui_running")
+  imap <M-1> <C-o>1gt<CR>
+  imap <M-2> <C-o>2gt<CR>
+  imap <M-3> <C-o>3gt<CR>
+  imap <M-4> <C-o>4gt<CR>
+  imap <M-5> <C-o>5gt<CR>
+  imap <M-6> <C-o>6gt<CR>
+  imap <M-7> <C-o>7gt<CR>
+  imap <M-8> <C-o>8gt<CR>
+  imap <M-9> <C-o>9gt<CR>
+  imap <M-0> <C-o>10gt<CR>
 endif
 
-if has("gui_running")
+if has("gui_running") && has("macunix")
   map <D-1> 1gt
   map <D-2> 2gt
   map <D-3> 3gt
@@ -1373,6 +1468,17 @@ if has("gui_running")
   map <D-8> 8gt
   map <D-9> 9gt
   map <D-0> 10gt
+elseif has("gui_running")
+  map <M-1> 1gt
+  map <M-2> 2gt
+  map <M-3> 3gt
+  map <M-4> 4gt
+  map <M-5> 5gt
+  map <M-6> 6gt
+  map <M-7> 7gt
+  map <M-8> 8gt
+  map <M-9> 9gt
+  map <M-0> 10gt
 else
   map 1 1gt
   map 2 2gt
@@ -1485,7 +1591,11 @@ let g:clang_complete_auto = 1
 let g:clang_complete_macros = 1
 let g:clang_debug = 1
 let g:clang_use_library = 1
-let g:clang_library_path = "/Developer/usr/clang-ide/lib/"
+if has("macunix")
+  let g:clang_library_path = "/Developer/usr/clang-ide/lib/"
+else
+  let g:clang_library_path = "/usr/lib/"
+endif
 
 " ensime / async
 let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'} 

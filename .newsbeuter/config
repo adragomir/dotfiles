@@ -5,7 +5,7 @@ articlelist-title-format "%N %V - Articles in feed '%T' (%u unread, %t total) - 
 auto-reload no
 bookmark-cmd ""
 bookmark-interactive false
-browser "open"
+browser "~/bin/allopen"
 cache-file ""
 cleanup-on-quit yes
 confirm-exit no
@@ -65,6 +65,7 @@ reload-threads 10
 reload-time 60
 save-path "~/Downloads"
 search-highlight-colors "black" "yellow" "bold" 
+
 # solarized color scheme for newsbeuter <http://www.newsbeuter.org/>
 # more on solarized: http://ethanschoonover.com/solarized
 color listnormal color244 color234
@@ -72,6 +73,7 @@ color listfocus  color166 color235
 color info       color136 color235 
 color background color244 color234
 color article    color244 color234
+
 searchresult-title-format "%N %V - Search result (%u unread, %t total)"
 selectfilter-title-format "%N %V - Select Filter"
 selecttag-title-format "%N %V - Select Tag"
