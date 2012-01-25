@@ -1,6 +1,8 @@
 # Path to your oh-my-zsh configuration.
 export ZSH=$HOME/.zsh
 
+export OS=`uname | tr "[:upper:]" "[:lower:]"`
+
 # Set to this to use case-sensitive completion
 export CASE_SENSITIVE="true"
 
@@ -839,9 +841,9 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 
 #GO
 export GOROOT=$HOME/temp/svn_other_projects/go
-export GOOS=darwin
+export GOOS=$OS
 export GOARCH=amd64
-export GOBIN=$HOME/bin/binary/go
+export GOBIN=$HOME/bin/$OS/go
 
 export P4CONFIG=.p4conf
 export HTML_TIDY=$HOME/.tidyconf
@@ -932,9 +934,9 @@ $PATH
 
 if [ "`uname`" = "Darwin" ]; then
   export PATH=$PATH:\
-$HOME/bin/binary:\
-$HOME/bin/binary/clic:\
-$HOME/bin/binary/go
+$HOME/bin/$OS:\
+$HOME/bin/$OS/clic:\
+$GOBIN
 fi
 
   

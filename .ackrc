@@ -2,3 +2,4 @@
 --noheading
 --break
 --color
+--ignore-dir=surefire-reports
