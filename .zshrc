@@ -1,4 +1,3 @@
-# Path to your oh-my-zsh configuration.
 export ZSH=$HOME/.zsh
 
 export OS=`uname | tr "[:upper:]" "[:lower:]"`

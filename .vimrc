@@ -1578,7 +1578,7 @@ let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 " powerline
 let g:Powerline_symbols = 'fancy'
 let g:Powerline_cache_file = $HOME . '/.vim/tmp/Powerline_cache_file'
-let g:Powerline_theme = 'adr'
+"let g:Powerline_theme = 'adr'
 
 " tex
 let g:tex_ignore_makefile = 1
@@ -1600,6 +1600,9 @@ endif
 " ensime / async
 let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'} 
 let g:ensime = {'ensime-script': "/Users/adragomi/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
+
+" simplenote
+source $HOME/.secrets/simplenote_credentials.vim
 
 " clojure
 let vimclojure#NailgunClient = "$HOME/bin/ng"
@@ -1640,14 +1643,14 @@ let g:EasyMotion_mapping_e = '<Leader>ee'
 let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
 
 "syntastic
-let g:syntastic_enable_signs = 1
-let g:syntastic_auto_loc_list=0
-let g:syntastic_quiet_warnings=1
-let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
+"let g:syntastic_enable_signs = 1
+"let g:syntastic_auto_loc_list=0
+"let g:syntastic_quiet_warnings=1
+"let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
 
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
 
 " let the javacomplete find its own port 
 let g:first_nailgun_port=2114
