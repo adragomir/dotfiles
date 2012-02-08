@@ -150,7 +150,7 @@
 	url = https://github.com/clones/vim-l9.git
 [submodule ".vim/bundle/ultisnips"]
 	path = .vim/bundle/ultisnips
-	url = https://github.com/vim-scripts/UltiSnips
+	url = https://github.com/SirVer/ultisnips.git
 [submodule ".vim/bundle/puppet-vim"]
 	path = .vim/bundle/puppet-vim
 	url = https://github.com/ajf/puppet-vim.git
