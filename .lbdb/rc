@@ -39,7 +39,12 @@
 # - m_osx_addressbook  search the OS X addressbook (only available on OS X).
 # - m_evolution  search in the Ximan Evolution addressbook.
 
-METHODS="m_muttalias m_osx_addressbook m_ldap"
+# If you want to use private modules set the MODULES_PATH to find them:
+# (a space separated list):
+#
+MODULES_PATH="/usr/lib/lbdb $HOME/.lbdb/modules"
+
+METHODS="m_muttalias m_ldap m_goobook" # m_osx_addressbook
 
 
 # If it isn't possible to find out the correct mail domain name of
@@ -59,12 +64,6 @@ MAIL_DOMAIN_NAME=adragomi-mac
 #
 MUTT_DIRECTORY="$HOME/.mutt"
 MUTTALIAS_FILES="aliases"
-
-
-# If you want to use private modules set the MODULES_PATH to find them:
-# (a space separated list):
-#
-MODULES_PATH="/usr/local/Cellar/lbdb/0.38/lib"
 
 
 #

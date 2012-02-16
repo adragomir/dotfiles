@@ -5,7 +5,7 @@
 color status green default
 
 set from      = "adragomir@gmail.com"
-set sendmail  = "/usr/local/bin/msmtp -a adragomir@gmail.com"
+set sendmail  = "/usr/bin/msmtp -a adragomir@gmail.com"
 set mbox      = "+Gmail/INBOX"
 set record    = "+Gmail/record"
 set postponed = "+Gmail/drafts"

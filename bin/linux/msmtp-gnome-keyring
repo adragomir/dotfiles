@@ -1,0 +1,81 @@
+    #!/usr/bin/python
+    # -*- coding: utf-8 -*-
+    
+    import gnomekeyring as gk, sys, optparse, getpass
+    
+    
+    def set_keyring_password_for_msmtp_user(user, password, server):
+    
+        # Does it already exist?
+        if get_keyring_password_for_msmtp_user(user, server) is not None:
+            error_msg = "SMTP password for user '%s' in server '%s' does already exists" %(user, server)
+            return (False, error_msg)
+        
+        # get default keyring name. you can also specify it explicitly.
+        keyring = gk.get_default_keyring_sync()
+        
+        # display name for password.
+        display_name = 'SMTP password for %s at %s'%(user, server)
+        
+        # select type. if you want some kind of "network" password, it seems that
+        # appropriate type is network_password because it has a schema already.
+        type = gk.ITEM_NETWORK_PASSWORD
+    
+        usr_attrs = {'user':user, 'server':server, 'protocol':'smtp'}
+    
+        # Now it gets ready to add into the keyring. Do it.
+        # Its id will be returned if success or an exception will be raised
+        id = gk.item_create_sync(keyring, type, display_name, usr_attrs, password, False)
+        return (True, "")
+    
+        
+    def get_keyring_password_for_msmtp_user(user, server):
+    
+        try:
+            results = gk.find_network_password_sync(user=user, server=server, protocol='smtp')
+        except gk.NoMatchError:
+            return None
+    
+        return results[0]["password"]
+    
+    def main():
+        usage = "%prog [-s|-g] --username myuser --server myserver"
+        
+        parser = optparse.OptionParser(usage=usage)
+    
+        parser.add_option("-s", "--set-password", action="store_true", dest="setpass", help="Set password for msmtp acount")
+        parser.add_option("-g", "--get-password", action="store_true", dest="getpass", help="Get password for msmstp account")
+    
+        parser.add_option("-u", "--username", action="store", dest="username", help="Username for msmtp account")
+        parser.add_option("-e", "--server", action="store", dest="server", help="SMTP server for msmtp account")
+    
+        (opts, args) = parser.parse_args()
+    
+        if not opts.setpass and not opts.getpass:
+            parser.print_help()
+            print "You have to use -s or -g !!"
+            return -1
+    
+        if not opts.username or not opts.server:
+            parser.print_help()
+            print "You have to use both --username and --server !!"
+            return -1
+        elif opts.getpass:
+            passwd = get_keyring_password_for_msmtp_user(opts.username, opts.server)
+            print "Password for user '%s' in server '%s' : %s" %(opts.username, opts.server, passwd)
+        else: # setpass
+            msg = "Password for user '%s' in server '%s' ? " %(opts.username, opts.server)
+            passwd = getpass.getpass(msg)
+            passwd_confirmation = getpass.getpass("Confirmation, " + msg)
+            if passwd != passwd_confirmation:
+                print "Password and password confirmation are different, exiting..."
+                return -1
+            status_ok, error_msg = set_keyring_password_for_msmtp_user(opts.username, passwd, opts.server)
+            if not status_ok:
+                print error_msg
+                return -1
+        return 0
+    
+    
+    if __name__ == '__main__':
+        sys.exit(main())

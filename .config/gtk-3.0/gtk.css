@@ -1,0 +1,117 @@
+@binding-set mac-text-move
+{
+  bind "<super>Right"           { "move-cursor" (words, 1, 0) };
+  bind "<super>KP_Right"        { "move-cursor" (words, 1, 0) };
+  bind "<super>Left"            { "move-cursor" (words, -1, 0) };
+  bind "<super>KP_Left"         { "move-cursor" (words, -1, 0) };
+  bind "<shift><super>Right"    { "move-cursor" (words, 1, 1) };
+  bind "<shift><super>KP_Right" { "move-cursor" (words, 1, 1) };
+  bind "<shift><super>Left"     { "move-cursor" (words, -1, 1) };
+  bind "<shift><super>KP_Left"  { "move-cursor" (words, -1, 1) };
+}
+
+@binding-set mac-text-emacs
+{
+  bind "<ctrl>a" { "move-cursor" (paragraph-ends, -1, 0) };
+  bind "<shift><ctrl>a" { "move-cursor" (paragraph-ends, -1, 1) };
+  bind "<ctrl>e" { "move-cursor" (paragraph-ends, 1, 0) };
+  bind "<shift><ctrl>e" { "move-cursor" (paragraph-ends, 1, 1) };
+}
+
+@binding-set mac-text-delete
+{
+  bind "<super>Delete" { "delete-from-cursor" (word-ends, 1) };
+  bind "<super>KP_Delete" { "delete-from-cursor" (word-ends, 1) };
+  bind "<super>BackSpace" { "delete-from-cursor" (word-ends, -1) };
+}
+
+@binding-set mac-copy-paste
+{
+  bind "<super>x" { "cut-clipboard" () };
+  bind "<super>v" { "paste-clipboard" () };
+  bind "<super>c" { "copy-clipboard" () };
+}
+
+@binding-set mac-select-all-label
+{
+  bind "<super>a" {
+    "move-cursor" (paragraph-ends, -1, 0)
+    "move-cursor" (paragraph-ends, 1, 1)
+  };
+}
+
+@binding-set mac-select-all-text-view
+{
+  bind "<super>a" {
+    "select-all" (1)
+  };
+}
+
+@binding-set mac-select-all-entry
+{
+  bind "<super>a" {
+    "move-cursor" (buffer-ends, -1, 0)
+    "move-cursor" (buffer-ends, 1, 1)
+  };
+}
+
+@binding-set mac-file-chooser
+{
+  bind "<super>v" { "location-popup-on-paste" () };
+  bind "<super><shift>G" { "location-popup" () };
+  bind "<super><shift>H" { "home-folder" () };
+  bind "<super>Up" { "up-folder" () };
+}
+
+@binding-set mac-tree-view
+{
+  bind "<super>a" { "select-all" () };
+  bind "<shift><super>a" { "unselect-all" () };
+  bind "<super>f" { "start-interactive-search" () };
+  bind "<super>F" { "start-interactive-search" () };
+}
+
+@binding-set mac-icon-view
+{
+  bind "<super>a" { "select-all" () };
+}
+
+GtkTextView
+{
+  gtk-key-bindings: mac-text-move, mac-text-delete, mac-copy-paste, mac-select-all-text-view;
+}
+
+GtkLabel
+{
+  gtk-key-bindings: mac-text-move, mac-text-emacs, mac-select-all-label;
+}
+
+GtkEntry
+{
+  gtk-key-bindings: mac-text-move, mac-text-emacs, mac-text-delete, mac-copy-paste, mac-select-all-entry;
+}
+
+GtkFileChooserDefaultClass
+{
+  gtk-key-bindings: mac-file-chooser;
+}
+
+GtkFileChooser
+{
+  gtk-key-bindings: mac-file-chooser;
+}
+
+GtkFileChooserDefault
+{
+  gtk-key-bindings: mac-file-chooser;
+}
+
+GtkTreeView
+{
+  gtk-key-bindings: mac-tree-view;
+}
+
+GtkIconView
+{
+  gtk-key-bindings: mac-icon-view;
+}

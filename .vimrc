@@ -152,10 +152,12 @@ let maplocalleader = ","
 
 " look & feel {{{
 set t_Co=256
-let g:molokai_original = 1
-"let g:solarized_termcolors=256
 set background=dark
+set t_Co=16
+let g:solarized_termtrans=1
+let g:solarized_termcolors=256
 colorscheme solarized
+
 if has("gui_running") && has("macunix")
   set guifont=Inconsolata\ For\ Powerline:h15
   set antialias
@@ -1535,6 +1537,7 @@ iabbrev teh the
 
 " plugin settings {{{
 " python syntax settings
+let g:pymode_lint = 0
 let python_highlight_all = 1
 
 " taglist settings
@@ -1755,3 +1758,4 @@ endif
 " }}}
 
 let g:ctk_defoutput = "$HOME/.vim/tmp/output"
+set background=dark

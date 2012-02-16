@@ -793,6 +793,8 @@ export ANT_HOME=$HOME/work/tools/apache-ant-1.8.2
 export ANT_OPTS="-Xms256m -Xmx512m -XX:MaxPermSize=512m -XX:PermSize=256m"
 
 # maven
+#export M2=$HOME/work/apache-maven-3.0.3/bin/
+#export M2_HOME=$HOME/work/apache-maven-3.0.3/
 export MAVEN_REPO=$HOME/.m2/repository
 
 #export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
@@ -875,7 +877,7 @@ export TEXMFCACHE=/tmp
 if [ "`uname`" = "Darwin" ]; then
   export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0_27-b07-395.jdk/Contents/Home/
 else
-  export JAVA_HOME=/usr/lib/jvm/default-jvm/
+  export JAVA_HOME=/usr/lib/jvm/java-6-sun/
 fi
 
 #export JUNIT_HOME=/usr/share/junit
@@ -900,6 +902,7 @@ export PATH=\
 /usr/local/sbin:\
 /usr/local/php5/bin:\
 $HOME/bin:\
+$HOME/bin/$OS:\
 "/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin":\
 "$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
 /usr/local/lib/ocaml_godi/bin/:\
@@ -929,6 +932,8 @@ $PATH:/usr/hla:\
 $SCALA_HOME/bin/:\
 $HOME/work/tools/play-2.0-beta/:\
 /usr/local/Ice/bin:\
+$HOME/work/tools/apache-ant-1.8.2/bin:\
+$HOME/work/tools/apache-maven-3.0.3/bin:\
 $PATH
 
 if [ "`uname`" = "Darwin" ]; then

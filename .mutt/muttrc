@@ -11,7 +11,7 @@ set certificate_file    = ~/.mutt/certificates                  # where to store
 set mailcap_path        = ~/.mailcap                       # entrys for filetypes
 set signature           = ~/.mutt/sig                           # my signature file
 set tmpdir              = ~/.mutt/temp                          # where to keep temp files
-set editor              = "$HOME/Applications/MacVim.app/Contents/MacOS/Vim --servername VIM --remote-tab-wait +/^$"                   # use vim and skip to first blank line
+set editor              = "gvim --servername VIM --remote-tab-wait +/^$"                   # use vim and skip to first blank line
 
 # main options
 set mbox_type           = Maildir                               # mailbox type
