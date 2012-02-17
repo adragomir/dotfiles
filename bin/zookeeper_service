@@ -9,7 +9,7 @@
 # Short-Description: Enable Zookeeper services
 ### END INIT INFO
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-ZOOKEEPER_BIN=/Users/adragomi/work/saasbase_env/zookeeper/bin
+ZOOKEEPER_BIN=/home/adragomi/work/saasbase_env/zookeeper/bin
 NAME=zookeeper
 DESC=zookeeper
 USER=adragomi

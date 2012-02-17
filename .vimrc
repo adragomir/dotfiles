@@ -1528,7 +1528,6 @@ map ]xx :Explore<cr>2jp<c-w>H20<c-w><
 
 " abbreviations
 iabbrev mdy <C-r>=strftime("%Y-%m-%d %H:%M:%S")
-iabbrev fi if
 iabbrev fpritnf fprintf
 iabbrev fro for
 iabbrev pritnf printf

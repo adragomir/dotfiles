@@ -425,8 +425,10 @@ bindkey ' ' magic-space    # also do history expansion on space
 
 bindkey '^[[Z' reverse-menu-complete
 
-bindkey '^[[3D' backward-word
-bindkey '^[[3C' forward-word
+bindkey "\e[1;3D" backward-word
+bindkey "\e[1;3C" forward-word
+bindkey "\e3D" backward-word
+bindkey "\e3C" forward-word
 
 bindkey '^[5D' backward-word
 bindkey '^[5C' forward-word
@@ -859,7 +861,8 @@ export ZOOKEEPER_HOME=$HOME/work/saasbase_env/zookeeper
 export STORM_HOME=$HOME/work/saasbase_env/storm
 
 # saasbase
-export SAASBASE_HOME=$HOME/work/saasbase_env
+export SAASBASE_DB_HOME=$HOME/work/saasbase_env/src/saasbase_db
+export SAASBASE_ANALYTICS_HOME=$HOME/work/saasbase_env/src/saasbase_analytics
 export SAASBASE_DATAROOT=/var
 
 export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
@@ -934,13 +937,13 @@ $HOME/work/tools/play-2.0-beta/:\
 /usr/local/Ice/bin:\
 $HOME/work/tools/apache-ant-1.8.2/bin:\
 $HOME/work/tools/apache-maven-3.0.3/bin:\
+$GOBIN:\
 $PATH
 
 if [ "`uname`" = "Darwin" ]; then
   export PATH=$PATH:\
 $HOME/bin/$OS:\
-$HOME/bin/$OS/clic:\
-$GOBIN
+$HOME/bin/$OS/clic
 fi
 
   
@@ -1337,12 +1340,19 @@ _zsh_highlight-install "${(@f)"$(zle -la)"}"
 
 # {{{ amazon
 export EC2_HOME=~/.ec2
-export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/HEAD/jars"
-export AWS_CREDENTIAL_FILE=$HOME/.aws-credentials-master
 export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/pk-*.pem)"
 export EC2_CERT="$(/bin/ls $HOME/.ec2/cert-*.pem)"
-export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
-export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
+export AWS_CREDENTIAL_FILE=$HOME/.aws-credentials-master
+if [ "`uname`" = "Darwin" ]; then
+  export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/HEAD/jars"
+  export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
+  export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
+else
+  export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/HEAD/jars"
+  export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
+  export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
+fi
+
 export PATH=$PATH:$EC2_HOME/bin
 # }}}
 
