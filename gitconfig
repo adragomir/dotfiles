@@ -1,0 +1,62 @@
+[user]
+	name = Andrei Dragomir
+	email = adragomir@gmail.com
+
+[color]
+  diff = auto
+  status = auto
+  branch = auto
+
+[alias]
+  st = status
+  st2 = "ls-files --exclude-per-directory=.gitignore  --exclude-from=.git/info/exclude  -t -o -u -s -m -d"
+  dc = diff --stat --name-status --cached
+  cat = -p cat-file -p
+  ci = commit
+  co = checkout
+  di = diff
+  w = !git branch -a && git log --branches --oneline --graph --decorate --simplify-by-decoration --since='2 months ago'
+  log1 = log --pretty=oneline --abbrev-commit --decorate
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+  file-blame = !git ls-files | xargs -n1 -i{} git log -1 --pretty=format:\"%ci {}\" -- {}
+  pull-rebase = ! export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT
+  last = rev-list -n 1 HEAD -- "$1"
+  restore = ! FILE=$1 && git checkout $(git rev-list -n 1 HEAD -- "$FILE")^ -- "$FILE"
+
+[mergetool "araxismergetool"] 
+  cmd = /usr/local/bin/araxisgitmerge $PWD/$REMOTE $PWD/$BASE $PWD/$LOCAL $PWD/$MERGED
+  trustExitCode = false
+
+[mergetool]
+  keepBackup = false
+
+[merge] 
+  tool = araxismergetool
+
+[core]
+  legacyheaders = false
+	excludesfile = /Users/adragomi/.gitignore
+
+[repack]
+  usedeltabaseoffset = true
+
+[gui]
+  fontdiff = -family Courier -size 13 -weight normal -slant roman -underline 0 -overstrike 0
+	editor = mvim
+
+[github]
+  user = adragomir
+  token = 631abd318631e5d9ef2f932a811a8d7a
+
+[difftool "sourcetree"]
+	cmd = /Users/adragomi/Applications/SourceTree.app/Contents/Resources/araxiscompare-w.sh -2 \"$LOCAL\" \"$REMOTE\"
+	path = 
+
+[mergetool "sourcetree"]
+	cmd = /Users/adragomi/Applications/SourceTree.app/Contents/Resources/araxisgitmerge-w.sh \"$REMOTE\" \"$BASE\" \"$LOCAL\" \"$MERGED\"
+	trustExitCode = true
+
+#[branch]
+#  autosetuprebase = always
+[cola]
+	fontdiff = DejaVu Sans Mono,9,-1,5,50,0,0,0,0,0

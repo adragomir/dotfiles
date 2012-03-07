@@ -156,6 +156,7 @@ set background=dark
 set t_Co=16
 let g:solarized_termtrans=1
 let g:solarized_termcolors=256
+let g:solarized_italic=0
 colorscheme solarized
 
 if has("gui_running") && has("macunix")
@@ -1536,8 +1537,10 @@ iabbrev teh the
 
 " plugin settings {{{
 " python syntax settings
+let g:pymode_rope = 0
 let g:pymode_lint = 0
 let python_highlight_all = 1
+let g:pymode_rope_vim_completion = 0
 
 " taglist settings
 let Tlist_Ctags_Cmd = "/usr/bin/ctags"

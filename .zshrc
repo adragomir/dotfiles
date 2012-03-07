@@ -5,8 +5,6 @@ export OS=`uname | tr "[:upper:]" "[:lower:]"`
 # Set to this to use case-sensitive completion
 export CASE_SENSITIVE="true"
 
-# Initializes Oh My Zsh
-
 # add a function path
 fpath=($ZSH/functions $fpath)
 
@@ -437,6 +435,13 @@ bindkey '^[[5D' backward-word
 bindkey '^[[5C' forward-word
 
 bindkey '^[[3~' delete-char
+# Move to where the arguments belong.
+after-first-word() {
+  zle beginning-of-line
+  zle forward-word
+}
+zle -N after-first-word
+bindkey "^X1" after-first-word
 
 # }}}
 
@@ -832,6 +837,13 @@ export LC_ALL=""
 
 export VERSIONER_PERL_PREFER_32_BIT=yes
 export PERL_BADLANG=0
+
+export PERL_LOCAL_LIB_ROOT="/home/adragomi/.perl5";
+export PERL_MB_OPT="--install_base /home/adragomi/.perl5";
+export PERL_MM_OPT="INSTALL_BASE=/home/adragomi/.perl5";
+export PERL5LIB="/home/adragomi/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:/home/adragomi/.perl5/lib/perl5";
+export PATH="/home/adragomi/.perl5/bin:$PATH";
+
 export DISPLAY=:0.0
 
 # hla
@@ -1762,4 +1774,3 @@ if [ "`uname`" = "Darwin" ]; then
 fi
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
-
