@@ -838,11 +838,14 @@ export LC_ALL=""
 export VERSIONER_PERL_PREFER_32_BIT=yes
 export PERL_BADLANG=0
 
-export PERL_LOCAL_LIB_ROOT="/home/adragomi/.perl5";
-export PERL_MB_OPT="--install_base /home/adragomi/.perl5";
-export PERL_MM_OPT="INSTALL_BASE=/home/adragomi/.perl5";
-export PERL5LIB="/home/adragomi/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:/home/adragomi/.perl5/lib/perl5";
-export PATH="/home/adragomi/.perl5/bin:$PATH";
+if [ $OS == "linux" ];
+then
+  export PERL_LOCAL_LIB_ROOT=$HOME/.perl5
+  export PERL_MB_OPT="--install_base $HOME/.perl5";
+  export PERL_MM_OPT="INSTALL_BASE=$HOME/.perl5";
+  export PERL5LIB="$HOME/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:$HOME/.perl5/lib/perl5";
+  export PATH="$HOME/.perl5/bin:$PATH";
+fi
 
 export DISPLAY=:0.0
 
@@ -905,7 +908,7 @@ fi
 export NOTES=$HOME/Documents/personal/life/notes@/
 
 if [ "`uname`" = "Darwin" ]; then
-  export VIMRUNTIME=/Users/adragomi/Applications/MacVim.app/Contents/Resources/vim/runtime/
+  export VIMRUNTIME=$HOME/Applications/MacVim.app/Contents/Resources/vim/runtime/
 fi  
 export SCALA_HOME=$HOME/work/tools/scala-2.9.1
 # }}}
@@ -1377,8 +1380,8 @@ export PATH=$PATH:$EC2_HOME/bin
 [[ -s $HOME/.tmuxinator/scripts/tmuxinator ]] && source $HOME/.tmuxinator/scripts/tmuxinator
 # }}}
 
-export ANDROID_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
-export AIR_ANDROID_SDK_HOME=/Users/adragomi/work/tools/android-sdk-mac_x86/
+export ANDROID_HOME=$HOME/work/tools/android-sdk-mac_x86/
+export AIR_ANDROID_SDK_HOME=$HOME/work/tools/android-sdk-mac_x86/
 
 export ICE_HOME=/usr/local/Ice
 export PATH="$HOME/.rbenv/bin:$PATH"
