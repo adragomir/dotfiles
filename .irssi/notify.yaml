@@ -1,0 +1,5 @@
+hilight.enable: 1
+public.enable: 1
+public.channels:
+    "#asit" : nosticky
+private.enable: 1

@@ -9,15 +9,18 @@
 # Short-Description: Enable Hadoop services including hdfs
 ### END INIT INFO
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-HADOOP_BIN=/Users/adragomi/work/saasbase_env/hadoop//bin
+HADOOP_BIN=$HADOOP_HOME/bin
 NAME=hadoop
 DESC=hadoop
-USER=adragomi
+USER=`id -un`
 ROTATE_SUFFIX=
 test -x $HADOOP_BIN || exit 0
 RETVAL=0
 set -e
 cd /
+
+sudo mkdir -p /var/run/{hadoop,hbase,zookeeper,saasbase_db,saasbase_analytics}
+sudo chown -R `id -un`:`id -gn` /var/run/{hadoop,hbase,zookeeper,saasbase_db,saasbase_analytics}
 
 start_hadoop () {
     set +e

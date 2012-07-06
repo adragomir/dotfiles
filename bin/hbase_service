@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          hbase services
 # Required-Start:    $network
@@ -13,12 +13,15 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 HBASE_BIN=$HBASE_HOME/bin
 NAME=hbase
 DESC=hbase
-USER=adragomi
+USER=`id -un`
 ROTATE_SUFFIX=
 test -x $HBASE_BIN || exit 0
 RETVAL=0
 set -e
 cd /
+
+sudo mkdir -p /var/run/{hadoop,hbase,zookeeper,saasbase_db,saasbase_analytics}
+sudo chown `id -un`:`id -gn` /var/run/{hadoop,hbase,zookeeper,saasbase_db,saasbase_analytics}
 
 start_hbase () {
     set +e

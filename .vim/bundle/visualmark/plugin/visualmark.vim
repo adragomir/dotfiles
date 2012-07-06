@@ -22,7 +22,7 @@ highlight SignColor ctermfg=white ctermbg=blue guifg=white guibg=RoyalBlue3
 " ---------------------------------------------------------------------
 "  Public Interface:
 if !hasmapto('<Plug>Vm_toggle_sign')
-  map <unique> <D-F2> <Plug>Vm_toggle_sign
+  map <unique> <C-F2> <Plug>Vm_toggle_sign
   map <silent> <unique> mm <Plug>Vm_toggle_sign 
 endif
 nnoremap <silent> <script> <Plug>Vm_toggle_sign	:call Vm_toggle_sign()<cr>
@@ -48,7 +48,7 @@ fun! s:GetVimCmdOutput(cmd)
   let old_lang = v:lang
 
   " Set the language to English
-  exec ":lan mes en_US"
+  exec ":lan mes en_US.UTF-8"
 
   let v:errmsg = ''
   let output   = ''

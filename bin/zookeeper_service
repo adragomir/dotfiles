@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          zookeeper services
 # Required-Start:    $network
@@ -9,19 +9,21 @@
 # Short-Description: Enable Zookeeper services
 ### END INIT INFO
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-ZOOKEEPER_BIN=/home/adragomi/work/saasbase_env/zookeeper/bin
 NAME=zookeeper
 DESC=zookeeper
-USER=adragomi
+USER=`id -un`
 ROTATE_SUFFIX=
-test -x $ZOOKEEPER_BIN || exit 0
+test -x $ZOOKEEPER_HOME || exit 0
 RETVAL=0
 set -e
 cd /
 
+sudo mkdir -p /var/run/{hadoop,hbase,zookeeper,saasbase_db,saasbase_analytics}
+sudo chown -R `id -un`:`id -gn` /var/run/{hadoop,hbase,zookeeper,saasbase_db,saasbase_analytics}
+
 start_zookeeper () {
     set +e
-    $ZOOKEEPER_BIN/zkServer.sh start
+    $ZOOKEEPER_HOME/bin/zkServer.sh start
     case "$?" in
       0)
         echo SUCCESS
@@ -42,7 +44,7 @@ start_zookeeper () {
 stop_zookeeper () {
     set +e
     if [ $RETVAL = 0 ] ; then
-        $ZOOKEEPER_BIN/zkServer.sh stop
+        $ZOOKEEPER_HOME/bin/zkServer.sh stop
         RETVAL=$?
         if [ $RETVAL != 0 ] ; then
             echo FAILED - check /var/log/zookeeper/zookeeper.log

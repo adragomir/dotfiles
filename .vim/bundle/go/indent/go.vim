@@ -18,7 +18,6 @@ let b:did_indent = 1
 setlocal nolisp
 setlocal autoindent
 setlocal indentexpr=GoIndent(v:lnum)
-setlocal ts=4 sw=4
 setlocal indentkeys+=<:>,0=},0=)
 
 if exists("*GoIndent")

@@ -157,7 +157,7 @@ set t_Co=16
 let g:solarized_termtrans=1
 let g:solarized_termcolors=256
 let g:solarized_italic=0
-colorscheme solarized
+colorscheme molokai
 
 if has("gui_running") && has("macunix")
   set guifont=Inconsolata\ For\ Powerline:h15
@@ -1550,6 +1550,9 @@ let Tlist_Use_Right_Window = 1
 let Tlist_Exit_OnlyWindow = 1
 let Tlist_WinWidth = 0 
 
+" ctrl-p settings
+let g:ctrlp_custom_ignore = '\.git$\|\.hg$\|\.svn$|\.sass-cache$|tmp$|log$'
+
 " ruby settings
 let g:rubycomplete_buffer_loading = 1
 let g:rubycomplete_classes_in_global = 1
@@ -1720,37 +1723,37 @@ autocmd BufRead *.f  set ft=forth
 autocmd TabLeave    * call OnTabLeave()
 
 " autocmds to automatically enter hex mode and handle file writes properly
-if has("autocmd")
-  " vim -b : edit binary using xxd-format!
-  augroup Binary
-    autocmd!
-    autocmd BufReadPre *.bin,*.hex setlocal binary
-    autocmd BufReadPost *
-          \ if &binary | Hexmode | endif
-    autocmd BufWritePre *
-          \ if exists("b:editHex") && b:editHex && &binary |
-          \  let oldro=&ro | let &ro=0 |
-          \  let oldma=&ma | let &ma=1 |
-          \  exe "%!xxd -r" |
-          \  let &ma=oldma | let &ro=oldro |
-          \  unlet oldma | unlet oldro |
-          \ endif
-    autocmd BufWritePost *
-          \ if exists("b:editHex") && b:editHex && &binary |
-          \  let oldro=&ro | let &ro=0 |
-          \  let oldma=&ma | let &ma=1 |
-          \  exe "%!xxd" |
-          \  exe "set nomod" |
-          \  let &ma=oldma | let &ro=oldro |
-          \  unlet oldma | unlet oldro |
-          \ endif
-  augroup END
+"if has("autocmd")
+  "" vim -b : edit binary using xxd-format!
+  "augroup Binary
+    "autocmd!
+    "autocmd BufReadPre *.bin,*.hex setlocal binary
+    "autocmd BufReadPost *
+          "\ if &binary | Hexmode | endif
+    "autocmd BufWritePre *
+          "\ if exists("b:editHex") && b:editHex && &binary |
+          "\  let oldro=&ro | let &ro=0 |
+          "\  let oldma=&ma | let &ma=1 |
+          "\  exe "%!xxd -r" |
+          "\  let &ma=oldma | let &ro=oldro |
+          "\  unlet oldma | unlet oldro |
+          "\ endif
+    "autocmd BufWritePost *
+          "\ if exists("b:editHex") && b:editHex && &binary |
+          "\  let oldro=&ro | let &ro=0 |
+          "\  let oldma=&ma | let &ma=1 |
+          "\  exe "%!xxd" |
+          "\  exe "set nomod" |
+          "\  let &ma=oldma | let &ro=oldro |
+          "\  unlet oldma | unlet oldro |
+          "\ endif
+  "augroup END
 
-  autocmd! BufWritePost *
-    \ if &diff == 1 |
-    \ :diffupdate | 
-    \ endif
-endif
+  "autocmd! BufWritePost *
+    "\ if &diff == 1 |
+    "\ :diffupdate | 
+    "\ endif
+"endif
 
 " hosts {{{
 let hostfile=$HOME . '.vim/hosts/' . hostname() . ".vim"

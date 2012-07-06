@@ -145,10 +145,10 @@ call s:hifg("TabLineFill","#bbbbbb","LightGrey",85)
 call s:hibg("TabLineFill","#808080","Grey",83)
 
 hi Type gui=none
-hi railsUserClass  gui=italic cterm=underline
-hi railsUserMethod gui=italic cterm=underline
+hi railsUserClass  gui= cterm=underline
+hi railsUserMethod gui= cterm=underline
 hi Statement gui=none
-hi Comment gui=italic
+hi Comment gui=none
 hi Identifier cterm=none
 " Commented numbers at the end are *old* 256 color values
 "highlight PreProc       guifg=#EDF8F9
