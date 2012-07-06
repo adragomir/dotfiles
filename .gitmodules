@@ -163,3 +163,12 @@
 [submodule ".vim/bundle/ultisnips"]
 	path = .vim/bundle/ultisnips
 	url = https://github.com/SirVer/ultisnips.git
+[submodule ".vim/bundle/pandoc"]
+	path = .vim/bundle/pandoc
+	url = https://github.com/vim-pandoc/vim-pandoc.git
+[submodule ".vim/bundle/vim-rails"]
+	path = .vim/bundle/vim-rails
+	url = https://github.com/tpope/vim-rails.git
+[submodule ".vim/bundle/DetectIndent"]
+	path = .vim/bundle/DetectIndent
+	url = https://github.com/vim-scripts/DetectIndent.git
