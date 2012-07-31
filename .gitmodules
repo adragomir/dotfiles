@@ -175,3 +175,6 @@
 [submodule ".vim/fugitive"]
 	path = .vim/fugitive
 	url = https://github.com/tpope/vim-fugitive.git
+[submodule ".vim/bundle/detectindent"]
+	path = .vim/bundle/detectindent
+	url = https://github.com/ciaranm/detectindent.git
