@@ -1552,6 +1552,7 @@ let Tlist_WinWidth = 0
 
 " ctrl-p settings
 let g:ctrlp_custom_ignore = '\.git$\|\.hg$\|\.svn$|\.sass-cache$|tmp$|log$'
+let g:ctrlp_cache_dir = "$HOME/.vim/tmp"
 
 " ruby settings
 let g:rubycomplete_buffer_loading = 1
@@ -1600,7 +1601,8 @@ let g:clang_complete_macros = 1
 let g:clang_debug = 1
 let g:clang_use_library = 1
 if has("macunix")
-  let g:clang_library_path = "/Developer/usr/clang-ide/lib/"
+  "let g:clang_library_path = $HOME . "/work/tools/libclang"
+  let g:clang_library_path = "/usr/local/Cellar/llvm/3.0/lib/"
 else
   let g:clang_library_path = "/usr/lib/"
 endif
@@ -1610,7 +1612,7 @@ let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'}
 let g:ensime = {'ensime-script': "/Users/adragomi/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
 
 " simplenote
-source $HOME/.secrets/simplenote_credentials.vim
+"source $HOME/.secrets/simplenote_credentials.vim
 
 " clojure
 let vimclojure#NailgunClient = "$HOME/bin/ng"

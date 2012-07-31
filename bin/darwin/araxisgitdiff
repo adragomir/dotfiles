@@ -1,0 +1,25 @@
+#!/usr/bin/osascript
+# This script is required to reorder the parameters sent by Git, so that they may be passed into the Merge Applescript API
+on run args
+  tell application "Araxis Merge"
+    set _file1 to item 2 of args as text
+    set _file2 to item 5 of args as text  
+
+    if not _file1 starts with "/"
+      set _file1 to (POSIX path of (POSIX file "." as alias)) & _file1
+    end if
+
+    if not _file2 starts with "/"
+      set _file2 to (POSIX path of (POSIX file "." as alias)) & _file2
+    end if
+
+    set _document to compare {_file1, _file2}
+
+    tell _document
+      activate
+    end tell
+    repeat while exists _document
+      delay 1
+    end repeat
+  end tell
+end run

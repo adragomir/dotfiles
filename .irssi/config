@@ -296,6 +296,10 @@ settings = {
   "perl/core/scripts" = {
     awl_display_key = "$Q%K|%n$H$C$S";
     awl_block = "-15";
+    growl_net_client = "localhost";
+    growl_show_privmsg = "yes";
+    growl_reveal_privmsg = "yes";
+    growl_show_hilight = "yes";
   };
 };
 logs = { };
@@ -313,17 +317,6 @@ windows = {
     level = "MSGS ACTIONS DCCMSGS";
   };
   3 = {
-    level = "PUBLICS NOTICES CTCPS ACTIONS JOINS PARTS QUITS KICKS MODES TOPICS WALLOPS INVITES NICKS DCC DCCMSGS CLIENTNOTICES CLIENTCRAP CLIENTERRORS HILIGHTS";
-    items = (
-      {
-        type = "CHANNEL";
-        chat_type = "IRC";
-        name = "#wurbe";
-        tag = "freenode";
-      }
-    );
-  };
-  4 = {
     items = (
       {
         type = "CHANNEL";
@@ -333,6 +326,15 @@ windows = {
       }
     );
   };
-  5 = { };
+  4 = {
+    items = (
+      {
+        type = "CHANNEL";
+        chat_type = "IRC";
+        name = "&bitlbee";
+        tag = "bitlbee";
+      }
+    );
+  };
 };
 mainwindows = { 4 = { first_line = "1"; lines = "56"; }; };

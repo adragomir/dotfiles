@@ -1,0 +1,27 @@
+#!/usr/bin/osascript
+# This script is required by Mercurial to launch Compare because Mercurial expects a zero return code to indicate a successful merge, whereas Compare returns a non-zero number indicating the number of conflicts. This script always returns zero, unless Compare throws an error. 
+on run args
+  tell application "Araxis Merge"
+    launch
+    set _document to compare {item 1 of args, item 2 of args, item 3 of args}
+
+    tell _document
+      set the (first compared item's title) to "Other"
+      set the (second compared item's title) to "Base"
+      set the (third compared item's title) to "Local: " & item 3 of args
+
+      set the (first compared file's save path) to item 4 of args
+      set the (second compared file's save path) to item 4 of args
+      set the (third compared file's save path) to item 4 of args
+      activate
+    end tell
+
+    try
+      repeat while exists _document
+        delay 1
+      end repeat
+      on error
+    end try
+
+  end tell
+end run

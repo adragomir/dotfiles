@@ -1,0 +1,38 @@
+#!/usr/bin/osascript
+# This script is required by Subversion to launch Compare because Subversion expects a zero return code to indicate a successful merge, whereas Compare returns a non-zero number indicating the number of conflicts. This script always returns zero, unless Compare throws an error. 
+on run args
+  tell application "Araxis Merge"
+    launch
+
+    # make any relative paths absolute
+    set _remote to (POSIX path of ((item 2 of args as POSIX file) as alias))
+    set _ancestor to (POSIX path of ((item 1 of args as POSIX file) as alias))
+    set _local to (POSIX path of ((item 3 of args as POSIX file) as alias))
+    set _merged_output to (POSIX path of ((item 4 of args as POSIX file) as alias))
+     
+    set _document to compare {_remote, _ancestor, _local}
+
+    tell _document
+      set the (first compared item's title) to "Theirs"
+      set the (second compared item's title) to "Common ancestor"
+      set the (third compared item's title) to "Yours: " & item 3 of args
+
+      set the (first compared file's save path) to _merged_output
+      set the (second compared file's save path) to _merged_output
+      set the (third compared file's save path) to _merged_output
+
+      merge into common ancestor
+
+      activate
+    end tell
+
+    # wait until application exits
+    try
+      repeat while exists _document
+        delay 1
+      end repeat
+    on error
+    end try
+
+  end tell
+end run

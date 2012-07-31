@@ -828,7 +828,7 @@ export LC_ADDRESS="en_US.utf8"
 export LC_TELEPHONE="en_US.utf8"
 export LC_MEASUREMENT="en_US.utf8"
 export LC_IDENTIFICATION="en_US.utf8"
-export LC_ALL=""
+#export LC_ALL=""
 
 export VERSIONER_PERL_PREFER_32_BIT=yes
 export PERL_BADLANG=0
@@ -936,8 +936,8 @@ $HOME/.cljr/bin:\
 $ROO_HOME/bin:\
 $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64/:\
 "$HOME/Applications/Racket v5.0.2/bin/":\
-$HOME/work/tools/android-sdk-linux/tools/:\
-$HOME/work/tools/android-sdk-linux/platform-tools/:\
+$HOME/work/tools/android-sdk-$OS/tools/:\
+$HOME/work/tools/android-sdk-$OS/platform-tools/:\
 $HOME/work/tools/whirr-0.3.0-CDH3B4/bin/:\
 $HOME/work/tools/elastic-mapreduce/:\
 $HOME/work/tools/leiningen/:\
@@ -996,13 +996,13 @@ alias bochs='LTDL_LIBRARY_PATH=$HOME/work/tools/bochs/lib/bochs/plugins BXSHARE=
 case "$HOST" in
   $USER-mac*)
   alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g';
-  alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim';
+  #alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim';
   ;;
   sheeva*)
-  alias vim='/usr/bin/vim';
+  #alias vim='/usr/bin/vim';
   ;;
   $USER-mbp*)
-  alias vim='/usr/bin/vim';
+  #alias vim='/usr/bin/vim';
   ;;
 esac
 
@@ -1116,6 +1116,9 @@ function bases() {
 zmodload zsh/datetime
 zmodload zsh/stat
 zmodload zsh/mathfunc
+
+stty discard undef
+stty -ixon
 
 # }}}
 
@@ -1417,10 +1420,10 @@ export ANDROID_HOME=$HOME/work/tools/android-sdk-linux/
 export AIR_ANDROID_SDK_HOME=$HOME/work/tools/android-sdk-linux/
 
 export ICE_HOME=/usr/local/Ice
-export PATH="$HOME/.rbenv/bin:$PATH"
-if [ "`uname`" = "Darwin" ]; then
-  eval "$(rbenv init -)"
-fi
+#export PATH="$HOME/.rbenv/bin:$PATH"
+#if [ "`uname`" = "Darwin" ]; then
+  #eval "$(rbenv init -)"
+#fi
 
 if [ "`uname`" = "Darwin" ]; then
   compctl -f -x 'p[2]' -s "`/bin/ls -d1 /Applications/*/*.app /Applications/*.app $HOME/Applications/*/*.app $HOME/Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g'`" -- open alias run='open -a'
@@ -1806,10 +1809,11 @@ fi
 #} >> "$_F_SINK" 2>&1
 
 if [ "`uname`" = "Darwin" ]; then
-  eval `direnv hook $0`
+  #TODO: WTF
+  #eval `direnv hook $-1`
 fi
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
-#PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
-#source $HOME/.rvm/scripts/rvm
+PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+source $HOME/.rvm/scripts/rvm

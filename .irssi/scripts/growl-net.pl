@@ -12,7 +12,7 @@ use Irssi;
 use Growl::GNTP;
 use IO::Socket::PortState qw(check_ports);
 
-$VERSION = '0.2';
+$VERSION = '0.3';
 %IRSSI = (
 	authors		=>	'Paul Traylor (gntp version), '.
 					'Andrew Berry, ' .
@@ -20,7 +20,7 @@ $VERSION = '0.2';
 	contact		=>	'http://github.com/kfdm/irssi-growl',
 	name		=>	'growl-net',
 	description	=>	'Sends out Growl notifications over the netwotk or internet for Irssi. '.
-					'Requires Growl::GNTP',
+					'IO::Socket::PortState Growl::GNTP',
 	license		=>	'BSD',
 	url			=>	'http://github.com/kfdm/irssi-growl (gntp version), '.
 					'http://axman6.homeip.net/blog/growl-net-irssi-script-its-back.html (udp version),  '.
@@ -33,11 +33,12 @@ Irssi::settings_add_bool($IRSSI{'name'}, 'growl_show_hilight', 1);
 Irssi::settings_add_bool($IRSSI{'name'}, 'growl_show_notify', 1);
 Irssi::settings_add_bool($IRSSI{'name'}, 'growl_show_topic', 1);
 Irssi::settings_add_bool($IRSSI{'name'}, 'growl_auto_register', 0);
+Irssi::settings_add_bool($IRSSI{'name'}, 'growl_reveal_privmsg', 0);
 # Network Settings
-Irssi::settings_add_str($IRSSI{'name'}, 'growl_net_pass', 'password');
+Irssi::settings_add_str($IRSSI{'name'}, 'growl_net_pass', '');
 Irssi::settings_add_str($IRSSI{'name'}, 'growl_net_client', 'localhost');
 Irssi::settings_add_str($IRSSI{'name'}, 'growl_net_port', '23053');
-Irssi::settings_add_str($IRSSI{'name'}, 'growl_net_server', 'local');
+Irssi::settings_add_str($IRSSI{'name'}, 'growl_net_name', 'irssi');
 Irssi::settings_add_str($IRSSI{'name'}, 'growl_net_icon', '');
 # Sticky Settings
 Irssi::settings_add_bool($IRSSI{'name'}, 'growl_net_sticky', 0);
@@ -48,6 +49,7 @@ sub cmd_help {
 
 	Irssi::print('%WNotification Settings%n');
 	Irssi::print('  %ygrowl_show_privmsg%n :    Notify about private messages.');
+	Irssi::print('  %ygrowl_reveal_privmsg%n :  Include private messages in notification.');
 	Irssi::print('  %ygrowl_show_hilight%n :    Notify when your name is hilighted.');
 	Irssi::print('  %ygrowl_show_topic%n :      Notify about topic changes.');
 	Irssi::print('  %ygrowl_show_notify%n :     Notify when someone on your away list joins or leaves.');
@@ -56,7 +58,7 @@ sub cmd_help {
 	Irssi::print('  %ygrowl_net_client%n :      Set to the hostname you want to recieve notifications on.');
 	Irssi::print('    %R>>>> (computer.local for a Mac network. Your \'localhost\').'); 
 	Irssi::print('  %ygrowl_net_port%n :        Set to the port you want to recieve notifications on.');
-	Irssi::print('  %ygrowl_net_server%n :      Set to the name you want to give the machine irssi is running on. (remote)');
+	Irssi::print('  %ygrowl_net_name%n :        Set to the name you want to give the machine irssi is running on.');
 	Irssi::print('  %ygrowl_net_pass%n :        Set to your destination\'s Growl password. (Your machine)');
 	Irssi::print('  %ygrowl_auto_register%n :   Automatically send gntp registration on script load');
 
@@ -67,11 +69,11 @@ sub cmd_help {
 
 sub cmd_growl_net_test {
 	my $GrowlHost	= Irssi::settings_get_str('growl_net_client');
-	my $AppName		= Irssi::settings_get_str('growl_net_server');
+	my $AppName		= Irssi::settings_get_str('growl_net_name');
 	my $GrowlIcon	= Irssi::settings_get_str('growl_net_icon');
-
+	
 	my $Sticky = set_sticky();
-
+	
 	growl_notify(
 		Event => "Private Message",
 		Title => "Test:",
@@ -85,13 +87,16 @@ sub sig_message_private ($$$$) {
 	return unless Irssi::settings_get_bool('growl_show_privmsg');
 
 	my ($server, $data, $nick, $address) = @_;
-
+	
 	my $Sticky = set_sticky();
+
+	my $message = "private message";
+	$message = "$data" if (Irssi::settings_get_bool('growl_reveal_privmsg'));
 
 	growl_notify(
 		Event => "Private Message",
 		Title => "$nick",
-		Message => "$data",
+		Message => "$message",
 		Priority => 0,
 		Sticky => "$Sticky",
 	);
@@ -101,11 +106,11 @@ sub sig_print_text ($$$) {
 	return unless Irssi::settings_get_bool('growl_show_hilight');
 
 	my ($dest, $text, $stripped) = @_;
-
+	
 	my $Sticky = set_sticky();
-
+	
 	if ($dest->{level} & MSGLEVEL_HILIGHT) {
-
+		
 		growl_notify(
 			Event => "Hilight",
 			Title => "$dest->{target}",
@@ -118,11 +123,11 @@ sub sig_print_text ($$$) {
 
 sub sig_notify_joined ($$$$$$) {
 	return unless Irssi::settings_get_bool('growl_show_notify');
-
+	
 	my ($server, $nick, $user, $host, $realname, $away) = @_;
-
+	
 	my $Sticky = set_sticky();
-
+	
 	growl_notify(
 		Event => "Join",
 		Title => "$realname" || "$nick",
@@ -134,11 +139,11 @@ sub sig_notify_joined ($$$$$$) {
 
 sub sig_notify_left ($$$$$$) {
 	return unless Irssi::settings_get_bool('growl_show_notify');
-
+	
 	my ($server, $nick, $user, $host, $realname, $away) = @_;
-
+	
 	my $Sticky = set_sticky();
-
+	
 	growl_notify(
 		Event => "Part",
 		Title => "$realname" || "$nick",
@@ -152,9 +157,9 @@ sub sig_notify_left ($$$$$$) {
 sub sig_message_topic {
 	return unless Irssi::settings_get_bool('growl_show_topic');
 	my($server, $channel, $topic, $nick, $address) = @_;
-
+	
 	my $Sticky = set_sticky();
-
+	
 	growl_notify(
 		Event => "Topic",
 		Title => "$channel",
@@ -167,7 +172,7 @@ sub sig_message_topic {
 sub set_sticky {
 	my ($server);
 	$server = Irssi::active_server();
-
+	
 	if (Irssi::settings_get_bool('growl_net_sticky_away')) {
 		if (!$server->{usermode_away}) {
 			return 0;
@@ -184,7 +189,7 @@ sub setup {
 	my $GrowlHost	= Irssi::settings_get_str('growl_net_client');
 	my $GrowlPort	= Irssi::settings_get_str('growl_net_port');
 	my $GrowlPass	= Irssi::settings_get_str('growl_net_pass');
-	my $AppName		= Irssi::settings_get_str('growl_net_server');
+	my $AppName		= Irssi::settings_get_str('growl_net_name');
 	my $GrowlIcon	= Irssi::settings_get_str('growl_net_icon');
 
 	Irssi::print("%G>>%n Registering to send messages to $GrowlHost:$GrowlPort");
@@ -248,4 +253,3 @@ if (Irssi::settings_get_bool('growl_auto_register')) {
 	cmd_register();
 }
 Irssi::print('%G>>%n '.$IRSSI{name}.' '.$VERSION.' loaded (/growl-net for help. /gn-test to test.)');
-
