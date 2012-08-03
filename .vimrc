@@ -8,7 +8,7 @@ if has("macunix") && has("gui_running") && system('ps xw | grep -c "[V]im -psn"'
 endif
 "}}}
 
-" Settings {{{
+" settings {{{
 set runtimepath+=$HOME/.vim/andrei
 " general settings
 set nocompatible              " use VI incompatible features
@@ -78,9 +78,9 @@ set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
 set completeopt=menu,menuone,longest
 set ttyfast
-"set notimeout
-"set ttimeout
-set timeoutlen=500
+set notimeout
+set ttimeout
+set timeoutlen=200
 set ttimeoutlen=200
 set guipty
 set clipboard= "unnamed ",unnamedplus,autoselect
@@ -124,7 +124,6 @@ set laststatus=2
 set suffixes+=.lo,.o,.moc,.la,.closure,.loT
 set suffixes+=.bak,~,.o,.h,.info,.swp,.obj
 set suffixes+=class,.6
-"}}}
 
 " wildmenu settings {{{
 set wildmenu
@@ -138,6 +137,7 @@ set wildignore+=*.sw?,*.bak
 set wildignore+=*.6,*.out
 set wildignore+=.DS_Store
 set wildignore+=*.pyc,*.class,*.luac
+set wildignore+=*.erbc,*.scssc
 " }}}
 
 " pathogen {{{
@@ -332,6 +332,8 @@ filetype plugin on
 hi SignColor guibg=red
 autocmd BufEnter * :syntax sync fromstart
 " }}}
+
+"}}}
 
 " my functions {{{
 
@@ -1114,11 +1116,7 @@ function! StartTerm()
   setlocal listchars=tab:\ \ 
 endfunction
 
-
 highlight WHITE_ON_BLACK ctermfg=white
-
-"map <silent> ;; :call DemoCommand()<CR>
-"vmap <silent> ;; :<C-U>call DemoCommand(1)<CR>
 
 function! DemoCommand (...)
   " Remember how everything was before we did this...
@@ -1250,6 +1248,7 @@ set guitablabel=%{GuiTabLabel()}
 set tabline=%!MyTabLine()
 " }}}
 
+" key mappings {{{
 " clean whitespace
 nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
 
@@ -1346,14 +1345,6 @@ call KeyMap('ni', '<silent>', 'DM', 'Space', '<C-X><C-O>')
 call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
 call KeyMap('ni', '<silent>', '', '<F5>', ':BufExplorer<CR>')
 
-" fuzzyfinder
-call KeyMap('n', '<silent>', 'DML', 'r', ':call Tabnew()<CR>:FufFile **/<CR>')
-
-" files & folders mapping
-call KeyMap('n', '<silent>',  'CDLM', '-',       ':call CwdUp()<CR>')
-call KeyMap('n', '<silent>',  'CDLM', '=',       ':call CwdDown()<CR>')
-call KeyMap('n', '<silent>',  'CDLM', '0',       ':call CwdCurrent()<CR>')
-
 " directory browsing
 call KeyMap('n','<silent>', 'DML', 'e', ':call BrowserFromCurrentDir()<CR>')      " open a file browser in a new tab
 call KeyMap('n','<silent>', 'DML', 'E', ':call BrowserFromCurrentFilePath()<CR>') " open a file browser in a new tab
@@ -1403,7 +1394,6 @@ nnoremap <silent> <Home> :call HomeKey()<CR>
 
 " switch cpp/h
 nmap <MapLocalLeader>h :AT<CR>
-nmap ,h :AT<CR>
 
 map <Leader>s :call ToggleScratch()<CR>
 
@@ -1527,13 +1517,17 @@ inoremap <expr> <M-,> pumvisible() ? '<C-n>' : '<C-x><C-o><C-n><C-p><C-r>=pumvis
 " macros 
 map ]xx :Explore<cr>2jp<c-w>H20<c-w><
 
-" abbreviations
+" }}}
+
+" abbreviations {{{
 iabbrev mdy <C-r>=strftime("%Y-%m-%d %H:%M:%S")
 iabbrev fpritnf fprintf
 iabbrev fro for
 iabbrev pritnf printf
 iabbrev stirng string
 iabbrev teh the
+
+" }}}
 
 " plugin settings {{{
 " python syntax settings
@@ -1543,7 +1537,7 @@ let python_highlight_all = 1
 let g:pymode_rope_vim_completion = 0
 
 " taglist settings
-let Tlist_Ctags_Cmd = "/usr/bin/ctags"
+let Tlist_Ctags_Cmd = "/usr/local/bin/ctags"
 let Tlist_Compact_Format = 1
 let Tlist_File_Fold_Auto_Close = 1
 let Tlist_Use_Right_Window = 1
@@ -1551,20 +1545,16 @@ let Tlist_Exit_OnlyWindow = 1
 let Tlist_WinWidth = 0 
 
 " ctrl-p settings
-let g:ctrlp_custom_ignore = '\.git$\|\.hg$\|\.svn$|\.sass-cache$|tmp$|log$'
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp$',
+  \ 'file': '\.exe$\|\.so$\|\.dll$',
+  \ }
 let g:ctrlp_cache_dir = "$HOME/.vim/tmp"
 
 " ruby settings
 let g:rubycomplete_buffer_loading = 1
 let g:rubycomplete_classes_in_global = 1
 let g:rubycomplete_rails = 1
-
-" enhanced commentify
-let g:EnhCommentifyBindInNormal = 'yes'
-let g:EnhCommentifyBindInVisual = 'yes'
-
-" fuzzy settings
-let g:fuzzy_path_display = 'path'
 
 " NERD commenter
 let g:NERDMapleader = '<space>'
@@ -1622,31 +1612,34 @@ let vimclojure#WantNailgun = 0
 let vimclojure#NailgunPort = "2200"
 let vimclojure#ParenRainbow = 1
 
+" mru
 let MRU_File = $HOME . '/.vim/tmp/.vim_mru_files'
 
 " javascript
 let javaScript_fold=1
 
 " factor
-let g:FactorRoot="$HOME/temp/svn_other_projects/factor"
+let g:FactorRoot="$HOME/temp/source/other/factor"
 
 " netrw
 let g:netrw_browsex_viewer="open"
 
+" gist
 let g:gist_clip_command = 'pbcopy'
 let g:gist_open_browser_after_post = 1
 
+" molokai theme
 let g:molokai_original = 1
 
+" delimit mate - disable
 let g:loaded_delimitMate = 1
+
 " ack
 let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 
 " yankring
 let g:yankring_history_dir = "$HOME/.vim/tmp"
 let g:yankring_default_menu_mode = 0
-
-let g:fuf_dataDir = "$HOME/.vim/tmp/.vim-fuf-data"
 
 "easymotion
 let g:EasyMotion_mapping_e = '<Leader>ee'
@@ -1662,7 +1655,7 @@ let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
 "set statusline+=%{SyntasticStatuslineFlag()}
 "set statusline+=%*
 
-" let the javacomplete find its own port 
+" javacomplete
 let g:first_nailgun_port=2114
 let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
 
@@ -1674,13 +1667,16 @@ command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent!
 command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 " }}}
 
+" auto commands {{{
 " remove all buffers on exit so we don't have them as hidden on reopen
 autocmd VimLeavePre * 1,255bwipeout
 
+" indentations
 autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4
 autocmd Filetype java setlocal expandtab tabstop=2 shiftwidth=2
 autocmd FileType ruby,haml,eruby,yaml,html,javascript,sass set ai sw=2 sts=2 et
 
+" completions
 autocmd Filetype html setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd Filetype css setlocal omnifunc=csscomplete#CompleteCSS
 autocmd Filetype java setlocal omnifunc=javacomplete#Complete
@@ -1710,7 +1706,7 @@ augroup ft_quickfix
     au Filetype qf setlocal colorcolumn=0 nolist nocursorline nowrap
 augroup END
 
-" Make sure Vim returns to the same line when you reopen a file.
+" make sure vim returns to the same line when you reopen a file.
 augroup line_return
     au!
     au BufReadPost *
@@ -1724,38 +1720,7 @@ autocmd BufRead *.f  set ft=forth
 " remove empty or otherwise dead buffers when moving away from them
 autocmd TabLeave    * call OnTabLeave()
 
-" autocmds to automatically enter hex mode and handle file writes properly
-"if has("autocmd")
-  "" vim -b : edit binary using xxd-format!
-  "augroup Binary
-    "autocmd!
-    "autocmd BufReadPre *.bin,*.hex setlocal binary
-    "autocmd BufReadPost *
-          "\ if &binary | Hexmode | endif
-    "autocmd BufWritePre *
-          "\ if exists("b:editHex") && b:editHex && &binary |
-          "\  let oldro=&ro | let &ro=0 |
-          "\  let oldma=&ma | let &ma=1 |
-          "\  exe "%!xxd -r" |
-          "\  let &ma=oldma | let &ro=oldro |
-          "\  unlet oldma | unlet oldro |
-          "\ endif
-    "autocmd BufWritePost *
-          "\ if exists("b:editHex") && b:editHex && &binary |
-          "\  let oldro=&ro | let &ro=0 |
-          "\  let oldma=&ma | let &ma=1 |
-          "\  exe "%!xxd" |
-          "\  exe "set nomod" |
-          "\  let &ma=oldma | let &ro=oldro |
-          "\  unlet oldma | unlet oldro |
-          "\ endif
-  "augroup END
-
-  "autocmd! BufWritePost *
-    "\ if &diff == 1 |
-    "\ :diffupdate | 
-    "\ endif
-"endif
+" }}}
 
 " hosts {{{
 let hostfile=$HOME . '.vim/hosts/' . hostname() . ".vim"
@@ -1763,6 +1728,3 @@ if filereadable(hostfile)
     exe 'source ' . hostfile
 endif
 " }}}
-
-let g:ctk_defoutput = "$HOME/.vim/tmp/output"
-set background=dark

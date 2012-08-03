@@ -28,9 +28,6 @@
 [submodule ".vim/bundle/nerdcommenter"]
 	path = .vim/bundle/nerdcommenter
 	url = https://github.com/scrooloose/nerdcommenter.git
-[submodule ".vim/bundle/nerdtree"]
-	path = .vim/bundle/nerdtree
-	url = https://github.com/scrooloose/nerdtree.git
 [submodule ".vim/bundle/pastie"]
 	path = .vim/bundle/pastie
 	url = https://github.com/tpope/vim-pastie.git
@@ -55,9 +52,6 @@
 [submodule ".vim/bundle/javascript"]
 	path = .vim/bundle/javascript
 	url = https://github.com/pangloss/vim-javascript.git
-[submodule ".vim/bundle/delimitmate"]
-	path = .vim/bundle/delimitmate
-	url = https://github.com/Raimondi/delimitMate.git
 [submodule ".vim/bundle/vimpdb"]
 	path = .vim/bundle/vimpdb
 	url = https://github.com/gotcha/vimpdb.git
@@ -139,9 +133,6 @@
 [submodule ".vim/bundle/syntastic"]
 	path = .vim/bundle/syntastic
 	url = https://github.com/scrooloose/syntastic.git
-[submodule ".vim/bundle/fuzzyfinder"]
-	path = .vim/bundle/fuzzyfinder
-	url = https://github.com/vim-scripts/FuzzyFinder.git
 [submodule ".vim/bundle/l9"]
 	path = .vim/bundle/l9
 	url = https://github.com/clones/vim-l9.git
