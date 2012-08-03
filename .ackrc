@@ -3,3 +3,13 @@
 --break
 --color
 --ignore-dir=surefire-reports
+
+--sort-files
+--type-add=ruby=rake,haml,erb
+--type-add=vim=vimrc
+--type-add=js=json
+--type-set=cucumber=feature
+--type-set=css=sass,scss
+
+--type-set=MARKDOWN=md,mkd,markdown
+--type-set=RDOC=rdoc
