@@ -172,3 +172,6 @@
 [submodule ".vim/bundle/tcomment"]
 	path = .vim/bundle/tcomment
 	url = https://github.com/tomtom/tcomment_vim.git
+[submodule ".vim/bundle/scala-vim-support"]
+	path = .vim/bundle/scala-vim-support
+	url = https://github.com/rosstimson/scala-vim-support.git
