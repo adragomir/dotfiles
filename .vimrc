@@ -1,5 +1,5 @@
 " set PATH correctly {{{
-if has("macunix") && has("gui_running") && system('ps xw | grep -c "[V]im -psn"') > 0
+if has("macunix") && has("gui_running") " && system('ps xw | grep -c "[V]im -MMNo"') > 0
   " Get the value of $PATH from a login shell.
   if $SHELL =~ '/\(sh\|csh\|bash\|tcsh\|zsh\)$'
     let s:path = system("echo echo VIMPATH'${PATH}' | $SHELL -l")
@@ -160,7 +160,7 @@ let g:solarized_italic=0
 colorscheme molokai
 
 if has("gui_running") && has("macunix")
-  set guifont=Inconsolata\ For\ Powerline:h15
+  set guifont=Inconsolata\ For\ Powerline:h17
   set antialias
 endif
 " }}}
@@ -1665,7 +1665,8 @@ autocmd VimLeavePre * 1,255bwipeout
 " indentations
 autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4
 autocmd Filetype java setlocal expandtab tabstop=2 shiftwidth=2
-autocmd FileType ruby,haml,eruby,yaml,html,javascript,sass set ai sw=2 sts=2 et
+autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
+autocmd FileType javascript set ai sw=4 ts=4 sts=4 noet
 
 " completions
 autocmd Filetype html setlocal omnifunc=htmlcomplete#CompleteTags

@@ -2,8 +2,8 @@
 
 if [[ -f "${1}" ]] ;
 then
-	open -a $HOME/Applications/MacVim.app "$@"
+	mvim --servername VIM --remote-tab-silent "$@"
 else
 	`touch ${1}`
-	open -a $HOME/Applications/MacVim.app "$@"
+	mvim --servername VIM --remote-tab-silent "$@"
 fi

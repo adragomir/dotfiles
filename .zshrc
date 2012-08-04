@@ -811,13 +811,6 @@ calc () { echo "$*" | bc -l; }
 export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/scons-1.2.0"
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
-# flex & air
-export FLEX_HOME=$HOME/work/tools/air-sdk-4.5.0
-export FLEX_SDK=$FLEX_HOME
-export FLEX_SDK_HOME=$FLEX_HOME
-export AIR_SDK=$FLEX_HOME
-export AIR_SDK_HOME=$FLEX_HOME
-
 # python
 export PYTHONPATH=/opt/local/lib/python2.5/site-packages:$HOME/.python
 export PYTHONPATH=$PYTHONPATH:$HOME/.python
@@ -837,8 +830,8 @@ export LESS="-rX"
 export PAGER=less
 
 if [ "`uname`" = "Darwin" ]; then
-  export EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
-  export GIT_EDITOR=$HOME/Applications/MacVim.App/Contents/MacOS/Vim
+  export EDITOR=/usr/local/bin/vim
+  export GIT_EDITOR=/usr/local/bin/vim
 else
   export EDITOR=/usr/bin/vim
   export GIT_EDITOR=/usr/bin/vim
@@ -893,7 +886,6 @@ export GOBIN=$HOME/bin/$OS/go
 
 export P4CONFIG=.p4conf
 export HTML_TIDY=$HOME/.tidyconf
-export FCSH_VIM_ROOT=$HOME/work/flex/sdk/bin
 
 export WIKI=$HOME/Documents/personal/life/exploded/
 
@@ -949,16 +941,9 @@ export PATH=\
 /usr/local/php5/bin:\
 $HOME/bin:\
 $HOME/bin/$OS:\
-"/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin":\
 "$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
-/usr/local/lib/ocaml_godi/bin/:\
 $HOME/.cabal/bin/:\
 $HOME/temp/source/other/sshuttle/:\
-$FLEX_HOME/bin:\
-/opt/local/bin:\
-/opt/local/sbin:\
-/usr/local/mysql/bin:\
-$HOME/Applications/zero-1.0.0.P20070702-1062:\
 $HOME/temp/source/other/factor:\
 $HOME/work/tools/emulator/Vice/tools:\
 $HOME/work/tools/gradle-1.0-milestone-1/bin/:\
@@ -971,28 +956,21 @@ $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64/:\
 "$HOME/Applications/Racket v5.0.2/bin/":\
 $HOME/work/tools/android-sdk-$OS/tools/:\
 $HOME/work/tools/android-sdk-$OS/platform-tools/:\
-$HOME/work/tools/whirr-0.3.0-CDH3B4/bin/:\
 $HOME/work/tools/elastic-mapreduce/:\
 $HOME/work/tools/leiningen/:\
-$PATH:/usr/hla:\
 $HOME/work/tools/play-2.0.1/:\
-/usr/local/Ice/bin:\
 $HOME/work/tools/apache-ant-1.8.2/bin:\
 $HOME/work/tools/apache-maven-3.0.3/bin:\
 $HOME/work/tools/mvnsh-1.0.1/bin:\
 $GOBIN:\
-/opt/vagrant/bin:\
 $PATH
 
 if [ "`uname`" = "Darwin" ]; then
-  export PATH=$PATH:\
-$HOME/bin/$OS:\
+export PATH=$PATH:\
 $HOME/bin/$OS/clic
 fi
 
-  
 export MANPATH=\
-/opt/loca/share/man:\
 /usr/local/man:\
 $MANPATH
 
@@ -1001,7 +979,6 @@ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:\
 
 export DYLD_FRAMEWORK_PATH=$DYLD_FRAMEWORK_PATH:\
 "$HOME/Applications/Racket v5.0.1/lib/"
-
 # }}}
 
 # aliases {{{
@@ -1453,10 +1430,6 @@ export ANDROID_HOME=$HOME/work/tools/android-sdk-linux/
 export AIR_ANDROID_SDK_HOME=$HOME/work/tools/android-sdk-linux/
 
 export ICE_HOME=/usr/local/Ice
-#export PATH="$HOME/.rbenv/bin:$PATH"
-#if [ "`uname`" = "Darwin" ]; then
-  #eval "$(rbenv init -)"
-#fi
 
 if [ "`uname`" = "Darwin" ]; then
   compctl -f -x 'p[2]' -s "`/bin/ls -d1 /Applications/*/*.app /Applications/*.app $HOME/Applications/*/*.app $HOME/Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g'`" -- open alias run='open -a'
@@ -1848,5 +1821,5 @@ fi
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+export PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 source $HOME/.rvm/scripts/rvm
