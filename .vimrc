@@ -9,7 +9,6 @@ endif
 "}}}
 
 " settings {{{
-set runtimepath+=$HOME/.vim/andrei
 " general settings
 set nocompatible              " use VI incompatible features
 let no_buffers_menu=1

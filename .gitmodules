@@ -190,3 +190,18 @@
 [submodule ".vim/bundle/extradite"]
 	path = .vim/bundle/extradite
 	url = https://github.com/int3/vim-extradite
+[submodule ".vim/bundle/ir_black"]
+	path = .vim/bundle/ir_black
+	url = https://github.com/wgibbs/vim-irblack.git
+[submodule ".vim/bundle/vividchalk"]
+	path = .vim/bundle/vividchalk
+	url = https://github.com/tpope/vim-vividchalk.git
+[submodule ".vim/bundle/color-molokai"]
+	path = .vim/bundle/color-molokai
+	url = https://github.com/vim-scripts/molokai.git
+[submodule ".vim/bundle/color-getafe"]
+	path = .vim/bundle/color-getafe
+	url = https://github.com/larssmit/vim-getafe.git
+[submodule ".vim/bundle/color-samplerpack"]
+	path = .vim/bundle/color-samplerpack
+	url = https://github.com/vim-scripts/Color-Sampler-Pack.git

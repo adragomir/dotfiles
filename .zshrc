@@ -921,7 +921,7 @@ fi
 #export JUNIT_HOME=/usr/share/junit
 
 # haxe
-#export HAXE_LIBRARY_PATH=/usr/local/haxe/std:.
+export HAXE_LIBRARY_PATH="$(/usr/local/bin/brew --prefix)/share/haxe/std"
 #export NEKOPATH=/usr/local/neko
 
 
