@@ -16,4 +16,6 @@ bin/svnup.yaml
 .vim/hosts/*
 .mutt/cache
 .mutt/temp
+.bitlbee/adragomir.xml
+.irssi/*.log
 bin/binary/*
