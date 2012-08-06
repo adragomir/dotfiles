@@ -913,7 +913,7 @@ export TEXMFCACHE=/tmp
 
 # java
 if [ "`uname`" = "Darwin" ]; then
-  export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0_27-b07-395.jdk/Contents/Home/
+  export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0_33-b03-424.jdk/Contents/Home/
 else
   export JAVA_HOME=/usr/lib/jvm/java-6-sun/
 fi
