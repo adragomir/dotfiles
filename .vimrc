@@ -1301,8 +1301,6 @@ inoremap <F1> <ESC>:set invfullscreen<CR>a
 "nnoremap K <nop>
 inoremap # X<BS>#
 
-nnoremap / /\v
-vnoremap / /\v
 map H ^
 map L $
 
