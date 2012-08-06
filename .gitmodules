@@ -205,3 +205,6 @@
 [submodule ".vim/bundle/color-samplerpack"]
 	path = .vim/bundle/color-samplerpack
 	url = https://github.com/vim-scripts/Color-Sampler-Pack.git
+[submodule ".vim/bundle/textobj-rubyblock"]
+	path = .vim/bundle/textobj-rubyblock
+	url = https://github.com/nelstrom/vim-textobj-rubyblock.git
