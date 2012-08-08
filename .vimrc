@@ -1678,8 +1678,8 @@ augroup END
 " indentations
 augroup indent
   au!
-  autocmd Filetype python setlocal et ts=4 sw=4
-  autocmd Filetype java setlocal et ts=2 sw=2
+  autocmd FileType python setlocal et ts=4 sw=4
+  autocmd FileType java setlocal et ts=2 sw=2
   autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
   autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 noet
 augroup END
@@ -1687,11 +1687,11 @@ augroup END
 " completions
 augroup completions
   au!
-  autocmd Filetype html setlocal omnifunc=htmlcomplete#CompleteTags
-  autocmd Filetype css setlocal omnifunc=csscomplete#CompleteCSS
-  autocmd Filetype java setlocal omnifunc=javacomplete#Complete
-  autocmd Filetype java map <leader>b :JavaCompleteGoToDefinition<CR>
-  autocmd Filetype java map <leader>s :JavaCompleteReplaceWithImport<CR>
+  autocmd FileType html setlocal omnifunc=htmlcomplete#CompleteTags
+  autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+  autocmd FileType java setlocal omnifunc=javacomplete#Complete
+  autocmd FileType java map <leader>b :JavaCompleteGoToDefinition<CR>
+  autocmd FileType java map <leader>s :JavaCompleteReplaceWithImport<CR>
   autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 augroup END
 
@@ -1702,14 +1702,15 @@ autocmd FileType puppet setlocal sw=2 ts=2 expandtab
 augroup ft_mkd
     autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
     autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;
-    au Filetype markdown nnoremap <buffer> <localleader>1 yypVr=
-    au Filetype markdown nnoremap <buffer> <localleader>2 yypVr-
-    au Filetype markdown nnoremap <buffer> <localleader>3 I### <ESC>
+    au FileType markdown nnoremap <buffer> <localleader>1 yypVr=
+    au FileType markdown nnoremap <buffer> <localleader>2 yypVr-
+    au FileType markdown nnoremap <buffer> <localleader>3 I### <ESC>
 augroup END
 
 augroup ft_quickfix
     au!
-    au Filetype qf setlocal colorcolumn=0 nolist nocursorline nowrap
+    au FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
+    au FileType qf unmap <buffer>, <CR>
 augroup END
 
 
