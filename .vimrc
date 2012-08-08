@@ -52,7 +52,7 @@ set gdefault
 
 set laststatus=2              " always show status line
 "set cursorline
-set showbreak=↪               " character to show that a line is wrapped
+set showbreak=…
 set fillchars=diff:⣿
 set showcmd                   " show number of selected chars/lines in status
 set showmatch                 " briefly jump to matching brace
@@ -108,6 +108,7 @@ set switchbuf=usetab
 set grepprg=$HOME/bin/ack\ --noenv
 set grepformat=%f:%l:%m
 " settings: tabs and indentin
+set nofoldenable
 set autoindent
 set nocindent
 set nosmartindent
@@ -1658,31 +1659,47 @@ command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 " auto commands {{{
 " remove all buffers on exit so we don't have them as hidden on reopen
 autocmd VimLeavePre * 1,255bwipeout
-
-" indentations
-autocmd Filetype python setlocal expandtab tabstop=4 shiftwidth=4
-autocmd Filetype java setlocal expandtab tabstop=2 shiftwidth=2
-autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
-autocmd FileType javascript set ai sw=4 ts=4 sts=4 noet
-
-" completions
-autocmd Filetype html setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd Filetype css setlocal omnifunc=csscomplete#CompleteCSS
-autocmd Filetype java setlocal omnifunc=javacomplete#Complete
-autocmd Filetype java map <leader>b :JavaCompleteGoToDefinition<CR>
-autocmd Filetype java map <leader>s :JavaCompleteReplaceWithImport<CR>
-
-autocmd Filetype c set ts=4 sw=4
-
-autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
-autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
-autocmd FileType puppet setlocal sw=2 ts=2 expandtab
+" remove empty or otherwise dead buffers when moving away from them
+autocmd TabLeave    * call OnTabLeave()
 autocmd BufReadPost *
   \ if line("'\"") > 0 && line("'\"") <= line("$") |
   \   exe "normal g`\"" |
   \ endif
 
-augroup mkd
+" make sure vim returns to the same line when you reopen a file.
+augroup line_return
+    au!
+    au BufReadPost *
+        \ if line("'\"") > 0 && line("'\"") <= line("$") |
+        \     execute 'normal! g`"zvzz' |
+        \ endif
+augroup END
+
+" indentations
+augroup indent
+  au!
+  autocmd Filetype python setlocal et ts=4 sw=4
+  autocmd Filetype java setlocal et ts=2 sw=2
+  autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
+  autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 noet
+augroup END
+
+" completions
+augroup completions
+  au!
+  autocmd Filetype html setlocal omnifunc=htmlcomplete#CompleteTags
+  autocmd Filetype css setlocal omnifunc=csscomplete#CompleteCSS
+  autocmd Filetype java setlocal omnifunc=javacomplete#Complete
+  autocmd Filetype java map <leader>b :JavaCompleteGoToDefinition<CR>
+  autocmd Filetype java map <leader>s :JavaCompleteReplaceWithImport<CR>
+  autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
+augroup END
+
+autocmd FileType c set ts=4 sw=4
+autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
+autocmd FileType puppet setlocal sw=2 ts=2 expandtab
+
+augroup ft_mkd
     autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
     autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;
     au Filetype markdown nnoremap <buffer> <localleader>1 yypVr=
@@ -1695,20 +1712,8 @@ augroup ft_quickfix
     au Filetype qf setlocal colorcolumn=0 nolist nocursorline nowrap
 augroup END
 
-" make sure vim returns to the same line when you reopen a file.
-augroup line_return
-    au!
-    au BufReadPost *
-        \ if line("'\"") > 0 && line("'\"") <= line("$") |
-        \     execute 'normal! g`"zvzz' |
-        \ endif
-augroup END
 
 autocmd BufRead *.f  set ft=forth
-
-" remove empty or otherwise dead buffers when moving away from them
-autocmd TabLeave    * call OnTabLeave()
-
 " }}}
 
 " hosts {{{
