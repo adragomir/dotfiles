@@ -80,9 +80,9 @@ set matchtime=0
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
 set completeopt=menu,menuone,longest
 set ttyfast
-set notimeout
+set timeout
 set ttimeout
-set timeoutlen=1000
+set timeoutlen=200
 set ttimeoutlen=100
 set guipty
 set clipboard= "unnamed ",unnamedplus,autoselect

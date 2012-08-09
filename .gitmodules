@@ -226,3 +226,6 @@
 [submodule ".vim/bundle/vimux"]
 	path = .vim/bundle/vimux
 	url = https://github.com/benmills/vimux.git
+[submodule ".vim/bundle/pastebin"]
+	path = .vim/bundle/pastebin
+	url = https://github.com/mattn/pastebin-vim.git
