@@ -229,3 +229,6 @@
 [submodule ".vim/bundle/pastebin"]
 	path = .vim/bundle/pastebin
 	url = https://github.com/mattn/pastebin-vim.git
+[submodule ".vim/bundle/endwise"]
+	path = .vim/bundle/endwise
+	url = https://github.com/tpope/vim-endwise
