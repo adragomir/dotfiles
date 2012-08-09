@@ -950,18 +950,17 @@ $HOME/work/tools/gradle-1.0-milestone-1/bin/:\
 $HOME/work/tools/rhino1_7R2/:\
 $HOME/work/tools/nasm/:\
 $HOME/temp/source/other/rock/bin:\
-$HOME/.cljr/bin:\
 $ROO_HOME/bin:\
 $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64/:\
 "$HOME/Applications/Racket v5.0.2/bin/":\
 $HOME/work/tools/android-sdk-$OS/tools/:\
 $HOME/work/tools/android-sdk-$OS/platform-tools/:\
 $HOME/work/tools/elastic-mapreduce/:\
-$HOME/work/tools/leiningen/:\
 $HOME/work/tools/play-2.0.1/:\
 $HOME/work/tools/apache-ant-1.8.2/bin:\
 $HOME/work/tools/apache-maven-3.0.3/bin:\
 $HOME/work/tools/mvnsh-1.0.1/bin:\
+$SCALA_HOME/bin:\
 $GOBIN:\
 $PATH
 

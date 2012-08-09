@@ -38,6 +38,8 @@ set keymodel=startsel         ",stopsel
 set autoread                  " read outside modified files
 set encoding=UTF-8            " file encoding
 set modelines=0
+set t_ti=
+set t_te=
 set formatoptions=tcroqn1     " auto format
 set colorcolumn=+1
 "set guioptions=cr+bie"M"m	  " aA BAD
@@ -61,6 +63,7 @@ set showmode                  " show mode in status when not in normal mode
 set nostartofline             " don't move to start of line after commands
 set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[tab:%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [offset:\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y]%{ShowFileFormatFlag(&fileformat)}\ %)\ %L\ lines%)
 set undolevels=10000
+set numberwidth=5
 set pumheight=10
 set viminfo=%,h,'1000,"1000,:1000,n~/.vim/tmp/.viminfo
 set scrolljump=10
@@ -79,8 +82,8 @@ set completeopt=menu,menuone,longest
 set ttyfast
 set notimeout
 set ttimeout
-set timeoutlen=200
-set ttimeoutlen=200
+set timeoutlen=1000
+set ttimeoutlen=100
 set guipty
 set clipboard= "unnamed ",unnamedplus,autoselect
 set undofile
@@ -89,6 +92,8 @@ set undodir=~/.vim/tmp/undo/
 set backupdir=~/.vim/tmp/backup " store backups under ~/.vim/backup
 set backup
 set directory=~/.vim/tmp/swap " keep swp files under ~/.vim/swap
+set t_ti=
+set t_te=
 " settings: windows and buffers
 "set noequalalways
 set guiheadroom=0
@@ -1249,6 +1254,7 @@ set tabline=%!MyTabLine()
 " }}}
 
 " key mappings {{{
+map <leader>y "*y
 " clean whitespace
 nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
 
@@ -1274,7 +1280,7 @@ nnoremap S i<cr><esc><right>
 inoremap <C-_> <Space><BS><Esc>:call InsertCloseTag()<cr>a
 
 " GRB: clear the search buffer when hitting return
-nnoremap <CR> :nohlsearch<CR>/<BS>
+nnoremap <CR> :nohlsearch<CR><CR>
 nnoremap <silent> <Leader>/ :nohlsearch<CR>
 
 " Open a Quickfix window for the last search.
@@ -1341,7 +1347,7 @@ call KeyMap('ni', '<silent>', 'DM', 'Down', ':call SwapDown()<CR>')
 call KeyMap('ni', '<silent>', 'C', 'Space', '<C-p>')
 call KeyMap('ni', '<silent>', 'DM', 'Space', '<C-X><C-O>')
 call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
-call KeyMap('ni', '<silent>', '', '<F5>', ':BufExplorer<CR>')
+call KeyMap('ni', '<silent>', '', '<F5>', ':CtrlPBuffer<CR>')
 
 " directory browsing
 call KeyMap('n','<silent>', 'DML', 'e', ':call BrowserFromCurrentDir()<CR>')      " open a file browser in a new tab
@@ -1362,7 +1368,7 @@ nnoremap <leader>. :lcd %:p:h<CR>
 "nnoremap ; :
 
 " Thank you vi
-"nnoremap Y y$
+nnoremap Y y$
 
 " sudo write this
 cmap w!! w !sudo tee % >/dev/null
@@ -1508,12 +1514,12 @@ else
 endif
 
 " completion
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-inoremap <expr> <C-n> pumvisible() ? '<C-n>' : '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>' 
+inoremap <expr> <CR>  pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <expr> <C-n> pumvisible() ? '<C-n>' : '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+snoremap <expr> <C-p> pumvisible() ? '<C-n>' : '<C-p><C-r>=pumvisible() ? "\<lt>Up>" : ""<CR>'
 inoremap <expr> <M-,> pumvisible() ? '<C-n>' : '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 
 " macros 
-map ]xx :Explore<cr>2jp<c-w>H20<c-w><
 
 " }}}
 
@@ -1542,6 +1548,9 @@ let Tlist_Use_Right_Window = 1
 let Tlist_Exit_OnlyWindow = 1
 let Tlist_WinWidth = 0 
 
+" supertab settings
+let g:SuperTabCrMapping = 0
+
 " ctrl-p settings
 let g:ctrlp_custom_ignore = {
   \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp$',
@@ -1562,6 +1571,9 @@ let OmniCpp_ShowScopeInAbbr = 1
 let OmniCpp_ShowPrototypeInAbbr = 1
 let OmniCpp_ShowAccess = 1
 let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
+
+"neocomplcache
+let g:neocomplcache_disable_auto_complete = 1
 
 " powerline
 let g:Powerline_symbols = 'fancy'
@@ -1710,7 +1722,7 @@ augroup END
 augroup ft_quickfix
     au!
     au FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
-    au FileType qf unmap <buffer>, <CR>
+    " au FileType qf unmap <buffer>, <CR>
 augroup END
 
 
