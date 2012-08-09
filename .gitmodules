@@ -223,3 +223,6 @@
 [submodule ".vim/bundle/scala"]
 	path = .vim/bundle/scala
 	url = https://github.com/derekwyatt/vim-scala.git
+[submodule ".vim/bundle/vimux"]
+	path = .vim/bundle/vimux
+	url = https://github.com/benmills/vimux.git
