@@ -106,9 +106,6 @@
 [submodule ".vim/bundle/markdown"]
 	path = .vim/bundle/markdown
 	url = https://github.com/plasticboy/vim-markdown.git
-[submodule ".vim/bundle/localvimrc"]
-	path = .vim/bundle/localvimrc
-	url = https://github.com/vim-scripts/localvimrc.git
 [submodule ".vim/bundle/vim-bundle"]
 	path = .vim/bundle/vim-bundle
 	url = https://github.com/kana/vim-bundle.git
@@ -211,9 +208,6 @@
 [submodule ".vim/bundle/tslime"]
 	path = .vim/bundle/tslime
 	url = https://github.com/jgdavey/tslime.vim.git
-[submodule ".vim/bundle/smartinput"]
-	path = .vim/bundle/smartinput
-	url = https://github.com/kana/vim-smartinput.git
 [submodule ".vim/bundle/Kwbd"]
 	path = .vim/bundle/Kwbd
 	url = https://github.com/rgarver/Kwbd.vim.git
@@ -232,3 +226,6 @@
 [submodule ".vim/bundle/endwise"]
 	path = .vim/bundle/endwise
 	url = https://github.com/tpope/vim-endwise
+[submodule ".vim/bundle/localvimrc"]
+	path = .vim/bundle/localvimrc
+	url = https://github.com/embear/vim-localvimrc.git
