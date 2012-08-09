@@ -220,3 +220,6 @@
 [submodule ".vim/bundle/tlib"]
 	path = .vim/bundle/tlib
 	url = https://github.com/tomtom/tlib_vim
+[submodule ".vim/bundle/scala"]
+	path = .vim/bundle/scala
+	url = https://github.com/derekwyatt/vim-scala.git
