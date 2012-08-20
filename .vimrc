@@ -82,7 +82,7 @@ set completeopt=menu,menuone,longest
 set ttyfast
 set timeout
 set ttimeout
-set timeoutlen=200
+set timeoutlen=2000
 set ttimeoutlen=100
 set guipty
 set clipboard= "unnamed ",unnamedplus,autoselect
@@ -1368,7 +1368,7 @@ nnoremap <leader>. :lcd %:p:h<CR>
 "nnoremap ; :
 
 " Thank you vi
-nnoremap Y y$
+"nnoremap Y y$
 
 " sudo write this
 cmap w!! w !sudo tee % >/dev/null
@@ -1514,10 +1514,10 @@ else
 endif
 
 " completion
-inoremap <expr> <CR>  pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-inoremap <expr> <C-n> pumvisible() ? '<C-n>' : '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
-snoremap <expr> <C-p> pumvisible() ? '<C-n>' : '<C-p><C-r>=pumvisible() ? "\<lt>Up>" : ""<CR>'
-inoremap <expr> <M-,> pumvisible() ? '<C-n>' : '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+" inoremap <expr> <CR>  pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" inoremap <expr> <C-n> pumvisible() ? '<C-n>' : '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+" snoremap <expr> <C-p> pumvisible() ? '<C-n>' : '<C-p><C-r>=pumvisible() ? "\<lt>Up>" : ""<CR>'
+" inoremap <expr> <M-,> pumvisible() ? '<C-n>' : '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 
 " macros 
 
@@ -1534,6 +1534,11 @@ iabbrev teh the
 " }}}
 
 " plugin settings {{{
+
+" sparkup
+let g:sparkupExecuteMapping = '<c-e>'
+let g:sparkupNextMapping = '<c-s>'
+
 " python syntax settings
 let g:pymode_rope = 0
 let g:pymode_lint = 0
@@ -1553,10 +1558,12 @@ let g:SuperTabCrMapping = 0
 
 " ctrl-p settings
 let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp$',
+  \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build$',
   \ 'file': '\.exe$\|\.so$\|\.dll$',
   \ }
 let g:ctrlp_cache_dir = "$HOME/.vim/tmp"
+let g:ctrlp_switch_buffer = 2
+let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
 
 " ruby settings
 let g:rubycomplete_buffer_loading = 1
@@ -1612,6 +1619,13 @@ let vimclojure#HightlightBuiltins = 1
 let vimclojure#WantNailgun = 0
 let vimclojure#NailgunPort = "2200"
 let vimclojure#ParenRainbow = 1
+
+" eclim
+let g:EclimMenus = 0
+let g:EclimJavaImportExclude = [ "^com\.sun\..*", "^sun\..*", "^sunw\..*" ]
+let g:EclimJavaHierarchyDefaultAction = "edit"
+let g:EclimJavaSearchSingleResult = "edit"
+let g:EclimDefaultFileOpenAction = "edit"
 
 " mru
 let MRU_File = $HOME . '/.vim/tmp/.vim_mru_files'
