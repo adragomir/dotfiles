@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+# This software is made available to you under the terms of the
+# Apache 2.0 Public license.
+#
+
+bin=`dirname $0`
+bin=`cd ${bin} && pwd`
+
+targetdir="."
+m2repo=~/.m2/repository
+
+print_usage() {
+  echo "Usage: $0 [-d <dirname>] [-m <m2-repo-dirname>]"
+  return 0
+}
+
+# Given the filename of a source jar, unzip it and run tags over the file.
+# Then add the tags filename to our growing list.
+process_source() {
+  srcjar=$1
+  jardir=`dirname "${srcjar}"`
+
+  if [ \( ! -d "${jardir}/.srcfiles" \) -o \( "${srcjar}" -nt "${jardir}/.srcfiles" \) ]; then
+    # .srcfiles does not exist, or $srcjar is newer. Remove the existing srcfiles dir and rebuild.
+    rm -rf "${jardir}/.srcfiles"
+    mkdir "${jardir}/.srcfiles"
+
+    pushd "${jardir}/.srcfiles" 2>/dev/null >/dev/null
+    jar xf "${srcjar}"
+    ctags -R .
+    popd 2>/dev/null >/dev/null
+  else
+    echo "Using existing tags"
+  fi
+
+  newtags=`cat .taglist`
+  echo "${newtags}\\ ${jardir}/.srcfiles/TAGS" > .taglist
+}
+
+while [ ! -z "$1" ]; do
+  if [ "$1" == "-d" ]; then
+    shift
+    targetdir="$1"
+  elif [ "$1" == "-m" ]; then
+    shift
+    m2repo="$1"
+  elif [ "$1" == "-h" ]; then
+    print_usage
+    exit 0
+  else
+    echo "Cannot understand argument $1. Try -h"
+    exit 1
+  fi
+  shift
+done
+
+cd "${targetdir}"
+targetdir=`pwd`
+echo "Working in ${targetdir}"
+
+# Process tags in the current project sources; include target/generated-sources,
+# but ignore anything else in target/. 
+ctags -R --exclude ${targetdir}/target .
+if [ -d "./target/generated-sources" ]; then
+  ctags --append=yes -R ./target/generated-sources
+fi
+echo "${targetdir}/TAGS" > .taglist
+
+if [ ! -f ".classpath" ]; then
+  echo "No .classpath file in "`pwd`
+  exit 1
+fi
+
+# Get a list of all dependency jars.
+inputjars=`cat .classpath | awk '/<classpathentry kind="var"/ {print $3}' \
+    | sed -e 's|/>$||' | sed -e 's|\"$||' | sed -e 's/path=\"//' | sed -e "s|^M2_REPO|$m2repo|"`
+
+# Process tags for all dependencies
+for jar in $inputjars; do
+  sourcejar=`echo $jar | sed -e 's|\.jar$|-sources.jar|'`
+  if [ -f "$sourcejar" ]; then
+    echo Found sources $sourcejar
+    process_source $sourcejar
+  fi
+done

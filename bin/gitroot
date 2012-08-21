@@ -1,0 +1,16 @@
+#!/bin/bash
+
+gitroot=`git rev-parse --show-cdup 2>/dev/null`
+retval="$?"
+if [ "$retval" == "0" ]; then
+  # There is a git root
+  if [ -z "$gitroot" ]; then
+    # It's the current dir.
+    pwd
+  else
+    readlink -f "$gitroot"
+  fi
+else
+  # No gitroot. Return status 1.
+  exit 1
+fi
