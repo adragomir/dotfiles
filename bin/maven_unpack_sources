@@ -1,0 +1,2 @@
+#!/bin/bash
+mvn dependency:unpack-dependencies -Dclassifier=sources -Dmdep.failOnMissingClassifierArtifact=false
