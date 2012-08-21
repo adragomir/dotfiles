@@ -82,7 +82,7 @@ set completeopt=menu,menuone,longest
 set ttyfast
 set timeout
 set ttimeout
-set timeoutlen=2000
+set timeoutlen=200
 set ttimeoutlen=100
 set guipty
 set clipboard= "unnamed ",unnamedplus,autoselect
@@ -1555,6 +1555,7 @@ let Tlist_WinWidth = 0
 
 " supertab settings
 let g:SuperTabCrMapping = 0
+let g:SuperTabDefaultCompletionType = 'context'
 
 " ctrl-p settings
 let g:ctrlp_custom_ignore = {
@@ -1569,6 +1570,9 @@ let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
 let g:rubycomplete_buffer_loading = 1
 let g:rubycomplete_classes_in_global = 1
 let g:rubycomplete_rails = 1
+
+" rails settings
+let g:rails_debug = 1
 
 " omni cpp complete
 let OmniCpp_GlobalScopeSearch = 1
@@ -1610,7 +1614,7 @@ let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'}
 let g:ensime = {'ensime-script': "/Users/adragomi/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
 
 " simplenote
-"source $HOME/.secrets/simplenote_credentials.vim
+source $HOME/.secrets/simplenote_credentials.vim
 
 " clojure
 let vimclojure#NailgunClient = "$HOME/bin/ng"
@@ -1621,11 +1625,15 @@ let vimclojure#NailgunPort = "2200"
 let vimclojure#ParenRainbow = 1
 
 " eclim
+let g:EclimMakeLCD = 1
 let g:EclimMenus = 0
 let g:EclimJavaImportExclude = [ "^com\.sun\..*", "^sun\..*", "^sunw\..*" ]
-let g:EclimJavaHierarchyDefaultAction = "edit"
-let g:EclimJavaSearchSingleResult = "edit"
-let g:EclimDefaultFileOpenAction = "edit"
+let g:EclimJavaHierarchyDefaultAction = "tabnew"
+let g:EclimJavaSearchSingleResult = "tabnew"
+let g:EclimDefaultFileOpenAction = "tabnew"
+let g:EclimXmlIndentDisabled = 1
+let g:EclimXmlValidate = 0
+let g:EclimSignLevel = 2
 
 " mru
 let MRU_File = $HOME . '/.vim/tmp/.vim_mru_files'
@@ -1716,8 +1724,9 @@ augroup completions
   autocmd FileType html setlocal omnifunc=htmlcomplete#CompleteTags
   autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
   autocmd FileType java setlocal omnifunc=javacomplete#Complete
-  autocmd FileType java map <leader>b :JavaCompleteGoToDefinition<CR>
-  autocmd FileType java map <leader>s :JavaCompleteReplaceWithImport<CR>
+  autocmd FileType java map <leader>b :JavaSearchContext<CR>
+  autocmd FileType java map <leader>s :JavaImport<CR>
+  autocmd FileType java map <leader>jh :JavaHierarchy<CR>
   autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 augroup END
 
