@@ -61,7 +61,7 @@ set showmatch                 " briefly jump to matching brace
 set matchtime=1               " show matching brace time (1/10 seconds)
 set showmode                  " show mode in status when not in normal mode
 set nostartofline             " don't move to start of line after commands
-set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[tab:%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [offset:\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y]%{ShowFileFormatFlag(&fileformat)}\ %)\ %L\ lines%)
+set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[tab:%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [offset:\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y]{&fileformat}\ %)\ %L\ lines%)
 set undolevels=10000
 set numberwidth=5
 set pumheight=10
@@ -342,31 +342,6 @@ autocmd BufEnter * :syntax sync fromstart
 "}}}
 
 " my functions {{{
-
-function! EatChar(pat)
-    let c = nr2char(getchar(0))
-    return (c =~ a:pat) ? '' : c
-endfunction
-
-function! MakeSpacelessIabbrev(from, to)
-    execute "iabbrev <silent> ".a:from." ".a:to."<C-R>=EatChar('\\s')<CR>"
-endfunction
-
-function! WordFrequency() range
-  let all = split(join(getline(a:firstline, a:lastline)), '\A\+')
-  let frequencies = {}
-  for word in all
-    let frequencies[word] = get(frequencies, word, 0) + 1
-  endfor
-  new
-  setlocal buftype=nofile bufhidden=hide noswapfile tabstop=20
-  for [key,value] in items(frequencies)
-    call append('$', key."\t".value)
-  endfor
-  sort i
-endfunction
-command! -range=% WordFrequency <line1>,<line2>call WordFrequency()
-
 function! OnTabLeave()
   if UselessBuffer('%')
     bwipeout
@@ -480,22 +455,6 @@ function! EndKey()
 	call MoveCursor('e', '$g')
 endfunction
 
-function! StrMatchNo(haystack, needle)
-	let LastMatch = match(a:haystack, a:needle)
-	if LastMatch > -1
-		let Result = 1
-		while LastMatch > -1
-			let LastMatch = match(a:haystack, a:needle, LastMatch+1)
-			if LastMatch > -1
-				let Result = Result + 1
-			endif
-		endwhile
-	else
-		let Result = 0
-	endif
-	return Result
-endfunction
-
 function! ConditionalExecute(action)
 	if a:action == "write"
 		if &modified == 1
@@ -506,16 +465,6 @@ function! ConditionalExecute(action)
 		execute "normal! \<C-w>\<C-w>"
 		silent quit
 	endif
-endfunction
-
-function! InsertBrace()
-	if strpart(getline("."), col(".")-1, 1) != " "
-		let s:seq = " "
-	else
-		let s:seq = ""
-	endif
-	let s:seq = s:seq . "{\<CR>}\<Left>\<CR>\<Up>\<Tab>"
-	execute "normal a" . s:seq
 endfunction
 
 " calls KeyMapExec for all combinations of modes and modifiers
@@ -590,227 +539,9 @@ function! KeyMapExec(mode, special, modifier, key, action)
   " \o/\O/\o/
   "echo s:map
   execute s:map
-
-endfunction
-
-function! OpenFileUnderCursor()
-	let FileName = expand("<cfile>")
-	if (!filereadable(FileName))
-		if (filereadable("./" . FileName))
-			let FileName = "./" . FileName
-		else
-			let cpwd = substitute(getcwd(), '\([^/]\)$', '\1/', '')
-			let fpwd = substitute(FileName, '^.\{-}\(/.*/\).*$', '\1', '')
-			if (match(cpwd, fpwd . '$'))
-				let FileName = substitute(FileName, '^.*/\(.*\)$', '\1', '')
-			endif
-		endif
-	endif
-	let OldPath = getcwd()
-	silent cd %:p:h
-	if (filereadable(FileName))
-	execute "silent sp +e " . FileName
-	else
-		echohl error
-		echo "File '" . FileName . "' not found."
-		echohl normal
-	endif
-	execute "silent cd " . OldPath
-endfunction
-
-function! GetSynUnder()
-	return synIDattr(synID(line('.'), col('.'), 1), 'name')
-endfunction
-
-function! GetCharUnder()
-	return strpart(getline('.'), col('.') - 1, 1)
-endfunction
-
-function! GetCharBefore(offset)
-	return strpart(getline('.'), col('.') - (a:offset + 1), 1)
-endfunction
-
-function! GetCharAfter()
-	return strpart(getline('.'), col('.'), 1)
-endfunction
-
-function! AtEnd()
-	return col('$') == col('.')
-endfunction
-
-function! GetStringBeforeCursor(offset)
-	return strpart(getline('.'), 0, col('.') - a:offset)
-endfunction
-
-function! GetStringAfterCursor()
-	return strpart(getline("."), col("."))
-endfunction
-
-function! GetWordBeforeCursor(keep_spaces)
-	let regexp = '^.*\(\<\w\+\)'
-	if !a:keep_spaces
-		let regexp .= '\s*'
-	endif
-	let regexp .= '$'
-	return substitute(GetStringBeforeCursor(0), regexp, '\1', '')
-endfunction
-
-function! GetExactWordBeforeCursor(offset)
-  let x = matchlist(GetStringBeforeCursor(a:offset), '\(\w\w*\)\s*$')
-  if len(x) > 0
-    return x[1]
-  else
-    return GetStringBeforeCursor(a:offset)
-  end
-	"return substitute(GetStringBeforeCursor(a:offset), '^.*\(\w\w*\)\s*$', '\1', '')
-endfunction
-
-function! GetFirstWord()
-	return substitute(getline('.'), '^\W*\(\<\w\+\).*$', '\1', '')
-endfunction
-
-function! GetStringBeforeWord()
-	return substitute(GetStringBeforeCursor(), '^.*\(\W\{-1,}\)\<\w\{-1,}\W*$', '\1', '')
-endfunction
-
-function! GetWordBeforeParen()
-	return substitute(GetStringBeforeCursor(), '^.\{-}\(\<\w\{-1,}\)\s*(.*$', '\1', '')
-endfunction
-
-function! UpcaseWordBeforeCursor()
-	let Line = substitute(GetStringBeforeCursor(), '^\(.*\)\(\<\w\{-1,}\)\(\W*\)$', '\1\U\2\E\3', '')
-	call setline(".", Line . GetStringAfterCursor())
-endfunction
-
-function! GetWordUnder()
-	let WordBeginning = substitute(GetStringBeforeCursor(), '^.*\<\(\w\{-1,}\)$', '\1', '')
-	if match(GetStringAfterCursor(), '\w') == 0
-		let WordEnd = substitute(GetStringAfterCursor(), '^\<\(\w\{-1,}\)\>.*$', '\1', '')
-	else
-		let WordEnd = ''
-	endif
-	let Word = WordBeginning . WordEnd
-	return Word
-endfunction
-
-function! CountOccurances(haystack, needle)
-	let occurances = 0
-	let lastpos = 0
-	let firstiter = 1
-	while lastpos > -1
-		if firstiter
-			let lastpos = match(a:haystack, a:needle, lastpos)
-		else
-			let lastpos = match(a:haystack, a:needle, lastpos + 1)
-		endif
-		let firstiter = 0
-		if lastpos > -1
-			let occurances = occurances + 1
-		endif
-	endwhile
-	return occurances
-endfunction
-
-function! InsideTag()
-	let str = GetStringBeforeCursor(0) . GetCharUnder()
-	return str =~ '^.*<[^/>]*$'
-endfunction
-
-function! InsideQuote(char)
-	let str = GetStringBeforeCursor(0) . GetCharUnder()
-	if !InsideTag()
-		let tags_complete = CountOccurances(str, '<[^/>]*>')
-		let tags_incomplete = CountOccurances(str, '<\w')
-		let tags = tags_incomplete - tags_complete
-		return (CountOccurances(str, a:char) - tags) % 2 != 0
-	else
-		return CountOccurances(str, a:char) % 2 != 0
-	endif
-endfunction
-
-function! ExpandTemplate(ignore_quote)
-	if a:ignore_quote || GetSynUnder() == 'htmlString' || (!InsideQuote("'") && !InsideQuote('"'))
-		let cword = GetExactWordBeforeCursor(1)
-		if exists('g:template' . &ft . cword)
-			return "\<C-W>" . g:template{&ft}{cword}
-		elseif exists('g:template_' . cword)
-			return "\<C-W>" . g:template_{cword}
-		endif
-	endif
-	return ExpandTag(' ')
-endfunction
-
-function! ExpandTag(char)
-	if a:char == '>'
-		if GetCharUnder() == '>'
-			return "\<Right>"
-		elseif GetCharBefore(1) == '>' && (&ft == 'php' || &ft == 'html')
-			if &ft == 'php' && GetCharBefore(2) == '?'
-				return '>'
-			endif
-			return "\<CR>\<CR>\<Up>\<Tab>"
-		endif
-	endif
-	let sbefore = GetStringBeforeCursor(0)
-	if GetCharUnder() == '>'
-		return a:char
-	endif
-	if sbefore =~ '^.*<\w\+\S*$' && (&ft == 'php' || &ft == 'html')
-		let cword = GetExactWordBeforeCursor(1)
-		let sbefore1 = strpart(sbefore, 0, strlen(sbefore) - 1)
-		if cword !~ '>' && CountOccurances(sbefore1, '<') > CountOccurances(sbefore1, '>')
-			let cleft = repeat("\<Left>", len(cword) + 4)
-			let retval = ''
-			let close_tag = '></' . cword . '>' . cleft
-			if cword == 'input' || cword == 'label' || cword == 'br' || cword == 'hr'
-				let retval .= ">\<Left>"
-			else
-				let retval .= close_tag
-			endif
-			if a:char == ' '
-				let retval = ' ' . retval
-			else
-				let retval .= "\<Right>"
-			endif
-			return retval
-		endif
-		return a:char
-	endif
-	return a:char
 endfunction
 
 " Visual mode functions
-function! Enclose(mode, indent)
-	if a:mode == '{'
-		let start = '{'
-		let end = '}'
-	elseif a:mode == '/'
-		let start = '/**'
-		let end = '/**/'
-	endif
-	let extra = ''
-	if a:indent
-		let extra = "\<BS>"
-	endif
-	call cursor(line("'<"), col("'<"))
-	execute "normal! O" . extra . start
-	call cursor(line("'>"), col("'>"))
-	execute "normal! o" . extra . end
-endfunction
-
-function! ColonComplete()
-	normal! a:
-endfunction
-
-function! ShowFileFormatFlag(var) 
-	if ( a:var == 'dos' ) 
-		return '[DOS]' 
-	elseif ( a:var == 'mac' ) 
-		return '[MAC]' 
-	else 
-		return '[UNIX]' 
-	endif 
-endfunction
 
 function! InsertDateTime()
 	execute "normal a" . strftime("%A, %Y-%m-%d %H:%M:%S")
@@ -895,59 +626,21 @@ EOF
 endfunction
 
 function! GuiEnter()
-set columns=150 lines=49
-" open tabs for all the open buffers
-let g:GuiEnter_tablist = []
-for i in range(tabpagenr('$'))
-   call extend(g:GuiEnter_tablist, tabpagebuflist(i + 1))
-endfor
-ruby << EOF
-	require 'pp'
-	numtabs = VIM::evaluate("tabpagenr('$')")
-	buffers = []
-	for i in 0..(VIM::Buffer.count - 1)
-		buffers << VIM::Buffer[i]
-	end
-	puts numtabs
+  set columns=150 lines=49
+  " open tabs for all the open buffers
+  let g:GuiEnter_tablist = []
+  for i in range(tabpagenr('$'))
+    call extend(g:GuiEnter_tablist, tabpagebuflist(i + 1))
+  endfor
+  ruby << EOF
+    require 'pp'
+    numtabs = VIM::evaluate("tabpagenr('$')")
+    buffers = []
+    for i in 0..(VIM::Buffer.count - 1)
+      buffers << VIM::Buffer[i]
+    end
+    puts numtabs
 EOF
-endfunction
-
-" helper function to toggle hex mode
-function! ToggleHex()
-  " hex mode should be considered a read-only operation
-  " save values for modified and read-only for restoration later,
-  " and clear the read-only flag for now
-  let l:modified=&mod
-  let l:oldreadonly=&readonly
-  let &readonly=0
-  let l:oldmodifiable=&modifiable
-  let &modifiable=1
-  if !exists("b:editHex") || !b:editHex
-    " save old options
-    let b:oldft=&ft
-    let b:oldbin=&bin
-    " set new options
-    setlocal binary " make sure it overrides any textwidth, etc.
-    let &ft="xxd"
-    " set status
-    let b:editHex=1
-    " switch to hex editor
-    %!xxd
-  else
-    " restore old options
-    let &ft=b:oldft
-    if !b:oldbin
-      setlocal nobinary
-    endif
-    " set status
-    let b:editHex=0
-    " return to normal editing
-    %!xxd -r
-  endif
-  " restore values for modified and read only state
-  let &mod=l:modified
-  let &readonly=l:oldreadonly
-  let &modifiable=l:oldmodifiable
 endfunction
 
 function! ContextSettings()
@@ -976,130 +669,6 @@ function! ToggleScratch()
 endfunction
 
 " files & folders functions
-
-function! PathToShortHome(path)
-  return substitute(a:path, $HOME, "~", "")
-endfunction
-
-function! CwdShort()
-  return substitute(PathToShortHome(getcwd()), "\\", "/", "g")
-endfunction
- 
-function! FizzyReIndexCwd()
-  call FizzyReIndex(getcwd())
-endfunction
-function! FizzyReIndex(dir)
-  " if (a:dir =~ 'work\/projects\/\w\w*')
-    echo "reindexing " . a:dir
-    FizzyFileRenewCache
-    FizzyDirRenewCache
-  " endif
-endfunction
-
-let g:CWD = ""
-function! Cd(cd)
-  exec 'cd ' . escape(a:cd, " ")
-  let g:CWD = getcwd()
-  return getcwd()
-endfunction
-function! CdReset()
-  if g:CWD == ""
-    let g:CWD = getcwd()
-  else
-    call Cd(g:CWD)
-  end
-endfunction
-
-function! GetRoot(path)
-  let oldcwd = getcwd()
-  call Cd(a:path)
-  let root = Slashify(Cd("/"))
-  call Cd(oldcwd)
-  return root
-endfunction
-
-function! Slashify(str)
-  return substitute(a:str, "\\", "/", "g")
-endfunction
-
-function! GetCwdCurrent()
-  return expand("%:p:h")
-endfunction
-
-function! CwdCurrent()
-  call Cd(GetCwdCurrent())
-endfunction
-
-function! CwdUp()
-  let dirname = Slashify(expand('%:p:h'))
-  let cwd     = Slashify(getcwd())
-  let root    = GetRoot(cwd)
-  if (stridx(dirname, cwd) == -1 || cwd == GetRoot(cwd))
-    call Cd(dirname)
-  else
-    call Cd(substitute(cwd, "[^/]*$", "", ""))
-  end
-endfunction
-
-function! CwdDown()
-  let dirname = Slashify(expand('%:p:h'))
-  let cwd     = Slashify(getcwd())
-
-  if cwd == GetRoot(cwd)
-    let cwd = substitute(cwd, "/$", "", "")
-  end
-  if stridx(dirname, cwd) == -1
-    call Cd(dirname)
-  else
-    if (dirname == cwd)
-      call Cd("/")
-    else
-      let dirname = substitute(dirname, cwd . "/", "", "")
-      call Cd(cwd . "/" . substitute(dirname, "/.*", "", ""))
-    end
-  end
-endfunction
-
-function! CreateNewFile(newfile)
-  "call inputsave()
-  "let newfilename= input("Please give file name: ")
-  "call inputrestore()
-  let crtbufdir = expand("%:p:h")
-  if a:newfile == ""
-    return
-  endif
-  exec "e " . crtbufdir . "/" . a:newfile
-endfunction
-
-function! CreateNewFile(newfile)
-  "call inputsave()
-  "let newfilename= input("Please give file name: ")
-  "call inputrestore()
-  let crtbufdir = expand("%:p:h")
-  if a:newfile == ""
-    return
-  endif
-  exec "e " . crtbufdir . "/" . a:newfile
-endfunction
-
-function! BrowserFromCurrentDir()
-  " Explore deletes the quote register. Need to revive the mofo!
-  " TODO check if still the case
-  let g:OLDQUOTEREGISTER = @"
-  let dirname = Slashify(expand('%:p:h'))
-  call Tabnew()
-  exec "Explore"
-  let @" = g:OLDQUOTEREGISTER
-endfunction
-
-function! BrowserFromCurrentFilePath()
-  let g:OLDQUOTEREGISTER = @"
-  let dirname = Slashify(expand('%:p:h'))
-  call Tabnew()
-  exec "Explore " . dirname
-  let @" = g:OLDQUOTEREGISTER
-endfunction
-
 function! MoveTabLeft()
   let newtabnr = tabpagenr() - 2
   if newtabnr == -1
@@ -1198,54 +767,6 @@ endfunction " }}}
 command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
 nnoremap <leader>! :Shell 
 
-function! InsertCloseTag()
-" inserts the appropriate closing HTML tag; used for the \hc operation defined
-" above;
-" requires ignorecase to be set, or to type HTML tags in exactly the same case
-" that I do;
-" doesn't treat <P> as something that needs closing;
-" clobbers register z and mark z
-" 
-" by Smylers  http://www.stripey.com/vim/
-" 2000 May 3
-
-    " list of tags which shouldn't be closed:
-    let UnaryTags = ' Area Base Br DD DT HR Img Input Link Meta Param '
-
-    " remember current position:
-    normal! mz
-
-    " loop backwards looking for tags:
-    let Found = 0
-    while Found == 0
-      " find the previous <, then go forwards one character and grab the first
-      " character plus the entire word:
-      execute "normal! ?\<LT>\<CR>l"
-      normal! "zyl
-      let Tag = expand('<cword>')
-
-      " if this is a closing tag, skip back to its matching opening tag:
-      if @z == '/'
-        execute "normal! ?\<LT>" . Tag . "\<CR>"
-
-      " if this is a unary tag, then position the cursor for the next
-      " iteration:
-      elseif match(UnaryTags, ' ' . Tag . ' ') > 0
-        normal! h
-
-      " otherwise this is the tag that needs closing:
-      else
-        let Found = 1
-
-      endif
-    endwhile " not yet found match
-
-    " create the closing tag and insert it:
-    let @z = '</' . Tag . '>'
-    normal! `z"zp
-
-endfunction " InsertCloseTag()
-
 " }}}
 
 " settings after functions {{{ 
@@ -1276,9 +797,6 @@ nnoremap Q gqip
 " Split line (sister to [J]oin lines)
 " The normal use of S is covered by cc, so don't worry about shadowing it.
 nnoremap S i<cr><esc><right>
-
-" HTML tag closing
-inoremap <C-_> <Space><BS><Esc>:call InsertCloseTag()<cr>a
 
 " GRB: clear the search buffer when hitting return
 nnoremap <CR> :nohlsearch<CR><CR>
@@ -1321,7 +839,6 @@ map L $
 nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 
 call KeyMap('n', '', '', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>')
-call KeyMap('i', '<silent>', '', '<S-Space>', ':call ExpandTemplate(1)<CR>')
 call KeyMap('ni', '', 'DM', 'q', ':q<CR>')
 call KeyMap('ni', '', 'DM', 'Q', ':q!<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'w', ':call ConditionalExecute("write")<CR>')
@@ -1335,10 +852,8 @@ call KeyMap('ni', '<silent>', 'DM', '!', ':!!<CR>')
 call KeyMap('ni', '<silent>', 'DM', '"', ':@:<CR>')
 call KeyMap('ni', '<silent>', '', '<F9>', ':Tlist<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'd', ':bd<CR>')
-call KeyMap('ni', '<silent>', 'DM', 'e', ':call OpenFileUnderCursor()<CR>')
 call KeyMap('v', '<silent>', '', '<Tab>', '>gv')
 call KeyMap('v', '<silent>', '', '<S-Tab>', '<gv')
-call KeyMap('i', '<silent>', 'DM', "'", ':call ExpandTemplate()<CR>')
 call KeyMap('i', '<silent>', 'C', 'z', ':u<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'u', 'guaw')
 call KeyMap('ni', '<silent>', 'DM', 'U', 'gUaw')
@@ -1684,7 +1199,6 @@ let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
 " commands {{{
 command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
 command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
-command! -nargs=1 -complete=file C :call CreateNewFile(<f-args>)
 " }}}
 
 " auto commands {{{
