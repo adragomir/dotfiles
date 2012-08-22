@@ -84,6 +84,7 @@ set timeout
 set ttimeout
 set timeoutlen=200
 set ttimeoutlen=100
+set noesckeys
 set guipty
 set clipboard= "unnamed ",unnamedplus,autoselect
 set undofile
@@ -1344,14 +1345,10 @@ call KeyMap('ni', '<silent>', 'DM', 'U', 'gUaw')
 call KeyMap('ni', '<silent>', 'DM', 'E', ':e .<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'Up', ':call SwapUp()<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'Down', ':call SwapDown()<CR>')
-call KeyMap('ni', '<silent>', 'C', 'Space', '<C-p>')
-call KeyMap('ni', '<silent>', 'DM', 'Space', '<C-X><C-O>')
 call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
 call KeyMap('ni', '<silent>', '', '<F5>', ':CtrlPBuffer<CR>')
 
 " directory browsing
-call KeyMap('n','<silent>', 'DML', 'e', ':call BrowserFromCurrentDir()<CR>')      " open a file browser in a new tab
-call KeyMap('n','<silent>', 'DML', 'E', ':call BrowserFromCurrentFilePath()<CR>') " open a file browser in a new tab
 call KeyMap('n','<silent>', 'DML', 'F', ':Ack<space>') " open a file browser in a new tab
 
 inoremap <C-space> <C-p>
@@ -1559,7 +1556,7 @@ let g:SuperTabDefaultCompletionType = 'context'
 
 " ctrl-p settings
 let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build$',
+  \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build\|vendor$',
   \ 'file': '\.exe$\|\.so$\|\.dll$',
   \ }
 let g:ctrlp_cache_dir = "$HOME/.vim/tmp"
@@ -1652,7 +1649,7 @@ let g:gist_clip_command = 'pbcopy'
 let g:gist_open_browser_after_post = 1
 
 " molokai theme
-let g:molokai_original = 1
+let g:molokai_original = 0
 
 " delimit mate - disable
 let g:loaded_delimitMate = 1
