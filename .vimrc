@@ -70,6 +70,7 @@ set scrolljump=10
 set virtualedit+=block
 set novisualbell
 set noerrorbells
+set tildeop
 set t_vb=
 set winaltkeys=no
 set writeany
@@ -86,7 +87,7 @@ set timeoutlen=200
 set ttimeoutlen=100
 set noesckeys
 set guipty
-set clipboard= "unnamed ",unnamedplus,autoselect
+set clipboard=unnamed "unnamed ",unnamedplus,autoselect
 set undofile
 set undoreload=10000
 set undodir=~/.vim/tmp/undo/
@@ -144,6 +145,13 @@ set wildignore+=*.6,*.out
 set wildignore+=.DS_Store
 set wildignore+=*.pyc,*.class,*.luac
 set wildignore+=*.erbc,*.scssc
+set wildignore+=vendor/rails/**
+set wildignore+=vendor/cache/**
+set wildignore+=*.gem
+set wildignore+=log/**
+set wildignore+=tmp/**
+set wildignore+=*sass-cache*
+
 " }}}
 
 " pathogen {{{
@@ -767,6 +775,23 @@ endfunction " }}}
 command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
 nnoremap <leader>! :Shell 
 
+function! RestoreRegister()
+  if &clipboard == 'unnamed'
+    let @* = s:restore_reg
+  elseif &clipboard == 'unnamedplus'
+    let @+ = s:restore_reg
+  else
+    let @" = s:restore_reg
+  endif
+  return ''
+endfunction
+
+function! ReplaceWithRegister()
+    let s:restore_reg = @"
+    return "p@=RestoreRegister()\<cr>"
+endfunction
+xnoremap <silent> <expr> p ReplaceWithRegister()
+
 " }}}
 
 " settings after functions {{{ 
@@ -777,6 +802,7 @@ set tabline=%!MyTabLine()
 
 " key mappings {{{
 map <leader>y "*y
+
 " clean whitespace
 nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
 
@@ -838,19 +864,15 @@ map L $
 "map Q gq
 nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 
-call KeyMap('n', '', '', '<F3>', ':e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>')
 call KeyMap('ni', '', 'DM', 'q', ':q<CR>')
-call KeyMap('ni', '', 'DM', 'Q', ':q!<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'w', ':call ConditionalExecute("write")<CR>')
 call KeyMap('n', '<silent>', 'DM', 'a', 'gggH<C-O>G')
 call KeyMap('i', '<silent>', 'DM', 'a', '<C-O>gg<C-O>gH<C-O>G')
 call KeyMap('n', '<silent>', 'DM', 'y', '<C-R>')
 call KeyMap('i', '<silent>', 'DM', 'y', '<C-O><C-R>')
 call KeyMap('ni', '<silent>', 'DM', '`', ':maca selectNextWindow:<CR>')
-call KeyMap('ni', '<silent>', 'DM', 'W', ':write!<CR>')
 call KeyMap('ni', '<silent>', 'DM', '!', ':!!<CR>')
 call KeyMap('ni', '<silent>', 'DM', '"', ':@:<CR>')
-call KeyMap('ni', '<silent>', '', '<F9>', ':Tlist<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'd', ':bd<CR>')
 call KeyMap('v', '<silent>', '', '<Tab>', '>gv')
 call KeyMap('v', '<silent>', '', '<S-Tab>', '<gv')
@@ -864,7 +886,7 @@ call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
 call KeyMap('ni', '<silent>', '', '<F5>', ':CtrlPBuffer<CR>')
 
 " directory browsing
-call KeyMap('n','<silent>', 'DML', 'F', ':Ack<space>') " open a file browser in a new tab
+call KeyMap('n','<silent>', 'DML', 'f', ':Ack<space>') " open a file browser in a new tab
 
 inoremap <C-space> <C-p>
 

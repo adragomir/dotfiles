@@ -8,18 +8,34 @@
   branch = auto
 
 [alias]
-  st = status
+  st = status --ignore-submodules
   st2 = "ls-files --exclude-per-directory=.gitignore  --exclude-from=.git/info/exclude  -t -o -u -s -m -d"
-  dc = diff --stat --name-status --cached
+  dc = diff --stat --name-status --cached --ignore-submodules
   cat = -p cat-file -p
   ci = commit
   co = checkout
   di = diff
+  amend = commit --amend
+  aa = add --all
+  # Divergence (commits we added and commits remote added)
+  div = divergence
+  # Goodness (summary of diff lines added/removed/total)
+  gn = goodness
+  gnc = goodness --cached
+  head = !git l -1
+  h = !git head
+  hp = "!source ~/.githelpers && show_git_head"
+  r = !git l -30
+  ra = !git r --all
+  l = "!source ~/.githelpers && pretty_git_log"
+  la = !git l --all
+  
   w = !git branch -a && git log --branches --oneline --graph --decorate --simplify-by-decoration --since='2 months ago'
   log1 = log --pretty=oneline --abbrev-commit --decorate
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
   file-blame = !git ls-files | xargs -n1 -i{} git log -1 --pretty=format:\"%ci {}\" -- {}
-  pull-rebase = ! export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT
+  pr = ! export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT
+  spr = ! git stash && export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT && git stash pop
   last = rev-list -n 1 HEAD -- "$1"
   restore = ! FILE=$1 && git checkout $(git rev-list -n 1 HEAD -- "$FILE")^ -- "$FILE"
 
@@ -47,16 +63,15 @@
 [github]
   user = adragomir
   token = 631abd318631e5d9ef2f932a811a8d7a
-
-[difftool "sourcetree"]
-	cmd = /Users/adragomi/Applications/SourceTree.app/Contents/Resources/araxiscompare-w.sh -2 \"$LOCAL\" \"$REMOTE\"
-	path = 
-
-[mergetool "sourcetree"]
-	cmd = /Users/adragomi/Applications/SourceTree.app/Contents/Resources/araxisgitmerge-w.sh \"$REMOTE\" \"$BASE\" \"$LOCAL\" \"$MERGED\"
-	trustExitCode = true
+    password = ! /usr/bin/security 2>&1 >/dev/null find-generic-password -gs github | ruby -e 'print $1 if STDIN.gets =~ /^password: \\\"(.*)\\\"$/'
 
 #[branch]
 #  autosetuprebase = always
 [cola]
 	fontdiff = DejaVu Sans Mono,9,-1,5,50,0,0,0,0,0
+[giggle]
+	main-window-maximized = true
+	main-window-geometry = 274x34+1164+486
+	history-view-vpane-position = 300
+	main-window-view = FileView
+	file-view-vpane-position = 443
