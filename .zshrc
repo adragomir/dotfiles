@@ -803,6 +803,10 @@ mkcd () {
   cd "$*"
 }
 
+function urlopen() {
+  open "http://$*"
+}
+
 calc () { echo "$*" | bc -l; }
 
 # }}}
@@ -983,6 +987,12 @@ export DYLD_FRAMEWORK_PATH=$DYLD_FRAMEWORK_PATH:\
 # aliases {{{
 
 # common
+
+alias -s com=urlopen
+alias -s org=urlopen
+alias -s net=urlopen
+alias -s io=urlopen
+
 #alias ack="ack -i -a"
 alias vidir="EDITOR=v vidir"
 alias gvim="g"

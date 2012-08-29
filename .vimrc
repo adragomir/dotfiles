@@ -53,7 +53,8 @@ set incsearch                 " show matches while searching
 set gdefault
 
 set laststatus=2              " always show status line
-"set cursorline
+"set cursorcolumn
+set cursorline
 set showbreak=…
 set fillchars=diff:⣿
 set showcmd                   " show number of selected chars/lines in status
@@ -85,17 +86,15 @@ set timeout
 set ttimeout
 set timeoutlen=200
 set ttimeoutlen=100
-set noesckeys
+"set noesckeys
 set guipty
 set clipboard=unnamed "unnamed ",unnamedplus,autoselect
 set undofile
 set undoreload=10000
-set undodir=~/.vim/tmp/undo/
-set backupdir=~/.vim/tmp/backup " store backups under ~/.vim/backup
+set undodir=~/.vim/tmp/undo//
+set backupdir=~/.vim/tmp/backup// " store backups under ~/.vim/backup
 set backup
-set directory=~/.vim/tmp/swap " keep swp files under ~/.vim/swap
-set t_ti=
-set t_te=
+set directory=~/.vim/tmp/swap// " keep swp files under ~/.vim/swap
 " settings: windows and buffers
 "set noequalalways
 set guiheadroom=0
@@ -139,7 +138,8 @@ set wildignore+=.svn,CVS,.git,.hg
 set wildignore+=*.aux,*.out,*.toc " latex files
 set wildignore+=*.o,*.d,*.obj,*.dylib,*.so,*.exe,*.manifest,*.a,*.mo,*.la " objects
 set wildignore+=*.class,*.jar
-set wildignore+=*.jpg,*.jpeg,*.png,*.gif,*.tiff,*.xmp
+set wildignore+=.classpath,.project
+set wildignore+=*.jpg,*.jpeg,*.png*,*.gif,*.tiff,*.xmp
 set wildignore+=*.sw?,*.bak
 set wildignore+=*.6,*.out
 set wildignore+=.DS_Store
@@ -174,7 +174,7 @@ let g:solarized_italic=0
 colorscheme molokai
 
 if has("gui_running") && has("macunix")
-  set guifont=Inconsolata\ For\ Powerline:h17
+  set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline:h15
   set antialias
 endif
 " }}}
@@ -350,6 +350,13 @@ autocmd BufEnter * :syntax sync fromstart
 "}}}
 
 " my functions {{{
+function! s:VSetSearch()
+  let temp = @@
+  norm! gvy
+  let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
+  let @@ = temp
+endfunction
+
 function! OnTabLeave()
   if UselessBuffer('%')
     bwipeout
@@ -772,7 +779,7 @@ function! s:ExecuteInShell(command) " {{{
     silent! execute 'AnsiEsc'
     echo 'Shell command ' . command . ' executed.'
 endfunction " }}}
-command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
+
 nnoremap <leader>! :Shell 
 
 function! RestoreRegister()
@@ -810,20 +817,6 @@ nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
 " Requires the gist command line too (brew install gist)
 vnoremap <leader>G :w !gist -p -t %:e \| pbcopy<cr>
 
-" Change case
-nnoremap <C-u> gUiw
-inoremap <C-u> <esc>gUiwea
-
-" Substitute
-nnoremap <leader>s :%s//<left>
-
-" Formatting, TextMate-style
-nnoremap Q gqip
-
-" Split line (sister to [J]oin lines)
-" The normal use of S is covered by cc, so don't worry about shadowing it.
-nnoremap S i<cr><esc><right>
-
 " GRB: clear the search buffer when hitting return
 nnoremap <CR> :nohlsearch<CR><CR>
 nnoremap <silent> <Leader>/ :nohlsearch<CR>
@@ -846,6 +839,11 @@ nnoremap <m-Up> :cprevious<cr>zvzz
 
 noremap j gj
 noremap k gk
+nnoremap D d$
+nnoremap * *<c-o>
+
+nnoremap / /\v
+vnoremap / /\v
 
 " Fuck you, help key.
 noremap  <F1> :set invfullscreen<CR>
@@ -853,16 +851,34 @@ inoremap <F1> <ESC>:set invfullscreen<CR>a
 "nnoremap K <nop>
 inoremap # X<BS>#
 
-map H ^
-map L $
+noremap H ^
+noremap L g_ "or $?
 
-"nnoremap <silent> Q
-"nnoremap <silent> gQ
+" whole hog
+" map <up> <nop>
+" map <down> <nop>
+" map <left> <nop>
+" map <right> <nop>
+" imap <up> <nop>
+" imap <down> <nop>
+" imap <left> <nop>
+" imap <right> <nop>
+
+vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
+vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
+
+nnoremap <silent> Q
 
 "nnoremap ; :
 " no Ex mode
-"map Q gq
+map Q gq
+
 nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
+
+cnoremap <c-a> <home>
+cnoremap <c-e> <home>
+
+nnoremap ,z zMzvzz
 
 call KeyMap('ni', '', 'DM', 'q', ':q<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'w', ':call ConditionalExecute("write")<CR>')
@@ -897,6 +913,11 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
 nnoremap <leader>. :lcd %:p:h<CR>
+
+nnoremap <silent> <leader>hh :execute 'match InterestingWord1 /\<<c-r><c-w>\>/'<cr>
+nnoremap <silent> <leader>h1 :execute 'match InterestingWord1 /\<<c-r><c-w>\>/'<cr>
+nnoremap <silent> <leader>h2 :execute '2match InterestingWord2 /\<<c-r><c-w>\>/'<cr>
+nnoremap <silent> <leader>h3 :execute '3match InterestingWord3 /\<<c-r><c-w>\>/'<cr>
 
 " ; is an alias for :
 "nnoremap ; :
@@ -986,6 +1007,17 @@ elseif has("gui_running")
   imap <M-8> <C-o>8gt<CR>
   imap <M-9> <C-o>9gt<CR>
   imap <M-0> <C-o>10gt<CR>
+else
+  imap 1 1gt
+  imap 2 2gt
+  imap 3 3gt
+  imap 4 4gt
+  imap 5 5gt
+  imap 6 6gt
+  imap 7 7gt
+  imap 8 8gt
+  imap 9 9gt
+  imap 0 10gt
 endif
 
 if has("gui_running") && has("macunix")
@@ -1069,46 +1101,55 @@ iabbrev teh the
 
 " plugin settings {{{
 
-" sparkup
+" sparkup {{{
 let g:sparkupExecuteMapping = '<c-e>'
 let g:sparkupNextMapping = '<c-s>'
+" }}}
 
-" python syntax settings
+" python syntax settings {{{
 let g:pymode_rope = 0
 let g:pymode_lint = 0
 let python_highlight_all = 1
 let g:pymode_rope_vim_completion = 0
+" }}}
 
-" taglist settings
+" taglist settings {{{
 let Tlist_Ctags_Cmd = "/usr/local/bin/ctags"
 let Tlist_Compact_Format = 1
 let Tlist_File_Fold_Auto_Close = 1
 let Tlist_Use_Right_Window = 1
 let Tlist_Exit_OnlyWindow = 1
 let Tlist_WinWidth = 0 
+" }}}
 
-" supertab settings
+" supertab settings {{{
 let g:SuperTabCrMapping = 0
 let g:SuperTabDefaultCompletionType = 'context'
+" }}}
 
-" ctrl-p settings
+" ctrl-p settings {{{
 let g:ctrlp_custom_ignore = {
   \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build\|vendor$',
-  \ 'file': '\.exe$\|\.so$\|\.dll$',
+  \ 'file': '\.exe$\|\.so$\|\.dll$|\.class$|\.jar$',
   \ }
+let g:ctrlp_working_path_mode = ''
 let g:ctrlp_cache_dir = "$HOME/.vim/tmp"
 let g:ctrlp_switch_buffer = 2
 let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
+let g:ctrlp_max_files = 0
+" }}}
 
-" ruby settings
+" ruby settings {{{
 let g:rubycomplete_buffer_loading = 1
 let g:rubycomplete_classes_in_global = 1
 let g:rubycomplete_rails = 1
+" }}}
 
-" rails settings
+" rails settings {{{
 let g:rails_debug = 1
+" }}}
 
-" omni cpp complete
+" omni cpp complete {{{
 let OmniCpp_GlobalScopeSearch = 1
 let OmniCpp_NamespaceSearch = 2
 let OmniCpp_DisplayMode = 1
@@ -1116,20 +1157,24 @@ let OmniCpp_ShowScopeInAbbr = 1
 let OmniCpp_ShowPrototypeInAbbr = 1
 let OmniCpp_ShowAccess = 1
 let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
+" }}}
 
-"neocomplcache
+" neocomplcache {{{
 let g:neocomplcache_disable_auto_complete = 1
+" }}}
 
-" powerline
+" powerline {{{
 let g:Powerline_symbols = 'fancy'
 let g:Powerline_cache_file = $HOME . '/.vim/tmp/Powerline_cache_file'
 "let g:Powerline_theme = 'adr'
+" }}}
 
-" tex
+" tex {{{
 let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
+" }}}
 
-" clang
+" clang_complete {{{
 "let g:clang_complete_copen = 1
 "let g:clang_user_options='|| exit 0'
 let g:clang_complete_auto = 1
@@ -1142,23 +1187,32 @@ if has("macunix")
 else
   let g:clang_library_path = "/usr/lib/"
 endif
+" }}}
 
-" ensime / async
+" ensime / async {{{
 let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'} 
 let g:ensime = {'ensime-script': "/Users/adragomi/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
+" }}}
 
-" simplenote
+" simplenote {{{
 source $HOME/.secrets/simplenote_credentials.vim
+" }}}
 
-" clojure
+" clojure {{{
 let vimclojure#NailgunClient = "$HOME/bin/ng"
 "let vimclojure#SplitPos = "right"
 let vimclojure#HightlightBuiltins = 1
 let vimclojure#WantNailgun = 0
 let vimclojure#NailgunPort = "2200"
 let vimclojure#ParenRainbow = 1
+" }}}
 
-" eclim
+" localvimrc {{{
+let g:localvimrc_name = ".lvimrc"
+let g:localvimrc_ask = 0
+" }}}
+
+" eclim {{{
 let g:EclimMakeLCD = 1
 let g:EclimMenus = 0
 let g:EclimJavaImportExclude = [ "^com\.sun\..*", "^sun\..*", "^sunw\..*" ]
@@ -1168,57 +1222,67 @@ let g:EclimDefaultFileOpenAction = "tabnew"
 let g:EclimXmlIndentDisabled = 1
 let g:EclimXmlValidate = 0
 let g:EclimSignLevel = 2
+" }}}
 
-" mru
+" mru {{{
 let MRU_File = $HOME . '/.vim/tmp/.vim_mru_files'
+" }}}
 
-" javascript
+" javascript {{{
 let javaScript_fold=1
+" }}}
 
-" factor
+" factor {{{
 let g:FactorRoot="$HOME/temp/source/other/factor"
+" }}}
 
-" netrw
+" netrw {{{
 let g:netrw_browsex_viewer="open"
+" }}}
 
-" gist
+" gist {{{
 let g:gist_clip_command = 'pbcopy'
 let g:gist_open_browser_after_post = 1
+" }}}
 
-" molokai theme
+" molokai theme {{{
 let g:molokai_original = 0
+" }}}
 
-" delimit mate - disable
+" delimit mate - disable {{{
 let g:loaded_delimitMate = 1
+" }}}
 
-" ack
+" ack {{{
 let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
+" }}}
 
-" yankring
+" yankring {{{
 let g:yankring_history_dir = "$HOME/.vim/tmp"
 let g:yankring_default_menu_mode = 0
+" }}}
 
-"easymotion
+"easymotion {{{
 let g:EasyMotion_mapping_e = '<Leader>ee'
 let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
+" }}}
 
-"syntastic
+" syntastic {{{
 "let g:syntastic_enable_signs = 1
 "let g:syntastic_auto_loc_list=0
 "let g:syntastic_quiet_warnings=1
 "let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
+" }}}
 
-"set statusline+=%#warningmsg#
-"set statusline+=%{SyntasticStatuslineFlag()}
-"set statusline+=%*
-
-" javacomplete
+" javacomplete {{{
 let g:first_nailgun_port=2114
 let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
+" }}}
 
 " }}}
 
 " commands {{{
+command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
 command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
 command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
 " }}}
@@ -1291,3 +1355,6 @@ if filereadable(hostfile)
     exe 'source ' . hostfile
 endif
 " }}}
+
+
+" vim: set foldmethod=marker
