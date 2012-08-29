@@ -188,10 +188,9 @@ function! eclim#client#nailgun#GetNgPort(...)
 
     " project inside of a workspace dir
     for workspace in keys(workspaces)
-      " echom "WORKSPACE !!!!!!!!!! " . workspace
-      " if path =~ '^' . workspace
-      "   return workspaces[workspace]
-      " endif
+      if path =~ '^' . workspace
+        return workspaces[workspace]
+      endif
     endfor
 
     " project outside of a workspace dir
