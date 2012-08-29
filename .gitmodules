@@ -232,3 +232,6 @@
 [submodule ".vim/bundle/flashdevelop"]
 	path = .vim/bundle/flashdevelop
 	url = https://github.com/endel/flashdevelop.vim.git
+[submodule ".vim/bundle/commaobject"]
+	path = .vim/bundle/commaobject
+	url = https://github.com/austintaylor/vim-commaobject.git
