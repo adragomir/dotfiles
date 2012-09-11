@@ -7,6 +7,7 @@ export CASE_SENSITIVE="true"
 
 # add a function path
 fpath=($ZSH/functions $fpath)
+fpath=(/usr/local/share/zsh-completions $fpath)
 
 # {{{ alias
 # Push and pop directories on directory stack

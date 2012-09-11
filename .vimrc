@@ -40,10 +40,11 @@ set encoding=UTF-8            " file encoding
 set modelines=0
 set t_ti=
 set t_te=
-set formatoptions=tcroqn1     " auto format
+set formatoptions=tcroqjn1     " auto format
 set colorcolumn=+1
 "set guioptions=cr+bie"M"m	  " aA BAD
 set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
+set synmaxcol=800
 "set guioptions=+
 " visual cues
 set ignorecase                " ignore case when searching
@@ -56,7 +57,7 @@ set laststatus=2              " always show status line
 "set cursorcolumn
 set cursorline
 set showbreak=…
-set fillchars=diff:⣿
+set fillchars=diff:⣿,vert:\|
 set showcmd                   " show number of selected chars/lines in status
 set showmatch                 " briefly jump to matching brace
 set matchtime=1               " show matching brace time (1/10 seconds)
@@ -78,9 +79,9 @@ set writeany
 set iskeyword=@,48-57,128-167,224-235,_
 set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮,trail:.
 set showtabline=2
-set matchtime=0
+set matchtime=3
 set complete=.,w,b,u,t,i	" completion by Ctrl-N
-set completeopt=menu,menuone,longest
+set completeopt=menu,menuone,longest "sjl: set completeopt=longest,menuone,preview
 set ttyfast
 set timeout
 set ttimeout
@@ -101,6 +102,7 @@ set guiheadroom=0
 " 	When off a buffer is unloaded when it is |abandon|ed.
 set hidden
 set splitbelow                " split windows below current one
+set splitright
 set title
 set linebreak
 set dictionary=/usr/share/dict/words
@@ -151,10 +153,19 @@ set wildignore+=*.gem
 set wildignore+=log/**
 set wildignore+=tmp/**
 set wildignore+=*sass-cache*
+set wildignore+=target/classes,classes
 
 " }}}
 
 " pathogen {{{
+
+" disabled plugins {{{
+" manpageview {{{
+let g:loaded_manpageview = 1
+let g:loaded_manpageviewPlugin = 1
+" }}}
+" }}}
+
 call pathogen#helptags()
 call pathogen#infect() 
 " }}}
@@ -174,7 +185,7 @@ let g:solarized_italic=0
 colorscheme molokai
 
 if has("gui_running") && has("macunix")
-  set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline:h15
+  set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline:h13
   set antialias
 endif
 " }}}
@@ -780,8 +791,6 @@ function! s:ExecuteInShell(command) " {{{
     echo 'Shell command ' . command . ' executed.'
 endfunction " }}}
 
-nnoremap <leader>! :Shell 
-
 function! RestoreRegister()
   if &clipboard == 'unnamed'
     let @* = s:restore_reg
@@ -808,7 +817,21 @@ set tabline=%!MyTabLine()
 " }}}
 
 " key mappings {{{
+" System clipboard interaction.  Mostly from:
 map <leader>y "*y
+
+nnoremap <leader>! :Shell 
+
+nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+
+" Highlight Group(s)
+nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+                        \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+                        \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
+" Select entire buffer
+nnoremap vaa ggvGg_
+nnoremap Vaa ggVG
 
 " clean whitespace
 nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
@@ -842,17 +865,34 @@ noremap k gk
 nnoremap D d$
 nnoremap * *<c-o>
 
+" Use c-\ to do c-] but open it in a new split.
+nnoremap <c-\> <c-w>v<c-]>zvzz
+
 nnoremap / /\v
 vnoremap / /\v
 
 " Fuck you, help key.
 noremap  <F1> :set invfullscreen<CR>
 inoremap <F1> <ESC>:set invfullscreen<CR>a
-"nnoremap K <nop>
+" Kill window instead of man page
+nnoremap K :q<cr>
 inoremap # X<BS>#
+
+" Keep search matches in the middle of the window.
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+" Same when jumping around
+nnoremap g; g;zz
+nnoremap g, g,zz
+nnoremap <c-o> <c-o>zz
 
 noremap H ^
 noremap L g_ "or $?
+
+" Heresy
+inoremap <c-a> <esc>I
+inoremap <c-e> <esc>A
 
 " whole hog
 " map <up> <nop>
@@ -867,19 +907,22 @@ noremap L g_ "or $?
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
-nnoremap <silent> Q
+nnoremap <silent> Q <nop>
 
 "nnoremap ; :
 " no Ex mode
-map Q gq
+nnoremap Q gqip
+vnoremap Q gq
 
 nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 
+" emacs bindings, like the shell
 cnoremap <c-a> <home>
 cnoremap <c-e> <home>
 
-nnoremap ,z zMzvzz
+nnoremap <leader>z zMzvzz
 
+" mac specific meta bindings
 call KeyMap('ni', '', 'DM', 'q', ':q<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'w', ':call ConditionalExecute("write")<CR>')
 call KeyMap('n', '<silent>', 'DM', 'a', 'gggH<C-O>G')
@@ -890,8 +933,6 @@ call KeyMap('ni', '<silent>', 'DM', '`', ':maca selectNextWindow:<CR>')
 call KeyMap('ni', '<silent>', 'DM', '!', ':!!<CR>')
 call KeyMap('ni', '<silent>', 'DM', '"', ':@:<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'd', ':bd<CR>')
-call KeyMap('v', '<silent>', '', '<Tab>', '>gv')
-call KeyMap('v', '<silent>', '', '<S-Tab>', '<gv')
 call KeyMap('i', '<silent>', 'C', 'z', ':u<CR>')
 call KeyMap('ni', '<silent>', 'DM', 'u', 'guaw')
 call KeyMap('ni', '<silent>', 'DM', 'U', 'gUaw')
@@ -904,7 +945,7 @@ call KeyMap('ni', '<silent>', '', '<F5>', ':CtrlPBuffer<CR>')
 " directory browsing
 call KeyMap('n','<silent>', 'DML', 'f', ':Ack<space>') " open a file browser in a new tab
 
-inoremap <C-space> <C-p>
+"inoremap <C-space> <C-p>
 
 " quicker window switching
 nnoremap <C-h> <C-w>h
@@ -1101,6 +1142,15 @@ iabbrev teh the
 
 " plugin settings {{{
 
+
+
+let java_mark_braces_in_parens_as_errors=0
+let java_highlight_all=1
+let java_highlight_debug=1
+let java_ignore_javadoc=1
+let java_highlight_java_lang_ids=1
+let java_highlight_functions="style"
+"
 " sparkup {{{
 let g:sparkupExecuteMapping = '<c-e>'
 let g:sparkupNextMapping = '<c-s>'
@@ -1124,6 +1174,8 @@ let Tlist_WinWidth = 0
 
 " supertab settings {{{
 let g:SuperTabCrMapping = 0
+let g:SuperTabMappingForward = '<c-space>'
+let g:SuperTabMappingBackward = '<s-c-space>'
 let g:SuperTabDefaultCompletionType = 'context'
 " }}}
 
@@ -1157,6 +1209,11 @@ let OmniCpp_ShowScopeInAbbr = 1
 let OmniCpp_ShowPrototypeInAbbr = 1
 let OmniCpp_ShowAccess = 1
 let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
+" }}}
+
+" ultisnips {{{
+"let g:UltiSnipsExpandTrigger = "<C-tab>"
+"let g:UltiSnipsListSnippets = ""
 " }}}
 
 " neocomplcache {{{
@@ -1285,9 +1342,23 @@ let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
 command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
 command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
 command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
+
+" typos
+command! -bang E e<bang>
+command! -bang Q q<bang>
+command! -bang W w<bang>
+command! -bang QA qa<bang>
+command! -bang Qa qa<bang>
+command! -bang Wa wa<bang>
+command! -bang WA wa<bang>
+command! -bang Wq wq<bang>
+command! -bang WQ wq<bang>
 " }}}
 
 " auto commands {{{
+" Has to be an autocommand because repeat.vim eats the mapping otherwise :(
+au VimEnter * :nnoremap U <c-r>
+
 " remove all buffers on exit so we don't have them as hidden on reopen
 autocmd VimLeavePre * 1,255bwipeout
 " remove empty or otherwise dead buffers when moving away from them
@@ -1296,6 +1367,21 @@ autocmd BufReadPost *
   \ if line("'\"") > 0 && line("'\"") <= line("$") |
   \   exe "normal g`\"" |
   \ endif
+
+" Only shown when not in insert mode so I don't go insane.
+augroup trailing
+    au!
+    au InsertEnter * :set listchars-=trail:⌴
+augroup END
+
+" Only show cursorline in the current window and in normal mode.
+augroup cline
+    au!
+    au WinLeave * set nocursorline
+    au WinEnter * set cursorline
+    au InsertEnter * set nocursorline
+    au InsertLeave * set cursorline
+augroup END
 
 " make sure vim returns to the same line when you reopen a file.
 augroup line_return
