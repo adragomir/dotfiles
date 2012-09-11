@@ -232,3 +232,9 @@
 [submodule ".vim/bundle/commaobject"]
 	path = .vim/bundle/commaobject
 	url = https://github.com/austintaylor/vim-commaobject.git
+[submodule ".vim/bundle/css3-syntax"]
+	path = .vim/bundle/css3-syntax
+	url = https://github.com/hail2u/vim-css3-syntax.git
+[submodule ".vim/bundle/html5"]
+	path = .vim/bundle/html5
+	url = https://github.com/othree/html5.vim.git
