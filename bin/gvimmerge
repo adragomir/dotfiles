@@ -1,2 +1,0 @@
-#!/bin/bash
-~/Applications/Macvim.app/Contents/MacOS/Vim -g -d "$1" "$2" "$3"

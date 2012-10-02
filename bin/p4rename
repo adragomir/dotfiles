@@ -1,3 +1,0 @@
-#!/bin/bash
-p4 integrate $1 $2
-p4 delete $1

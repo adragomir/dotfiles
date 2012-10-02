@@ -1,2 +1,0 @@
-#!/bin/bash
-find -E . -iregex $1 -exec grep -i "$2" {} \; -print

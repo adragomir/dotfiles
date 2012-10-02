@@ -1,5 +1,0 @@
-#!/bin/bash
-mkdir -p $HOME/temp/bucasit-git.backup/repositories 
-mkdir -p $HOME/temp/bucasit-git.backup/var_www_git
-rsync -a -v -z -e ssh --delete -S root@bucasit-01:/home/git/repositories $HOME/temp/bucasit-git.backup/repositories
-rsync -a -v -z -e ssh --delete -S root@bucasit-01:/var/www/git $HOME/temp/bucasit-git.backup/var_www_git

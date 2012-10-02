@@ -1,6 +1,0 @@
-#!/bin/bash
-echo $1 #local
-echo $2 #remote
-echo $3 #output
-echo $4 #base
-$HOME/bin/compare --wait -max -2 $1 $2 $3

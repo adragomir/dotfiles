@@ -1,9 +1,0 @@
-#!/bin/sh
-if [ $# -ne 1 ] ; then 
-	echo "Usage: $0 <processname>"
-	exit
-fi
-
-
-ps -axc|awk "{if (\$5==\"$1\") print \$1}"|tr '\n' ' ' 
-echo

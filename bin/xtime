@@ -1,2 +1,0 @@
-#!/bin/sh
-time -f '%Uu %Ss %er %MkB %C' "$@"

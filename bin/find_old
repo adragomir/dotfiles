@@ -1,3 +1,0 @@
-#!/bin/bash
-
-find ~ -print0 | xargs -0 stat -c '%y %n' | sort | less

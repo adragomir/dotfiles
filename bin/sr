@@ -1,4 +1,0 @@
-#!/bin/bash
-for fl in `find . -iname $1`; do
-echo $fl
-done

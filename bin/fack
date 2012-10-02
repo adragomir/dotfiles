@@ -1,2 +1,0 @@
-#!/bin/bash
-find * -type f -iname \*$*\* -exec ls {} \; | grep -v -e '/\.(svn|git|ds_store)/i'
