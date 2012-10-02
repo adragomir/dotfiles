@@ -182,11 +182,16 @@ set t_Co=16
 let g:solarized_termtrans=1
 let g:solarized_termcolors=256
 let g:solarized_italic=0
-colorscheme molokai
+colorscheme Tomorrow-Night
 
 if has("gui_running") && has("macunix")
-  set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline:h13
+  set guifont=Source\ Code\ Pro:h12
   set antialias
+endif
+
+if $TERM_PROGRAM =~ 'iTerm.*'
+  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+  let &t_EI = "\<Esc>]50;CursorShape=0\x7" 
 endif
 " }}}
 
@@ -1125,7 +1130,6 @@ endif
 " inoremap <expr> <C-n> pumvisible() ? '<C-n>' : '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 " snoremap <expr> <C-p> pumvisible() ? '<C-n>' : '<C-p><C-r>=pumvisible() ? "\<lt>Up>" : ""<CR>'
 " inoremap <expr> <M-,> pumvisible() ? '<C-n>' : '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
-
 " macros 
 
 " }}}
@@ -1141,8 +1145,6 @@ iabbrev teh the
 " }}}
 
 " plugin settings {{{
-
-
 
 let java_mark_braces_in_parens_as_errors=0
 let java_highlight_all=1
@@ -1174,17 +1176,17 @@ let Tlist_WinWidth = 0
 
 " supertab settings {{{
 let g:SuperTabCrMapping = 0
-let g:SuperTabMappingForward = '<c-space>'
-let g:SuperTabMappingBackward = '<s-c-space>'
-let g:SuperTabDefaultCompletionType = 'context'
+" let g:SuperTabMappingForward = '<c-space>'
+" let g:SuperTabMappingBackward = '<s-c-space>'
+let g:SuperTabDefaultCompletionType = '<c-n>'
 " }}}
 
 " ctrl-p settings {{{
 let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build\|vendor$',
+  \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build\|vendor\|.settings\|storm-local\|logs\|cloudera\|dev-support\|jdiff$',
   \ 'file': '\.exe$\|\.so$\|\.dll$|\.class$|\.jar$',
   \ }
-let g:ctrlp_working_path_mode = ''
+let g:ctrlp_working_path_mode = 0
 let g:ctrlp_cache_dir = "$HOME/.vim/tmp"
 let g:ctrlp_switch_buffer = 2
 let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
@@ -1192,6 +1194,7 @@ let g:ctrlp_max_files = 0
 " }}}
 
 " ruby settings {{{
+let g:rubycomplete_debug = 1
 let g:rubycomplete_buffer_loading = 1
 let g:rubycomplete_classes_in_global = 1
 let g:rubycomplete_rails = 1
@@ -1212,8 +1215,8 @@ let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 " }}}
 
 " ultisnips {{{
-"let g:UltiSnipsExpandTrigger = "<C-tab>"
-"let g:UltiSnipsListSnippets = ""
+let g:UltiSnipsExpandTrigger = "<C-/>"
+let g:UltiSnipsListSnippets = ""
 " }}}
 
 " neocomplcache {{{

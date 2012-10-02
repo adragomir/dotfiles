@@ -36,6 +36,7 @@ alias afind='ack-grep -il'
 alias dtrace-providers="sudo dtrace -l | perl -pe 's/^.*?\S+\s+(\S+?)([0-9]|\s).*/\1/' | sort | uniq"
 alias tail_java_complete="tail -f $HOME/javacomplete.txt $HOME/dotfiles/.vim/bundle/javacomplete/java/javacomplete_java.log"
 alias gitg="/usr/local/bin/gitg >/dev/null 2>&1 &"
+alias jps="jps -l | grep -vE \"^[0-9]*\s+$\" | grep -v \"sun.tools.jps\""
 # }}}
 
 autoload -U edit-command-line
@@ -61,6 +62,7 @@ setopt no_beep
 setopt auto_cd
 setopt multios
 setopt cdablevarS
+setopt ignoreeof
 
 if [[ x$WINDOW != x ]]
 then
@@ -192,7 +194,7 @@ zstyle ':completion:*:hosts' hosts $hosts
 
 # Use caching so that commands like apt and dpkg complete are useable
 zstyle ':completion::complete:*' use-cache 1
-zstyle ':completion::complete:*' cache-path ~/.oh-my-zsh/cache/
+zstyle ':completion::complete:*' cache-path ~/.zsh/cache/
 
 # Don't complete uninteresting users
 zstyle ':completion:*:*:*:users' ignored-patterns \
@@ -295,13 +297,13 @@ function title {
 }
 
 function precmd {
-  title zsh "$PWD"
+  #title zsh "$PWD"
 }
 
 function preexec {
   emulate -L zsh
   local -a cmd; cmd=(${(z)1})
-  title $cmd[1]:t "$cmd[2,-1]"
+  #title $cmd[1]:t "$cmd[2,-1]"
 }
 
 function zsh_stats() {
@@ -525,21 +527,21 @@ done
 case "$TERM" in
   xterm*|rxvt*)
     preexec () {
-      print -Pn "\e]0;%n@%m: $1\a"  # xterm
+      #print -Pn "\e]0;%n@%m: $1\a"  # xterm
     }
     precmd () {
-      print -Pn "\e]0;%n@%m: %~\a"  # xterm
+      #print -Pn "\e]0;%n@%m: %~\a"  # xterm
     }
     ;;
   screen*)
     preexec () {
       local CMD=${1[(wr)^(*=*|sudo|ssh|-*)]}
       #echo -ne "\ek$CMD\e\\"
-      print -Pn "\e]0;%n@%m: $1\a"  # xterm
+      #print -Pn "\e]0;%n@%m: $1\a"  # xterm
     }
     precmd () {
       #echo -ne "\ekzsh\e\\"
-      print -Pn "\e]0;%n@%m: %~\a"  # xterm
+      #print -Pn "\e]0;%n@%m: %~\a"  # xterm
     }
     ;;
 esac
@@ -894,8 +896,10 @@ export HTML_TIDY=$HOME/.tidyconf
 
 export WIKI=$HOME/Documents/personal/life/exploded/
 
-export JAQL_HOME=$HOME/work/saasbase_env/jaql
-export HADOOP_HOME=$HOME/work/saasbase_env/hadoop
+export SAASBASE_HOME=$HOME/work/saasbase_env
+source $HOME/work/saasbase_env/services/use-hadoop-2
+# export HADOOP_HOME=$HOME/work/saasbase_env/hadoop
+# export HADOOP2_HOME=$HOME/work/saasbase_env/hadoop2/hadoop-dist/target/hadoop-2.0.0-cdh4.0.1/
 export HBASE_HOME=$HOME/work/saasbase_env/hbase
 export ZOOKEEPER_HOME=$HOME/work/saasbase_env/zookeeper
 export STORM_HOME=$HOME/work/saasbase_env/storm
@@ -935,7 +939,7 @@ export NOTES=$HOME/Documents/personal/life/notes@/
 if [ "`uname`" = "Darwin" ]; then
   export VIMRUNTIME=$HOME/Applications/MacVim.app/Contents/Resources/vim/runtime/
 fi  
-export SCALA_HOME=$HOME/work/tools/scala-2.9.2
+#export SCALA_HOME=/usr/local
 # }}}
 
 
@@ -943,29 +947,19 @@ export SCALA_HOME=$HOME/work/tools/scala-2.9.2
 export PATH=\
 /usr/local/bin:\
 /usr/local/sbin:\
-/usr/local/php5/bin:\
 $HOME/bin:\
 $HOME/bin/$OS:\
-"$HOME/Applications/Graphics/Graphviz.app/Contents/MacOS":\
+$SAASBASE_HOME/services:\
 $HOME/.cabal/bin/:\
 $HOME/temp/source/other/sshuttle/:\
 $HOME/temp/source/other/factor:\
-$HOME/work/tools/emulator/Vice/tools:\
-$HOME/work/tools/gradle-1.0-milestone-1/bin/:\
-$HOME/work/tools/rhino1_7R2/:\
 $HOME/work/tools/nasm/:\
 $HOME/temp/source/other/rock/bin:\
 $ROO_HOME/bin:\
 $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64/:\
-"$HOME/Applications/Racket v5.0.2/bin/":\
 $HOME/work/tools/android-sdk-$OS/tools/:\
 $HOME/work/tools/android-sdk-$OS/platform-tools/:\
-$HOME/work/tools/elastic-mapreduce/:\
 $HOME/work/tools/play-2.0.1/:\
-$HOME/work/tools/apache-ant-1.8.2/bin:\
-$HOME/work/tools/apache-maven-3.0.3/bin:\
-$HOME/work/tools/mvnsh-1.0.1/bin:\
-$SCALA_HOME/bin:\
 $GOBIN:\
 $PATH
 
@@ -978,11 +972,6 @@ export MANPATH=\
 /usr/local/man:\
 $MANPATH
 
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:\
-/usr/local/spidermonkey/lib
-
-export DYLD_FRAMEWORK_PATH=$DYLD_FRAMEWORK_PATH:\
-"$HOME/Applications/Racket v5.0.1/lib/"
 # }}}
 
 # aliases {{{
@@ -1002,16 +991,6 @@ alias l="ls -AGlFT"
 alias lt="ls -AGlFTtr"
 alias gwhat="grep -e $1"
  
-# pssh 
-alias pssh_mia='pssh -P -l admin -h ~/.pssh/hosts_saasbase_miami'
-alias pssh_rtc='pssh -P -l hadoop -h ~/.pssh/hosts_rtc'
-alias pscp_rtc='pscp -l hadoop -h ~/.pssh/hosts_rtc'
-alias pssh_rtc='pssh -P -l admin -h ~/.pssh/hosts_staging_css'
-alias pscp_rtc='pscp -l admin -h ~/.pssh/hosts_staging_css'
-
-# bochs
-alias bochs='LTDL_LIBRARY_PATH=$HOME/work/tools/bochs/lib/bochs/plugins BXSHARE=$HOME/work/tools/bochs/share/bochs $HOME/work/tools/bochs/bin/bochs'
-
 #editor
 case "$HOST" in
   $USER-mac*)
@@ -1086,9 +1065,6 @@ alias markdown='/usr/local/bin/markdown'
 alias math='rlwrap $HOME/Applications/Mathematica.app/Contents/MacOS/MathKernel'
 
 # hadoop, hbase, etc
-alias hadoop='$HOME/work/saasbase_env/hadoop/bin/hadoop'
-alias hdfs='$HOME/work/saasbase_env/hadoop/bin/hdfs'
-alias mapred='$HOME/work/saasbase_env/hadoop/bin/mapred'
 alias hbase='$HOME/work/saasbase_env/hbase/bin/hbase'
 alias zk='$HOME/work/saasbase_env/zookeeper/bin/zkCli.sh'
 alias saasbase='$HOME/work/saasbase_env/saasbase/src/saasbase_thrift/bin/saasbase'
@@ -1138,8 +1114,8 @@ zmodload zsh/datetime
 zmodload zsh/stat
 zmodload zsh/mathfunc
 
-stty discard undef
-stty -ixon
+# stty discard undef
+# stty -ixon
 
 # }}}
 
@@ -1424,8 +1400,6 @@ else
   export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
   export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
 fi
-
-export PATH=$PATH:$EC2_HOME/bin
 # }}}
 
 # {{{ virtualenvs

@@ -3,6 +3,10 @@
 --break
 --color
 --ignore-dir=surefire-reports
+--ignore-dir=target
+--ignore-dir=jdiff
+--ignore-dir=jdiff-cloudera
+--no-html
 
 --sort-files
 --type-add=ruby=rake,haml,erb

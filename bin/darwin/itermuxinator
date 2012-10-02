@@ -1,0 +1,149 @@
+#!/usr/bin/env ruby
+require 'appscript'
+require 'yaml'
+
+class Maker
+  attr_accessor :app
+  def initialize
+    @app = Appscript.app('iTerm')
+    @tabs = {}
+  end
+
+  def window
+    @window = @app.make :new => :terminal
+  end
+
+  def tab(name)
+    tab = @window.launch_ :session => "tmux"
+    tab.name.set(name)
+    @tabs[name] = tab
+    return tab
+  end
+
+  def select_tab(name)
+    @window.select @tabs[name]
+  end
+
+  def iterm_menu
+    _process = Appscript.app("System Events").processes["iTerm"]
+    _process.menu_bars.first
+  end
+
+  def ui(menu, submenu, action)
+    menu = iterm_menu.menu_bar_items[menu].menus[menu]
+    menu = menu.menu_items[submenu].menus[submenu] if submenu
+    action = menu.menu_items[action]
+    action.click
+  end
+
+  def vs
+    ui "Shell", nil, "Split Vertically with Current Profile"
+  end
+
+  def hs
+    ui "Shell", nil, "Split Horizontally with Current Profile"
+  end
+
+  def select_pane(direction)
+    valid_directions = %w[Above Below Left Right]
+    if valid_directions.include?(direction)
+      return ui("Window", "Select Split Pane", "Select Pane #{direction}")
+    else
+      puts "Error: #{direction} is not a valid direction to select a pane; Only Above/Below/Left/Right are valid directions"
+    end
+  end
+
+  def run(cmd, tab = nil)
+    tab = tab || @app.current_terminal.current_session
+    tab.write :text => " " + cmd
+  end
+end
+
+Desc = Struct.new(:title, :cmd)
+
+class SmartMaker
+  attr_accessor :before
+
+  def initialize()
+    @m = Maker.new
+    @window = @m.window
+    @before = ""
+  end
+  
+  def tab(title, cmd)
+    @m.tab(title)
+  end
+
+  def tab(desc)
+    tab = @m.tab(desc.title)
+    @m.run(before)
+    @m.run(desc.cmd)
+  end
+
+  def tab2(title, arr)
+    tab = @m.tab(title)
+    @m.vs
+    @m.select_pane("Left")
+    @m.run(before)
+    @m.run(" title '%s'" % arr[0].title)
+    @m.run(arr[0].cmd)
+    @m.select_pane("Right")
+    @m.run(before)
+    @m.run(" title '%s'" % arr[1].title)
+    @m.run(arr[1].cmd)
+  end
+
+  def tab4(title, arr)
+    tab = @m.tab(title)
+    @m.vs
+    @m.hs
+    @m.select_pane("Left")
+    @m.hs
+    @m.select_pane("Above")
+    @m.run(before)
+    @m.run(" title '%s'" % arr[0].title)
+    @m.run(arr[0].cmd)
+    @m.select_pane("Below")
+    @m.run(before)
+    @m.run(" title '%s'" % arr[1].title)
+    @m.run(arr[1].cmd)
+    @m.select_pane("Above")
+    @m.select_pane("Right")
+    @m.run(before)
+    @m.run(" title '%s'" % arr[2].title)
+    @m.run(arr[2].cmd)
+    @m.select_pane("Below")
+    @m.run(before)
+    @m.run(" title '%s'" % arr[3].title)
+    @m.run(arr[3].cmd)
+  end
+end
+
+if ARGV.length == 0
+  puts "argument needed"
+  exit(1)
+end
+file = ENV['HOME'] + "/.tmuxinator/" + ARGV[0] + ".yml"
+if File.exists? file
+  y = YAML.load_file(file)
+  m = SmartMaker.new
+  m.before = y.fetch('project_root') || ""
+  y['tabs'].each { |tab|
+    title = tab.keys[0]
+    content = tab[title]
+    if content.is_a? String
+      m.tab(Desc.new(title, content))
+    elsif content.is_a? Hash
+      case content['panes'].length
+        when 2
+          m.tab2(title, content['panes'].map{ |k| Desc.new('', k) })
+        when 4
+          m.tab4(title, content['panes'].map{ |k| Desc.new('', k) })
+        else
+          puts "Invalid !!!"
+          puts content
+      end
+    end
+  }
+  exit 0
+end
