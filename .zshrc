@@ -922,7 +922,7 @@ export TEXMFCACHE=/tmp
 
 # java
 if [ "`uname`" = "Darwin" ]; then
-  export JAVA_HOME=/Library/Java/JavaVirtualMachines/1.6.0_33-b03-424.jdk/Contents/Home/
+  export JAVA_HOME="$(/usr/libexec/java_home)"
 else
   export JAVA_HOME=/usr/lib/jvm/java-6-sun/
 fi
@@ -1387,19 +1387,23 @@ _zsh_highlight-install "${(@f)"$(zle -la)"}"
 # }}}
 
 # {{{ amazon
-export EC2_HOME=~/.ec2
-export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/pk-*.pem)"
-export EC2_CERT="$(/bin/ls $HOME/.ec2/cert-*.pem)"
-export AWS_CREDENTIAL_FILE=$HOME/.aws-credentials-master
-if [ "`uname`" = "Darwin" ]; then
-  export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/HEAD/jars"
-  export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
-  export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
-else
-  export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/HEAD/jars"
-  export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
-  export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
-fi
+
+# credentials
+export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/pass/pk-*.pem)"
+export EC2_CERT="$(/bin/ls $HOME/.ec2/pass/cert-*.pem)"
+export AWS_CREDENTIAL_FILE=$HOME/.secrets/.aws-credentials-pass
+
+# ec2-api-tools
+export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
+# ec2-ami-tools
+export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
+# aws-iam-tools
+export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/1.5.0/jars"
+# aws-cfn-tools
+export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
+# elb-tools
+export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
+
 # }}}
 
 # {{{ virtualenvs
