@@ -55,10 +55,10 @@ set gdefault
 
 set laststatus=2              " always show status line
 "set cursorcolumn
-set cursorline
+"set cursorline
 set showbreak=…
 set fillchars=diff:⣿,vert:\|
-set showcmd                   " show number of selected chars/lines in status
+set noshowcmd                   " show number of selected chars/lines in status
 set showmatch                 " briefly jump to matching brace
 set matchtime=1               " show matching brace time (1/10 seconds)
 set showmode                  " show mode in status when not in normal mode
@@ -366,6 +366,13 @@ autocmd BufEnter * :syntax sync fromstart
 "}}}
 
 " my functions {{{
+function! CursorPing()
+    set cursorline cursorcolumn
+    redraw
+    sleep 50m
+    set nocursorline nocursorcolumn
+endfunction
+
 function! s:VSetSearch()
   let temp = @@
   norm! gvy
@@ -823,6 +830,7 @@ set tabline=%!MyTabLine()
 
 " key mappings {{{
 " System clipboard interaction.  Mostly from:
+map \ :call CursorPing()<cr>
 map <leader>y "*y
 
 nnoremap <leader>! :Shell 
@@ -832,7 +840,7 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 " Highlight Group(s)
 nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
                         \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-                        \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+                        \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
 
 " Select entire buffer
 nnoremap vaa ggvGg_
@@ -1226,6 +1234,21 @@ let g:neocomplcache_disable_auto_complete = 1
 " powerline {{{
 let g:Powerline_symbols = 'fancy'
 let g:Powerline_cache_file = $HOME . '/.vim/tmp/Powerline_cache_file'
+let g:Powerline_mode_v = 'v'
+let g:Powerline_mode_V = 'V'
+let g:Powerline_mode_cv = 'cv'
+let g:Powerline_mode_s = 's'
+let g:Powerline_mode_S = 'S'
+let g:Powerline_mode_cs = 'cs'
+let g:Powerline_mode_i = 'i'
+let g:Powerline_mode_R = 'R'
+let g:Powerline_mode_n = 'n'
+let g:Powerline_stl_path_style = 'short'
+call Pl#Theme#InsertSegment('charcode', 'after', 'filetype')
+call Pl#Theme#RemoveSegment('tagbar:currenttag')
+call Pl#Theme#RemoveSegment('rvm:string')
+call Pl#Theme#RemoveSegment('syntastic:errors')
+call Pl#Theme#RemoveSegment('fugitive:branch')
 "let g:Powerline_theme = 'adr'
 " }}}
 
@@ -1273,6 +1296,7 @@ let g:localvimrc_ask = 0
 " }}}
 
 " eclim {{{
+let g:EclimShowCurrentError = 0
 let g:EclimMakeLCD = 1
 let g:EclimMenus = 0
 let g:EclimJavaImportExclude = [ "^com\.sun\..*", "^sun\..*", "^sunw\..*" ]
@@ -1330,8 +1354,13 @@ let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
 " syntastic {{{
 "let g:syntastic_enable_signs = 1
 "let g:syntastic_auto_loc_list=0
-"let g:syntastic_quiet_warnings=1
+let g:syntastic_quiet_warnings=1
 "let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
+let g:syntastic_disabled_filetypes = ['java']
+let g:syntastic_echo_current_error = 0
+let g:syntastic_mode_map = { 'mode': 'active',
+                           \ 'active_filetypes': [],
+                           \ 'passive_filetypes': ['puppet', 'java'] }
 " }}}
 
 " javacomplete {{{
@@ -1378,13 +1407,13 @@ augroup trailing
 augroup END
 
 " Only show cursorline in the current window and in normal mode.
-augroup cline
-    au!
-    au WinLeave * set nocursorline
-    au WinEnter * set cursorline
-    au InsertEnter * set nocursorline
-    au InsertLeave * set cursorline
-augroup END
+" augroup cline
+"     au!
+"     au WinLeave * set nocursorline
+"     au WinEnter * set cursorline
+"     au InsertEnter * set nocursorline
+"     au InsertLeave * set cursorline
+" augroup END
 
 " make sure vim returns to the same line when you reopen a file.
 augroup line_return

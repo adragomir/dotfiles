@@ -844,6 +844,8 @@ else
   export GIT_EDITOR=/usr/bin/vim
 fi
 
+export GIST_URL='git.corp.adobe.com/api/v3'
+
 export VISUAL='vim'
 export INPUTRC=~/.inputrc
 export LANG="en_US.UTF-8"
@@ -897,7 +899,7 @@ export HTML_TIDY=$HOME/.tidyconf
 export WIKI=$HOME/Documents/personal/life/exploded/
 
 export SAASBASE_HOME=$HOME/work/saasbase_env
-source $HOME/work/saasbase_env/services/use-hadoop-2
+source $HOME/work/saasbase_env/services/use-hadoop-1
 # export HADOOP_HOME=$HOME/work/saasbase_env/hadoop
 # export HADOOP2_HOME=$HOME/work/saasbase_env/hadoop2/hadoop-dist/target/hadoop-2.0.0-cdh4.0.1/
 export HBASE_HOME=$HOME/work/saasbase_env/hbase
@@ -1389,8 +1391,8 @@ _zsh_highlight-install "${(@f)"$(zle -la)"}"
 # {{{ amazon
 
 # credentials
-export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/pass/pk-*.pem)"
-export EC2_CERT="$(/bin/ls $HOME/.ec2/pass/cert-*.pem)"
+export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/asit/pk-*.pem)"
+export EC2_CERT="$(/bin/ls $HOME/.ec2/asit/cert-*.pem)"
 export AWS_CREDENTIAL_FILE=$HOME/.secrets/.aws-credentials-pass
 
 # ec2-api-tools

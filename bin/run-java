@@ -47,8 +47,8 @@
 # Created by: Zemian Deng 03/09/2012
 
 # This run script dir (resolve to absolute path)
-SCRIPT_DIR=$(cd $(dirname $0) && pwd)    # This dir is where this script live.
-APP_DIR=$(cd $SCRIPT_DIR/.. && pwd)      # Assume the application dir is one level up from script dir.
+SCRIPT_DIR=$(cd . && pwd)    # This dir is where this script live.
+APP_DIR=$(cd . && pwd)      # Assume the application dir is one level up from script dir.
 
 # Default parameters
 JAVA_HOME=${JAVA_HOME:=/apps/jdk}        # This is the home directory of Java development kit.
@@ -59,37 +59,28 @@ RUN_JAVA_NO_PARSE=${RUN_JAVA_NO_PARSE:=}   # If not empty, skip the auto parsing
 RUN_JAVA_NO_AUTOCP=${RUN_JAVA_NO_AUTOCP:=} # If not empty, do not auto setup Java classpath
 RUN_JAVA_DRY=${RUN_JAVA_DRY:=}             # If not empty, do not exec Java command, but just print
 
-# OS specific support.  $var _must_ be set to either true or false.
-CYGWIN=false;
-case "`uname`" in
-  CYGWIN*) CYGWIN=true ;;
-esac
-
 # Define where is the java executable is
 JAVA_CMD=java
 if [ -d "$JAVA_HOME" ]; then
 	JAVA_CMD="$JAVA_HOME/bin/java"
 fi
 
-# Auto setup applciation's Java Classpath (only if they exists)
+# Auto setup application's Java Classpath (only if they exists)
 if [ -z "$RUN_JAVA_NO_AUTOCP" ]; then
-	if $CYGWIN; then
-		# Provide Windows directory conversion
-		JAVA_HOME_WIN=$(cygpath -aw "$JAVA_HOME")
-		APP_DIR_WIN=$(cygpath -aw "$APP_DIR")
-
-		if [ -d "$APP_DIR_WIN\config" ]; then RUN_JAVA_CP="$RUN_JAVA_CP;$APP_DIR_WIN\config" ; fi
-		if [ -d "$APP_DIR_WIN\target\test-classes" ]; then RUN_JAVA_CP="$RUN_JAVA_CP;$APP_DIR_WIN\target\test-classes" ; fi
-		if [ -d "$APP_DIR_WIN\target\classes" ]; then RUN_JAVA_CP="$RUN_JAVA_CP;$APP_DIR_WIN\target\classes" ; fi
-		if [ -d "$APP_DIR_WIN\target\dependency" ]; then RUN_JAVA_CP="$RUN_JAVA_CP;$APP_DIR_WIN\target\dependency\*" ; fi
-		if [ -d "$APP_DIR_WIN\lib" ]; then RUN_JAVA_CP="$RUN_JAVA_CP;$APP_DIR_WIN\lib\*" ; fi
-	else
-		if [ -d "$APP_DIR/config" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/config" ; fi
-		if [ -d "$APP_DIR/target/test-classes" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/target/test-classes" ; fi
-		if [ -d "$APP_DIR/target/classes" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/target/classes" ; fi
-		if [ -d "$APP_DIR/target/dependency" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/target/dependency/*" ; fi
-		if [ -d "$APP_DIR/lib" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/lib/*" ; fi
-	fi
+  if [ -d "$APP_DIR/config" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/config" ; fi
+  if [ -d "$APP_DIR/target/test-classes" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/target/test-classes" ; fi
+  if [ -d "$APP_DIR/target/classes" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/target/classes" ; fi
+  if [ -d "$APP_DIR/target/dependency" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/target/dependency/*" ; fi
+  if [ -d "$APP_DIR/lib" ]; then RUN_JAVA_CP="$RUN_JAVA_CP:$APP_DIR/lib/*" ; fi
+  if [ -f "$APP_DIR/pom.xml" ];
+  then
+    if [ ! -f "$APP_DIR/.run-classpath" ];
+    then
+      echo "Detecting maven classpath..."
+      mvn ${MVN_OPTS} dependency:build-classpath -Dmdep.outputFile=".run-classpath" &> /dev/null
+    fi
+    RUN_JAVA_CP="$(cat .run-classpath):$RUN_JAVA_CP"
+  fi
 fi
 
 # Parse addition "-cp" and "-D" after the Java main class from script arguments
