@@ -1,6 +1,6 @@
 [user]
-	name = Andrei Dragomir
-	email = adragomir@gmail.com
+  name = Andrei Dragomir
+  email = adragomir@gmail.com
 
 [color]
   diff = auto
@@ -39,15 +39,11 @@
   last = rev-list -n 1 HEAD -- "$1"
   restore = ! FILE=$1 && git checkout $(git rev-list -n 1 HEAD -- "$FILE")^ -- "$FILE"
 
-[mergetool "araxismergetool"] 
-  cmd = /usr/local/bin/araxisgitmerge $PWD/$REMOTE $PWD/$BASE $PWD/$LOCAL $PWD/$MERGED
-  trustExitCode = false
-
 [mergetool]
   keepBackup = false
 
 [merge] 
-  tool = araxismergetool
+  tool = araxis
 
 [core]
   legacyheaders = false
@@ -61,8 +57,8 @@
 	editor = mvim
 
 [github]
-  user = adragomir
-  token = 631abd318631e5d9ef2f932a811a8d7a
+	user = adragomir
+    token = 631abd318631e5d9ef2f932a811a8d7a
     password = ! /usr/bin/security 2>&1 >/dev/null find-generic-password -gs github | ruby -e 'print $1 if STDIN.gets =~ /^password: \\\"(.*)\\\"$/'
 
 #[branch]

@@ -153,7 +153,7 @@ set wildignore+=*.gem
 set wildignore+=log/**
 set wildignore+=tmp/**
 set wildignore+=*sass-cache*
-set wildignore+=target/classes,classes
+set wildignore+=target,target/classes,classes
 
 " }}}
 
@@ -185,7 +185,7 @@ let g:solarized_italic=0
 colorscheme Tomorrow-Night
 
 if has("gui_running") && has("macunix")
-  set guifont=Source\ Code\ Pro:h12
+  set guifont=Source\ Code\ Pro\ Light:h12
   set antialias
 endif
 
@@ -1201,6 +1201,13 @@ let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
 let g:ctrlp_max_files = 0
 " }}}
 
+" command-t settings {{{
+let g:CommandTMaxFiles=400000
+let g:CommandTMaxDepth=25
+let g:CommandTMaxCachedDirectories=0
+let g:CommandTMaxHeight=20
+" }}}
+
 " ruby settings {{{
 let g:rubycomplete_debug = 1
 let g:rubycomplete_buffer_loading = 1
@@ -1266,7 +1273,7 @@ let g:clang_debug = 1
 let g:clang_use_library = 1
 if has("macunix")
   "let g:clang_library_path = $HOME . "/work/tools/libclang"
-  let g:clang_library_path = "/usr/local/Cellar/llvm/3.0/lib/"
+  let g:clang_library_path = "/usr/local/Cellar/llvm/3.1/lib/"
 else
   let g:clang_library_path = "/usr/lib/"
 endif
@@ -1302,7 +1309,7 @@ let g:EclimMenus = 0
 let g:EclimJavaImportExclude = [ "^com\.sun\..*", "^sun\..*", "^sunw\..*" ]
 let g:EclimJavaHierarchyDefaultAction = "tabnew"
 let g:EclimJavaSearchSingleResult = "tabnew"
-let g:EclimDefaultFileOpenAction = "tabnew"
+let g:EclimDefaultFileOpenAction = "edit"
 let g:EclimXmlIndentDisabled = 1
 let g:EclimXmlValidate = 0
 let g:EclimSignLevel = 2
@@ -1430,7 +1437,7 @@ augroup indent
   autocmd FileType python setlocal et ts=4 sw=4
   autocmd FileType java setlocal et ts=2 sw=2
   autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
-  autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 noet
+  autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 et
 augroup END
 
 " completions

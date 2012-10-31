@@ -36,7 +36,7 @@ alias afind='ack-grep -il'
 alias dtrace-providers="sudo dtrace -l | perl -pe 's/^.*?\S+\s+(\S+?)([0-9]|\s).*/\1/' | sort | uniq"
 alias tail_java_complete="tail -f $HOME/javacomplete.txt $HOME/dotfiles/.vim/bundle/javacomplete/java/javacomplete_java.log"
 alias gitg="/usr/local/bin/gitg >/dev/null 2>&1 &"
-alias jps="jps -l | grep -vE \"^[0-9]*\s+$\" | grep -v \"sun.tools.jps\""
+alias jps="jps -l | grep -vE \"^[0-9]*\s+$\" | grep -v \"sun.tools.jps\" | sort -k 2,2"
 # }}}
 
 autoload -U edit-command-line
@@ -900,15 +900,13 @@ export WIKI=$HOME/Documents/personal/life/exploded/
 
 export SAASBASE_HOME=$HOME/work/saasbase_env
 source $HOME/work/saasbase_env/services/use-hadoop-1
-# export HADOOP_HOME=$HOME/work/saasbase_env/hadoop
-# export HADOOP2_HOME=$HOME/work/saasbase_env/hadoop2/hadoop-dist/target/hadoop-2.0.0-cdh4.0.1/
 export HBASE_HOME=$HOME/work/saasbase_env/hbase
 export ZOOKEEPER_HOME=$HOME/work/saasbase_env/zookeeper
 export STORM_HOME=$HOME/work/saasbase_env/storm
 
 # saasbase
-export SAASBASE_DB_HOME=$HOME/work/saasbase_env/src/saasbase_db
-export SAASBASE_ANALYTICS_HOME=$HOME/work/saasbase_env/src/saasbase_analytics
+export SAASBASE_DB_HOME=$HOME/work/saasbase_env/saasbase/src/saasbase_db
+export SAASBASE_ANALYTICS_HOME=$HOME/work/saasbase_env/saasbase/src/saasbase_analytics
 export SAASBASE_DATAROOT=/var
 
 export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
@@ -1067,9 +1065,9 @@ alias markdown='/usr/local/bin/markdown'
 alias math='rlwrap $HOME/Applications/Mathematica.app/Contents/MacOS/MathKernel'
 
 # hadoop, hbase, etc
-alias hbase='$HOME/work/saasbase_env/hbase/bin/hbase'
-alias zk='$HOME/work/saasbase_env/zookeeper/bin/zkCli.sh'
-alias saasbase='$HOME/work/saasbase_env/saasbase/src/saasbase_thrift/bin/saasbase'
+alias hbase='$HBASE_HOME/bin/hbase'
+alias zk='$ZOOKEEPER_HOME/bin/zkCli.sh'
+alias storm='$STORM_HOME/bin/storm'
 alias psall='pswhich NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer ReportServer storm.daemon.nimbus storm.ui.core'
 
 function bases() {
@@ -1121,7 +1119,6 @@ zmodload zsh/mathfunc
 
 # }}}
 
-# coloring {{{
 #!/usr/bin/env zsh
 # -------------------------------------------------------------------------------------------------
 # Copyright (c) 2010-2011 zsh-syntax-highlighting contributors
@@ -1153,65 +1150,314 @@ zmodload zsh/mathfunc
 # -------------------------------------------------------------------------------------------------
 
 
-# Token types styles.
+# -------------------------------------------------------------------------------------------------
+# Core highlighting update system
+# -------------------------------------------------------------------------------------------------
+
+# Array declaring active highlighters names.
+typeset -ga ZSH_HIGHLIGHT_HIGHLIGHTERS
+
+# Update ZLE buffer syntax highlighting.
+#
+# Invokes each highlighter that needs updating.
+# This function is supposed to be called whenever the ZLE state changes.
+_zsh_highlight()
+{
+  setopt localoptions nowarncreateglobal
+
+  # Store the previous command return code to restore it whatever happens.
+  local ret=$?
+
+  # Do not highlight if there are more than 300 chars in the buffer. It's most
+  # likely a pasted command or a huge list of files in that case..
+  [[ -n ${ZSH_HIGHLIGHT_MAXLENGTH:-} ]] && [[ $#BUFFER -gt $ZSH_HIGHLIGHT_MAXLENGTH ]] && return $ret
+
+  # Do not highlight if there are pending inputs (copy/paste).
+  [[ $PENDING -gt 0 ]] && return $ret
+
+  {
+    local -a selected_highlighters
+    local cache_place
+
+    # Select which highlighters in ZSH_HIGHLIGHT_HIGHLIGHTERS need to be invoked.
+    local highlighter; for highlighter in $ZSH_HIGHLIGHT_HIGHLIGHTERS; do
+
+      # If highlighter needs to be invoked
+      if "_zsh_highlight_${highlighter}_highlighter_predicate"; then
+
+        # Mark the highlighter as selected for update.
+        selected_highlighters+=($highlighter)
+
+        # Remove what was stored in its cache from region_highlight.
+        cache_place="_zsh_highlight_${highlighter}_highlighter_cache"
+        typeset -ga ${cache_place}
+        [[ ${#${(P)cache_place}} -gt 0 ]] && [[ ! -z ${region_highlight-} ]] && region_highlight=(${region_highlight:#(${(P~j.|.)cache_place})})
+
+      fi
+    done
+
+    # Invoke each selected highlighter and store the result in its cache.
+    local -a region_highlight_copy
+    for highlighter in $selected_highlighters; do
+      cache_place="_zsh_highlight_${highlighter}_highlighter_cache"
+      region_highlight_copy=($region_highlight)
+      {
+        "_zsh_highlight_${highlighter}_highlighter"
+      } always  {
+        [[ ! -z ${region_highlight-} ]] && : ${(PA)cache_place::=${region_highlight:#(${(~j.|.)region_highlight_copy})}}
+      }
+    done
+
+  } always {
+    _ZSH_HIGHLIGHT_PRIOR_BUFFER=$BUFFER
+    _ZSH_HIGHLIGHT_PRIOR_CURSOR=$CURSOR
+    return $ret
+  }
+}
+
+
+# -------------------------------------------------------------------------------------------------
+# API/utility functions for highlighters
+# -------------------------------------------------------------------------------------------------
+
+# Array used by highlighters to declare user overridable styles.
 typeset -gA ZSH_HIGHLIGHT_STYLES
-ZSH_HIGHLIGHT_STYLES=(
-  default                       'none'
-  isearch                       'fg=magenta,standout'
-  special                       'fg=magenta,standout'
-  unknown-token                 'fg=red,bold'
-  reserved-word                 'fg=yellow'
-  alias                         'fg=green'
-  builtin                       'fg=green'
-  function                      'fg=green'
-  command                       'fg=green'
-  hashed-command                'fg=green'
-  path                          'underline'
-  globbing                      'fg=blue'
-  history-expansion             'fg=blue'
-  single-hyphen-option          'none'
-  double-hyphen-option          'none'
-  back-quoted-argument          'none'
-  single-quoted-argument        'fg=yellow'
-  double-quoted-argument        'fg=yellow'
-  dollar-double-quoted-argument 'fg=cyan'
-  back-double-quoted-argument   'fg=cyan'
-  bracket-error                 'fg=red,bold'
-)
 
-# Colors for bracket levels.
-# Put as many color as you wish.
-# Leave it as an empty array to disable.
-ZSH_HIGHLIGHT_MATCHING_BRACKETS_STYLES=(
-  'fg=blue,bold'
-  'fg=green,bold'
-  'fg=magenta,bold'
-  'fg=yellow,bold'
-  'fg=cyan,bold'
-)
+# Whether the command line buffer has been modified or not.
+#
+# Returns 0 if the buffer has changed since _zsh_highlight was last called.
+_zsh_highlight_buffer_modified()
+{
+  [[ "${_ZSH_HIGHLIGHT_PRIOR_BUFFER:-}" != "$BUFFER" ]]
+}
 
-# Tokens that are always immediately followed by a command.
-ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS=(
-  '|' '||' ';' '&' '&&' 'noglob' 'nocorrect' 'builtin'
-)
+# Whether the cursor has moved or not.
+#
+# Returns 0 if the cursor has moved since _zsh_highlight was last called.
+_zsh_highlight_cursor_moved()
+{
+  [[ -n $CURSOR ]] && [[ -n ${_ZSH_HIGHLIGHT_PRIOR_CURSOR-} ]] && (($_ZSH_HIGHLIGHT_PRIOR_CURSOR != $CURSOR))
+}
 
-# ZLE highlight types.
-zle_highlight=(
-  special:$ZSH_HIGHLIGHT_STYLES[special]
-  isearch:$ZSH_HIGHLIGHT_STYLES[isearch]
-)
+
+# -------------------------------------------------------------------------------------------------
+# Setup functions
+# -------------------------------------------------------------------------------------------------
+
+# Rebind all ZLE widgets to make them invoke _zsh_highlights.
+_zsh_highlight_bind_widgets()
+{
+  # Load ZSH module zsh/zleparameter, needed to override user defined widgets.
+  zmodload zsh/zleparameter 2>/dev/null || {
+    echo 'zsh-syntax-highlighting: failed loading zsh/zleparameter.' >&2
+    return 1
+  }
+
+  # Override ZLE widgets to make them invoke _zsh_highlight.
+  local cur_widget
+  for cur_widget in ${${(f)"$(builtin zle -la)"}:#(.*|_*|orig-*|run-help|which-command|beep)}; do
+    case $widgets[$cur_widget] in
+
+      # Already rebound event: do nothing.
+      user:$cur_widget|user:_zsh_highlight_widget_*);;
+
+      # User defined widget: override and rebind old one with prefix "orig-".
+      user:*) eval "zle -N orig-$cur_widget ${widgets[$cur_widget]#*:}; \
+                    _zsh_highlight_widget_$cur_widget() { builtin zle orig-$cur_widget -- \"\$@\" && _zsh_highlight }; \
+                    zle -N $cur_widget _zsh_highlight_widget_$cur_widget";;
+
+      # Completion widget: override and rebind old one with prefix "orig-".
+      completion:*) eval "zle -C orig-$cur_widget ${${widgets[$cur_widget]#*:}/:/ }; \
+                          _zsh_highlight_widget_$cur_widget() { builtin zle orig-$cur_widget -- \"\$@\" && _zsh_highlight }; \
+                          zle -N $cur_widget _zsh_highlight_widget_$cur_widget";;
+
+      # Builtin widget: override and make it call the builtin ".widget".
+      builtin) eval "_zsh_highlight_widget_$cur_widget() { builtin zle .$cur_widget -- \"\$@\" && _zsh_highlight }; \
+                     zle -N $cur_widget _zsh_highlight_widget_$cur_widget";;
+
+      # Default: unhandled case.
+      *) echo "zsh-syntax-highlighting: unhandled ZLE widget '$cur_widget'" >&2 ;;
+    esac
+  done
+}
+
+# Load highlighters from directory.
+#
+# Arguments:
+#   1) Path to the highlighters directory.
+_zsh_highlight_load_highlighters()
+{
+}
+
+
+# -------------------------------------------------------------------------------------------------
+# Setup
+# -------------------------------------------------------------------------------------------------
+
+# Try binding widgets.
+_zsh_highlight_bind_widgets || {
+  echo 'zsh-syntax-highlighting: failed binding ZLE widgets, exiting.' >&2
+  return 1
+}
+
+# Resolve highlighters directory location.
+_zsh_highlight_load_highlighters "${ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR:-${0:h}/highlighters}" || {
+  echo 'zsh-syntax-highlighting: failed loading highlighters, exiting.' >&2
+  return 1
+}
+
+# Reset scratch variables when commandline is done.
+_zsh_highlight_preexec_hook()
+{
+  _ZSH_HIGHLIGHT_PRIOR_BUFFER=
+  _ZSH_HIGHLIGHT_PRIOR_CURSOR=
+}
+autoload -U add-zsh-hook
+add-zsh-hook preexec _zsh_highlight_preexec_hook 2>/dev/null || {
+    echo 'zsh-syntax-highlighting: failed loading add-zsh-hook.' >&2
+  }
+
+# Initialize the array of active highlighters if needed.
+[[ $#ZSH_HIGHLIGHT_HIGHLIGHTERS -eq 0 ]] && ZSH_HIGHLIGHT_HIGHLIGHTERS=(main cursor brackets) || true
+
+# main highlighter
+# Define default styles.
+: ${ZSH_HIGHLIGHT_STYLES[default]:=none}
+: ${ZSH_HIGHLIGHT_STYLES[unknown-token]:=fg=red,bold}
+: ${ZSH_HIGHLIGHT_STYLES[reserved-word]:=fg=yellow}
+: ${ZSH_HIGHLIGHT_STYLES[alias]:=fg=green}
+: ${ZSH_HIGHLIGHT_STYLES[builtin]:=fg=green}
+: ${ZSH_HIGHLIGHT_STYLES[function]:=fg=green}
+: ${ZSH_HIGHLIGHT_STYLES[command]:=fg=green}
+: ${ZSH_HIGHLIGHT_STYLES[precommand]:=fg=green,underline}
+: ${ZSH_HIGHLIGHT_STYLES[commandseparator]:=none}
+: ${ZSH_HIGHLIGHT_STYLES[hashed-command]:=fg=green}
+: ${ZSH_HIGHLIGHT_STYLES[path]:=underline}
+: ${ZSH_HIGHLIGHT_STYLES[globbing]:=fg=blue}
+: ${ZSH_HIGHLIGHT_STYLES[history-expansion]:=fg=blue}
+: ${ZSH_HIGHLIGHT_STYLES[single-hyphen-option]:=none}
+: ${ZSH_HIGHLIGHT_STYLES[double-hyphen-option]:=none}
+: ${ZSH_HIGHLIGHT_STYLES[back-quoted-argument]:=none}
+: ${ZSH_HIGHLIGHT_STYLES[single-quoted-argument]:=fg=yellow}
+: ${ZSH_HIGHLIGHT_STYLES[double-quoted-argument]:=fg=yellow}
+: ${ZSH_HIGHLIGHT_STYLES[dollar-double-quoted-argument]:=fg=cyan}
+: ${ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]:=fg=cyan}
+: ${ZSH_HIGHLIGHT_STYLES[assign]:=none}
+
+# Whether the highlighter should be called or not.
+_zsh_highlight_main_highlighter_predicate()
+{
+  _zsh_highlight_buffer_modified
+}
+
+# Main syntax highlighting function.
+_zsh_highlight_main_highlighter()
+{
+  emulate -L zsh 
+  setopt localoptions extendedglob bareglobqual
+  local start_pos=0 end_pos highlight_glob=true new_expression=true arg style
+  typeset -a ZSH_HIGHLIGHT_TOKENS_COMMANDSEPARATOR
+  typeset -a ZSH_HIGHLIGHT_TOKENS_PRECOMMANDS
+  typeset -a ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS
+  region_highlight=()
+
+  ZSH_HIGHLIGHT_TOKENS_COMMANDSEPARATOR=(
+    '|' '||' ';' '&' '&&'
+  )
+  ZSH_HIGHLIGHT_TOKENS_PRECOMMANDS=(
+    'builtin' 'command' 'exec' 'nocorrect' 'noglob' 'sudo'
+  )
+  # Tokens that are always immediately followed by a command.
+  ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS=(
+    $ZSH_HIGHLIGHT_TOKENS_COMMANDSEPARATOR $ZSH_HIGHLIGHT_TOKENS_PRECOMMANDS
+  )
+
+  for arg in ${(z)BUFFER}; do
+    local substr_color=0
+    [[ $start_pos -eq 0 && $arg = 'noglob' ]] && highlight_glob=false
+    ((start_pos+=${#BUFFER[$start_pos+1,-1]}-${#${BUFFER[$start_pos+1,-1]##[[:space:]]#}}))
+    ((end_pos=$start_pos+${#arg}))
+    if $new_expression; then
+      new_expression=false
+     if [[ -n ${(M)ZSH_HIGHLIGHT_TOKENS_PRECOMMANDS:#"$arg"} ]]; then
+      style=$ZSH_HIGHLIGHT_STYLES[precommand]
+     else
+      res=$(LC_ALL=C builtin type -w $arg 2>/dev/null)
+      case $res in
+        *': reserved')  style=$ZSH_HIGHLIGHT_STYLES[reserved-word];;
+        *': alias')     style=$ZSH_HIGHLIGHT_STYLES[alias]
+                        local aliased_command="${"$(alias $arg)"#*=}"
+                        [[ -n ${(M)ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS:#"$aliased_command"} && -z ${(M)ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS:#"$arg"} ]] && ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS+=($arg)
+                        ;;
+        *': builtin')   style=$ZSH_HIGHLIGHT_STYLES[builtin];;
+        *': function')  style=$ZSH_HIGHLIGHT_STYLES[function];;
+        *': command')   style=$ZSH_HIGHLIGHT_STYLES[command];;
+        *': hashed')    style=$ZSH_HIGHLIGHT_STYLES[hashed-command];;
+        *)              if _zsh_highlight_main_highlighter_check_assign; then
+                          style=$ZSH_HIGHLIGHT_STYLES[assign]
+                          new_expression=true
+                        elif _zsh_highlight_main_highlighter_check_path; then
+                          style=$ZSH_HIGHLIGHT_STYLES[path]
+                        elif [[ $arg[0,1] = $histchars[0,1] ]]; then
+                          style=$ZSH_HIGHLIGHT_STYLES[history-expansion]
+                        else
+                          style=$ZSH_HIGHLIGHT_STYLES[unknown-token]
+                        fi
+                        ;;
+      esac
+     fi
+    else
+      case $arg in
+        '--'*)   style=$ZSH_HIGHLIGHT_STYLES[double-hyphen-option];;
+        '-'*)    style=$ZSH_HIGHLIGHT_STYLES[single-hyphen-option];;
+        "'"*"'") style=$ZSH_HIGHLIGHT_STYLES[single-quoted-argument];;
+        '"'*'"') style=$ZSH_HIGHLIGHT_STYLES[double-quoted-argument]
+                 region_highlight+=("$start_pos $end_pos $style")
+                 _zsh_highlight_main_highlighter_highlight_string
+                 substr_color=1
+                 ;;
+        '`'*'`') style=$ZSH_HIGHLIGHT_STYLES[back-quoted-argument];;
+        *"*"*)   $highlight_glob && style=$ZSH_HIGHLIGHT_STYLES[globbing] || style=$ZSH_HIGHLIGHT_STYLES[default];;
+        *)       if _zsh_highlight_main_highlighter_check_path; then
+                   style=$ZSH_HIGHLIGHT_STYLES[path]
+                 elif [[ $arg[0,1] = $histchars[0,1] ]]; then
+                   style=$ZSH_HIGHLIGHT_STYLES[history-expansion]
+                 elif [[ -n ${(M)ZSH_HIGHLIGHT_TOKENS_COMMANDSEPARATOR:#"$arg"} ]]; then
+                   style=$ZSH_HIGHLIGHT_STYLES[commandseparator]
+                 else
+                   style=$ZSH_HIGHLIGHT_STYLES[default]
+                 fi
+                 ;;
+      esac
+    fi
+    [[ $substr_color = 0 ]] && region_highlight+=("$start_pos $end_pos $style")
+    [[ -n ${(M)ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS:#"$arg"} ]] && new_expression=true
+    start_pos=$end_pos
+  done
+}
+
+# Check if the argument is variable assignment
+_zsh_highlight_main_highlighter_check_assign()
+{
+    setopt localoptions extended_glob
+    [[ ${(Q)arg} == [[:alpha:]_]([[:alnum:]_])#=* ]]
+}
 
 # Check if the argument is a path.
-_zsh_check-path() {
-  [[ -z ${(Q)arg} ]] && return 1
-  [[ -e ${(Q)arg} ]] && return 0
-  [[ ! -e ${(Q)arg:h} ]] && return 1
-  [[ ${#BUFFER} == $end_pos && -n $(print ${(Q)arg}*(N)) ]] && return 0
+_zsh_highlight_main_highlighter_check_path()
+{
+  setopt localoptions nonomatch
+  local expanded_path; : ${expanded_path:=${(Q)~arg}}
+  [[ -z $expanded_path ]] && return 1
+  [[ -e $expanded_path ]] && return 0
+  [[ ! -e ${expanded_path:h} ]] && return 1
+  [[ ${BUFFER[1]} != "-" && ${#BUFFER} == $end_pos && -n $(print ${expanded_path}*(N)) ]] && return 0
   return 1
 }
 
 # Highlight special chars inside double-quoted strings
-_zsh_highlight-string() {
+_zsh_highlight_main_highlighter_highlight_string()
+{
   setopt localoptions noksharrays
   local i j k style
   # Starting quote is at 1, so start parsing at offset 2 in the string.
@@ -1230,162 +1476,454 @@ _zsh_highlight-string() {
   done
 }
 
-# Recolorize the current ZLE buffer.
-_zsh_highlight-zle-buffer() {
-  # Avoid doing the same work over and over
-  [[ ${ZSH_PRIOR_HIGHLIGHTED_BUFFER:-} == $BUFFER ]] && [[ ${#region_highlight} -gt 0 ]] && (( ZSH_PRIOR_CURSOR == CURSOR )) && return
-  ZSH_PRIOR_HIGHLIGHTED_BUFFER=$BUFFER
-  ZSH_PRIOR_CURSOR=$CURSOR
+# root highlighter
+# Define default styles.
+: ${ZSH_HIGHLIGHT_STYLES[root]:=standout}
 
-  setopt localoptions extendedglob bareglobqual
-  local new_expression=true
-  local start_pos=0
-  local highlight_glob=true
-  local end_pos arg style
-  region_highlight=()
-  for arg in ${(z)BUFFER}; do
-    local substr_color=0
-    [[ $start_pos -eq 0 && $arg = 'noglob' ]] && highlight_glob=false
-    ((start_pos+=${#BUFFER[$start_pos+1,-1]}-${#${BUFFER[$start_pos+1,-1]##[[:space:]]#}}))
-    ((end_pos=$start_pos+${#arg}))
-    if $new_expression; then
-      new_expression=false
-      res=$(LC_ALL=C builtin type -w $arg 2>/dev/null)
-      case $res in
-        *': reserved')  style=$ZSH_HIGHLIGHT_STYLES[reserved-word];;
-        *': alias')     style=$ZSH_HIGHLIGHT_STYLES[alias]
-                        local aliased_command="${"$(alias $arg)"#*=}"
-                        if [[ ${${ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS[(r)$aliased_command]:-}:+yes} = 'yes' && ${${ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS[(r)$arg]:-}:+yes} != 'yes' ]]; then
-                          ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS+=($arg)
-                        fi
-                        ;;
-        *': builtin')   style=$ZSH_HIGHLIGHT_STYLES[builtin];;
-        *': function')  style=$ZSH_HIGHLIGHT_STYLES[function];;
-        *': command')   style=$ZSH_HIGHLIGHT_STYLES[command];;
-        *': hashed')    style=$ZSH_HIGHLIGHT_STYLES[hashed-command];;
-        *)              if _zsh_check-path; then
-                          style=$ZSH_HIGHLIGHT_STYLES[path]
-                        elif [[ $arg[0,1] = $histchars[0,1] ]]; then
-                          style=$ZSH_HIGHLIGHT_STYLES[history-expansion]
-                        else
-                          style=$ZSH_HIGHLIGHT_STYLES[unknown-token]
-                        fi
-                        ;;
-      esac
-    else
-      case $arg in
-        '--'*)   style=$ZSH_HIGHLIGHT_STYLES[double-hyphen-option];;
-        '-'*)    style=$ZSH_HIGHLIGHT_STYLES[single-hyphen-option];;
-        "'"*"'") style=$ZSH_HIGHLIGHT_STYLES[single-quoted-argument];;
-        '"'*'"') style=$ZSH_HIGHLIGHT_STYLES[double-quoted-argument]
-                 region_highlight+=("$start_pos $end_pos $style")
-                 _zsh_highlight-string
-                 substr_color=1
-                 ;;
-        '`'*'`') style=$ZSH_HIGHLIGHT_STYLES[back-quoted-argument];;
-        *"*"*)   $highlight_glob && style=$ZSH_HIGHLIGHT_STYLES[globbing] || style=$ZSH_HIGHLIGHT_STYLES[default];;
-        *)       if _zsh_check-path; then
-                   style=$ZSH_HIGHLIGHT_STYLES[path]
-                 elif [[ $arg[0,1] = $histchars[0,1] ]]; then
-                   style=$ZSH_HIGHLIGHT_STYLES[history-expansion]
-                 else
-                   style=$ZSH_HIGHLIGHT_STYLES[default]
-                 fi
-                 ;;
-      esac
-    fi
-    [[ $substr_color = 0 ]] && region_highlight+=("$start_pos $end_pos $style")
-    [[ ${${ZSH_HIGHLIGHT_TOKENS_FOLLOWED_BY_COMMANDS[(r)${arg//|/\|}]:-}:+yes} = 'yes' ]] && new_expression=true
-    start_pos=$end_pos
+# Whether the root highlighter should be called or not.
+_zsh_highlight_root_highlighter_predicate()
+{
+  _zsh_highlight_buffer_modified
+}
+
+# root highlighting function.
+_zsh_highlight_root_highlighter()
+{
+  [[ $(command id -u) -eq 0 ]] && region_highlight+=("0 $#BUFFER $ZSH_HIGHLIGHT_STYLES[root]")
+}
+
+# pattern highlighter
+# List of keyword and color pairs.
+typeset -gA ZSH_HIGHLIGHT_PATTERNS
+
+# Whether the pattern highlighter should be called or not.
+_zsh_highlight_pattern_highlighter_predicate()
+{
+  _zsh_highlight_buffer_modified
+}
+
+# Pattern syntax highlighting function.
+_zsh_highlight_pattern_highlighter()
+{
+  setopt localoptions extendedglob
+  for pattern in ${(k)ZSH_HIGHLIGHT_PATTERNS}; do
+    _zsh_highlight_pattern_highlighter_loop "$BUFFER" "$pattern"
+  done
+}
+
+_zsh_highlight_pattern_highlighter_loop()
+{
+  # This does *not* do its job syntactically, sorry.
+  local buf="$1" pat="$2"
+  local -a match mbegin mend
+  if [[ "$buf" == (#b)(*)(${~pat})* ]]; then
+    region_highlight+=("$((mbegin[2] - 1)) $mend[2] $ZSH_HIGHLIGHT_PATTERNS[$pat]")
+    "$0" "$match[1]" "$pat"; return $?
+  fi
+}
+# brackets highlighter
+
+# Define default styles.
+: ${ZSH_HIGHLIGHT_STYLES[bracket-error]:=fg=red,bold}
+: ${ZSH_HIGHLIGHT_STYLES[bracket-level-1]:=fg=blue,bold}
+: ${ZSH_HIGHLIGHT_STYLES[bracket-level-2]:=fg=green,bold}
+: ${ZSH_HIGHLIGHT_STYLES[bracket-level-3]:=fg=magenta,bold}
+: ${ZSH_HIGHLIGHT_STYLES[bracket-level-4]:=fg=yellow,bold}
+: ${ZSH_HIGHLIGHT_STYLES[bracket-level-5]:=fg=cyan,bold}
+: ${ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]:=standout}
+
+# Whether the brackets highlighter should be called or not.
+_zsh_highlight_brackets_highlighter_predicate()
+{
+  _zsh_highlight_cursor_moved || _zsh_highlight_buffer_modified
+}
+
+# Brackets highlighting function.
+_zsh_highlight_brackets_highlighter()
+{
+  local level=0 pos
+  local -A levelpos lastoflevel matching typepos
+
+  # Find all brackets and remember which one is matching
+  for (( pos = 0; $pos < ${#BUFFER}; pos++ )) ; do
+    local char="$BUFFER[pos+1]"
+    case $char in
+      ["([{"])
+        levelpos[$pos]=$((++level))
+        lastoflevel[$level]=$pos
+        _zsh_highlight_brackets_highlighter_brackettype "$char"
+        ;;
+      [")]}"])
+        matching[$lastoflevel[$level]]=$pos
+        matching[$pos]=$lastoflevel[$level]
+        levelpos[$pos]=$((level--))
+        _zsh_highlight_brackets_highlighter_brackettype "$char"
+        ;;
+      ['"'\'])
+        # Skip everything inside quotes
+        local quotetype=$char
+        while (( $pos < ${#BUFFER} )) ; do
+          (( pos++ ))
+          [[ $BUFFER[$pos+1] == $quotetype ]] && break
+        done
+        ;;
+    esac
   done
 
-  # Bracket matching
-  bracket_color_size=${#ZSH_HIGHLIGHT_MATCHING_BRACKETS_STYLES}
-  if ((bracket_color_size > 0)); then
-    typeset -A levelpos lastoflevel matching revmatching
-    ((level = 0))
-    for pos in {1..${#BUFFER}}; do
-      case $BUFFER[pos] in
-        "("|"["|"{")
-          levelpos[$pos]=$((++level))
-          lastoflevel[$level]=$pos
-          ;;
-        ")"|"]"|"}")
-          matching[$lastoflevel[$level]]=$pos
-          revmatching[$pos]=$lastoflevel[$level]
-          levelpos[$pos]=$((level--))
-          ;;
+  # Now highlight all found brackets
+  for pos in ${(k)levelpos}; do
+    if [[ -n $matching[$pos] ]] && [[ $typepos[$pos] == $typepos[$matching[$pos]] ]]; then
+      local bracket_color_size=${#ZSH_HIGHLIGHT_STYLES[(I)bracket-level-*]}
+      local bracket_color_level=bracket-level-$(( (levelpos[$pos] - 1) % bracket_color_size + 1 ))
+      local style=$ZSH_HIGHLIGHT_STYLES[$bracket_color_level]
+      region_highlight+=("$pos $((pos + 1)) $style")
+    else
+      local style=$ZSH_HIGHLIGHT_STYLES[bracket-error]
+      region_highlight+=("$pos $((pos + 1)) $style")
+    fi
+  done
+
+  # If cursor is on a bracket, then highlight corresponding bracket, if any
+  pos=$CURSOR
+  if [[ -n $levelpos[$pos] ]] && [[ -n $matching[$pos] ]]; then
+    local otherpos=$matching[$pos]
+    local style=$ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]
+    region_highlight+=("$otherpos $((otherpos + 1)) $style")
+  fi
+}
+
+# Helper function to differentiate type 
+_zsh_highlight_brackets_highlighter_brackettype()
+{
+  case $1 in
+    ["()"]) typepos[$pos]=round;;
+    ["[]"]) typepos[$pos]=bracket;;
+    ["{}"]) typepos[$pos]=curly;;
+    *) ;;
+  esac
+}
+
+# Define default styles.
+: ${ZSH_HIGHLIGHT_STYLES[cursor]:=standout}
+
+# Whether the cursor highlighter should be called or not.
+_zsh_highlight_cursor_highlighter_predicate()
+{
+  _zsh_highlight_cursor_moved
+}
+
+# Cursor highlighting function.
+_zsh_highlight_cursor_highlighter()
+{
+  region_highlight+=("$CURSOR $(( $CURSOR + 1 )) $ZSH_HIGHLIGHT_STYLES[cursor]")
+}
+
+
+# {{{
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='bg=magenta,fg=white,bold'
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='bg=red,fg=white,bold'
+HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS='i'
+
+#-----------------------------------------------------------------------------
+# the main ZLE widgets
+#-----------------------------------------------------------------------------
+
+function history-substring-search-up() {
+  _history-substring-search-begin
+
+  _history-substring-search-up-history ||
+  _history-substring-search-up-buffer ||
+  _history-substring-search-up-search
+
+  _history-substring-search-end
+}
+
+function history-substring-search-down() {
+  _history-substring-search-begin
+
+  _history-substring-search-down-history ||
+  _history-substring-search-down-buffer ||
+  _history-substring-search-down-search
+
+  _history-substring-search-end
+}
+
+zle -N history-substring-search-up
+zle -N history-substring-search-down
+
+bindkey '\e[A' history-substring-search-up
+bindkey '\e[B' history-substring-search-down
+
+#-----------------------------------------------------------------------------
+# implementation details
+#-----------------------------------------------------------------------------
+
+zmodload -F zsh/parameter
+
+#
+# We have to "override" some keys and widgets if the
+# zsh-syntax-highlighting plugin has not been loaded:
+#
+# https://github.com/nicoulaj/zsh-syntax-highlighting
+#
+if [[ $+functions[_zsh_highlight] -eq 0 ]]; then
+  #
+  # Dummy implementation of _zsh_highlight() that
+  # simply removes any existing highlights when the
+  # user inserts printable characters into $BUFFER.
+  #
+  function _zsh_highlight() {
+    if [[ $KEYS == [[:print:]] ]]; then
+      region_highlight=()
+    fi
+  }
+
+  #
+  # The following snippet was taken from the zsh-syntax-highlighting project:
+  #
+  # https://github.com/zsh-users/zsh-syntax-highlighting/blob/56b134f5d62ae3d4e66c7f52bd0cc2595f9b305b/zsh-syntax-highlighting.zsh#L126-161
+  #
+  # Copyright (c) 2010-2011 zsh-syntax-highlighting contributors
+  # All rights reserved.
+  #
+  # Redistribution and use in source and binary forms, with or without
+  # modification, are permitted provided that the following conditions are
+  # met:
+  #
+  #  * Redistributions of source code must retain the above copyright
+  #    notice, this list of conditions and the following disclaimer.
+  #
+  #  * Redistributions in binary form must reproduce the above copyright
+  #    notice, this list of conditions and the following disclaimer in the
+  #    documentation and/or other materials provided with the distribution.
+  #
+  #  * Neither the name of the zsh-syntax-highlighting contributors nor the
+  #    names of its contributors may be used to endorse or promote products
+  #    derived from this software without specific prior written permission.
+  #
+  # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+  # IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+  # THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+  # PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+  # CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+  # EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  # PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+  # PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  #
+  #--------------8<-------------------8<-------------------8<-----------------
+  # Rebind all ZLE widgets to make them invoke _zsh_highlights.
+  _zsh_highlight_bind_widgets()
+  {
+    # Load ZSH module zsh/zleparameter, needed to override user defined widgets.
+    zmodload zsh/zleparameter 2>/dev/null || {
+      echo 'zsh-syntax-highlighting: failed loading zsh/zleparameter.' >&2
+      return 1
+    }
+
+    # Override ZLE widgets to make them invoke _zsh_highlight.
+    local cur_widget
+    for cur_widget in ${${(f)"$(builtin zle -la)"}:#(.*|_*|orig-*|run-help|which-command|beep)}; do
+      case $widgets[$cur_widget] in
+
+        # Already rebound event: do nothing.
+        user:$cur_widget|user:_zsh_highlight_widget_*);;
+
+        # User defined widget: override and rebind old one with prefix "orig-".
+        user:*) eval "zle -N orig-$cur_widget ${widgets[$cur_widget]#*:}; \
+                      _zsh_highlight_widget_$cur_widget() { builtin zle orig-$cur_widget -- \"\$@\" && _zsh_highlight }; \
+                      zle -N $cur_widget _zsh_highlight_widget_$cur_widget";;
+
+        # Completion widget: override and rebind old one with prefix "orig-".
+        completion:*) eval "zle -C orig-$cur_widget ${${widgets[$cur_widget]#*:}/:/ }; \
+                            _zsh_highlight_widget_$cur_widget() { builtin zle orig-$cur_widget -- \"\$@\" && _zsh_highlight }; \
+                            zle -N $cur_widget _zsh_highlight_widget_$cur_widget";;
+
+        # Builtin widget: override and make it call the builtin ".widget".
+        builtin) eval "_zsh_highlight_widget_$cur_widget() { builtin zle .$cur_widget -- \"\$@\" && _zsh_highlight }; \
+                       zle -N $cur_widget _zsh_highlight_widget_$cur_widget";;
+
+        # Default: unhandled case.
+        *) echo "zsh-syntax-highlighting: unhandled ZLE widget '$cur_widget'" >&2 ;;
       esac
     done
-    for pos in ${(k)levelpos}; do
-      level=$levelpos[$pos]
-      if ((level < 1)); then
-        region_highlight+=("$((pos - 1)) $pos "$ZSH_HIGHLIGHT_STYLES[bracket-error])
-      else
-        region_highlight+=("$((pos - 1)) $pos "$ZSH_HIGHLIGHT_MATCHING_BRACKETS_STYLES[(( (level - 1) % bracket_color_size + 1 ))])
-      fi
-    done
-    ((c = CURSOR + 1))
-    if [[ -n $levelpos[$c] ]]; then
-      ((otherpos = -1))
-      [[ -n $matching[$c] ]] && otherpos=$matching[$c]
-      [[ -n $revmatching[$c] ]] && otherpos=$revmatching[$c]
-      region_highlight+=("$((otherpos - 1)) $otherpos standout")
+  }
+  #-------------->8------------------->8------------------->8-----------------
+
+  _zsh_highlight_bind_widgets
+fi
+
+function _history-substring-search-begin() {
+  setopt localoptions extendedglob
+
+  _history_substring_search_refresh_display=
+  _history_substring_search_query_highlight=
+
+  #
+  # Continue using the previous $_history_substring_search_result by default,
+  # unless the current query was cleared or a new/different query was entered.
+  #
+  if [[ -z $BUFFER || $BUFFER != $_history_substring_search_result ]]; then
+    _history_substring_search_query=$BUFFER
+    _history_substring_search_query_escaped=${BUFFER//(#m)[\][()|\\*?#<>~^]/\\$MATCH}
+
+    _history_substring_search_matches=(${(kon)history[(R)(#$HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS)*${_history_substring_search_query_escaped}*]})
+
+    _history_substring_search_matches_count=$#_history_substring_search_matches
+    _history_substring_search_matches_count_plus=$(( _history_substring_search_matches_count + 1 ))
+    _history_substring_search_matches_count_sans=$(( _history_substring_search_matches_count - 1 ))
+    if [[ $WIDGET == history-substring-search-down ]]; then
+       _history_substring_search_match_index=$_history_substring_search_matches_count
+    else
+      _history_substring_search_match_index=$_history_substring_search_matches_count_plus
     fi
   fi
 }
 
-any() {
-    emulate -L zsh
-    unsetopt KSH_ARRAYS
-    if [[ -z "$1" ]] ; then
-        echo "any - grep for process(es) by keyword" >&2
-        echo "Usage: any " >&2 ; return 1
-    else
-        ps xauwww | grep -i --color=auto "[${1[1]}]${1[2,-1]}"
-    fi
+function _history-substring-search-end() {
+  setopt localoptions extendedglob
+
+  _history_substring_search_result=$BUFFER
+
+  # the search was succesful so display the result properly by clearing away
+  # existing highlights and moving the cursor to the end of the result buffer
+  if [[ $_history_substring_search_refresh_display -eq 1 ]]; then
+    region_highlight=()
+    CURSOR=${#BUFFER}
+  fi
+
+  # highlight command line using zsh-syntax-highlighting
+  _zsh_highlight
+
+  # highlight the search query inside the command line
+  if [[ -n $_history_substring_search_query_highlight && -n $_history_substring_search_query ]]; then
+    : ${(S)BUFFER##(#m$HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS)($_history_substring_search_query##)}
+    local begin=$(( MBEGIN - 1 ))
+    local end=$(( begin + $#_history_substring_search_query ))
+    region_highlight+=("$begin $end $_history_substring_search_query_highlight")
+  fi
+
+  return 0
 }
 
-# Special treatment for completion/expansion events:
-# For each *complete* function (except 'accept-and-menu-complete'), 
-# we create a widget which mimics the original
-# and use this orig-* version inside the new colorized zle function (the dot
-# idiom used for all others doesn't work right for these functions for some
-# reason).  You can see the default setup using "zle -l -L".
+function _history-substring-search-up-buffer() {
+  local buflines XLBUFFER xlbuflines
+  buflines=(${(f)BUFFER})
+  XLBUFFER=$LBUFFER"x"
+  xlbuflines=(${(f)XLBUFFER})
 
-# Bind all ZLE events from zle -la to highlighting function.
-_zsh_highlight-install() {
-  zmodload zsh/zleparameter 2>/dev/null || {
-    echo 'zsh-syntax-highlighting:zmoadload error. exiting.' >&2; return -1
-  }
-  local -a events; : ${(A)events::=${@:#(_*|orig-*|.run-help|.which-command)}}
-  local clean_event
-  for event in $events; do
-    if [[ "$widgets[$event]" == completion:* ]]; then
-      eval "zle -C orig-$event ${${${widgets[$event]}#*:}/:/ } ; $event() { builtin zle orig-$event && _zsh_highlight-zle-buffer } ; zle -N $event"
-    else
-      case $event in
-        accept-and-menu-complete)
-          eval "$event() { builtin zle .$event && _zsh_highlight-zle-buffer } ; zle -N $event"
-          ;;
-        .*)
-          clean_event=$event[2,${#event}] # Remove the leading dot in the event name
-          case ${widgets[$clean_event]-} in
-            (completion|user):*)
-              ;;
-            *)
-              eval "$clean_event() { builtin zle $event && _zsh_highlight-zle-buffer } ; zle -N $clean_event"
-              ;;
-          esac
-          ;;
-        *)
-          ;;
-      esac
-    fi
-  done
+  if [[ $#buflines -gt 1 && $CURSOR -ne $#BUFFER && $#xlbuflines -ne 1 ]]; then
+    zle up-line-or-history
+    return 0
+  fi
+
+  return 1
 }
-_zsh_highlight-install "${(@f)"$(zle -la)"}"
 
+function _history-substring-search-down-buffer() {
+  local buflines XRBUFFER xrbuflines
+  buflines=(${(f)BUFFER})
+  XRBUFFER="x"$RBUFFER
+  xrbuflines=(${(f)XRBUFFER})
+
+  if [[ $#buflines -gt 1 && $CURSOR -ne $#BUFFER && $#xrbuflines -ne 1 ]]; then
+    zle down-line-or-history
+    return 0
+  fi
+
+  return 1
+}
+
+function _history-substring-search-up-history() {
+  #
+  # Behave like up in ZSH, except clear the $BUFFER
+  # when beginning of history is reached like in Fish.
+  #
+  if [[ -z $_history_substring_search_query ]]; then
+
+    # we have reached the absolute top of history
+    if [[ $HISTNO -eq 1 ]]; then
+      BUFFER=
+
+    # going up from somewhere below the top of history
+    else
+      zle up-line-or-history
+    fi
+
+    return 0
+  fi
+
+  return 1
+}
+
+function _history-substring-search-down-history() {
+  if [[ -z $_history_substring_search_query ]]; then
+
+    # going down from the absolute top of history
+    if [[ $HISTNO -eq 1 && -z $BUFFER ]]; then
+      BUFFER=${history[1]}
+      _history_substring_search_refresh_display=1
+
+    # going down from somewhere above the bottom of history
+    else
+      zle down-line-or-history
+    fi
+
+    return 0
+  fi
+
+  return 1
+}
+
+function _history-substring-search-not-found() {
+  _history_substring_search_old_buffer=$BUFFER
+  BUFFER=$_history_substring_search_query
+  _history_substring_search_query_highlight=$HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND
+}
+
+function _history-substring-search-up-search() {
+  _history_substring_search_refresh_display=1
+  if [[ $_history_substring_search_match_index -ge 2 ]]; then
+    (( _history_substring_search_match_index-- ))
+    BUFFER=$history[$_history_substring_search_matches[$_history_substring_search_match_index]]
+    _history_substring_search_query_highlight=$HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND
+
+  elif [[ $_history_substring_search_match_index -eq 1 ]]; then
+    (( _history_substring_search_match_index-- ))
+    _history-substring-search-not-found
+
+  elif [[ $_history_substring_search_match_index -eq $_history_substring_search_matches_count_plus ]]; then
+    (( _history_substring_search_match_index-- ))
+    BUFFER=$_history_substring_search_old_buffer
+    _history_substring_search_query_highlight=$HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND
+
+  else
+    _history-substring-search-not-found
+  fi
+}
+
+function _history-substring-search-down-search() {
+  _history_substring_search_refresh_display=1
+  if [[ $_history_substring_search_match_index -le $_history_substring_search_matches_count_sans ]]; then
+    (( _history_substring_search_match_index++ ))
+    BUFFER=$history[$_history_substring_search_matches[$_history_substring_search_match_index]]
+    _history_substring_search_query_highlight=$HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND
+
+  elif [[ $_history_substring_search_match_index -eq $_history_substring_search_matches_count ]]; then
+    (( _history_substring_search_match_index++ ))
+    _history-substring-search-not-found
+
+  elif [[ $_history_substring_search_match_index -eq 0 ]]; then
+    (( _history_substring_search_match_index++ ))
+    BUFFER=$_history_substring_search_old_buffer
+    _history_substring_search_query_highlight=$HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND
+
+  else
+    _history-substring-search-not-found
+  fi
+}
 # }}}
 
 # {{{ amazon
