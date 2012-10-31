@@ -241,3 +241,15 @@
 [submodule ".vim/bundle/ag"]
 	path = .vim/bundle/ag
 	url = https://github.com/epmatsw/ag.vim.git
+[submodule ".vim/bundle/jedi"]
+	path = .vim/bundle/jedi
+	url = https://github.com/davidhalter/jedi-vim.git
+[submodule ".vim/bundle/vimshell"]
+	path = .vim/bundle/vimshell
+	url = https://github.com/Shougo/vimshell.git
+[submodule ".vim/bundle/vimproc"]
+	path = .vim/bundle/vimproc
+	url = https://github.com/Shougo/vimproc.git
+[submodule ".vim/bundle/vim-addon-async"]
+	path = .vim/bundle/vim-addon-async
+	url = https://github.com/MarcWeber/vim-addon-async.git
