@@ -11,6 +11,10 @@ augroup matchhtmlparen
 augroup END
 
 fu! s:Highlight_Matching_Pair()
+    if &ft !~ 'html'
+      return
+    endif
+
     " Remove any previous match.
     if exists('w:tag_hl_on') && w:tag_hl_on
         2match none

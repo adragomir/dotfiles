@@ -253,3 +253,6 @@
 [submodule ".vim/bundle/vim-addon-async"]
 	path = .vim/bundle/vim-addon-async
 	url = https://github.com/MarcWeber/vim-addon-async.git
+[submodule ".vim/bundle/ensime"]
+	path = .vim/bundle/ensime
+	url = https://github.com/andreypopp/ensime.git

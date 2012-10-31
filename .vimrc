@@ -1289,12 +1289,18 @@ source $HOME/.secrets/simplenote_credentials.vim
 " }}}
 
 " clojure {{{
-let vimclojure#NailgunClient = "$HOME/bin/ng"
+let g:slimv_loaded = 1
 "let vimclojure#SplitPos = "right"
-let vimclojure#HightlightBuiltins = 1
-let vimclojure#WantNailgun = 0
-let vimclojure#NailgunPort = "2200"
+let vimclojure#FuzzyIndent=1
+let vimclojure#HighlightBuiltins=1
+let vimclojure#HighlightContrib=1
+let vimclojure#DynamicHighlighting=1
+let vimclojure#ParenRainbow=1
+let vimclojure#WantNailgun = 1
+let vimclojure#NailgunClient = expand("$HOME") . "/bin/darwin/ng"
+let vimclojure#NailgunPort = "2113"
 let vimclojure#ParenRainbow = 1
+let g:paredit_mode = 0
 " }}}
 
 " localvimrc {{{
