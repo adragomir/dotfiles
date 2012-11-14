@@ -133,9 +133,6 @@
 [submodule ".vim/bundle/simplenote"]
 	path = .vim/bundle/simplenote
 	url = https://github.com/mrtazz/simplenote.vim.git
-[submodule ".vim/bundle/ultisnips"]
-	path = .vim/bundle/ultisnips
-	url = https://github.com/SirVer/ultisnips.git
 [submodule ".vim/bundle/pandoc"]
 	path = .vim/bundle/pandoc
 	url = https://github.com/vim-pandoc/vim-pandoc.git
