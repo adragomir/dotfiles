@@ -29,7 +29,6 @@
 # http://research.operationaldynamics.com/projects/scripts/slashtime/.tzlist
 # 
 
-use strict;
 use POSIX qw(strftime);
 use POSIX qw(tzset);
 use Date::Parse;
@@ -49,8 +48,7 @@ my $now;
 # ensure its something we can find later]
 #
 
-open(LOCALZONE,"$SYSTZ"); my $local_timezone = <LOCALZONE>; chomp
-$local_timezone; close(LOCALZONE);
+my $local_timezone =  "Europe/Bucharest";
 
 #
 # parse the command line. If one of the args can

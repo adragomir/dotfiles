@@ -76,7 +76,7 @@ set tildeop
 set t_vb=
 set winaltkeys=no
 set writeany
-set iskeyword=@,48-57,128-167,224-235,_
+set iskeyword=:,@,48-57,128-167,224-235,_
 set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮,trail:.
 set showtabline=2
 set matchtime=3
@@ -1239,7 +1239,7 @@ let g:neocomplcache_disable_auto_complete = 1
 " }}}
 
 " powerline {{{
-let g:Powerline_symbols = 'fancy'
+let g:Powerline_symbols = 'compatible'
 let g:Powerline_cache_file = $HOME . '/.vim/tmp/Powerline_cache_file'
 let g:Powerline_mode_v = 'v'
 let g:Powerline_mode_V = 'V'

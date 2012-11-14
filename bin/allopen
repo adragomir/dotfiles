@@ -1,7 +1,0 @@
-#!/bin/sh
-echo $1
-if [ "`uname`" = "Darwin" ]; then
-  open $1
-else
-  gnome-open > /dev/null 2>&1 $*
-fi

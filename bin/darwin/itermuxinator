@@ -85,11 +85,11 @@ class SmartMaker
     @m.vs
     @m.select_pane("Left")
     @m.run(before)
-    @m.run(" title '%s'" % arr[0].title)
+    @m.run(" title '%s'" % title)
     @m.run(arr[0].cmd)
     @m.select_pane("Right")
     @m.run(before)
-    @m.run(" title '%s'" % arr[1].title)
+    @m.run(" title '%s'" % title)
     @m.run(arr[1].cmd)
   end
 
@@ -101,20 +101,20 @@ class SmartMaker
     @m.hs
     @m.select_pane("Above")
     @m.run(before)
-    @m.run(" title '%s'" % arr[0].title)
+    @m.run(" title '%s'" % title)
     @m.run(arr[0].cmd)
     @m.select_pane("Below")
     @m.run(before)
-    @m.run(" title '%s'" % arr[1].title)
+    @m.run(" title '%s'" % title)
     @m.run(arr[1].cmd)
     @m.select_pane("Above")
     @m.select_pane("Right")
     @m.run(before)
-    @m.run(" title '%s'" % arr[2].title)
+    @m.run(" title '%s'" % title)
     @m.run(arr[2].cmd)
     @m.select_pane("Below")
     @m.run(before)
-    @m.run(" title '%s'" % arr[3].title)
+    @m.run(" title '%s'" % title)
     @m.run(arr[3].cmd)
   end
 end

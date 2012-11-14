@@ -323,6 +323,95 @@ function take() {
   cd $1
 }
 
+function allopen() {
+  if [ "`uname`" = "Darwin" ]; then
+    open $1
+  else
+    gnome-open > /dev/null 2>&1 $*
+  fi
+}
+
+function addsshkey() {
+  if [ -z $2 ];then
+    echo "Usage: $0 /path/to/key username@host"
+    exit 1
+  fi
+
+  KEY=$1
+  shift
+
+  if [ ! -f $KEY ];then
+    echo "private key not found at $KEY"
+    echo "please create it with \"ssh-keygen -t dsa\""
+    exit
+  fi
+
+  echo "Putting your key ($KEY) on $1... "
+  ssh -q $* "umask 0077; mkdir -p ~/.ssh ; echo "`cat $KEY`" >> ~/.ssh/authorized_keys"
+  echo "done!"
+}
+
+function eclipse_project() {
+  from=$1
+  to=$2
+
+  to_move=( .settings .externalToolBuilders .eclipse.templates .launches .classpath .project )
+  to_move_type=( d d d d f f )
+  for idx in $(seq 0 $((${#to_move[@]} - 1))); do
+    t=${to_move[$idx]}
+    tf=${to_move_type[$idx]}
+    echo "Moving $t..."
+
+    for d in `find $from \( -iname "$t" -a -type $tf \)`; do
+      df=$(dirname $d)
+      fc=${df#$from/}
+      mkdir -p $to/$fc/
+      echo mv $d $to/$fc/
+      mv $d $to/$fc/
+    done
+    
+  done
+}
+
+function gcc_defines() {
+  gcc -dM -E - < /dev/null
+}
+
+function getwanip() {
+  wget -q -O- www.showmyip.com/xml | xml2 | grep '/ip_address/ip=' | cut -d= -f2
+  curl -s http://checkip.dyndns.org | awk '{print $6}' | awk ' BEGIN { FS = "<" } { print $1 } '
+}
+
+function gitroot() {
+  gitroot=`git rev-parse --show-cdup 2>/dev/null`
+  retval="$?"
+  if [ "$retval" == "0" ]; then
+    # There is a git root
+    if [ -z "$gitroot" ]; then
+      # It's the current dir.
+      pwd
+    else
+      readlink -f "$gitroot"
+    fi
+  else
+    # No gitroot. Return status 1.
+    exit 1
+  fi
+}
+
+function iphone_transcode() {
+  INFILE="$1"
+  OUTFILE="$2"
+  ffmpeg -i "$INFILE" -strict experimental -f mp4 -vcodec mpeg4 -acodec aac  -maxrate 1000 -b 700 -qmin 3 -qmax 5 -bufsize 4096 -g 300 -ab 65535 -s 480x320 -aspect 4:3 "$OUTFILE"
+}
+
+function javap_method() {
+  class=${1%#*}
+  method=${1#*\#}
+
+  javap -classpath `cat .run-classpath` -c $class | sed -n -e "/$method(/,/^$/p"
+}
+
 # By @ieure; copied from https://gist.github.com/1474072
 #
 # It finds a file, looking up through parent directories until it finds one.
@@ -826,6 +915,10 @@ export PYTHONSTARTUP=$HOME/.pythonstartup
 #ant
 export ANT_HOME=$HOME/work/tools/apache-ant-1.8.2
 export ANT_OPTS="-Xms256m -Xmx512m -XX:MaxPermSize=512m -XX:PermSize=256m"
+
+# jrebel
+
+export JREBEL_PATH=$HOME/work/tools/jrebel/jrebel.jar
 
 # maven
 #export M2=$HOME/work/apache-maven-3.0.3/bin/
