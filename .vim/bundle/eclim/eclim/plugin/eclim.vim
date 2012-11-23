@@ -65,6 +65,10 @@ else
   let g:EclimSignLevel = 0
 endif
 
+if !exists("g:EclimBufferTabTracking")
+  let g:EclimBufferTabTracking = 1
+endif
+
 if !exists("g:EclimSeparator")
   let g:EclimSeparator = '/'
   if has("win32") || has("win64")
@@ -116,14 +120,14 @@ endif
 
 if !exists("g:EclimHome")
   " set at build/install time.
-  let g:EclimHome = '/Users/adragomi/Applications/eclipse/plugins/org.eclim_2.2.0.35-g3d94cc8'
+  let g:EclimHome = '/Users/adragomi/Applications/eclipse//plugins/org.eclim_2.2.3.30-g2948191'
   if has('win32unix')
     let g:EclimHome = eclim#cygwin#CygwinPath(g:EclimHome)
   endif
 endif
 if !exists("g:EclimEclipseHome")
   " set at build/install time.
-  let g:EclimEclipseHome = '/Users/adragomi/Applications/eclipse'
+  let g:EclimEclipseHome = '/Users/adragomi/Applications/eclipse/'
   if has('win32unix')
     let g:EclimEclipseHome = eclim#cygwin#CygwinPath(g:EclimEclipseHome)
   endif
@@ -172,9 +176,16 @@ if !exists(':EclimHelpGrep')
   command -nargs=+ EclimHelpGrep :call eclim#help#HelpGrep(<q-args>)
 endif
 
+if !exists(":RefactorUndo")
+  command RefactorUndo :call eclim#lang#UndoRedo('undo', 0)
+  command RefactorRedo :call eclim#lang#UndoRedo('redo', 0)
+  command RefactorUndoPeek :call eclim#lang#UndoRedo('undo', 1)
+  command RefactorRedoPeek :call eclim#lang#UndoRedo('redo', 1)
+endif
+
 if !exists(":Buffers")
-  command Buffers :call eclim#common#buffers#Buffers()
-  command BuffersToggle :call eclim#common#buffers#BuffersToggle()
+  command -bang Buffers :call eclim#common#buffers#Buffers('<bang>')
+  command -bang BuffersToggle :call eclim#common#buffers#BuffersToggle('<bang>')
 endif
 
 if !exists(":Only")
@@ -290,6 +301,16 @@ if g:EclimSignLevel
     else
       autocmd QuickFixCmdPost * call eclim#display#signs#QuickFixCmdPost()
     endif
+  augroup END
+endif
+
+if g:EclimBufferTabTracking && exists('*gettabvar')
+  call eclim#common#buffers#TabInit()
+  augroup eclim_buffer_tab_tracking
+    autocmd!
+    autocmd BufWinEnter,BufWinLeave * call eclim#common#buffers#TabLastOpenIn()
+    autocmd TabEnter * call eclim#common#buffers#TabEnter()
+    autocmd TabLeave * call eclim#common#buffers#TabLeave()
   augroup END
 endif
 

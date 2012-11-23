@@ -5,7 +5,7 @@
 "
 " License:
 "
-" Copyright (C) 2005 - 2011  Eric Van Dewoestine
+" Copyright (C) 2005 - 2012  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@
 
 " Global Variables {{{
 
-if !exists("g:EclimJavaSrcValidate")
-  let g:EclimJavaSrcValidate = 1
+if !exists("g:EclimJavaValidate")
+  let g:EclimJavaValidate = 1
 endif
 
 if !exists("g:EclimJavaSetCommonOptions")
@@ -34,14 +34,6 @@ endif
 
 if !exists("g:EclimJavaCompilerAutoDetect")
   let g:EclimJavaCompilerAutoDetect = 1
-endif
-
-if !exists("g:EclimJavaSearchMapping")
-  let g:EclimJavaSearchMapping = 1
-endif
-
-if !exists("g:EclimJavaCheckstyleOnSave")
-  let g:EclimJavaCheckstyleOnSave = 0
 endif
 
 " }}}
@@ -113,7 +105,8 @@ endif
 if &ft == 'java'
   augroup eclim_java
     autocmd! BufWritePost <buffer>
-    autocmd BufWritePost <buffer> call eclim#java#util#UpdateSrcFile(0)
+    autocmd BufWritePost <buffer>
+      \ call eclim#lang#UpdateSrcFile('java', g:EclimJavaValidate)
   augroup END
 endif
 
@@ -122,7 +115,7 @@ endif
 " Command Declarations {{{
 
 if !exists(":Validate")
-  command -nargs=0 -buffer Validate :call eclim#java#util#UpdateSrcFile(1)
+  command -nargs=0 -buffer Validate :call eclim#lang#UpdateSrcFile('java', 1)
 endif
 
 if !exists(":JavaCorrect")
@@ -130,34 +123,27 @@ if !exists(":JavaCorrect")
 endif
 
 if !exists(":JavaFormat")
-  command -buffer -range JavaFormat
-    \ :call eclim#java#format#Format(<line1>, <line2>, "dummy")
+  command -buffer -range JavaFormat :call eclim#java#src#Format(<line1>, <line2>)
 endif
 
 if !exists(":JavaImport")
   command -buffer JavaImport :call eclim#java#import#Import()
 endif
-if !exists(":JavaImportSort")
-  command -buffer JavaImportSort :call eclim#java#import#SortImports()
-endif
-if !exists(":JavaImportClean")
-  command -buffer JavaImportClean :call eclim#java#import#CleanImports()
-endif
-if !exists(":JavaImportMissing")
-  command -buffer JavaImportMissing :call eclim#java#import#ImportMissing()
+if !exists(":JavaImportOrganize")
+  command -buffer JavaImportOrganize :call eclim#java#import#OrganizeImports()
 endif
 
 if !exists(":JavaDocComment")
   command -buffer JavaDocComment :call eclim#java#doc#Comment()
+endif
+if !exists(":JavaDocPreview")
+  command -buffer JavaDocPreview :call eclim#java#doc#Preview()
 endif
 
 if !exists(":Javadoc")
   command -buffer -bang -nargs=*
     \ -complete=customlist,eclim#java#doc#CommandCompleteJavadoc
     \ Javadoc :call eclim#java#doc#Javadoc('<bang>', <q-args>)
-endif
-if !exists(":Javac")
-  command -buffer -bang Javac :call eclim#java#util#Javac('<bang>')
 endif
 if exists(":Java") != 2
   command -buffer -nargs=* Java :call eclim#java#util#Java('', <q-args>)
@@ -170,28 +156,28 @@ if exists(":JavaListInstalls") != 2
 endif
 
 if !exists(":JavaConstructor")
-  command -buffer -range=0 JavaConstructor
-    \ :call eclim#java#constructor#Constructor(<line1>, <line2>)
+  command -buffer -range=0 -bang JavaConstructor
+    \ :call eclim#java#impl#Constructor(<line1>, <line2>, '<bang>')
 endif
 
 if !exists(":JavaGet")
-  command -buffer -range JavaGet
-    \ :call eclim#java#bean#GetterSetter(<line1>, <line2>, "getter")
+  command -buffer -range -bang JavaGet
+    \ :call eclim#java#impl#GetterSetter(<line1>, <line2>, '<bang>', 'getter')
 endif
 if !exists(":JavaSet")
-  command -buffer -range JavaSet
-    \ :call eclim#java#bean#GetterSetter(<line1>, <line2>, "setter")
+  command -buffer -range -bang JavaSet
+    \ :call eclim#java#impl#GetterSetter(<line1>, <line2>, '<bang>', 'setter')
 endif
 if !exists(":JavaGetSet")
-  command -buffer -range JavaGetSet
-    \ :call eclim#java#bean#GetterSetter(<line1>, <line2>, "getter_setter")
+  command -buffer -range -bang JavaGetSet
+    \ :call eclim#java#impl#GetterSetter(<line1>, <line2>, '<bang>', 'getter_setter')
 endif
 
 if !exists(":JavaImpl")
   command -buffer JavaImpl :call eclim#java#impl#Impl()
 endif
 if !exists(":JavaDelegate")
-  command -buffer JavaDelegate :call eclim#java#delegate#Delegate()
+  command -buffer JavaDelegate :call eclim#java#impl#Delegate()
 endif
 
 if !exists(":JavaSearch")
@@ -216,22 +202,21 @@ endif
 if !exists(":JavaRename")
   command -nargs=1 -buffer JavaRename :call eclim#java#refactor#Rename('<args>')
 endif
-if !exists(":JavaRefactorUndo")
-  command -buffer JavaRefactorUndo :call eclim#java#refactor#UndoRedo('undo', 0)
-  command -buffer JavaRefactorRedo :call eclim#java#refactor#UndoRedo('redo', 0)
-  command -buffer JavaRefactorUndoPeek
-    \ :call eclim#java#refactor#UndoRedo('undo', 1)
-  command -buffer JavaRefactorRedoPeek
-    \ :call eclim#java#refactor#UndoRedo('redo', 1)
+if !exists(":JavaMove")
+  command -nargs=1 -buffer -complete=customlist,eclim#java#util#CommandCompletePackage
+    \ JavaMove :call eclim#java#refactor#Move('<args>')
 endif
 
 if !exists(":JavaLoggingInit")
   command -buffer JavaLoggingInit :call eclim#java#logging#LoggingInit()
 endif
 
-if !exists(":JUnitExecute")
-  command -buffer -nargs=? -complete=customlist,eclim#java#junit#CommandCompleteTest
-    \ JUnitExecute :call eclim#java#junit#JUnitExecute('<args>')
+if !exists(":JUnit")
+  command -buffer -nargs=? -bang -complete=customlist,eclim#java#junit#CommandCompleteTest
+    \ JUnit :call eclim#java#junit#JUnit('<args>', '<bang>')
+endif
+if !exists(":JUnitFindTest")
+  command -buffer JUnitFindTest :call eclim#java#junit#JUnitFindTest()
 endif
 if !exists(":JUnitResult")
   command -buffer -nargs=? -complete=customlist,eclim#java#junit#CommandCompleteResult
@@ -242,7 +227,7 @@ if !exists(":JUnitImpl")
 endif
 
 if !exists(":Checkstyle")
-  command -nargs=0 -buffer Checkstyle :call eclim#java#checkstyle#Checkstyle()
+  command -nargs=0 -buffer Checkstyle :call eclim#java#src#Checkstyle()
 endif
 
 " }}}

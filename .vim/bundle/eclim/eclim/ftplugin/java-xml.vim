@@ -1,11 +1,8 @@
 " Author:  Eric Van Dewoestine
 "
-" Description: {{{
-"   see http://eclim.org/vim/maven/run.html
+" License: {{{
 "
-" License:
-"
-" Copyright (C) 2005 - 2010  Eric Van Dewoestine
+" Copyright (C) 2012  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -22,15 +19,22 @@
 "
 " }}}
 
-" Command Declarations {{{
-if !exists(":Maven")
-  command -bang -nargs=* Maven
-    \ :call eclim#util#MakeWithCompiler('eclim_maven', '<bang>', '<args>')
+" Functionality exposed to java xml files (web.xml, spring xml files, etc.).
+
+" Global Variables {{{
+
+if !exists("g:EclimJavaSearchMapping")
+  let g:EclimJavaSearchMapping = 1
 endif
-if !exists(":Mvn")
-  command -bang -nargs=* Mvn
-    \ :call eclim#util#MakeWithCompiler('eclim_mvn', '<bang>', '<args>')
+
+" }}}
+
+" Mappings {{{
+
+if g:EclimJavaSearchMapping
+  noremap <silent> <buffer> <cr> :call eclim#java#search#FindClassDeclaration()<cr>
 endif
+
 " }}}
 
 " vim:ft=vim:fdm=marker

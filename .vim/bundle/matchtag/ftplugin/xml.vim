@@ -11,7 +11,7 @@ augroup matchhtmlparen
 augroup END
 
 fu! s:Highlight_Matching_Pair()
-    if &ft !~ 'html'
+    if &ft !~ 'xml'
       return
     endif
 

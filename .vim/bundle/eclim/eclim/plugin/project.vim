@@ -34,10 +34,18 @@ if !exists("g:EclimProjectProblemsUpdateOnSave")
   let g:EclimProjectProblemsUpdateOnSave = 1
 endif
 
+if !exists("g:EclimProjectProblemsUpdateOnBuild")
+  let g:EclimProjectProblemsUpdateOnBuild = 1
+endif
+
 let g:EclimProjectTreeTitle = 'ProjectTree_'
 
 if !exists('g:EclimProjectTreeAutoOpen') || exists('g:vimplugin_running')
   let g:EclimProjectTreeAutoOpen = 0
+endif
+
+if !exists('g:EclimProjectTabTreeAutoOpen')
+  let g:EclimProjectTabTreeAutoOpen = 1
 endif
 
 if !exists('g:EclimProjectTreeExpandPathOnOpen')
@@ -154,7 +162,7 @@ endif
 
 if !exists(":ProjectTree")
   command -nargs=*
-    \ -complete=customlist,eclim#project#util#CommandCompleteProject
+    \ -complete=customlist,eclim#project#util#CommandCompleteProjectTree
     \ ProjectTree :call eclim#project#tree#ProjectTree(<f-args>)
   command -nargs=0 ProjectTreeToggle :call eclim#project#tree#ProjectTreeToggle()
   command -nargs=0 ProjectsTree
@@ -162,8 +170,6 @@ if !exists(":ProjectTree")
   command -nargs=1
     \ -complete=customlist,eclim#project#util#CommandCompleteProject
     \ ProjectTab :call eclim#project#util#ProjectTab('<args>')
-  command! -nargs=1 -complete=dir TreeTab
-    \ :call eclim#project#util#TreeTab('', expand('<args>', ':p'))
 endif
 
 if !exists(":ProjectCD")
