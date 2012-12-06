@@ -991,15 +991,15 @@ export HTML_TIDY=$HOME/.tidyconf
 
 export WIKI=$HOME/Documents/personal/life/exploded/
 
-export SAASBASE_HOME=$HOME/work/saasbase_env
-source $HOME/work/saasbase_env/services/use-hadoop-1
-export HBASE_HOME=$HOME/work/saasbase_env/hbase
-export ZOOKEEPER_HOME=$HOME/work/saasbase_env/zookeeper
-export STORM_HOME=$HOME/work/saasbase_env/storm
+export SAASBASE_HOME=$HOME/work/s
+source $HOME/work/s/services/use-hadoop-1
+export HBASE_HOME=$HOME/work/s/hbase
+export ZOOKEEPER_HOME=$HOME/work/s/zookeeper
+export STORM_HOME=$HOME/work/s/storm
 
 # saasbase
-export SAASBASE_DB_HOME=$HOME/work/saasbase_env/saasbase/src/saasbase_db
-export SAASBASE_ANALYTICS_HOME=$HOME/work/saasbase_env/saasbase/src/saasbase_analytics
+export SAASBASE_DB_HOME=$HOME/work/s/saasbase/src/saasbase_db
+export SAASBASE_ANALYTICS_HOME=$HOME/work/s/saasbase/src/saasbase_analytics
 export SAASBASE_DATAROOT=/var
 
 export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1

@@ -140,13 +140,14 @@ set wildignore+=.svn,CVS,.git,.hg
 set wildignore+=*.aux,*.out,*.toc " latex files
 set wildignore+=*.o,*.d,*.obj,*.dylib,*.so,*.exe,*.manifest,*.a,*.mo,*.la " objects
 set wildignore+=*.class,*.jar
-set wildignore+=.classpath,.project
+set wildignore+=.classpath,.project,.settings
 set wildignore+=*.jpg,*.jpeg,*.png*,*.gif,*.tiff,*.xmp
 set wildignore+=*.sw?,*.bak
 set wildignore+=*.6,*.out
 set wildignore+=.DS_Store
 set wildignore+=*.pyc,*.class,*.luac
 set wildignore+=*.erbc,*.scssc
+set wildignore+=*.zip,*.tar,*.gz,*.rar
 set wildignore+=vendor/rails/**
 set wildignore+=vendor/cache/**
 set wildignore+=*.gem
@@ -154,6 +155,7 @@ set wildignore+=log/**
 set wildignore+=tmp/**
 set wildignore+=*sass-cache*
 set wildignore+=target,target/classes,classes
+set wildignore+=.idea
 
 " }}}
 
@@ -1281,7 +1283,7 @@ endif
 
 " ensime / async {{{
 let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'} 
-let g:ensime = {'ensime-script': "/Users/adragomi/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
+let g:ensime = {'ensime-script': "/Users/adr/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
 " }}}
 
 " simplenote {{{
@@ -1378,7 +1380,7 @@ let g:syntastic_mode_map = { 'mode': 'active',
 
 " javacomplete {{{
 let g:first_nailgun_port=2114
-let g:javacomplete_ng="/Users/adragomi/dotfiles/bin/binary/ng"
+let g:javacomplete_ng="/Users/adr/dotfiles/bin/binary/ng"
 " }}}
 
 " }}}
