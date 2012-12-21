@@ -306,6 +306,10 @@ function preexec {
   #title $cmd[1]:t "$cmd[2,-1]"
 }
 
+zman() {
+  PAGER="less -g -s '+/^       "$1"'" man zshall
+}
+
 function zsh_stats() {
   history | awk '{print $2}' | sort | uniq -c | sort -rn | head
 }
@@ -530,7 +534,8 @@ bindkey -e
 bindkey '\ew' kill-region
 bindkey -s '\el' "ls\n"
 bindkey -s '\e.' "..\n"
-bindkey '^r' history-incremental-search-backward
+bindkey '^r' history-incremental-pattern-search-backward
+bindkey "^s" history-incremental-pattern-search-forward
 bindkey "^[[5~" up-line-or-history
 bindkey "^[[6~" down-line-or-history
 
@@ -568,7 +573,11 @@ after-first-word() {
 }
 zle -N after-first-word
 bindkey "^X1" after-first-word
-
+foreground-vi() {
+  fg %vi
+}
+zle -N foreground-vi
+bindkey '^Z' foreground-vi
 # }}}
 
 # {{{
@@ -908,7 +917,7 @@ export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/sc
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
 # python
-export PYTHONPATH=/opt/local/lib/python2.5/site-packages:$HOME/.python
+export PYTHONPATH="/usr/local/lib/python2.7/site-packages:$PYTHONPATH"
 export PYTHONPATH=$PYTHONPATH:$HOME/.python
 export PYTHONSTARTUP=$HOME/.pythonstartup
 

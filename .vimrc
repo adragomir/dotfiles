@@ -1241,23 +1241,23 @@ let g:neocomplcache_disable_auto_complete = 1
 " }}}
 
 " powerline {{{
-let g:Powerline_symbols = 'compatible'
-let g:Powerline_cache_file = $HOME . '/.vim/tmp/Powerline_cache_file'
-let g:Powerline_mode_v = 'v'
-let g:Powerline_mode_V = 'V'
-let g:Powerline_mode_cv = 'cv'
-let g:Powerline_mode_s = 's'
-let g:Powerline_mode_S = 'S'
-let g:Powerline_mode_cs = 'cs'
-let g:Powerline_mode_i = 'i'
-let g:Powerline_mode_R = 'R'
-let g:Powerline_mode_n = 'n'
-let g:Powerline_stl_path_style = 'short'
-call Pl#Theme#InsertSegment('charcode', 'after', 'filetype')
-call Pl#Theme#RemoveSegment('tagbar:currenttag')
-call Pl#Theme#RemoveSegment('rvm:string')
-call Pl#Theme#RemoveSegment('syntastic:errors')
-call Pl#Theme#RemoveSegment('fugitive:branch')
+" let g:Powerline_symbols = 'compatible'
+" let g:Powerline_cache_file = $HOME . '/.vim/tmp/Powerline_cache_file'
+" let g:Powerline_mode_v = 'v'
+" let g:Powerline_mode_V = 'V'
+" let g:Powerline_mode_cv = 'cv'
+" let g:Powerline_mode_s = 's'
+" let g:Powerline_mode_S = 'S'
+" let g:Powerline_mode_cs = 'cs'
+" let g:Powerline_mode_i = 'i'
+" let g:Powerline_mode_R = 'R'
+" let g:Powerline_mode_n = 'n'
+" let g:Powerline_stl_path_style = 'short'
+" call Pl#Theme#InsertSegment('charcode', 'after', 'filetype')
+" call Pl#Theme#RemoveSegment('tagbar:currenttag')
+" call Pl#Theme#RemoveSegment('rvm:string')
+" call Pl#Theme#RemoveSegment('syntastic:errors')
+" call Pl#Theme#RemoveSegment('fugitive:branch')
 "let g:Powerline_theme = 'adr'
 " }}}
 
