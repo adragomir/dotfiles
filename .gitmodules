@@ -247,3 +247,9 @@
 [submodule ".vim/bundle/ensime"]
 	path = .vim/bundle/ensime
 	url = https://github.com/andreypopp/ensime.git
+[submodule ".vim/bundle/addon-mw-utils"]
+	path = .vim/bundle/addon-mw-utils
+	url = https://github.com/MarcWeber/vim-addon-mw-utils.git
+[submodule ".vim/bundle/snipmate"]
+	path = .vim/bundle/snipmate
+	url = https://github.com/garbas/vim-snipmate.git
