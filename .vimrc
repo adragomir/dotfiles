@@ -67,7 +67,7 @@ set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[tab:%{&ts},%{&sts},%{&sw},%{&et?'et'
 set undolevels=10000
 set numberwidth=5
 set pumheight=10
-set viminfo=%,h,'1000,"1000,:1000,n~/.vim/tmp/.viminfo
+set viminfo=%,h,'1000,"1000,:1000,n~/.vim/tmp/.viminfo,!
 set scrolljump=10
 set virtualedit+=block
 set novisualbell
@@ -1202,6 +1202,8 @@ let g:ctrlp_switch_buffer = 2
 let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
 let g:ctrlp_max_files = 0
 " }}}
+
+let g:jedi#auto_initialization = 0
 
 " command-t settings {{{
 let g:CommandTMaxFiles=400000

@@ -256,3 +256,12 @@
 [submodule ".vim/bundle/powerline"]
 	path = .vim/bundle/powerline
 	url = https://github.com/Lokaltog/powerline.git
+[submodule ".vim/bundle/foreplay"]
+	path = .vim/bundle/foreplay
+	url = https://github.com/tpope/vim-foreplay.git
+[submodule ".vim/bundle/classpath"]
+	path = .vim/bundle/classpath
+	url = https://github.com/tpope/vim-classpath.git
+[submodule ".vim/bundle/vimclojure-static"]
+	path = .vim/bundle/vimclojure-static
+	url = https://github.com/guns/vim-clojure-static.git
