@@ -157,9 +157,6 @@
 [submodule ".vim/bundle/scss-syntax"]
 	path = .vim/bundle/scss-syntax
 	url = https://github.com/cakebaker/scss-syntax.vim.git
-[submodule ".vim/bundle/vimclojure"]
-	path = .vim/bundle/vimclojure
-	url = https://github.com/vim-scripts/VimClojure.git
 [submodule ".vim/bundle/matchit"]
 	path = .vim/bundle/matchit
 	url = https://github.com/edsono/vim-matchit.git
@@ -256,3 +253,6 @@
 [submodule ".vim/bundle/paren-crosshairs"]
 	path = .vim/bundle/paren-crosshairs
 	url = https://github.com/chreekat/vim-paren-crosshairs.git
+[submodule ".vim/bundle/powerline"]
+	path = .vim/bundle/powerline
+	url = https://github.com/Lokaltog/powerline.git
