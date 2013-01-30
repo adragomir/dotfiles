@@ -265,3 +265,15 @@
 [submodule ".vim/bundle/seek"]
 	path = .vim/bundle/seek
 	url = https://github.com/goldfeld/vim-seek.git
+[submodule ".vim/bundle/golang-alternate"]
+	path = .vim/bundle/golang-alternate
+	url = https://github.com/benmills/vim-golang-alternate.git
+[submodule ".vim/bundle/ultisnips"]
+	path = .vim/bundle/ultisnips
+	url = https://github.com/SirVer/ultisnips.git
+[submodule ".vim/bundle/ios"]
+	path = .vim/bundle/ios
+	url = https://github.com/eraserhd/vim-ios.git
+[submodule ".vim/bundle/objc"]
+	path = .vim/bundle/objc
+	url = https://github.com/b4winckler/vim-objc.git
