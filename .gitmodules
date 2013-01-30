@@ -265,3 +265,6 @@
 [submodule ".vim/bundle/vimclojure-static"]
 	path = .vim/bundle/vimclojure-static
 	url = https://github.com/guns/vim-clojure-static.git
+[submodule ".vim/bundle/seek"]
+	path = .vim/bundle/seek
+	url = https://github.com/goldfeld/vim-seek.git
