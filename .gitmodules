@@ -247,9 +247,6 @@
 [submodule ".vim/bundle/addon-mw-utils"]
 	path = .vim/bundle/addon-mw-utils
 	url = https://github.com/MarcWeber/vim-addon-mw-utils.git
-[submodule ".vim/bundle/snipmate"]
-	path = .vim/bundle/snipmate
-	url = https://github.com/garbas/vim-snipmate.git
 [submodule ".vim/bundle/paren-crosshairs"]
 	path = .vim/bundle/paren-crosshairs
 	url = https://github.com/chreekat/vim-paren-crosshairs.git
