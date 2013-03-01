@@ -43,6 +43,14 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '\C-x\C-e' edit-command-line
 
+_completeme() {
+  zle -I
+  completeme
+  echo $tmp
+}
+bindkey "\C-t" _completeme
+zle -N _completeme
+
 # {{{
 # ls colors
 autoload colors; colors;
@@ -994,6 +1002,7 @@ export GOROOT=$HOME/temp/source/other/go
 export GOOS=$OS
 export GOARCH=amd64
 export GOBIN=$HOME/bin/$OS/go
+export GOPATH=$HOME/.gocode
 
 export P4CONFIG=.p4conf
 export HTML_TIDY=$HOME/.tidyconf
@@ -1005,6 +1014,9 @@ source $HOME/work/s/services/use-hadoop-1
 export HBASE_HOME=$HOME/work/s/hbase
 export ZOOKEEPER_HOME=$HOME/work/s/zookeeper
 export STORM_HOME=$HOME/work/s/storm
+
+# ansible
+export ANSIBLE_HOSTS=~/.ansible_hosts
 
 # saasbase
 export SAASBASE_DB_HOME=$HOME/work/s/saasbase/src/saasbase_db
@@ -1063,6 +1075,7 @@ $HOME/work/tools/android-sdk-$OS/tools/:\
 $HOME/work/tools/android-sdk-$OS/platform-tools/:\
 $HOME/work/tools/play-2.0.1/:\
 $GOBIN:\
+$HOME/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin/:\
 $PATH
 
 if [ "`uname`" = "Darwin" ]; then
@@ -2077,3 +2090,4 @@ eval "$(fasd --init auto)"
 
 export PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 source $HOME/.rvm/scripts/rvm
+
