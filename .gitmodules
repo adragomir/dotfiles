@@ -265,9 +265,6 @@
 [submodule ".vim/bundle/golang-alternate"]
 	path = .vim/bundle/golang-alternate
 	url = https://github.com/benmills/vim-golang-alternate.git
-[submodule ".vim/bundle/ultisnips"]
-	path = .vim/bundle/ultisnips
-	url = https://github.com/SirVer/ultisnips.git
 [submodule ".vim/bundle/ios"]
 	path = .vim/bundle/ios
 	url = https://github.com/eraserhd/vim-ios.git
