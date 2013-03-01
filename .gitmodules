@@ -1,6 +1,3 @@
-[submodule ".vim/bundle/vim-align"]
-	path = .vim/bundle/vim-align
-	url = https://github.com/tsaleh/vim-align.git
 [submodule ".vim/bundle/clang_complete"]
 	path = .vim/bundle/clang_complete
 	url = https://github.com/Rip-Rip/clang_complete.git
@@ -10,21 +7,12 @@
 [submodule ".vim/bundle/conque"]
 	path = .vim/bundle/conque
 	url = https://github.com/rson/vim-conque.git
-[submodule ".vim/bundle/fakeclip"]
-	path = .vim/bundle/fakeclip
-	url = https://github.com/kana/vim-fakeclip.git
-[submodule ".vim/bundle/gist"]
-	path = .vim/bundle/gist
-	url = https://github.com/mattn/gist-vim.git
 [submodule ".vim/bundle/ku"]
 	path = .vim/bundle/ku
 	url = https://github.com/kana/vim-ku.git
 [submodule ".vim/bundle/metarw"]
 	path = .vim/bundle/metarw
 	url = https://github.com/kana/vim-metarw.git
-[submodule ".vim/bundle/pastie"]
-	path = .vim/bundle/pastie
-	url = https://github.com/tpope/vim-pastie.git
 [submodule ".vim/bundle/surround"]
 	path = .vim/bundle/surround
 	url = https://github.com/tpope/vim-surround.git
@@ -34,18 +22,12 @@
 [submodule ".vim/bundle/vim-ruby"]
 	path = .vim/bundle/vim-ruby
 	url = https://github.com/vim-ruby/vim-ruby.git
-[submodule ".vim/bundle/smarttill"]
-	path = .vim/bundle/smarttill
-	url = https://github.com/kana/vim-smarttill.git
 [submodule ".vim/bundle/ack"]
 	path = .vim/bundle/ack
 	url = http://github.com/mileszs/ack.vim.git
 [submodule ".vim/bundle/javascript"]
 	path = .vim/bundle/javascript
 	url = https://github.com/pangloss/vim-javascript.git
-[submodule ".vim/bundle/vimpdb"]
-	path = .vim/bundle/vimpdb
-	url = https://github.com/gotcha/vimpdb.git
 [submodule ".vim/bundle/javacomplete"]
 	path = .vim/bundle/javacomplete
 	url = git@github.com:adragomir/javacomplete.git
@@ -58,30 +40,9 @@
 [submodule ".vim/bundle/neverland-vim-theme"]
 	path = .vim/bundle/neverland-vim-theme
 	url = https://github.com/trapd00r/neverland-vim-theme.git
-[submodule ".vim/bundle/chapa"]
-	path = .vim/bundle/chapa
-	url = https://github.com/alfredodeza/chapa.vim.git
 [submodule ".vim/bundle/operator-user"]
 	path = .vim/bundle/operator-user
 	url = https://github.com/kana/vim-operator-user.git
-[submodule ".vim/bundle/operator-replace"]
-	path = .vim/bundle/operator-replace
-	url = https://github.com/kana/vim-operator-replace.git
-[submodule ".vim/bundle/textobj-function"]
-	path = .vim/bundle/textobj-function
-	url = https://github.com/kana/vim-textobj-function.git
-[submodule ".vim/bundle/textobj-fold"]
-	path = .vim/bundle/textobj-fold
-	url = https://github.com/kana/vim-textobj-fold.git
-[submodule ".vim/bundle/smartchr"]
-	path = .vim/bundle/smartchr
-	url = https://github.com/kana/vim-smartchr.git
-[submodule ".vim/bundle/smartword"]
-	path = .vim/bundle/smartword
-	url = https://github.com/kana/vim-smartword.git
-[submodule ".vim/bundle/textobj-datetime"]
-	path = .vim/bundle/textobj-datetime
-	url = https://github.com/kana/vim-textobj-datetime.git
 [submodule ".vim/bundle/tabular"]
 	path = .vim/bundle/tabular
 	url = https://github.com/godlygeek/tabular.git
@@ -94,24 +55,15 @@
 [submodule ".vim/bundle/coffee-script"]
 	path = .vim/bundle/coffee-script
 	url = https://github.com/kchmck/vim-coffee-script.git
-[submodule ".vim/bundle/indent-object"]
-	path = .vim/bundle/indent-object
-	url = https://github.com/michaeljsmith/vim-indent-object.git
 [submodule ".vim/bundle/vim-bundle"]
 	path = .vim/bundle/vim-bundle
 	url = https://github.com/kana/vim-bundle.git
-[submodule ".vim/bundle/taglist-plus"]
-	path = .vim/bundle/taglist-plus
-	url = https://github.com/int3/vim-taglist-plus.git
 [submodule ".vim/bundle/textile"]
 	path = .vim/bundle/textile
 	url = https://github.com/timcharper/textile.vim
 [submodule ".vim/bundle/neocomplcache"]
 	path = .vim/bundle/neocomplcache
 	url = https://github.com/Shougo/neocomplcache.git
-[submodule ".vim/bundle/easymotion"]
-	path = .vim/bundle/easymotion
-	url = https://github.com/Lokaltog/vim-easymotion.git
 [submodule ".vim/bundle/syntastic"]
 	path = .vim/bundle/syntastic
 	url = https://github.com/scrooloose/syntastic.git
@@ -181,12 +133,6 @@
 [submodule ".vim/bundle/color-samplerpack"]
 	path = .vim/bundle/color-samplerpack
 	url = https://github.com/vim-scripts/Color-Sampler-Pack.git
-[submodule ".vim/bundle/textobj-rubyblock"]
-	path = .vim/bundle/textobj-rubyblock
-	url = https://github.com/nelstrom/vim-textobj-rubyblock.git
-[submodule ".vim/bundle/cdo"]
-	path = .vim/bundle/cdo
-	url = https://github.com/Peeja/vim-cdo.git
 [submodule ".vim/bundle/tslime"]
 	path = .vim/bundle/tslime
 	url = https://github.com/jgdavey/tslime.vim.git
@@ -202,18 +148,12 @@
 [submodule ".vim/bundle/vimux"]
 	path = .vim/bundle/vimux
 	url = https://github.com/benmills/vimux.git
-[submodule ".vim/bundle/pastebin"]
-	path = .vim/bundle/pastebin
-	url = https://github.com/mattn/pastebin-vim.git
 [submodule ".vim/bundle/endwise"]
 	path = .vim/bundle/endwise
 	url = https://github.com/tpope/vim-endwise
 [submodule ".vim/bundle/localvimrc"]
 	path = .vim/bundle/localvimrc
 	url = https://github.com/embear/vim-localvimrc.git
-[submodule ".vim/bundle/delimitmate"]
-	path = .vim/bundle/delimitmate
-	url = https://github.com/Raimondi/delimitMate.git
 [submodule ".vim/bundle/flashdevelop"]
 	path = .vim/bundle/flashdevelop
 	url = https://github.com/endel/flashdevelop.vim.git
@@ -232,9 +172,6 @@
 [submodule ".vim/bundle/jedi"]
 	path = .vim/bundle/jedi
 	url = https://github.com/davidhalter/jedi-vim.git
-[submodule ".vim/bundle/vimshell"]
-	path = .vim/bundle/vimshell
-	url = https://github.com/Shougo/vimshell.git
 [submodule ".vim/bundle/vimproc"]
 	path = .vim/bundle/vimproc
 	url = https://github.com/Shougo/vimproc.git
@@ -259,9 +196,6 @@
 [submodule ".vim/bundle/vimclojure-static"]
 	path = .vim/bundle/vimclojure-static
 	url = https://github.com/guns/vim-clojure-static.git
-[submodule ".vim/bundle/seek"]
-	path = .vim/bundle/seek
-	url = https://github.com/goldfeld/vim-seek.git
 [submodule ".vim/bundle/golang-alternate"]
 	path = .vim/bundle/golang-alternate
 	url = https://github.com/benmills/vim-golang-alternate.git
