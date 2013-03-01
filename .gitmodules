@@ -100,9 +100,6 @@
 [submodule ".vim/bundle/fugitive"]
 	path = .vim/bundle/fugitive
 	url = https://github.com/tpope/vim-fugitive.git
-[submodule ".vim/bundle/tcomment"]
-	path = .vim/bundle/tcomment
-	url = https://github.com/tomtom/tcomment_vim.git
 [submodule ".vim/bundle/rspec"]
 	path = .vim/bundle/rspec
 	url = https://github.com/skwp/vim-rspec.git
@@ -205,3 +202,6 @@
 [submodule ".vim/bundle/objc"]
 	path = .vim/bundle/objc
 	url = https://github.com/b4winckler/vim-objc.git
+[submodule ".vim/bundle/commentary"]
+	path = .vim/bundle/commentary
+	url = https://github.com/tpope/vim-commentary.git
