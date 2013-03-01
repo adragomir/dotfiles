@@ -1354,13 +1354,6 @@ let g:gist_open_browser_after_post = 1
 let g:molokai_original = 0
 " }}}
 
-" delimit mate - disable {{{
-let g:loaded_delimitMate = 1
-" }}}
-"
-
-let g:loaded_seek = 1
-
 " ack {{{
 let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 " }}}
