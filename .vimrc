@@ -1271,13 +1271,17 @@ let g:tex_flavor = "/usr/texbin/pdftex"
 " clang_complete {{{
 "let g:clang_complete_copen = 1
 "let g:clang_user_options='|| exit 0'
-let g:clang_complete_auto = 1
-let g:clang_complete_macros = 1
-let g:clang_debug = 1
+let g:clang_complete_auto = 0
 let g:clang_use_library = 1
+let g:clang_complete_macros = 1
+let g:clang_periodic_quickfix = 0
+let g:clang_close_preview = 1
+let g:clang_snippets = 1
+let g:clang_snippets_engine = 'ultisnips'
+let g:clang_debug = 1
 if has("macunix")
   "let g:clang_library_path = $HOME . "/work/tools/libclang"
-  let g:clang_library_path = "/usr/local/Cellar/llvm/3.1/lib/"
+  let g:clang_library_path = "/usr/local/lib/libclang.dylib"
 else
   let g:clang_library_path = "/usr/lib/"
 endif
@@ -1353,6 +1357,9 @@ let g:molokai_original = 0
 " delimit mate - disable {{{
 let g:loaded_delimitMate = 1
 " }}}
+"
+
+let g:loaded_seek = 1
 
 " ack {{{
 let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
@@ -1466,6 +1473,9 @@ autocmd FileType c set ts=4 sw=4
 autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
 autocmd FileType puppet setlocal sw=2 ts=2 expandtab
 
+augroup comments
+  autocmd FileType actionscript setlocal commentstring=//\ %s
+augroup end
 augroup ft_mkd
     autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
     autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;
