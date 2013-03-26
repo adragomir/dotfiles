@@ -202,3 +202,9 @@
 [submodule ".vim/bundle/eunuch"]
 	path = .vim/bundle/eunuch
 	url = https://github.com/tpope/vim-eunuch.git
+[submodule ".vim/bundle/fireplace"]
+	path = .vim/bundle/fireplace
+	url = https://github.com/tpope/vim-fireplace.git
+[submodule ".vim/bundle/a"]
+	path = .vim/bundle/a
+	url = https://github.com/vim-scripts/a.vim.git
