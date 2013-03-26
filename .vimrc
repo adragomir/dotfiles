@@ -184,10 +184,10 @@ set t_Co=16
 let g:solarized_termtrans=1
 let g:solarized_termcolors=256
 let g:solarized_italic=0
-colorscheme Tomorrow-Night
+colorscheme ir_black
 
 if has("gui_running") && has("macunix")
-  set guifont=Source\ Code\ Pro\ Light:h12
+  set guifont=Source\ Code\ Pro\ Light:h14
   set antialias
 endif
 
@@ -1277,7 +1277,7 @@ let g:clang_complete_macros = 1
 let g:clang_periodic_quickfix = 0
 let g:clang_close_preview = 1
 let g:clang_snippets = 1
-let g:clang_snippets_engine = 'ultisnips'
+"let g:clang_snippets_engine = 'ultisnips'
 let g:clang_debug = 1
 if has("macunix")
   "let g:clang_library_path = $HOME . "/work/tools/libclang"
@@ -1466,9 +1466,14 @@ autocmd FileType c set ts=4 sw=4
 autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
 autocmd FileType puppet setlocal sw=2 ts=2 expandtab
 
+augroup iskeywords
+  autocmd FileType actionscript setlocal iskeyword-=:
+augroup end
+
 augroup comments
   autocmd FileType actionscript setlocal commentstring=//\ %s
 augroup end
+
 augroup ft_mkd
     autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
     autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;

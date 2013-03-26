@@ -156,6 +156,18 @@ zstyle ':completion:*' squeeze-slashes true
 
 # should this be in keybindings?
 bindkey -M menuselect '^o' accept-and-infer-next-history
+zle -C complete-menu menu-select _generic
+_complete_menu() {
+  setopt localoptions alwayslastprompt
+  zle complete-menu
+}
+zle -N _complete_menu
+bindkey '^F' _complete_menu
+bindkey -M menuselect '^F' accept-and-infer-next-history
+bindkey -M menuselect '/'  accept-and-infer-next-history
+bindkey -M menuselect '^?' undo
+bindkey -M menuselect ' ' accept-and-hold
+bindkey -M menuselect '*' history-incremental-search-forward
 
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' squeeze-slashes true
@@ -303,6 +315,12 @@ function title {
     print -nR $'\033]0;'$*$'\a'
   fi
 }
+
+function _backward_kill_default_word() {
+  WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>' zle backward-kill-word
+}
+zle -N backward-kill-default-word _backward_kill_default_word
+bindkey '\e=' backward-kill-default-word   # = is next to backspace
 
 function precmd {
   #title zsh "$PWD"
@@ -537,12 +555,23 @@ setopt APPEND_HISTORY
 # TODO: Explain what some of this does..
 autoload -U compinit
 compinit -i
+autoload -Uz narrow-to-region
+function _history-incremental-preserving-pattern-search-backward
+{
+  local state
+  MARK=CURSOR  # magick, else multiple ^R don't work
+  narrow-to-region -p "$LBUFFER${BUFFER:+>>}" -P "${BUFFER:+<<}$RBUFFER" -S state
+  zle end-of-history
+  zle history-incremental-pattern-search-backward
+  narrow-to-region -R state
+}
+zle -N _history-incremental-preserving-pattern-search-backward
 
 bindkey -e
 bindkey '\ew' kill-region
-bindkey -s '\el' "ls\n"
-bindkey -s '\e.' "..\n"
-bindkey '^r' history-incremental-pattern-search-backward
+bindkey "^r" _history-incremental-preserving-pattern-search-backward
+bindkey -M isearch "^r" history-incremental-pattern-search-backward
+#bindkey '^r' history-incremental-pattern-search-backward
 bindkey "^s" history-incremental-pattern-search-forward
 bindkey "^[[5~" up-line-or-history
 bindkey "^[[6~" down-line-or-history
@@ -1064,18 +1093,18 @@ export PATH=\
 $HOME/bin:\
 $HOME/bin/$OS:\
 $SAASBASE_HOME/services:\
-$HOME/.cabal/bin/:\
-$HOME/temp/source/other/sshuttle/:\
+$HOME/.cabal/bin:\
+$HOME/temp/source/other/sshuttle:\
 $HOME/temp/source/other/factor:\
-$HOME/work/tools/nasm/:\
+$HOME/work/tools/nasm:\
 $HOME/temp/source/other/rock/bin:\
 $ROO_HOME/bin:\
-$HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64/:\
-$HOME/work/tools/android-sdk-$OS/tools/:\
-$HOME/work/tools/android-sdk-$OS/platform-tools/:\
-$HOME/work/tools/play-2.0.1/:\
+$HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64:\
+$HOME/work/tools/android-sdk-$OS/tools:\
+$HOME/work/tools/android-sdk-$OS/platform-tools:\
+$HOME/work/tools/play-2.0.1:\
 $GOBIN:\
-$HOME/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin/:\
+$HOME/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin:\
 $PATH
 
 if [ "`uname`" = "Darwin" ]; then
@@ -1136,10 +1165,7 @@ alias gci="git commit"
 alias gco="git checkout"
 
 # clojure
-#alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
-#alias clojure_boot='rlwrap java -Xbootclasspath/a:$MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
-#alias clj='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar clojure.main'
-#alias ng-server='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.1.0-master-SNAPSHOT/clojure-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.1.0-master-SNAPSHOT/clojure-contrib-1.1.0-master-SNAPSHOT.jar:$MAVEN_REPO/vimclojure/vimclojure/2.2.0-SNAPSHOT/vimclojure-2.2.0-SNAPSHOT.jar com.martiansoftware.nailgun.NGServer 127.0.0.1'
+alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.4.0/clojure-1.4.0.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.2.0/clojure-contrib-1.2.0.jar clojure.main'
 
 # builtin commands
 
