@@ -172,9 +172,6 @@
 [submodule ".vim/bundle/vim-addon-async"]
 	path = .vim/bundle/vim-addon-async
 	url = https://github.com/MarcWeber/vim-addon-async.git
-[submodule ".vim/bundle/ensime"]
-	path = .vim/bundle/ensime
-	url = https://github.com/andreypopp/ensime.git
 [submodule ".vim/bundle/addon-mw-utils"]
 	path = .vim/bundle/addon-mw-utils
 	url = https://github.com/MarcWeber/vim-addon-mw-utils.git
@@ -220,3 +217,6 @@
 [submodule ".vim/bundle/dispatch"]
 	path = .vim/bundle/dispatch
 	url = https://github.com/tpope/vim-dispatch.git
+[submodule ".vim/bundle/vimside"]
+	path = .vim/bundle/vimside
+	url = https://github.com/megaannum/vimside.git
