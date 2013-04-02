@@ -208,12 +208,6 @@
 [submodule ".vim/bundle/vimshell"]
 	path = .vim/bundle/vimshell
 	url = https://github.com/Shougo/vimshell.git
-[submodule ".vim/bundle/forms"]
-	path = .vim/bundle/forms
-	url = https://github.com/megaannum/forms.git
-[submodule ".vim/bundle/self"]
-	path = .vim/bundle/self
-	url = https://github.com/megaannum/self.git
 [submodule ".vim/bundle/dispatch"]
 	path = .vim/bundle/dispatch
 	url = https://github.com/tpope/vim-dispatch.git
