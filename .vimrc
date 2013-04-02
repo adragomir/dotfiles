@@ -187,7 +187,7 @@ let g:solarized_italic=0
 colorscheme ir_black
 
 if has("gui_running") && has("macunix")
-  set guifont=Source\ Code\ Pro\ Light:h14
+  set guifont=Source\ Code\ Pro\ Light:h13
   set antialias
 endif
 

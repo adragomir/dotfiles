@@ -1054,6 +1054,8 @@ export SAASBASE_DATAROOT=/var
 
 export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
 
+export FLEX_SDK_BIN_DIR=/Users/adr/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin
+
 export MONO_GAC_PREFIX=/usr/local
 
 # luatext
@@ -1065,7 +1067,7 @@ export TEXMFCACHE=/tmp
 
 # java
 if [ "`uname`" = "Darwin" ]; then
-  export JAVA_HOME="$(/usr/libexec/java_home)"
+  export JAVA_HOME="$(/usr/libexec/java_home -v 1.6)"
 else
   export JAVA_HOME=/usr/lib/jvm/java-6-sun/
 fi
@@ -2116,4 +2118,3 @@ eval "$(fasd --init auto)"
 
 export PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 source $HOME/.rvm/scripts/rvm
-
