@@ -58,9 +58,6 @@
 [submodule ".vim/bundle/syntastic"]
 	path = .vim/bundle/syntastic
 	url = https://github.com/scrooloose/syntastic.git
-[submodule ".vim/bundle/l9"]
-	path = .vim/bundle/l9
-	url = https://github.com/clones/vim-l9.git
 [submodule ".vim/bundle/puppet-vim"]
 	path = .vim/bundle/puppet-vim
 	url = https://github.com/ajf/puppet-vim.git
