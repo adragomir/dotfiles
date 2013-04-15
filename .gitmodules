@@ -76,9 +76,6 @@
 [submodule ".vim/bundle/matchit"]
 	path = .vim/bundle/matchit
 	url = https://github.com/edsono/vim-matchit.git
-[submodule ".vim/bundle/vroom"]
-	path = .vim/bundle/vroom
-	url = https://github.com/skalnik/vim-vroom.git
 [submodule ".vim/bundle/extradite"]
 	path = .vim/bundle/extradite
 	url = https://github.com/int3/vim-extradite
