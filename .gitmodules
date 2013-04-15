@@ -25,9 +25,6 @@
 [submodule ".vim/bundle/textobj-user"]
 	path = .vim/bundle/textobj-user
 	url = https://github.com/kana/vim-textobj-user.git
-[submodule ".vim/bundle/operator-user"]
-	path = .vim/bundle/operator-user
-	url = https://github.com/kana/vim-operator-user.git
 [submodule ".vim/bundle/tabular"]
 	path = .vim/bundle/tabular
 	url = https://github.com/godlygeek/tabular.git
@@ -58,9 +55,6 @@
 [submodule ".vim/bundle/ctrlp"]
 	path = .vim/bundle/ctrlp
 	url = https://github.com/kien/ctrlp.vim.git
-[submodule ".vim/bundle/pandoc"]
-	path = .vim/bundle/pandoc
-	url = https://github.com/vim-pandoc/vim-pandoc.git
 [submodule ".vim/bundle/vim-rails"]
 	path = .vim/bundle/vim-rails
 	url = https://github.com/tpope/vim-rails.git
@@ -103,9 +97,6 @@
 [submodule ".vim/bundle/Kwbd"]
 	path = .vim/bundle/Kwbd
 	url = https://github.com/rgarver/Kwbd.vim.git
-[submodule ".vim/bundle/tlib"]
-	path = .vim/bundle/tlib
-	url = https://github.com/tomtom/tlib_vim
 [submodule ".vim/bundle/scala"]
 	path = .vim/bundle/scala
 	url = https://github.com/derekwyatt/vim-scala.git
