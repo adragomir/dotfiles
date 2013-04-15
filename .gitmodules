@@ -37,9 +37,6 @@
 [submodule ".vim/bundle/coffee-script"]
 	path = .vim/bundle/coffee-script
 	url = https://github.com/kchmck/vim-coffee-script.git
-[submodule ".vim/bundle/vim-bundle"]
-	path = .vim/bundle/vim-bundle
-	url = https://github.com/kana/vim-bundle.git
 [submodule ".vim/bundle/textile"]
 	path = .vim/bundle/textile
 	url = https://github.com/timcharper/textile.vim
@@ -91,9 +88,6 @@
 [submodule ".vim/bundle/vividchalk"]
 	path = .vim/bundle/vividchalk
 	url = https://github.com/tpope/vim-vividchalk.git
-[submodule ".vim/bundle/tslime"]
-	path = .vim/bundle/tslime
-	url = https://github.com/jgdavey/tslime.vim.git
 [submodule ".vim/bundle/Kwbd"]
 	path = .vim/bundle/Kwbd
 	url = https://github.com/rgarver/Kwbd.vim.git
