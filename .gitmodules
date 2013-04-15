@@ -49,9 +49,6 @@
 [submodule ".vim/bundle/textile"]
 	path = .vim/bundle/textile
 	url = https://github.com/timcharper/textile.vim
-[submodule ".vim/bundle/neocomplcache"]
-	path = .vim/bundle/neocomplcache
-	url = https://github.com/Shougo/neocomplcache.git
 [submodule ".vim/bundle/syntastic"]
 	path = .vim/bundle/syntastic
 	url = https://github.com/scrooloose/syntastic.git
