@@ -1026,13 +1026,6 @@ export hlainc=/usr/hla/include
 export CLICOLOR=1
 export LSCOLORS=ExFxCxDxBxegedabagacad
 
-#GO
-export GOROOT=$HOME/temp/source/other/go
-export GOOS=$OS
-export GOARCH=amd64
-export GOBIN=$HOME/bin/$OS/go
-export GOPATH=$HOME/.gocode
-
 export P4CONFIG=.p4conf
 export HTML_TIDY=$HOME/.tidyconf
 
@@ -1043,6 +1036,7 @@ source $HOME/work/s/services/use-hadoop-1
 export HBASE_HOME=$HOME/work/s/hbase
 export ZOOKEEPER_HOME=$HOME/work/s/zookeeper
 export STORM_HOME=$HOME/work/s/storm
+export KAFKA_HOME=$HOME/work/s/kafka
 
 # ansible
 export ANSIBLE_HOSTS=~/.ansible_hosts
