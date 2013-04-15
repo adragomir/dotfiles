@@ -115,15 +115,6 @@
 [submodule ".vim/bundle/vividchalk"]
 	path = .vim/bundle/vividchalk
 	url = https://github.com/tpope/vim-vividchalk.git
-[submodule ".vim/bundle/color-molokai"]
-	path = .vim/bundle/color-molokai
-	url = https://github.com/vim-scripts/molokai.git
-[submodule ".vim/bundle/color-getafe"]
-	path = .vim/bundle/color-getafe
-	url = https://github.com/larssmit/vim-getafe.git
-[submodule ".vim/bundle/color-samplerpack"]
-	path = .vim/bundle/color-samplerpack
-	url = https://github.com/vim-scripts/Color-Sampler-Pack.git
 [submodule ".vim/bundle/tslime"]
 	path = .vim/bundle/tslime
 	url = https://github.com/jgdavey/tslime.vim.git
