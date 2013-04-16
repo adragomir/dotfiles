@@ -168,6 +168,9 @@ let g:loaded_manpageviewPlugin = 1
 " }}}
 " }}}
 
+let g:pathogen_disabled = ['vimside']
+
+
 call pathogen#helptags()
 call pathogen#infect() 
 " }}}
@@ -1166,6 +1169,21 @@ let java_highlight_functions="style"
 " sparkup {{{
 let g:sparkupExecuteMapping = '<c-e>'
 let g:sparkupNextMapping = '<c-s>'
+" }}}
+
+" expand-region {{{
+" let g:expand_region_text_objects = {
+"       \ 'iw'  :1,
+"       \ 'iW'  :1,
+"       \ 'i"'  :1,
+"       \ 'i''' :1,
+"       \ 'i]'  :1,
+"       \ 'ib'  :1,
+"       \ 'iB'  :1,
+"       \ 'il'  :0,
+"       \ 'ip'  :1,
+"       \ 'ie'  :0,
+"       \ }
 " }}}
 
 " python syntax settings {{{
