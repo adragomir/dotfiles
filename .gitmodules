@@ -112,9 +112,6 @@
 [submodule ".vim/bundle/vimproc"]
 	path = .vim/bundle/vimproc
 	url = https://github.com/Shougo/vimproc.git
-[submodule ".vim/bundle/vim-addon-async"]
-	path = .vim/bundle/vim-addon-async
-	url = https://github.com/MarcWeber/vim-addon-async.git
 [submodule ".vim/bundle/addon-mw-utils"]
 	path = .vim/bundle/addon-mw-utils
 	url = https://github.com/MarcWeber/vim-addon-mw-utils.git
