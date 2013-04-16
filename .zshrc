@@ -1079,6 +1079,7 @@ if [ "`uname`" = "Darwin" ]; then
   export VIMRUNTIME=$HOME/Applications/MacVim.app/Contents/Resources/vim/runtime/
 fi  
 #export SCALA_HOME=/usr/local
+export ENSIMEHOME=/Users/adr/work/tools/ensime/ensime_2.9.2-0.9.8.9/
 # }}}
 
 
