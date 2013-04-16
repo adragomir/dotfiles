@@ -82,9 +82,6 @@
 [submodule ".vim/bundle/ir_black"]
 	path = .vim/bundle/ir_black
 	url = https://github.com/wgibbs/vim-irblack.git
-[submodule ".vim/bundle/vividchalk"]
-	path = .vim/bundle/vividchalk
-	url = https://github.com/tpope/vim-vividchalk.git
 [submodule ".vim/bundle/Kwbd"]
 	path = .vim/bundle/Kwbd
 	url = https://github.com/rgarver/Kwbd.vim.git
