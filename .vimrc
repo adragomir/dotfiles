@@ -99,6 +99,7 @@ set directory=~/.vim/tmp/swap// " keep swp files under ~/.vim/swap
 " settings: windows and buffers
 "set noequalalways
 set guiheadroom=0
+set shellcmdflag=-lc
 " 	When off a buffer is unloaded when it is |abandon|ed.
 set hidden
 set splitbelow                " split windows below current one
