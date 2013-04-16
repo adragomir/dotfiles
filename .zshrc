@@ -94,10 +94,10 @@ setopt transient_rprompt
 
 # Load the theme
 PROMPT=$'%{$fg_bold[yellow]%}[<%n@%{$fg_bold[green]%}%m%{$fg_bold[yellow]%}>]%{$reset_color%}%{$fg[white]%}[$fg_bold[yellow]${PWD/#$HOME/~}]%{$reset_color%}$(git_prompt_info)\
-%{$fg_bold[yellow]%}$ %{$reset_color%}'
+%{$fg_bold[yellow]%}➜ %{$reset_color%}'
 
 PROMPT2=$'%{$fg_bold[yellow]%}[<%n@%{$fg_bold[green]%}%m%{$fg_bold[yellow]%}>]%{$reset_color%}%{$fg[white]%}[$fg_bold[yellow]${PWD/#$HOME/~}]%{$reset_color%}$(git_prompt_info)\
-%{$fg_bold[yellow]%}%_$ %{$reset_color%}'
+%{$fg_bold[yellow]%}%_➜ %{$reset_color%}'
 
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[green]%}["

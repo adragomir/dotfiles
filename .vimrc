@@ -169,8 +169,7 @@ let g:loaded_manpageviewPlugin = 1
 " }}}
 " }}}
 
-let g:pathogen_disabled = ['vimside']
-
+let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers']
 
 call pathogen#helptags()
 call pathogen#infect() 
@@ -1400,8 +1399,8 @@ let g:syntastic_mode_map = { 'mode': 'active',
 " }}}
 
 " javacomplete {{{
-let g:first_nailgun_port=2114
-let g:javacomplete_ng="/Users/adr/dotfiles/bin/binary/ng"
+" let g:first_nailgun_port=2114
+" let g:javacomplete_ng="/Users/adr/dotfiles/bin/binary/ng"
 " }}}
 
 " }}}

@@ -154,3 +154,6 @@
 [submodule ".vim/bundle/ultisnips"]
 	path = .vim/bundle/ultisnips
 	url = https://github.com/SirVer/ultisnips.git
+[submodule ".vim/bundle/maven-ide"]
+	path = .vim/bundle/maven-ide
+	url = https://github.com/dareni/vim-maven-ide
