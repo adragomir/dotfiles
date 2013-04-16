@@ -76,9 +76,6 @@
 [submodule ".vim/bundle/matchit"]
 	path = .vim/bundle/matchit
 	url = https://github.com/edsono/vim-matchit.git
-[submodule ".vim/bundle/extradite"]
-	path = .vim/bundle/extradite
-	url = https://github.com/int3/vim-extradite
 [submodule ".vim/bundle/ir_black"]
 	path = .vim/bundle/ir_black
 	url = https://github.com/wgibbs/vim-irblack.git
@@ -112,9 +109,6 @@
 [submodule ".vim/bundle/vimproc"]
 	path = .vim/bundle/vimproc
 	url = https://github.com/Shougo/vimproc.git
-[submodule ".vim/bundle/addon-mw-utils"]
-	path = .vim/bundle/addon-mw-utils
-	url = https://github.com/MarcWeber/vim-addon-mw-utils.git
 [submodule ".vim/bundle/powerline"]
 	path = .vim/bundle/powerline
 	url = https://github.com/Lokaltog/powerline.git
@@ -145,9 +139,6 @@
 [submodule ".vim/bundle/a"]
 	path = .vim/bundle/a
 	url = https://github.com/vim-scripts/a.vim.git
-[submodule ".vim/bundle/vimshell"]
-	path = .vim/bundle/vimshell
-	url = https://github.com/Shougo/vimshell.git
 [submodule ".vim/bundle/dispatch"]
 	path = .vim/bundle/dispatch
 	url = https://github.com/tpope/vim-dispatch.git
