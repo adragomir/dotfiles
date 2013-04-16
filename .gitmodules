@@ -67,9 +67,6 @@
 [submodule ".vim/bundle/fugitive"]
 	path = .vim/bundle/fugitive
 	url = https://github.com/tpope/vim-fugitive.git
-[submodule ".vim/bundle/rspec"]
-	path = .vim/bundle/rspec
-	url = https://github.com/skwp/vim-rspec.git
 [submodule ".vim/bundle/scss-syntax"]
 	path = .vim/bundle/scss-syntax
 	url = https://github.com/cakebaker/scss-syntax.vim.git
