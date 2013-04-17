@@ -9,7 +9,8 @@ endif
 "}}}
 
 " settings {{{
-" general settings
+
+" general settings {{{
 set nocompatible              " use VI incompatible features
 let no_buffers_menu=1
 set noautochdir
@@ -30,9 +31,6 @@ set number                    " show line numbers
 set whichwrap=<,>,h,l,b,s,~,[,]
 set shortmess=aTI             " supress some file messages
 set sidescrolloff=4           " minchars to show around cursor
-if has("gui_running")
-    set mouse=a
-endif
 set selectmode=mouse,key      " select model
 set keymodel=startsel         ",stopsel
 set autoread                  " read outside modified files
@@ -85,17 +83,17 @@ set completeopt=menu,menuone,longest "sjl: set completeopt=longest,menuone,previ
 set ttyfast
 set timeout
 set ttimeout
-set timeoutlen=200
+set timeoutlen=500
 set ttimeoutlen=100
 "set noesckeys
 set guipty
 set clipboard=unnamed "unnamed ",unnamedplus,autoselect
 set undofile
 set undoreload=10000
-set undodir=~/.vim/tmp/undo//
-set backupdir=~/.vim/tmp/backup// " store backups under ~/.vim/backup
+set undodir=~/.vim/tmp/undo/
+set backupdir=~/.vim/tmp/backup/ " store backups under ~/.vim/backup
+set directory=~/.vim/tmp/swap/ " keep swp files under ~/.vim/swap
 set backup
-set directory=~/.vim/tmp/swap// " keep swp files under ~/.vim/swap
 " settings: windows and buffers
 "set noequalalways
 set guiheadroom=0
@@ -114,7 +112,7 @@ set switchbuf=usetab
 "set ff=unix
 "set ffs=unix
 " settings: grep
-set grepprg=$HOME/bin/ack\ --noenv
+set grepprg=ag
 set grepformat=%f:%l:%m
 " settings: tabs and indentin
 set nofoldenable
@@ -133,6 +131,8 @@ set laststatus=2
 set suffixes+=.lo,.o,.moc,.la,.closure,.loT
 set suffixes+=.bak,~,.o,.h,.info,.swp,.obj
 set suffixes+=class,.6
+
+" }}}
 
 " wildmenu settings {{{
 set wildmenu
@@ -183,179 +183,44 @@ let maplocalleader = ","
 " look & feel {{{
 set t_Co=256
 set background=dark
-set t_Co=16
-let g:solarized_termtrans=1
-let g:solarized_termcolors=256
-let g:solarized_italic=0
+" solarized
+" set t_Co=16
+" let g:solarized_termtrans=1
+" let g:solarized_termcolors=256
+" let g:solarized_italic=0
 colorscheme ir_black
 
-if has("gui_running") && has("macunix")
-  set guifont=Source\ Code\ Pro\ Light:h13
-  set antialias
+if has("gui_running")
+    set mouse=a
+    " behave mswin
+    set selectmode=mouse "key,mouse
+    set mousemodel=popup
+    set keymodel=startsel ",stopsel
+    set selection=exclusive
+
+    " source $VIMRUNTIME/mswin.vim
+    " mswin.vim, INLINE
+    " backspace and cursor keys wrap to previous/next line
+    set backspace=indent,eol,start whichwrap+=<,>,[,]
+
+    if has("macunix")
+      " mac
+      set guifont=Source\ Code\ Pro\ Light:h13
+      set antialias
+      set fuoptions=maxvert,maxhorz
+    else
+      " normal linuxes, gui mode
+    endif
+else
+  if $TERM_PROGRAM =~ 'iTerm.*'
+    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+    let &t_EI = "\<Esc>]50;CursorShape=0\x7" 
+  endif
 endif
 
-if $TERM_PROGRAM =~ 'iTerm.*'
-  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-  let &t_EI = "\<Esc>]50;CursorShape=0\x7" 
-endif
 " }}}
 
 " gui settings {{{
-if has("gui_running") && has("macunix")
-  " behave mswin
-  set fuoptions=maxvert,maxhorz
-
-  set selectmode=mouse "key,mouse
-  set mousemodel=popup
-  set keymodel=startsel ",stopsel
-  set selection=exclusive
-
-  " source $VIMRUNTIME/mswin.vim
-  " mswin.vim, INLINE
-  " backspace and cursor keys wrap to previous/next line
-  set backspace=indent,eol,start whichwrap+=<,>,[,]
-
-  " backspace in Visual mode deletes selection
-  vnoremap <BS> d
-
-  " CTRL-X and SHIFT-Del are Cut
-  vnoremap <D-X> "+x
-  vnoremap <S-Del> "+x
-
-  " CTRL-C and CTRL-Insert are Copy
-  vnoremap <special> <D-C> "+y
-  vnoremap <C-Insert> "+y
-
-  " CTRL-V and SHIFT-Insert are Paste
-  map <D-V>		"+gP
-  map <S-Insert>		"+gP
-
-  cmap <D-V>		<C-R>+
-  cmap <S-Insert>		<C-R>+
-
-  " Pasting blockwise and linewise selections is not possible in Insert and
-  " Visual mode without the +virtualedit feature.  They are pasted as if they
-  " were characterwise instead.
-  " Uses the paste.vim autoload script.
-
-  exe 'inoremap <script> <D-V>' paste#paste_cmd['i']
-  exe 'vnoremap <script> <D-V>' paste#paste_cmd['v']
-
-  imap <S-Insert>		<D-V>
-  vmap <S-Insert>		<D-V>
-
-  " Use CTRL-Q to do what CTRL-V used to do
-  noremap <C-Q>		<C-V>
-
-  " For CTRL-V to work autoselect must be off.
-  " On Unix we have two selections, autoselect can be used.
-  if !has("unix")
-    set guioptions-=a
-  endif
-
-  " CTRL-A is Select all
-  noremap <D-A> gggH<C-O>G
-  inoremap <D-A> <C-O>gg<C-O>gH<C-O>G
-  cnoremap <D-A> <C-C>gggH<C-O>G
-  onoremap <D-A> <C-C>gggH<C-O>G
-  snoremap <D-A> <C-C>gggH<C-O>G
-  xnoremap <D-A> <C-C>ggVG
-  " end mswin.vim
-
-
-  "source $VIMRUNTIME/macmap.vim.old
-  " macmap.vim.old INLINE
-  vnoremap <special> <D-x> "+x
-  vnoremap <special> <D-c> "+y
-  cnoremap <special> <D-c> <C-Y>
-  nnoremap <special> <D-v> "+gP
-  cnoremap <special> <D-v> <C-R>+
-  execute 'vnoremap <script> <special> <D-v>' paste#paste_cmd['v']
-  execute 'inoremap <script> <special> <D-v>' paste#paste_cmd['i']
-
-  nnoremap <silent> <special> <D-a> :if &slm != ""<Bar>exe ":norm gggH<C-O>G"<Bar> else<Bar>exe ":norm ggVG"<Bar>endif<CR>
-  vmap <special> <D-a> <Esc><D-a>
-  imap <special> <D-a> <Esc><D-a>
-  cmap <special> <D-a> <C-C><D-a>
-  omap <special> <D-a> <Esc><D-a>
-  " end macmap.vim
-elseif has("gui_running")
-  " behave mswin
-  set selectmode=mouse "key,mouse
-  set mousemodel=popup
-  set keymodel=startsel ",stopsel
-  set selection=exclusive
-
-  " source $VIMRUNTIME/mswin.vim
-  " mswin.vim, INLINE
-  " backspace and cursor keys wrap to previous/next line
-  set backspace=indent,eol,start whichwrap+=<,>,[,]
-
-  " backspace in Visual mode deletes selection
-  vnoremap <BS> d
-
-  " CTRL-X and SHIFT-Del are Cut
-  vnoremap <C-X> "+x
-  vnoremap <S-Del> "+x
-
-  " CTRL-C and CTRL-Insert are Copy
-  vnoremap <special> <C-C> "+y
-  vnoremap <C-Insert> "+y
-
-  " CTRL-V and SHIFT-Insert are Paste
-  map <C-V>		"+gP
-  map <S-Insert>		"+gP
-
-  cmap <C-V>		<C-R>+
-  cmap <S-Insert>		<C-R>+
-
-  " Pasting blockwise and linewise selections is not possible in Insert and
-  " Visual mode without the +virtualedit feature.  They are pasted as if they
-  " were characterwise instead.
-  " Uses the paste.vim autoload script.
-
-  exe 'inoremap <script> <C-V>' paste#paste_cmd['i']
-  exe 'vnoremap <script> <C-V>' paste#paste_cmd['v']
-
-  imap <S-Insert>		<C-V>
-  vmap <S-Insert>		<C-V>
-
-  " Use CTRL-Q to do what CTRL-V used to do
-  noremap <C-Q>		<C-V>
-
-  " For CTRL-V to work autoselect must be off.
-  " On Unix we have two selections, autoselect can be used.
-  if !has("unix")
-    set guioptions-=a
-  endif
-
-  " CTRL-A is Select all
-  noremap <C-A> gggH<C-O>G
-  inoremap <C-A> <C-O>gg<C-O>gH<C-O>G
-  cnoremap <C-A> <C-C>gggH<C-O>G
-  onoremap <C-A> <C-C>gggH<C-O>G
-  snoremap <C-A> <C-C>gggH<C-O>G
-  xnoremap <C-A> <C-C>ggVG
-  " end mswin.vim
-
-
-  "source $VIMRUNTIME/macmap.vim.old
-  " macmap.vim.old INLINE
-  vnoremap <special> <C-x> "+x
-  vnoremap <special> <C-c> "+y
-  cnoremap <special> <C-c> <C-Y>
-  nnoremap <special> <C-v> "+gP
-  cnoremap <special> <C-v> <C-R>+
-  execute 'vnoremap <script> <special> <C-v>' paste#paste_cmd['v']
-  execute 'inoremap <script> <special> <C-v>' paste#paste_cmd['i']
-
-  nnoremap <silent> <special> <C-a> :if &slm != ""<Bar>exe ":norm gggH<C-O>G"<Bar> else<Bar>exe ":norm ggVG"<Bar>endif<CR>
-  vmap <special> <C-a> <Esc><C-a>
-  imap <special> <C-a> <Esc><C-a>
-  cmap <special> <C-a> <C-C><C-a>
-  omap <special> <C-a> <Esc><C-a>
-  " end macmap.vim
-endif
 " }}}
 
 " syntax highlighting {{{
@@ -364,6 +229,7 @@ syntax on
 filetype on
 filetype indent on
 filetype plugin on
+highlight WHITE_ON_BLACK ctermfg=white
 hi SignColor guibg=red
 autocmd BufEnter * :syntax sync fromstart
 " }}}
@@ -404,30 +270,6 @@ function! Tabnew()
   if (!UselessBuffer('%'))
     tabnew
   endif
-endfunction
-
-" tab settings
-function! IndentingGeneralSettings()
-  set autoindent nocindent nosmartindent
-  set indentexpr=
-endfunction
-
-function! IndentingSetTabsize(size)
-  let &tabstop     = a:size
-  let &shiftwidth  = a:size
-  let &softtabstop = a:size
-endfunction
-
-function! IndentingSetSpaces(size)
-  set expandtab
-  call IndentingGeneralSettings()
-  call IndentingSetTabsize(a:size)
-endfunction
-
-function! IndentingSetTabs()
-  set noexpandtab
-  call IndentingGeneralSettings()
-  call IndentingSetTabsize(4)
 endfunction
 
 function! SwapUp()
@@ -498,98 +340,7 @@ function! EndKey()
 	call MoveCursor('e', '$g')
 endfunction
 
-function! ConditionalExecute(action)
-	if a:action == "write"
-		if &modified == 1
-			silent write
-		endif
-	elseif a:action == "quit"
-		new
-		execute "normal! \<C-w>\<C-w>"
-		silent quit
-	endif
-endfunction
-
-" calls KeyMapExec for all combinations of modes and modifiers
-function! KeyMap(modes, special, modifiers, key, action)
-  if a:modes == ""
-    if a:modifiers == ""
-      call KeyMapExec(a:modes, a:special, a:modifiers, a:key, a:action)
-    else
-      for j in range(len(a:modifiers))
-        call KeyMapExec(a:modes, a:special, a:modifiers[j], a:key, a:action)
-      endfor
-    endif
-  else
-    for i in range(len(a:modes))
-      if a:modifiers == ""
-        call KeyMapExec(a:modes[i], a:special, a:modifiers, a:key, a:action)
-      else
-        for j in range(len(a:modifiers))
-          call KeyMapExec(a:modes[i], a:special, a:modifiers[j], a:key, a:action)
-        endfor
-      endif
-    endfor
-  endif
-endfunction
-
-" mode:     n,i,v
-" modifier: C,D,L,M,S
-" key:      a,<F2>,<Left>, etc
-" action:   \o/
-function! KeyMapExec(mode, special, modifier, key, action)
-  if a:modifier=="D" && !has("macunix")
-    return
-  end
-  " arg
-  let s:arg = substitute(" <silent> ", "<>", "", "")
-
-  " if no <CR>s or only one <CR> at end, use <C-o> to better preserve cursor position
-  "   examples:
-  "     gt
-  "     :bd<CR>
-  " otherwise, use <Esc> and a
-  "   examples:
-  "     :s/a/b/<CR>:s/c/d/<CR>
-  "     :s/e/f/<CR>dd
-  let crs = len(split(a:action, "<CR>"))
-  if crs == 0 || (crs == 1 && a:action =~ '<CR>$')
-    let s:pre = "<C-o>"
-    let s:post = ""
-  else
-    let s:pre = "<Esc>"
-    let s:post = "a"
-  endif
-
-  " put what to map in s:key
-  let s:key = substitute(a:key, '[<>]', '', 'g')
-  if a:modifier == ""
-    let s:key = a:key
-  elseif a:modifier == "L"
-    let s:key = "<Leader>" . a:key
-  else " C,D,M,S
-    let s:key = "<" . a:modifier . "-" . s:key . ">"
-  end
-
-  	" put map in s:map
-  let s:map = a:mode . "noremap" . a:special .  s:key . " "
-  if a:mode == "i"
-    let s:map .= s:pre . a:action . s:post
-  else
-    let s:map .= a:action
-  endif
-
-  " \o/\O/\o/
-  "echo s:map
-  execute s:map
-endfunction
-
 " Visual mode functions
-
-function! InsertDateTime()
-	execute "normal a" . strftime("%A, %Y-%m-%d %H:%M:%S")
-endfunction
-
 function! GuiTabLabel()
 	let label = v:lnum
 	let bufnrlist = tabpagebuflist(v:lnum)
@@ -653,21 +404,6 @@ function! MyTabLabel(n)
   return '[' . string(a:n) . ']' . guifname
 endfunction
 
-function! OpenAllBuffersInTabs()
-ruby << EOF
-	require 'pp'
-	numtabs = VIM::evaluate("tabpagenr('$')")
-	buffers = []
-	for i in 0..(VIM::Buffer.count - 1)
-		buffers << VIM::Buffer[i]
-	end
-	buffers.each { |b|
-		
-	}
-	puts numtabs
-EOF
-endfunction
-
 function! GuiEnter()
   set columns=150 lines=49
   " open tabs for all the open buffers
@@ -686,23 +422,6 @@ function! GuiEnter()
 EOF
 endfunction
 
-function! ContextSettings()
-	"set indentexpr=none
-	let l:NBuffers = bufnr('$')
-	if l:NBuffers > 1 && bufexists(1) && buflisted(1) && !getbufvar(1, "&bufsecret")
-		:bw 1
-	endif
-endfunction
-
-function! OpenNewTabOnFileOpen()
-	let fName = expand('<afile>')
-	if fName != ""
-		exe 'tablast | tabe <afile>'
-	else
-		exe 'tablast | tabnew'
-	endif
-endfunction
-
 function! ToggleScratch()
   if expand('%') == g:ScratchBufferName
     quit
@@ -711,102 +430,12 @@ function! ToggleScratch()
   endif
 endfunction
 
-" files & folders functions
-function! MoveTabLeft()
-  let newtabnr = tabpagenr() - 2
-  if newtabnr == -1
-    let newtabnr = v:lnum
-  end
-  exec ":tabmove " . newtabnr
-endfunction
-
-function! MoveTabRight()
-  let newtabnr = tabpagenr()
-  if newtabnr == v:lnum
-    let newtabnr = 0
-  end
-  exec ":tabmove " . newtabnr
-endfunction
-
-" ConqueTerm wrapper
-function! StartTerm()
-  execute 'ConqueTerm ' . $SHELL . ' --login'
-  setlocal listchars=tab:\ \ 
-endfunction
-
-highlight WHITE_ON_BLACK ctermfg=white
-
-function! DemoCommand (...)
-  " Remember how everything was before we did this...
-  let orig_buffer = getline('w0','w$')
-  let orig_match  = matcharg(1)
-
-  " Select either the visual region, or the current paragraph...
-  if a:0
-    let @@ = join(getline("'<","'>"), "\n")
-  else
-    silent normal vipy
-  endif
-
-  " Highlight the selection in red to give feedback...
-  let matchid = matchadd('WHITE_ON_RED','\%V')
-  redraw
-  sleep 500m
-
-  " Remove continuations and convert shell commands, then execute...
-  let command = @@
-  let command = substitute(command, '^\s*".\{-}\n', '',     'g')
-  let command = substitute(command, '\n\s*\\',      ' ',    'g')
-  let command = substitute(command, '^\s*>\s',      ':! ',  '' )
-  execute command
-
-  " If the buffer changed, hold the highlighting an extra second...
-  if getline('w0','w$') != orig_buffer
-    redraw
-    sleep 1000m
-  endif
-
-  " Remove the highlighting...
-  call matchdelete(matchid)
-endfunction
-
 function! s:VSetSearch()
   let temp = @@
   norm! gvy
   let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
   let @@ = temp
 endfunction
-
-function! MyFoldText() " {{{
-  let line = getline(v:foldstart)
-
-  let nucolwidth = &fdc + &number * &numberwidth
-  let windowwidth = winwidth(0) - nucolwidth - 3
-  let foldedlinecount = v:foldend - v:foldstart
-
-  " expand tabs into spaces
-  let onetab = strpart('          ', 0, &tabstop)
-  let line = substitute(line, '\t', onetab, 'g')
-
-  let line = strpart(line, 0, windowwidth - 2 -len(foldedlinecount))
-  let fillcharcount = windowwidth - len(line) - len(foldedlinecount)
-  return line . '…' . repeat(" ",fillcharcount) . foldedlinecount . '…' . ' '
-endfunction " }}}
-
-function! s:ExecuteInShell(command) " {{{
-    let command = join(map(split(a:command), 'expand(v:val)'))
-    let winnr = bufwinnr('^' . command . '$')
-    silent! execute  winnr < 0 ? 'botright vnew ' . fnameescape(command) : winnr . 'wincmd w'
-    setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap nonumber
-    echo 'Execute ' . command . '...'
-    silent! execute 'silent %!'. command
-    silent! redraw
-    silent! execute 'au BufUnload <buffer> execute bufwinnr(' . bufnr('#') . ') . ''wincmd w'''
-    silent! execute 'nnoremap <silent> <buffer> <LocalLeader>r :call <SID>ExecuteInShell(''' . command . ''')<CR>:AnsiEsc<CR>'
-    silent! execute 'nnoremap <silent> <buffer> q :q<CR>'
-    silent! execute 'AnsiEsc'
-    echo 'Shell command ' . command . ' executed.'
-endfunction " }}}
 
 function! RestoreRegister()
   if &clipboard == 'unnamed'
@@ -940,28 +569,8 @@ cnoremap <c-e> <home>
 
 nnoremap <leader>z zMzvzz
 
-" mac specific meta bindings
-call KeyMap('ni', '', 'DM', 'q', ':q<CR>')
-call KeyMap('ni', '<silent>', 'DM', 'w', ':call ConditionalExecute("write")<CR>')
-call KeyMap('n', '<silent>', 'DM', 'a', 'gggH<C-O>G')
-call KeyMap('i', '<silent>', 'DM', 'a', '<C-O>gg<C-O>gH<C-O>G')
-call KeyMap('n', '<silent>', 'DM', 'y', '<C-R>')
-call KeyMap('i', '<silent>', 'DM', 'y', '<C-O><C-R>')
-call KeyMap('ni', '<silent>', 'DM', '`', ':maca selectNextWindow:<CR>')
-call KeyMap('ni', '<silent>', 'DM', '!', ':!!<CR>')
-call KeyMap('ni', '<silent>', 'DM', '"', ':@:<CR>')
-call KeyMap('ni', '<silent>', 'DM', 'd', ':bd<CR>')
-call KeyMap('i', '<silent>', 'C', 'z', ':u<CR>')
-call KeyMap('ni', '<silent>', 'DM', 'u', 'guaw')
-call KeyMap('ni', '<silent>', 'DM', 'U', 'gUaw')
-call KeyMap('ni', '<silent>', 'DM', 'E', ':e .<CR>')
-call KeyMap('ni', '<silent>', 'DM', 'Up', ':call SwapUp()<CR>')
-call KeyMap('ni', '<silent>', 'DM', 'Down', ':call SwapDown()<CR>')
-call KeyMap('ni', '<silent>', 'S', '<F2>', ':call Vm_toggle_sign()<CR>')
-call KeyMap('ni', '<silent>', '', '<F5>', ':CtrlPBuffer<CR>')
-
-" directory browsing
-call KeyMap('n','<silent>', 'DML', 'f', ':Ack<space>') " open a file browser in a new tab
+map <silent> <F5> :CtrlPBuffer<CR>
+imap <silent> <F5> <C-O>:CtrlPBuffer<CR>
 
 "inoremap <C-space> <C-p>
 
@@ -986,12 +595,6 @@ nnoremap <silent> <leader>h3 :execute '3match InterestingWord3 /\<<c-r><c-w>\>/'
 
 " sudo write this
 cmap w!! w !sudo tee % >/dev/null
-
-"""""""""" macvim
-if has("gui_macvim")
-  let macvim_skip_cmd_opt_movement = 1
-  let macvim_hig_shift_movement = 0
-endif
 
 " disable middle mouse pasting
 map  <MiddleMouse>  <Nop>
@@ -1024,84 +627,181 @@ map <Leader>s :call ToggleScratch()<CR>
 "vmap q <esc>
 
 " tab keys
-if has("gui_running") && has("macunix")
-  map <D-t> :tabnew<CR>
-  map <D-n> :new<CR>
-  map <D-S-t> :browse tabe<CR>
-  map <D-S-n> :browse split<CR>
-  map <D-]> :tabn<CR>
-  map <D-[> :tabp<CR>
-  imap <D-]> <C-o>:tabn<CR>
-  imap <D-[> <C-o>:tabp<CR>
-elseif has("gui_running")
-  map <M-t> :tabnew<CR>
-  map <M-n> :new<CR>
-  map <M-S-t> :browse tabe<CR>
-  map <M-S-n> :browse split<CR>
-  map <M-]> :tabn<CR>
-  map <M-[> :tabp<CR>
-  imap <M-]> <C-o>:tabn<CR>
-  imap <M-[> <C-o>:tabp<CR>
-endif
+if has("gui_running")
+  if has("gui_macvim")
+    let macvim_skip_cmd_opt_movement = 1
+    let macvim_hig_shift_movement = 0
+  endif
 
-if has("gui_running") && has("macunix")
-  imap <D-1> <C-o>1gt<CR>
-  imap <D-2> <C-o>2gt<CR>
-  imap <D-3> <C-o>3gt<CR>
-  imap <D-4> <C-o>4gt<CR>
-  imap <D-5> <C-o>5gt<CR>
-  imap <D-6> <C-o>6gt<CR>
-  imap <D-7> <C-o>7gt<CR>
-  imap <D-8> <C-o>8gt<CR>
-  imap <D-9> <C-o>9gt<CR>
-  imap <D-0> <C-o>10gt<CR>
-elseif has("gui_running")
-  imap <M-1> <C-o>1gt<CR>
-  imap <M-2> <C-o>2gt<CR>
-  imap <M-3> <C-o>3gt<CR>
-  imap <M-4> <C-o>4gt<CR>
-  imap <M-5> <C-o>5gt<CR>
-  imap <M-6> <C-o>6gt<CR>
-  imap <M-7> <C-o>7gt<CR>
-  imap <M-8> <C-o>8gt<CR>
-  imap <M-9> <C-o>9gt<CR>
-  imap <M-0> <C-o>10gt<CR>
-else
-  imap 1 1gt
-  imap 2 2gt
-  imap 3 3gt
-  imap 4 4gt
-  imap 5 5gt
-  imap 6 6gt
-  imap 7 7gt
-  imap 8 8gt
-  imap 9 9gt
-  imap 0 10gt
-endif
+  noremap h <Esc>:tabprev<Cr>
+  noremap l <Esc>:tabnext<Cr>
+  noremap n <Esc>:tabnew<Cr>
+  noremap c <Esc>:tabclose<Cr>
 
-if has("gui_running") && has("macunix")
-  map <D-1> 1gt
-  map <D-2> 2gt
-  map <D-3> 3gt
-  map <D-4> 4gt
-  map <D-5> 5gt
-  map <D-6> 6gt
-  map <D-7> 7gt
-  map <D-8> 8gt
-  map <D-9> 9gt
-  map <D-0> 10gt
-elseif has("gui_running")
-  map <M-1> 1gt
-  map <M-2> 2gt
-  map <M-3> 3gt
-  map <M-4> 4gt
-  map <M-5> 5gt
-  map <M-6> 6gt
-  map <M-7> 7gt
-  map <M-8> 8gt
-  map <M-9> 9gt
-  map <M-0> 10gt
+  if has("macunix")
+    " can use D
+    " backspace in Visual mode deletes selection
+    vnoremap <BS> d
+
+    " Cut
+    vnoremap <D-X> "+x
+    " Copy
+    vnoremap <special> <D-C> "+y
+    " Paste
+    map <D-V>		"+gP
+    cmap <D-V>		<C-R>+
+
+    " Pasting blockwise and linewise selections is not possible in Insert and
+    " Visual mode without the +virtualedit feature.  They are pasted as if they
+    " were characterwise instead.
+    " Uses the paste.vim autoload script.
+
+    exe 'inoremap <script> <D-V>' paste#paste_cmd['i']
+    exe 'vnoremap <script> <D-V>' paste#paste_cmd['v']
+
+    " Use CTRL-Q to do what CTRL-V used to do
+    noremap <C-Q>		<C-V>
+
+    " CTRL-A is Select all
+    noremap <D-A> gggH<C-O>G
+    inoremap <D-A> <C-O>gg<C-O>gH<C-O>G
+    cnoremap <D-A> <C-C>gggH<C-O>G
+    onoremap <D-A> <C-C>gggH<C-O>G
+    snoremap <D-A> <C-C>gggH<C-O>G
+    xnoremap <D-A> <C-C>ggVG
+
+    vnoremap <special> <D-x> "+x
+    vnoremap <special> <D-c> "+y
+    cnoremap <special> <D-c> <C-Y>
+    nnoremap <special> <D-v> "+gP
+    cnoremap <special> <D-v> <C-R>+
+    execute 'vnoremap <script> <special> <D-v>' paste#paste_cmd['v']
+    execute 'inoremap <script> <special> <D-v>' paste#paste_cmd['i']
+
+    nnoremap <silent> <special> <D-a> :if &slm != ""<Bar>exe ":norm gggH<C-O>G"<Bar> else<Bar>exe ":norm ggVG"<Bar>endif<CR>
+    vmap <special> <D-a> <Esc><D-a>
+    imap <special> <D-a> <Esc><D-a>
+    cmap <special> <D-a> <C-C><D-a>
+    omap <special> <D-a> <Esc><D-a>
+
+    map <D-t> :tabnew<CR>
+    map <D-n> :new<CR>
+    map <D-S-t> :browse tabe<CR>
+    map <D-S-n> :browse split<CR>
+    map <D-]> :tabn<CR>
+    map <D-[> :tabp<CR>
+    imap <D-]> <C-o>:tabn<CR>
+    imap <D-[> <C-o>:tabp<CR>
+
+    map <D-1> 1gt
+    map <D-2> 2gt
+    map <D-3> 3gt
+    map <D-4> 4gt
+    map <D-5> 5gt
+    map <D-6> 6gt
+    map <D-7> 7gt
+    map <D-8> 8gt
+    map <D-9> 9gt
+    map <D-0> 10gt
+    imap <D-1> <C-o>1gt<CR>
+    imap <D-2> <C-o>2gt<CR>
+    imap <D-3> <C-o>3gt<CR>
+    imap <D-4> <C-o>4gt<CR>
+    imap <D-5> <C-o>5gt<CR>
+    imap <D-6> <C-o>6gt<CR>
+    imap <D-7> <C-o>7gt<CR>
+    imap <D-8> <C-o>8gt<CR>
+    imap <D-9> <C-o>9gt<CR>
+    imap <D-0> <C-o>10gt<CR>
+
+    map <D-M-Right> :tabn<CR>
+    map <D-M-Left> :tabp<CR>
+    imap <D-M-Right> <C-o>:tabn<CR>
+    imap <D-M-Left> <C-o>:tabp<CR>
+
+    noremap <silent> <D-`> :maca selectNextWindow:<CR>
+    inoremap <silent> <D-`> <C-O>:maca selectNextWindow:<CR>
+    noremap <silent> <D-d> :bd<CR>
+    inoremap <silent> <D-d> <C-O>:bd<CR>
+  else
+    " use C
+    " backspace in Visual mode deletes selection
+    vnoremap <BS> d
+
+    " CTRL-X and SHIFT-Del are Cut
+    vnoremap <C-X> "+x
+    " CTRL-C and CTRL-Insert are Copy
+    vnoremap <special> <C-C> "+y
+    " CTRL-V and SHIFT-Insert are Paste
+    map <C-V>		"+gP
+    cmap <C-V>		<C-R>+
+
+    " Pasting blockwise and linewise selections is not possible in Insert and
+    " Visual mode without the +virtualedit feature.  They are pasted as if they
+    " were characterwise instead.
+    " Uses the paste.vim autoload script.
+
+    exe 'inoremap <script> <C-V>' paste#paste_cmd['i']
+    exe 'vnoremap <script> <C-V>' paste#paste_cmd['v']
+
+    " Use CTRL-Q to do what CTRL-V used to do
+    noremap <C-Q>		<C-V>
+
+    " CTRL-A is Select all
+    noremap <C-A> gggH<C-O>G
+    inoremap <C-A> <C-O>gg<C-O>gH<C-O>G
+    cnoremap <C-A> <C-C>gggH<C-O>G
+    onoremap <C-A> <C-C>gggH<C-O>G
+    snoremap <C-A> <C-C>gggH<C-O>G
+    xnoremap <C-A> <C-C>ggVG
+
+    vnoremap <special> <C-x> "+x
+    vnoremap <special> <C-c> "+y
+    cnoremap <special> <C-c> <C-Y>
+    nnoremap <special> <C-v> "+gP
+    cnoremap <special> <C-v> <C-R>+
+    execute 'vnoremap <script> <special> <C-v>' paste#paste_cmd['v']
+    execute 'inoremap <script> <special> <C-v>' paste#paste_cmd['i']
+
+    nnoremap <silent> <special> <C-a> :if &slm != ""<Bar>exe ":norm gggH<C-O>G"<Bar> else<Bar>exe ":norm ggVG"<Bar>endif<CR>
+    vmap <special> <C-a> <Esc><C-a>
+    imap <special> <C-a> <Esc><C-a>
+    cmap <special> <C-a> <C-C><C-a>
+    omap <special> <C-a> <Esc><C-a>
+
+    map <M-t> :tabnew<CR>
+    map <M-n> :new<CR>
+    map <M-S-t> :browse tabe<CR>
+    map <M-S-n> :browse split<CR>
+    map <M-]> :tabn<CR>
+    map <M-[> :tabp<CR>
+    imap <M-]> <C-o>:tabn<CR>
+    imap <M-[> <C-o>:tabp<CR>
+
+    map <M-1> 1gt
+    map <M-2> 2gt
+    map <M-3> 3gt
+    map <M-4> 4gt
+    map <M-5> 5gt
+    map <M-6> 6gt
+    map <M-7> 7gt
+    map <M-8> 8gt
+    map <M-9> 9gt
+    map <M-0> 10gt
+
+    imap <M-1> <C-o>1gt<CR>
+    imap <M-2> <C-o>2gt<CR>
+    imap <M-3> <C-o>3gt<CR>
+    imap <M-4> <C-o>4gt<CR>
+    imap <M-5> <C-o>5gt<CR>
+    imap <M-6> <C-o>6gt<CR>
+    imap <M-7> <C-o>7gt<CR>
+    imap <M-8> <C-o>8gt<CR>
+    imap <M-9> <C-o>9gt<CR>
+    imap <M-0> <C-o>10gt<CR>
+  endif
 else
+  " terminal
   map 1 1gt
   map 2 2gt
   map 3 3gt
@@ -1112,17 +812,18 @@ else
   map 8 8gt
   map 9 9gt
   map 0 10gt
-endif
 
-" working with tabs
-if has("gui_running")
-  map <D-M-Right> :tabn<CR>
-  map <D-M-Left> :tabp<CR>
-  imap <D-M-Right> <C-o>:tabn<CR>
-  imap <D-M-Left> <C-o>:tabp<CR>
-endif
+  imap 1 1gt
+  imap 2 2gt
+  imap 3 3gt
+  imap 4 4gt
+  imap 5 5gt
+  imap 6 6gt
+  imap 7 7gt
+  imap 8 8gt
+  imap 9 9gt
+  imap 0 10gt
 
-if !has("gui_running")
   noremap h <Esc>:tabprev<Cr>
   noremap l <Esc>:tabnext<Cr>
   noremap n <Esc>:tabnew<Cr>
@@ -1130,12 +831,6 @@ if !has("gui_running")
   noremap { <Esc>:tabprev<Cr>
   noremap } <Esc>:tabnext<Cr>
   noremap d <Esc>:tabnew<Cr>
-else
-  " working with tabs
-  noremap h <Esc>:tabprev<Cr>
-  noremap l <Esc>:tabnext<Cr>
-  noremap n <Esc>:tabnew<Cr>
-  noremap c <Esc>:tabclose<Cr>
 endif
 
 " completion
@@ -1143,8 +838,6 @@ endif
 " inoremap <expr> <C-n> pumvisible() ? '<C-n>' : '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 " snoremap <expr> <C-p> pumvisible() ? '<C-n>' : '<C-p><C-r>=pumvisible() ? "\<lt>Up>" : ""<CR>'
 " inoremap <expr> <M-,> pumvisible() ? '<C-n>' : '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
-" macros 
-
 " }}}
 
 " abbreviations {{{
@@ -1154,18 +847,19 @@ iabbrev fro for
 iabbrev pritnf printf
 iabbrev stirng string
 iabbrev teh the
-
 " }}}
 
-" plugin settings {{{
+" settings {{{
 
+" java plugin settings {{{
 let java_mark_braces_in_parens_as_errors=0
 let java_highlight_all=1
 let java_highlight_debug=1
 let java_ignore_javadoc=1
 let java_highlight_java_lang_ids=1
 let java_highlight_functions="style"
-"
+" }}}
+
 " sparkup {{{
 let g:sparkupExecuteMapping = '<c-e>'
 let g:sparkupNextMapping = '<c-s>'
@@ -1221,7 +915,9 @@ let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
 let g:ctrlp_max_files = 0
 " }}}
 
+" jedi {{{
 let g:jedi#auto_initialization = 0
+" }}}
 
 " command-t settings {{{
 let g:CommandTMaxFiles=400000
@@ -1252,12 +948,8 @@ let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 " }}}
 
 " ultisnips {{{
-let g:UltiSnipsExpandTrigger = "<C-/>"
-let g:UltiSnipsListSnippets = ""
-" }}}
-
-" neocomplcache {{{
-let g:neocomplcache_disable_auto_complete = 1
+"let g:UltiSnipsExpandTrigger = "<C-/>"
+"let g:UltiSnipsListSnippets = ""
 " }}}
 
 " powerline {{{
@@ -1338,7 +1030,7 @@ let g:localvimrc_ask = 0
 let g:EclimShowCurrentError = 0
 let g:EclimMakeLCD = 1
 let g:EclimMenus = 0
-let g:EclimJavaImportExclude = [ "^com\.sun\..*", "^sun\..*", "^sunw\..*" ]
+let g:EclimJavaImportExclude = [ "^com\.sun\..*", "^sun\..*", "^sunw\..*", "^java\.awt\..*" ]
 let g:EclimJavaHierarchyDefaultAction = "tabnew"
 let g:EclimJavaSearchSingleResult = "tabnew"
 let g:EclimDefaultFileOpenAction = "edit"
@@ -1376,16 +1068,6 @@ let g:molokai_original = 0
 let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 " }}}
 
-" yankring {{{
-let g:yankring_history_dir = "$HOME/.vim/tmp"
-let g:yankring_default_menu_mode = 0
-" }}}
-
-"easymotion {{{
-let g:EasyMotion_mapping_e = '<Leader>ee'
-let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
-" }}}
-
 " syntastic {{{
 "let g:syntastic_enable_signs = 1
 "let g:syntastic_auto_loc_list=0
@@ -1406,7 +1088,6 @@ let g:syntastic_mode_map = { 'mode': 'active',
 " }}}
 
 " commands {{{
-command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
 command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
 command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
 
@@ -1423,22 +1104,27 @@ command! -bang WQ wq<bang>
 " }}}
 
 " auto commands {{{
-" Has to be an autocommand because repeat.vim eats the mapping otherwise :(
-au VimEnter * :nnoremap U <c-r>
 
-" remove all buffers on exit so we don't have them as hidden on reopen
-autocmd VimLeavePre * 1,255bwipeout
-" remove empty or otherwise dead buffers when moving away from them
-autocmd TabLeave    * call OnTabLeave()
-autocmd BufReadPost *
-  \ if line("'\"") > 0 && line("'\"") <= line("$") |
-  \   exe "normal g`\"" |
-  \ endif
+augroup all_buffers
+  au!
+  " Has to be an autocommand because repeat.vim eats the mapping otherwise :(
+  autocmd VimEnter * :nnoremap U <c-r>
 
-" Only shown when not in insert mode so I don't go insane.
-augroup trailing
-    au!
-    au InsertEnter * :set listchars-=trail:⌴
+  " remove all buffers on exit so we don't have them as hidden on reopen
+  autocmd VimLeavePre * 1,255bwipeout
+  " remove empty or otherwise dead buffers when moving away from them
+  autocmd TabLeave    * call OnTabLeave()
+  " move to last position on file
+  autocmd BufReadPost *
+    \ if line("'\"") > 0 && line("'\"") <= line("$") |
+    \   exe "normal g`\"" |
+    \ endif
+  au BufReadPost *
+      \ if line("'\"") > 0 && line("'\"") <= line("$") |
+      \     execute 'normal! g`"zvzz' |
+      \ endif
+
+  au InsertEnter * :set listchars-=trail:⌴
 augroup END
 
 " Only show cursorline in the current window and in normal mode.
@@ -1450,15 +1136,6 @@ augroup END
 "     au InsertLeave * set cursorline
 " augroup END
 
-" make sure vim returns to the same line when you reopen a file.
-augroup line_return
-    au!
-    au BufReadPost *
-        \ if line("'\"") > 0 && line("'\"") <= line("$") |
-        \     execute 'normal! g`"zvzz' |
-        \ endif
-augroup END
-
 " indentations
 augroup indent
   au!
@@ -1466,6 +1143,9 @@ augroup indent
   autocmd FileType java setlocal et ts=2 sw=2
   autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
   autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 et
+  autocmd FileType c set ts=4 sw=4
+  autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
+  autocmd FileType puppet setlocal sw=2 ts=2 expandtab
 augroup END
 
 " completions
@@ -1480,11 +1160,8 @@ augroup completions
   autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 augroup END
 
-autocmd FileType c set ts=4 sw=4
-autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
-autocmd FileType puppet setlocal sw=2 ts=2 expandtab
-
 augroup iskeywords
+  au!
   autocmd FileType actionscript setlocal iskeyword-=:
 augroup end
 
@@ -1506,8 +1183,6 @@ augroup ft_quickfix
     " au FileType qf unmap <buffer>, <CR>
 augroup END
 
-
-autocmd BufRead *.f  set ft=forth
 " }}}
 
 " hosts {{{
@@ -1516,6 +1191,5 @@ if filereadable(hostfile)
     exe 'source ' . hostfile
 endif
 " }}}
-
 
 " vim: set foldmethod=marker

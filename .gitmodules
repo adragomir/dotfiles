@@ -58,9 +58,6 @@
 [submodule ".vim/bundle/numbers"]
 	path = .vim/bundle/numbers
 	url = https://github.com/myusuf3/numbers.vim.git
-[submodule ".vim/fugitive"]
-	path = .vim/fugitive
-	url = https://github.com/tpope/vim-fugitive.git
 [submodule ".vim/bundle/detectindent"]
 	path = .vim/bundle/detectindent
 	url = https://github.com/ciaranm/detectindent.git
@@ -157,3 +154,9 @@
 [submodule ".vim/bundle/maven-ide"]
 	path = .vim/bundle/maven-ide
 	url = https://github.com/dareni/vim-maven-ide
+[submodule ".vim/bundle/tbone"]
+	path = .vim/bundle/tbone
+	url = https://github.com/tpope/vim-tbone.git
+[submodule ".vim/bundle/scriptease"]
+	path = .vim/bundle/scriptease
+	url = https://github.com/tpope/vim-scriptease.git
