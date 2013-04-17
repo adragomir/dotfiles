@@ -404,24 +404,6 @@ function! MyTabLabel(n)
   return '[' . string(a:n) . ']' . guifname
 endfunction
 
-function! GuiEnter()
-  set columns=150 lines=49
-  " open tabs for all the open buffers
-  let g:GuiEnter_tablist = []
-  for i in range(tabpagenr('$'))
-    call extend(g:GuiEnter_tablist, tabpagebuflist(i + 1))
-  endfor
-  ruby << EOF
-    require 'pp'
-    numtabs = VIM::evaluate("tabpagenr('$')")
-    buffers = []
-    for i in 0..(VIM::Buffer.count - 1)
-      buffers << VIM::Buffer[i]
-    end
-    puts numtabs
-EOF
-endfunction
-
 function! ToggleScratch()
   if expand('%') == g:ScratchBufferName
     quit
@@ -466,8 +448,6 @@ set tabline=%!MyTabLine()
 " System clipboard interaction.  Mostly from:
 map \ :call CursorPing()<cr>
 map <leader>y "*y
-
-nnoremap <leader>! :Shell 
 
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 
@@ -1192,4 +1172,4 @@ if filereadable(hostfile)
 endif
 " }}}
 
-" vim: set foldmethod=marker
+" vim: foldmethod=marker
