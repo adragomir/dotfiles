@@ -17,7 +17,7 @@ zmodload zsh/net/tcp
 # }}}
 
 # autoload {{{
-autoload -U colors && colors	# Enables colours
+autoload -U colors && colors  # Enables colours
 autoload -U compinit && compinit
 autoload -U url-quote-magic
 autoload allopt
@@ -32,17 +32,17 @@ autoload -U zcalc
 typeset -Ag FX FG BG
 
 FX=(
-    reset     "%{[00m%}"
-    bold      "%{[01m%}" no-bold      "%{[22m%}"
-    italic    "%{[03m%}" no-italic    "%{[23m%}"
-    underline "%{[04m%}" no-underline "%{[24m%}"
-    blink     "%{[05m%}" no-blink     "%{[25m%}"
-    reverse   "%{[07m%}" no-reverse   "%{[27m%}"
+  reset     "%{[00m%}"
+  bold      "%{[01m%}" no-bold      "%{[22m%}"
+  italic    "%{[03m%}" no-italic    "%{[23m%}"
+  underline "%{[04m%}" no-underline "%{[24m%}"
+  blink     "%{[05m%}" no-blink     "%{[25m%}"
+  reverse   "%{[07m%}" no-reverse   "%{[27m%}"
 )
 
 for color in {000..255}; do
-    FG[$color]="%{[38;5;${color}m%}"
-    BG[$color]="%{[48;5;${color}m%}"
+  FG[$color]="%{[38;5;${color}m%}"
+  BG[$color]="%{[48;5;${color}m%}"
 done
 
 # Show all 256 colors with color number
@@ -328,36 +328,36 @@ bases() {
   # Determine base of the number
   for i      # ==> in [list] missing...
   do         # ==> so operates on command line arg(s).
-	case "$i" in
-    0b*)		ibase=2;;	# binary
-    0x*|[a-f]*|[A-F]*)	ibase=16;;	# hexadecimal
-    0*)			ibase=8;;	# octal
-    [1-9]*)		ibase=10;;	# decimal
+  case "$i" in
+    0b*)    ibase=2;;  # binary
+    0x*|[a-f]*|[A-F]*)  ibase=16;;  # hexadecimal
+    0*)      ibase=8;;  # octal
+    [1-9]*)    ibase=10;;  # decimal
     *)
-		echo "illegal number $i - ignored"
-		continue;;
-	esac
+    echo "illegal number $i - ignored"
+    continue;;
+  esac
 
-	# Remove prefix, convert hex digits to uppercase (bc needs this)
-	number=`echo "$i" | sed -e 's:^0[bBxX]::' | tr '[a-f]' '[A-F]'`
-	# ==> Uses ":" as sed separator, rather than "/".
+  # Remove prefix, convert hex digits to uppercase (bc needs this)
+  number=`echo "$i" | sed -e 's:^0[bBxX]::' | tr '[a-f]' '[A-F]'`
+  # ==> Uses ":" as sed separator, rather than "/".
 
-	# Convert number to decimal
-	dec=`echo "ibase=$ibase; $number" | bc`  # ==> 'bc' is calculator utility.
-	case "$dec" in
-    [0-9]*)	;;			 # number ok
-    *)		continue;;		 # error: ignore
-	esac
+  # Convert number to decimal
+  dec=`echo "ibase=$ibase; $number" | bc`  # ==> 'bc' is calculator utility.
+  case "$dec" in
+    [0-9]*)  ;;       # number ok
+    *)    continue;;     # error: ignore
+  esac
 
-	# Print all conversions in one line.
-	# ==> 'here document' feeds command list to 'bc'.
-	echo `bc <<!
-	    obase=16; "hex="; $dec
-	    obase=10; "dec="; $dec
-	    obase=8;  "oct="; $dec
-	    obase=2;  "bin="; $dec
+  # Print all conversions in one line.
+  # ==> 'here document' feeds command list to 'bc'.
+  echo `bc <<!
+      obase=16; "hex="; $dec
+      obase=10; "dec="; $dec
+      obase=8;  "oct="; $dec
+      obase=2;  "bin="; $dec
 !
-    ` | sed -e 's: :	:g'
+    ` | sed -e 's: :  :g'
     done
 }
 
@@ -759,8 +759,8 @@ PROMPT2=$'%_$(prompt_actual)'
 
 export OS=`uname | tr "[:upper:]" "[:lower:]"`
 # ls
-export LSCOLORS="Gxfxcxdxbxegedabagacad"
-export LSCOLORS="ExFxCxDxBxegedabagacad"
+export LSCOLORS="gxfxcxdxbxegedabagacad"
+export LSCOLORS="exfxcxdxbxegedabagacad"
 export LS_COLORS="*.tar.bz2=38;5;226:*.tar.xz=38;5;130:*PKGBUILD=48;5;233;38;5;160:*.html=38;5;213:*.htm=38;5;213:*.vim=38;5;142:*.css=38;5;209:*.screenrc=38;5;120:*.procmailrc=38;5;120:*.zshrc=38;5;120:*.bashrc=38;5;120:*.xinitrc=38;5;120:*.vimrc=38;5;120:*.htoprc=38;5;120:*.muttrc=38;5;120:*.gtkrc-2.0=38;5;120:*.fehrc=38;5;120:*.rc=38;5;120:*.md=38;5;130:*.markdown=38;5;130:*.conf=38;5;148:*.h=38;5;81:*.rb=38;5;192:*.c=38;5;110:*.diff=38;5;31:*.yml=38;5;208:*.pl=38;5;178:*.csv=38;5;136:tw=38;5;003:*.chm=38;5;144:*.bin=38;5;249:*.pdf=38;5;203:*.mpg=38;5;38:*.ts=38;5;39:*.sfv=38;5;191:*.m3u=38;5;172:*.txt=38;5;192:*.log=38;5;190:*.swp=38;5;241:*.swo=38;5;240:*.theme=38;5;109:*.zsh=38;5;173:*.nfo=38;5;113:mi=38;5;124:or=38;5;160:ex=38;5;197:ln=target:pi=38;5;130:ow=38;5;208:fi=38;5;007:so=38;5;167:di=38;5;30:*.pm=38;5;197:*.pl=38;5;166:*.sh=38;5;243:*.patch=38;5;37:*.tar=38;5;118:*.tar.gz=38;5;172:*.zip=38;5;11::*.rar=38;5;11:*.tgz=38;5;11:*.7z=38;5;11:*.mp3=38;5;173:*.flac=38;5;166:*.mkv=38;5;115:*.avi=38;5;114:*.wmv=38;5;113:*.jpg=38;5;66:*.jpeg=38;5;67:*.png=38;5;68:*.pacnew=38;5;33"
 
 # grep
