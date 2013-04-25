@@ -1,3 +1,4 @@
+"vim:foldmethod=marker
 " set PATH correctly {{{
 if has("macunix") && has("gui_running") " && system('ps xw | grep -c "[V]im -MMNo"') > 0
   " Get the value of $PATH from a login shell.
@@ -35,7 +36,8 @@ set selectmode=mouse,key      " select model
 set keymodel=startsel         ",stopsel
 set autoread                  " read outside modified files
 set encoding=UTF-8            " file encoding
-set modelines=0
+set modeline
+"set modelines=0
 set t_ti=
 set t_te=
 set formatoptions=tcqjn1     " auto format -ro
@@ -877,10 +879,15 @@ let Tlist_WinWidth = 0
 " }}}
 
 " supertab settings {{{
-let g:SuperTabCrMapping = 0
+" let g:SuperTabCrMapping = 0
 " let g:SuperTabMappingForward = '<c-space>'
 " let g:SuperTabMappingBackward = '<s-c-space>'
-let g:SuperTabDefaultCompletionType = '<c-n>'
+let g:SuperTabDefaultCompletionType = "context"
+let g:SuperTabDefaultCompletionTypeDiscovery = [
+        \ "&completefunc:<c-x><c-u>",
+        \ "&omnifunc:<c-x><c-o>",
+        \ ]
+" let g:SuperTabDefaultCompletionType = '<c-n>'
 " }}}
 
 " ctrl-p settings {{{
@@ -1117,7 +1124,7 @@ augroup END
 " augroup END
 
 " indentations
-augroup indent
+augroup settings
   au!
   autocmd FileType python setlocal et ts=4 sw=4
   autocmd FileType java setlocal et ts=2 sw=2
@@ -1126,6 +1133,9 @@ augroup indent
   autocmd FileType c set ts=4 sw=4
   autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
   autocmd FileType puppet setlocal sw=2 ts=2 expandtab
+  autocmd BufRead *.mkd  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
+  autocmd BufRead *.markdown  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
+  autocmd FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
 augroup END
 
 " completions
@@ -1133,10 +1143,7 @@ augroup completions
   au!
   autocmd FileType html setlocal omnifunc=htmlcomplete#CompleteTags
   autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-  autocmd FileType java setlocal omnifunc=javacomplete#Complete
-  autocmd FileType java map <leader>b :JavaSearchContext<CR>
-  autocmd FileType java map <leader>s :JavaImport<CR>
-  autocmd FileType java map <leader>jh :JavaHierarchy<CR>
+  " autocmd FileType java setlocal omnifunc=javacomplete#Complete
   autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 augroup END
 
@@ -1149,18 +1156,17 @@ augroup comments
   autocmd FileType actionscript setlocal commentstring=//\ %s
 augroup end
 
-augroup ft_mkd
-    autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
-    autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;
-    au FileType markdown nnoremap <buffer> <localleader>1 yypVr=
-    au FileType markdown nnoremap <buffer> <localleader>2 yypVr-
-    au FileType markdown nnoremap <buffer> <localleader>3 I### <ESC>
-augroup END
-
-augroup ft_quickfix
-    au!
-    au FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
-    " au FileType qf unmap <buffer>, <CR>
+augroup mappings
+  au!
+  au FileType markdown nnoremap <buffer> <localleader>1 yypVr=
+  au FileType markdown nnoremap <buffer> <localleader>2 yypVr-
+  au FileType markdown nnoremap <buffer> <localleader>3 I### <ESC>
+  autocmd FileType java map <leader>b :JavaSearchContext<CR>
+  autocmd FileType java map <leader>1 :JavaCorrect<CR>
+  autocmd FileType java map <leader>s :JavaImportOrganize<CR>
+  autocmd FileType java map <leader>jh :JavaHierarchy<CR>
+  autocmd FileType clojure let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+  autocmd FileType java let g:SuperTabDefaultCompletionType = "<c-x><c-u>"
 augroup END
 
 " }}}
@@ -1172,4 +1178,3 @@ if filereadable(hostfile)
 endif
 " }}}
 
-" vim: foldmethod=marker
