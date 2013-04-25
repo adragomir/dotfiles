@@ -9,7 +9,7 @@
 "
 " License:
 "
-" Copyright (C) 2005 - 2012  Eric Van Dewoestine
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -106,6 +106,10 @@ if !exists("g:EclimDefaultFileOpenAction")
   let g:EclimDefaultFileOpenAction = 'split'
 endif
 
+if !exists("g:EclimCompletionMethod")
+  let g:EclimCompletionMethod = 'completefunc'
+endif
+
 if !exists("g:EclimLocationListHeight")
   let g:EclimLocationListHeight = 10
 endif
@@ -116,21 +120,6 @@ endif
 
 if !exists("g:EclimMakeQfFilter")
   let g:EclimMakeQfFilter = 1
-endif
-
-if !exists("g:EclimHome")
-  " set at build/install time.
-  let g:EclimHome = '/Users/adr/Applications/eclipse//plugins/org.eclim_2.2.3.30-g2948191'
-  if has('win32unix')
-    let g:EclimHome = eclim#cygwin#CygwinPath(g:EclimHome)
-  endif
-endif
-if !exists("g:EclimEclipseHome")
-  " set at build/install time.
-  let g:EclimEclipseHome = '/Users/adr/Applications/eclipse/'
-  if has('win32unix')
-    let g:EclimEclipseHome = eclim#cygwin#CygwinPath(g:EclimEclipseHome)
-  endif
 endif
 
 if !exists("g:EclimMenus")
@@ -152,14 +141,14 @@ endif
 
 " Command Declarations {{{
 if !exists(":PingEclim")
-  command -nargs=? -complete=customlist,eclim#eclipse#CommandCompleteWorkspaces
+  command -nargs=? -complete=customlist,eclim#client#nailgun#CommandCompleteWorkspaces
     \ PingEclim :call eclim#PingEclim(1, '<args>')
 endif
 if !exists(":ShutdownEclim")
   command ShutdownEclim :call eclim#ShutdownEclim()
 endif
 if !exists(":EclimSettings")
-  command -nargs=? -complete=customlist,eclim#eclipse#CommandCompleteWorkspaces
+  command -nargs=? -complete=customlist,eclim#client#nailgun#CommandCompleteWorkspaces
     \ EclimSettings :call eclim#Settings('<args>')
 endif
 if !exists(":EclimDisable")
@@ -254,7 +243,9 @@ endif
 " Auto Commands{{{
 augroup eclim_archive_read
   autocmd!
-  silent! autocmd! archive_read
+  if exists('#archive_read')
+    autocmd! archive_read
+  endif
   autocmd BufReadCmd
     \ jar:/*,jar:\*,jar:file:/*,jar:file:\*,
     \tar:/*,tar:\*,tar:file:/*,tar:file:\*,

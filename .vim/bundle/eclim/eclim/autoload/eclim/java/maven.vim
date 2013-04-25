@@ -5,7 +5,7 @@
 "
 " License:
 "
-" Copyright (C) 2005 - 2012  Eric Van Dewoestine
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -48,9 +48,9 @@
     \ "\t<dependency org=\"${groupId}\" name=\"${artifactId}\" rev=\"${version}\"/>"
 " }}}
 
-" Search(query, type) {{{
-" Searches online maven repository.
-function! eclim#java#maven#Search(query, type)
+function! eclim#java#maven#Search(query, type) " {{{
+  " Searches online maven repository.
+
   if !eclim#project#util#IsCurrentFileInProject()
     return
   endif
@@ -67,7 +67,7 @@ function! eclim#java#maven#Search(query, type)
   let command = substitute(command, '<type>', a:type, '')
   let command = substitute(command, '<query>', a:query, '')
 
-  let results = eclim#ExecuteEclim(command)
+  let results = eclim#Execute(command)
   if type(results) != g:LIST_TYPE
     return
   endif
@@ -160,17 +160,31 @@ function! s:InsertDependency(type, group, artifact, vrsn) " {{{
   retab
 endfunction " }}}
 
-" SetClasspathVariable(cmd variable) {{{
-function eclim#java#maven#SetClasspathVariable(cmd, variable)
-  let workspace = eclim#eclipse#ChooseWorkspace()
-  if workspace == '0'
+function! eclim#java#maven#SetClasspathVariable(cmd, variable, args) " {{{
+  let instance = eclim#client#nailgun#ChooseEclimdInstance()
+  if type(instance) != g:DICT_TYPE
     return
   endif
 
-  let command = a:cmd .
-    \ ' -Declipse.workspace=' . workspace .
-    \ ' -Dmaven.eclipse.workspace=' . workspace .
-    \ ' eclipse:add-maven-repo'
+  let workspace = instance.workspace
+
+  " maven 1.x
+  if a:cmd == 'Maven'
+    let prefs = workspace .
+      \ '/.metadata/.plugins/org.eclipse.jdt.core/pref_store.ini'
+    let command = a:cmd .
+      \ ' "-Dmaven.eclipse.workspace=' . workspace . '"' .
+      \ ' eclipse:add-maven-repo'
+
+  " maven 2.x
+  else
+    let prefs = workspace .
+      \ '/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs'
+    let command = a:cmd . ' ' . a:args .
+      \ ' "-Declipse.workspace=' . workspace . '"' .
+      \ ' eclipse:configure-workspace'
+  endif
+
   call eclim#util#Exec(command)
 
   if !v:shell_error
@@ -179,20 +193,11 @@ function eclim#java#maven#SetClasspathVariable(cmd, variable)
     " value out and let the server set it again.
     let winrestore = winrestcmd()
 
-    " maven 1.x
-    if a:cmd == 'Maven'
-      let prefs = workspace . '.metadata/.plugins/org.eclipse.jdt.core/pref_store.ini'
-
-    " maven 2.x
-    else
-      let prefs = workspace . '.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs'
-    endif
-
     if filereadable(prefs)
       silent exec 'sview ' . prefs
       let line = search('org.eclipse.jdt.core.classpathVariable.' . a:variable, 'cnw')
+      let value = line ? substitute(getline(line), '.\{-}=\(.*\)', '\1', '') : ''
       if line
-        let value = substitute(getline(line), '.\{-}=\(.*\)', '\1', '')
         call eclim#java#classpath#VariableCreate(a:variable, value)
       endif
 
@@ -200,14 +205,27 @@ function eclim#java#maven#SetClasspathVariable(cmd, variable)
         close
         exec winrestore
       endif
+
+      if line
+        call eclim#util#Echo(a:variable . " classpath variable set to:\n" . value)
+      else
+        call eclim#util#EchoWarning(
+          \ "Unable to locate " . a:variable . " classpath variable.\n" .
+          \ "If it was successful set by maven, you may need to\n" .
+          \ "restart eclipse for the change to take affect.")
+      endif
+    else
+      call eclim#util#EchoWarning(
+        \ "Unable to read:\n" . prefs . "\n" .
+        \ "If the " . a:variable . " classpath variable was successfully set by maven\n" .
+        \ "you may need to restart eclipse for the change to take affect.")
     endif
   endif
-
 endfunction " }}}
 
-" UpdateClasspath() {{{
-" Updates the classpath on the server w/ the changes made to the current file.
-function! eclim#java#maven#UpdateClasspath()
+function! eclim#java#maven#UpdateClasspath() " {{{
+  " Updates the classpath on the server w/ the changes made to the current pom file.
+
   if !eclim#project#util#IsCurrentFileInProject()
     return
   endif
@@ -221,7 +239,7 @@ function! eclim#java#maven#UpdateClasspath()
   let command = s:update_command
   let command = substitute(command, '<project>', name, '')
   let command = substitute(command, '<build>', escape(expand('%:p'), '\'), '')
-  let result = eclim#ExecuteEclim(command)
+  let result = eclim#Execute(command)
 
   if type(result) == g:LIST_TYPE && len(result) > 0
     let errors = eclim#util#ParseLocationEntries(

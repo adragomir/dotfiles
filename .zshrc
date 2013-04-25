@@ -1,12 +1,5 @@
-#vim:foldmethod=marker
-export ZSH=$HOME/.zsh
-
-export OS=`uname | tr "[:upper:]" "[:lower:]"`
-
-# Set to this to use case-sensitive completion
-export CASE_SENSITIVE="true"
-
 # fpath {{{
+export ZSH=$HOME/.zsh
 fpath=($ZSH $fpath)
 fpath=(/usr/local/share/zsh-completions $fpath)
 # }}}
@@ -17,58 +10,28 @@ zmodload zsh/stat
 zmodload zsh/mathfunc
 zmodload -i zsh/complist
 zmodload -F zsh/parameter
+zmodload zsh/termcap
+zmodload zsh/terminfo
+zmodload zsh/net/socket
+zmodload zsh/net/tcp
 # }}}
 
-autoload -U edit-command-line
-zle -N edit-command-line
-bindkey '\C-x\C-e' edit-command-line
+# autoload {{{
+autoload -U colors && colors	# Enables colours
+autoload -U compinit && compinit
+autoload -U url-quote-magic
+autoload allopt
+autoload -U zcalc
+# }}}
 
-_completeme() {
-  zle -I
-  completeme
-  echo $tmp
-}
-zle -N _completeme
-bindkey "\C-t" _completeme
-
-# {{{ 
-# ls colors
-autoload colors; colors;
-export LSCOLORS="Gxfxcxdxbxegedabagacad"
-export LS_COLORS="*.tar.bz2=38;5;226:*.tar.xz=38;5;130:*PKGBUILD=48;5;233;38;5;160:*.html=38;5;213:*.htm=38;5;213:*.vim=38;5;142:*.css=38;5;209:*.screenrc=38;5;120:*.procmailrc=38;5;120:*.zshrc=38;5;120:*.bashrc=38;5;120:*.xinitrc=38;5;120:*.vimrc=38;5;120:*.htoprc=38;5;120:*.muttrc=38;5;120:*.gtkrc-2.0=38;5;120:*.fehrc=38;5;120:*.rc=38;5;120:*.md=38;5;130:*.markdown=38;5;130:*.conf=38;5;148:*.h=38;5;81:*.rb=38;5;192:*.c=38;5;110:*.diff=38;5;31:*.yml=38;5;208:*.pl=38;5;178:*.csv=38;5;136:tw=38;5;003:*.chm=38;5;144:*.bin=38;5;249:*.pdf=38;5;203:*.mpg=38;5;38:*.ts=38;5;39:*.sfv=38;5;191:*.m3u=38;5;172:*.txt=38;5;192:*.log=38;5;190:*.swp=38;5;241:*.swo=38;5;240:*.theme=38;5;109:*.zsh=38;5;173:*.nfo=38;5;113:mi=38;5;124:or=38;5;160:ex=38;5;197:ln=target:pi=38;5;130:ow=38;5;208:fi=38;5;007:so=38;5;167:di=38;5;30:*.pm=38;5;197:*.pl=38;5;166:*.sh=38;5;243:*.patch=38;5;37:*.tar=38;5;118:*.tar.gz=38;5;172:*.zip=38;5;11::*.rar=38;5;11:*.tgz=38;5;11:*.7z=38;5;11:*.mp3=38;5;173:*.flac=38;5;166:*.mkv=38;5;115:*.avi=38;5;114:*.wmv=38;5;113:*.jpg=38;5;66:*.jpeg=38;5;67:*.png=38;5;68:*.pacnew=38;5;33"
-
+# settings {{{
 setopt no_beep
 setopt auto_cd
 setopt multios
 setopt cdablevarS
 setopt ignoreeof
-
-# Apply theming defaults
-#PS1="%n@%m:%~%# "
-
-# Setup the prompt with pretty colors
 setopt prompt_subst
 setopt transient_rprompt
-
-# Load the theme
-PROMPT=$'%{$fg_bold[yellow]%}[%n@%{$fg_bold[green]%}%m%{$fg_bold[yellow]%}]%{$reset_color%}%{$fg[white]%}[$fg_bold[yellow]${PWD/#$HOME/~}]%{$reset_color%}$(git_prompt_info)\
-%{$fg_bold[yellow]%}➜ %{$reset_color%}'
-
-PROMPT2=$'%{$fg_bold[yellow]%}[<%n@%{$fg_bold[green]%}%m%{$fg_bold[yellow]%}>]%{$reset_color%}%{$fg[white]%}[$fg_bold[yellow]${PWD/#$HOME/~}]%{$reset_color%}$(git_prompt_info)\
-%{$fg_bold[yellow]%}%_➜ %{$reset_color%}'
-
-ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[green]%}["
-ZSH_THEME_GIT_PROMPT_SUFFIX="]%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_DIRTY=" %{$fg[red]%}*%{$fg[green]%}"
-ZSH_THEME_GIT_PROMPT_CLEAN=""
-
-setopt prompt_subst	# Enables additional prompt extentions
-autoload -U colors && colors	# Enables colours
-
-# }}}
-
-# {{{
-# fixme - the load process here seems a bit bizarre
 
 unsetopt menu_complete   # do not autoselect the first completion entry
 unsetopt flowcontrol
@@ -86,38 +49,39 @@ setopt list_types # Show types in completion
 setopt rec_exact # Recognize exact, ambiguous matches
 setopt short_loops
 
+setopt auto_name_dirs
+setopt auto_pushd
+setopt pushd_ignore_dups
+
 WORDCHARS=''
 WORDCHARS=${WORDCHARS//[&=\/;\!#?[]~&;!$%^<>%\{]}
 
-autoload -U compinit
-compinit -i
+# history settings {{{
+HISTFILE=$HOME/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
 
-## case-insensitive (all),partial-word and then substring completion
-if [ "x$CASE_SENSITIVE" = "xtrue" ]; then
-  zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-  unset CASE_SENSITIVE
-else
-  zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-fi
+setopt hist_find_no_dups # ignore duplication command history list
+setopt hist_ignore_all_dups # ignore duplication command history list
+setopt share_history # share command history data
 
+setopt hist_verify
+setopt inc_append_history
+setopt extended_history
+setopt hist_expire_dups_first
+setopt hist_ignore_space
+
+setopt SHARE_HISTORY
+setopt APPEND_HISTORY
+setopt long_list_jobs
+# }}}
+
+# }}}
+
+# {{{ completions 
+zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' squeeze-slashes true
-
-# should this be in keybindings?
-bindkey -M menuselect '^o' accept-and-infer-next-history
-zle -C complete-menu menu-select _generic
-_complete_menu() {
-  setopt localoptions alwayslastprompt
-  zle complete-menu
-}
-zle -N _complete_menu
-bindkey '^F' _complete_menu
-bindkey -M menuselect '^F' accept-and-infer-next-history
-bindkey -M menuselect '/'  accept-and-infer-next-history
-bindkey -M menuselect '^?' undo
-bindkey -M menuselect ' ' accept-and-hold
-bindkey -M menuselect '*' history-incremental-search-forward
-
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' squeeze-slashes true
 zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
@@ -150,20 +114,23 @@ zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-dir
 cdpath=(.)
 
 # use /etc/hosts and known_hosts for hostname completion
-[ -r ~/.ssh/known_hosts ] && _ssh_hosts=(${${${${(f)"$(<$HOME/.ssh/known_hosts)"}:#[\|]*}%%\ *}%%,*}) || _ssh_hosts=()
-[ -r /etc/hosts ] && : ${(A)_etc_hosts:=${(s: :)${(ps:\t:)${${(f)~~"$(</etc/hosts)"}%%\#*}##[:blank:]#[^[:blank:]]#}}} || _etc_hosts=()
-hosts=(
-  "$_ssh_hosts[@]"
-  "$_etc_hosts[@]"
-  `hostname`
-  localhost
-)
-zstyle ':completion:*:hosts' hosts $hosts
+# if [[ -r ~/.ssh/known_hosts ]]; then
+#   _ssh_hosts=( ${${${${(f)"$(<$HOME/.ssh/known_hosts)"}:#[\|]*}%%\ *}%%,*} ) || _ssh_hosts=()
+# fi
+# if [[ -r /etc/hosts ]]; then
+#   _etc_hosts=( ${(s: :)${(ps:\t:)${${(f)~~"$(</etc/hosts)"}%%\#*}##[:blank:]#[^[:blank:]]#}} ) || _etc_hosts=()
+# fi
+# hosts=(
+#   "$_ssh_hosts[@]"
+#   "$_etc_hosts[@]"
+#   `hostname`
+#   localhost
+# )
 
+# zstyle ':completion:*:hosts' hosts $hosts
 # Use caching so that commands like apt and dpkg complete are useable
 zstyle ':completion::complete:*' use-cache 1
 zstyle ':completion::complete:*' cache-path ~/.zsh/cache/
-
 # Don't complete uninteresting users
 zstyle ':completion:*:*:*:users' ignored-patterns \
         adm amanda apache avahi beaglidx bin cacti canna clamav daemon \
@@ -175,71 +142,15 @@ zstyle ':completion:*:*:*:users' ignored-patterns \
         rpc rpcuser rpm shutdown squid sshd sync uucp vcsa xfs
 # ... unless we really want to.
 zstyle '*' single-ignored show
-
-# }}}
-
-# {{{ filename completion
 # Force file name completion on C-x TAB, Shift-TAB.
 zle -C complete-files complete-word _generic
 zstyle ':completion:complete-files:*' completer _files
-bindkey "^Q" complete-files
-bindkey "^[[Z" complete-files
-
-# Force menu on C-x RET.
-zle -C complete-first complete-word _generic
 zstyle ':completion:complete-first:*' menu yes
-bindkey "^W" complete-first
+zstyle -e :urlglobber url-other-schema '[[ $words[1] == scp ]] && reply=("*") || reply=(http https ftp)'
 # }}}
 
-# {{{
-# Changing/making/removing directory
-setopt auto_name_dirs
-setopt auto_pushd
-setopt pushd_ignore_dups
+# prompt settings {{{
 
-cd () {
-  if   [[ "x$*" == "x..." ]]; then
-    cd ../..
-  elif [[ "x$*" == "x...." ]]; then
-    cd ../../..
-  elif [[ "x$*" == "x....." ]]; then
-    cd ../../..
-  elif [[ "x$*" == "x......" ]]; then
-    cd ../../../..
-  else
-    builtin cd "$@"
-  fi
-}
-
-# }}}
-
-# {{{
-function title {
-  if [[ $TERM == "screen" ]]; then
-    # Use these two for GNU Screen:
-    print -nR $'\033k'$1$'\033'\\\
-
-    print -nR $'\033]0;'$2$'\a'
-  elif [[ ($TERM =~ "^xterm") ]] || [[ ($TERM == "rxvt") ]]; then
-    # Use this one instead for XTerms:
-    print -nR $'\033]0;'$*$'\a'
-  fi
-}
-
-function _backward_kill_default_word() {
-  WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>' zle backward-kill-word
-}
-zle -N backward-kill-default-word _backward_kill_default_word
-bindkey '\e=' backward-kill-default-word   # = is next to backspace
-
-function preexec {
-  emulate -L zsh
-  local -a cmd; cmd=(${(z)1})
-}
-
-# }}}
-
-# {{{
 # get the name of the branch we are on
 function git_prompt_info() {
   ref=$(git symbolic-ref HEAD 2> /dev/null) || return
@@ -253,74 +164,84 @@ parse_git_dirty () {
     echo "$ZSH_THEME_GIT_PROMPT_CLEAN"
   fi
 }
+# Setup the prompt with pretty colors
 
-function tree() {
-  find . | sed -e 's/[^\/]*\//|--/g' -e 's/-- |/    |/g' | $PAGER
-}
+# Load the theme
+PROMPT=$'%{$fg_bold[yellow]%}[%n@%{$fg_bold[green]%}%m%{$fg_bold[yellow]%}]%{$reset_color%}%{$fg[white]%}[$fg_bold[yellow]${PWD/#$HOME/~}]%{$reset_color%}$(git_prompt_info)\
+%{$fg_bold[yellow]%}➜ %{$reset_color%}'
 
-# get the status of the working tree
-git_prompt_status() {
-  INDEX=$(git status --porcelain 2> /dev/null)
-  STATUS=""
-  if $(echo "$INDEX" | grep '^?? ' &> /dev/null); then
-    STATUS="$ZSH_THEME_GIT_PROMPT_UNTRACKED$STATUS"
-  fi
-  if $(echo "$INDEX" | grep '^A  ' &> /dev/null); then
-    STATUS="$ZSH_THEME_GIT_PROMPT_ADDED$STATUS"
-  elif $(echo "$INDEX" | grep '^M  ' &> /dev/null); then
-    STATUS="$ZSH_THEME_GIT_PROMPT_ADDED$STATUS"
-  fi
-  if $(echo "$INDEX" | grep '^ M ' &> /dev/null); then
-    STATUS="$ZSH_THEME_GIT_PROMPT_MODIFIED$STATUS"
-  fi
-  if $(echo "$INDEX" | grep '^R  ' &> /dev/null); then
-    STATUS="$ZSH_THEME_GIT_PROMPT_RENAMED$STATUS"
-  fi
-  if $(echo "$INDEX" | grep '^ D ' &> /dev/null); then
-    STATUS="$ZSH_THEME_GIT_PROMPT_DELETED$STATUS"
-  fi
-  if $(echo "$INDEX" | grep '^UU ' &> /dev/null); then
-    STATUS="$ZSH_THEME_GIT_PROMPT_UNMERGED$STATUS"
-  fi
-  echo $STATUS
-}
+PROMPT2=$'%{$fg_bold[yellow]%}[<%n@%{$fg_bold[green]%}%m%{$fg_bold[yellow]%}>]%{$reset_color%}%{$fg[white]%}[$fg_bold[yellow]${PWD/#$HOME/~}]%{$reset_color%}$(git_prompt_info)\
+%{$fg_bold[yellow]%}%_➜ %{$reset_color%}'
 
+ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[green]%}["
+ZSH_THEME_GIT_PROMPT_SUFFIX="]%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_DIRTY=" %{$fg[red]%}*%{$fg[green]%}"
+ZSH_THEME_GIT_PROMPT_CLEAN=""
 # }}}
 
-#
-# Color grep results
-# Examples: http://rubyurl.com/ZXv
-#
-export GREP_OPTIONS='--color=auto'
-export GREP_COLOR='1;32'
-export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
+# hooks {{{
 
-# {{{
-## Command history configuration
-HISTFILE=$HOME/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
+function preexec {
+  emulate -L zsh
+  local -a cmd; cmd=(${(z)1})
+}
 
-setopt hist_find_no_dups # ignore duplication command history list
-setopt hist_ignore_all_dups # ignore duplication command history list
-setopt share_history # share command history data
-
-setopt hist_verify
-setopt inc_append_history
-setopt extended_history
-setopt hist_expire_dups_first
-setopt hist_ignore_space
-
-setopt SHARE_HISTORY
-setopt APPEND_HISTORY
-
+# Changing/making/removing directory
+cd () {
+  if   [[ "x$*" == "x..." ]]; then
+    cd ../..
+  elif [[ "x$*" == "x...." ]]; then
+    cd ../../..
+  elif [[ "x$*" == "x....." ]]; then
+    cd ../../..
+  elif [[ "x$*" == "x......" ]]; then
+    cd ../../../..
+  else
+    builtin cd "$@"
+  fi
+}
 # }}}
 
-# {{{
-# TODO: Explain what some of this does..
+# key bindings {{{
+function _backward_kill_default_word() {
+  WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>' zle backward-kill-word
+}
+zle -N backward-kill-default-word _backward_kill_default_word
+
+bindkey '\e=' backward-kill-default-word   # = is next to backspace
+bindkey "^W" complete-first
+bindkey "^Q" complete-files
+bindkey "^[[Z" complete-files
+
+# should this be in keybindings?
+bindkey -M menuselect '^o' accept-and-infer-next-history
+zle -C complete-menu menu-select _generic
+_complete_menu() {
+  setopt localoptions alwayslastprompt
+  zle complete-menu
+}
+zle -N _complete_menu
+bindkey '^F' _complete_menu
+bindkey -M menuselect '^F' accept-and-infer-next-history
+bindkey -M menuselect '/'  accept-and-infer-next-history
+bindkey -M menuselect '^?' undo
+bindkey -M menuselect ' ' accept-and-hold
+bindkey -M menuselect '*' history-incremental-search-forward
+
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey '\C-x\C-e' edit-command-line
+
+_completeme() {
+  zle -I
+  completeme
+  echo $tmp
+}
+zle -N _completeme
+bindkey "\C-t" _completeme
+
 autoload -Uz narrow-to-region
-function _history-incremental-preserving-pattern-search-backward
-{
+function _history-incremental-preserving-pattern-search-backward {
   local state
   MARK=CURSOR  # magick, else multiple ^R don't work
   narrow-to-region -p "$LBUFFER${BUFFER:+>>}" -P "${BUFFER:+<<}$RBUFFER" -S state
@@ -329,10 +250,10 @@ function _history-incremental-preserving-pattern-search-backward
   narrow-to-region -R state
 }
 zle -N _history-incremental-preserving-pattern-search-backward
+bindkey "^r" _history-incremental-preserving-pattern-search-backward
 
 bindkey -e
 bindkey '\ew' kill-region
-bindkey "^r" _history-incremental-preserving-pattern-search-backward
 bindkey -M isearch "^r" history-incremental-pattern-search-backward
 #bindkey '^r' history-incremental-pattern-search-backward
 bindkey "^s" history-incremental-pattern-search-forward
@@ -366,6 +287,7 @@ bindkey '^[[5D' backward-word
 bindkey '^[[5C' forward-word
 
 bindkey '^[[3~' delete-char
+
 # Move to where the arguments belong.
 after-first-word() {
   zle beginning-of-line
@@ -373,28 +295,17 @@ after-first-word() {
 }
 zle -N after-first-word
 bindkey "^X1" after-first-word
+
 foreground-vi() {
   fg %vi
 }
 zle -N foreground-vi
 bindkey '^Z' foreground-vi
-# }}}
 
-# {{{
-## smart urls
-autoload -U url-quote-magic
-zle -N self-insert url-quote-magic
-zstyle -e :urlglobber url-other-schema '[[ $words[1] == scp ]] && reply=("*") || reply=(http https ftp)'
-
-## file rename magick
+# file rename magick
 bindkey "^[m" copy-prev-shell-word
 
-## jobs
-setopt long_list_jobs
-
-## pager
-export PAGER=less
-
+zle -N self-insert url-quote-magic
 # }}}
 
 # colors {{{
@@ -402,7 +313,6 @@ export PAGER=less
 # A script to make using 256 colors in zsh less painful.
 # P.C. Shyamshankar <sykora@lucentbeing.com>
 # Copied from http://github.com/sykora/etc/blob/master/zsh/functions/spectrum/
-
 typeset -Ag FX FG BG
 
 FX=(
@@ -418,10 +328,61 @@ for color in {000..255}; do
     FG[$color]="%{[38;5;${color}m%}"
     BG[$color]="%{[48;5;${color}m%}"
 done
-
 # }}}
 
 # functions {{{
+function tree() {
+  find . | sed -e 's/[^\/]*\//|--/g' -e 's/-- |/    |/g' | $PAGER
+}
+
+function title {
+  if [[ $TERM == "screen" ]]; then
+    # Use these two for GNU Screen:
+    print -nR $'\033k'$1$'\033'\\\
+
+    print -nR $'\033]0;'$2$'\a'
+  elif [[ ($TERM =~ "^xterm") ]] || [[ ($TERM == "rxvt") ]]; then
+    # Use this one instead for XTerms:
+    print -nR $'\033]0;'$*$'\a'
+  fi
+}
+
+function bases() {
+  # Determine base of the number
+  for i      # ==> in [list] missing...
+  do         # ==> so operates on command line arg(s).
+	case "$i" in
+    0b*)		ibase=2;;	# binary
+    0x*|[a-f]*|[A-F]*)	ibase=16;;	# hexadecimal
+    0*)			ibase=8;;	# octal
+    [1-9]*)		ibase=10;;	# decimal
+    *)
+		echo "illegal number $i - ignored"
+		continue;;
+	esac
+
+	# Remove prefix, convert hex digits to uppercase (bc needs this)
+	number=`echo "$i" | sed -e 's:^0[bBxX]::' | tr '[a-f]' '[A-F]'`
+	# ==> Uses ":" as sed separator, rather than "/".
+
+	# Convert number to decimal
+	dec=`echo "ibase=$ibase; $number" | bc`  # ==> 'bc' is calculator utility.
+	case "$dec" in
+    [0-9]*)	;;			 # number ok
+    *)		continue;;		 # error: ignore
+	esac
+
+	# Print all conversions in one line.
+	# ==> 'here document' feeds command list to 'bc'.
+	echo `bc <<!
+	    obase=16; "hex="; $dec
+	    obase=10; "dec="; $dec
+	    obase=8;  "oct="; $dec
+	    obase=2;  "bin="; $dec
+!
+    ` | sed -e 's: :	:g'
+    done
+}
 
 # By @ieure; copied from https://gist.github.com/1474072
 #
@@ -456,19 +417,6 @@ zman() {
 
 function zsh_stats() {
   history | awk '{print $2}' | sort | uniq -c | sort -rn | head
-}
-
-function uninstall_oh_my_zsh() {
-  /bin/sh $ZSH/tools/uninstall.sh
-}
-
-function upgrade_oh_my_zsh() {
-  /bin/sh $ZSH/tools/upgrade.sh
-}
-
-function take() {
-  mkdir -p $1
-  cd $1
 }
 
 function allopen() {
@@ -560,13 +508,17 @@ function javap_method() {
   javap -classpath `cat .run-classpath` -c $class | sed -n -e "/$method(/,/^$/p"
 }
 
-function cl() { cd "$@" && l; }
+function cl() {
+  cd "$@" && l;
+}
+
 function cs () {
   cd "$@"
   if [ -n "$(git status 2>/dev/null)" ]; then
     echo "$(git status 2>/dev/null)"
   fi
 }
+
 function mkd() {
   mkdir -p "$*" && cd "$*" && pwd
 }
@@ -605,8 +557,7 @@ function current_git_branch {
   git branch 2> /dev/null | grep '\*' | awk '{print $2}'
 }
 
-hack()
-{
+hack() {
   CURRENT=$(current_git_branch)
   git checkout master
   git pull origin master
@@ -615,19 +566,13 @@ hack()
   unset CURRENT
 }
  
-ship()
-{
+ship() {
   CURRENT=$(current_git_branch)
   git checkout master
   git merge ${CURRENT}
   git push origin master
   git checkout ${CURRENT}
   unset CURRENT
-}
-
-git-pull-rebase () {
-  git fetch origin
-  git rebase -p origin/master
 }
 
 function pswhich {
@@ -638,70 +583,26 @@ function pswhich {
   done
 }
 
-function cdgem {
-  cd /opt/local/lib/ruby/gems/1.8/gems/; cd `ls|grep $1|sort|tail -1`
-}
-
-function cdpython {
-  cd /Library/Frameworks/Python.framework/Versions/2.4/lib/python2.4/site-packages/;
-}
-
-function mycd {
-
-    MYCD=/tmp/mycd.txt
-    touch ${MYCD}
-
-    typeset -i x
-    typeset -i ITEM_NO
-    typeset -i i
-    x=0
-
-    if [[ -n "${1}" ]]; then
-       if [[ -d "${1}" ]]; then
-          print "${1}" >> ${MYCD}
-          sort -u ${MYCD} > ${MYCD}.tmp
-          mv ${MYCD}.tmp ${MYCD}
-          FOLDER=${1}
-       else
-          i=${1}
-          FOLDER=$(sed -n "${i}p" ${MYCD})
-       fi
-    fi
-
-    if [[ -z "${1}" ]]; then
-       print ""
-       cat ${MYCD} | while read f; do
-          x=$(expr ${x} + 1)
-          print "${x}. ${f}"
-       done
-       print "\nSelect #"
-       read ITEM_NO
-       FOLDER=$(sed -n "${ITEM_NO}p" ${MYCD})
-    fi
-
-    if [[ -d "${FOLDER}" ]]; then
-       cd ${FOLDER}
-    fi
-}
-
-# mkdir, cd into it
 mkcd () {
   mkdir -p "$*"
   cd "$*"
 }
-
-function urlopen() {
-  open "http://$*"
-}
-
-calc () { echo "$*" | bc -l; }
-
 # }}}
 
 # program settings & paths {{{
+
+export OS=`uname | tr "[:upper:]" "[:lower:]"`
+# ls
+export LSCOLORS="Gxfxcxdxbxegedabagacad"
+export LSCOLORS="ExFxCxDxBxegedabagacad"
+export LS_COLORS="*.tar.bz2=38;5;226:*.tar.xz=38;5;130:*PKGBUILD=48;5;233;38;5;160:*.html=38;5;213:*.htm=38;5;213:*.vim=38;5;142:*.css=38;5;209:*.screenrc=38;5;120:*.procmailrc=38;5;120:*.zshrc=38;5;120:*.bashrc=38;5;120:*.xinitrc=38;5;120:*.vimrc=38;5;120:*.htoprc=38;5;120:*.muttrc=38;5;120:*.gtkrc-2.0=38;5;120:*.fehrc=38;5;120:*.rc=38;5;120:*.md=38;5;130:*.markdown=38;5;130:*.conf=38;5;148:*.h=38;5;81:*.rb=38;5;192:*.c=38;5;110:*.diff=38;5;31:*.yml=38;5;208:*.pl=38;5;178:*.csv=38;5;136:tw=38;5;003:*.chm=38;5;144:*.bin=38;5;249:*.pdf=38;5;203:*.mpg=38;5;38:*.ts=38;5;39:*.sfv=38;5;191:*.m3u=38;5;172:*.txt=38;5;192:*.log=38;5;190:*.swp=38;5;241:*.swo=38;5;240:*.theme=38;5;109:*.zsh=38;5;173:*.nfo=38;5;113:mi=38;5;124:or=38;5;160:ex=38;5;197:ln=target:pi=38;5;130:ow=38;5;208:fi=38;5;007:so=38;5;167:di=38;5;30:*.pm=38;5;197:*.pl=38;5;166:*.sh=38;5;243:*.patch=38;5;37:*.tar=38;5;118:*.tar.gz=38;5;172:*.zip=38;5;11::*.rar=38;5;11:*.tgz=38;5;11:*.7z=38;5;11:*.mp3=38;5;173:*.flac=38;5;166:*.mkv=38;5;115:*.avi=38;5;114:*.wmv=38;5;113:*.jpg=38;5;66:*.jpeg=38;5;67:*.png=38;5;68:*.pacnew=38;5;33"
+
+# grep
 export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;32'
+export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
 
+# scons
 export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/scons-1.2.0"
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
@@ -715,7 +616,6 @@ export ANT_HOME=$HOME/work/tools/apache-ant-1.8.2
 export ANT_OPTS="-Xms256m -Xmx512m -XX:MaxPermSize=512m -XX:PermSize=256m"
 
 # jrebel
-
 export JREBEL_PATH=$HOME/work/tools/jrebel/jrebel.jar
 
 # maven
@@ -739,6 +639,8 @@ export GIST_URL='git.corp.adobe.com/api/v3'
 
 export VISUAL='vim'
 export INPUTRC=~/.inputrc
+
+# locale
 export LANG="en_US.UTF-8"
 export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
@@ -756,6 +658,7 @@ export LC_MEASUREMENT="en_US.utf8"
 export LC_IDENTIFICATION="en_US.utf8"
 #export LC_ALL=""
 
+# perl
 export VERSIONER_PERL_PREFER_32_BIT=yes
 export PERL_BADLANG=0
 
@@ -765,8 +668,10 @@ then
   export PERL_MB_OPT="--install_base $HOME/.perl5";
   export PERL_MM_OPT="INSTALL_BASE=$HOME/.perl5";
   export PERL5LIB="$HOME/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:$HOME/.perl5/lib/perl5";
-  export PATH="$HOME/.perl5/bin:$PATH";
 fi
+
+# ice
+export ICE_HOME=/usr/local/Ice
 
 export DISPLAY=:0.0
 
@@ -776,27 +681,15 @@ export hlainc=/usr/hla/include
 
 # colors in terminal
 export CLICOLOR=1
-export LSCOLORS=ExFxCxDxBxegedabagacad
 
+# p4
 export P4CONFIG=.p4conf
+
+# html tidy
 export HTML_TIDY=$HOME/.tidyconf
-
-export WIKI=$HOME/Documents/personal/life/exploded/
-
-export SAASBASE_HOME=$HOME/work/s
-source $HOME/work/s/services/use-hadoop-1
-export HBASE_HOME=$HOME/work/s/hbase
-export ZOOKEEPER_HOME=$HOME/work/s/zookeeper
-export STORM_HOME=$HOME/work/s/storm
-export KAFKA_HOME=$HOME/work/s/kafka
 
 # ansible
 export ANSIBLE_HOSTS=~/.ansible_hosts
-
-# saasbase
-export SAASBASE_DB_HOME=$HOME/work/s/saasbase/src/saasbase_db
-export SAASBASE_ANALYTICS_HOME=$HOME/work/s/saasbase/src/saasbase_analytics
-export SAASBASE_DATAROOT=/var
 
 export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
 
@@ -804,12 +697,9 @@ export FLEX_SDK_BIN_DIR=/Users/adr/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/b
 
 export MONO_GAC_PREFIX=/usr/local
 
-# luatext
-#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c/
-#export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,/usr/local/texlive/texmf-local/scripts/context/lua,$HOME/texmf/scripts/context/lua}'
-#export TEXMF='{$HOME/.texlive2008/texmf-config,$HOME/.texlive2008/texmf-var,$HOME/texmf,/usr/local/texlive/2008/texmf-config,/usr/local/texlive/2008/texmf-var,/usr/local/texlive/2008/texmf,/usr/local/texlive/texmf-local,/usr/local/texlive/2008/texmf-dist,/usr/local/texlive/2008/texmf.gwtex}'
-export TEXMFCACHE=/tmp
-#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
+# haxe
+export HAXE_LIBRARY_PATH="$(/usr/local/bin/brew --prefix)/share/haxe/std"
+#export NEKOPATH=/usr/local/neko
 
 # java
 if [ "`uname`" = "Darwin" ]; then
@@ -818,21 +708,32 @@ else
   export JAVA_HOME=/usr/lib/jvm/java-6-sun/
 fi
 
-#export JUNIT_HOME=/usr/share/junit
+# luatext
+#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c/
+#export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,/usr/local/texlive/texmf-local/scripts/context/lua,$HOME/texmf/scripts/context/lua}'
+#export TEXMF='{$HOME/.texlive2008/texmf-config,$HOME/.texlive2008/texmf-var,$HOME/texmf,/usr/local/texlive/2008/texmf-config,/usr/local/texlive/2008/texmf-var,/usr/local/texlive/2008/texmf,/usr/local/texlive/texmf-local,/usr/local/texlive/2008/texmf-dist,/usr/local/texlive/2008/texmf.gwtex}'
+export TEXMFCACHE=/tmp
+#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
 
-# haxe
-export HAXE_LIBRARY_PATH="$(/usr/local/bin/brew --prefix)/share/haxe/std"
-#export NEKOPATH=/usr/local/neko
-
-
+export WIKI=$HOME/Documents/personal/life/exploded/
 export NOTES=$HOME/Documents/personal/life/notes@/
+
+export SAASBASE_HOME=$HOME/work/s
+source $HOME/work/s/services/use-hadoop-1
+export HBASE_HOME=$HOME/work/s/hbase
+export ZOOKEEPER_HOME=$HOME/work/s/zookeeper
+export STORM_HOME=$HOME/work/s/storm
+export KAFKA_HOME=$HOME/work/s/kafka
+
+# saasbase
+export SAASBASE_DB_HOME=$HOME/work/s/saasbase/src/saasbase_db
+export SAASBASE_ANALYTICS_HOME=$HOME/work/s/saasbase/src/saasbase_analytics
+export SAASBASE_DATAROOT=/var
 
 if [ "`uname`" = "Darwin" ]; then
   export VIMRUNTIME=$HOME/Applications/MacVim.app/Contents/Resources/vim/runtime/
 fi  
-#export SCALA_HOME=/usr/local
 export ENSIMEHOME=/Users/adr/work/tools/ensime/ensime_2.9.2-0.9.8.9/
-# }}}
 
 # {{{ amazon
 
@@ -851,6 +752,9 @@ export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/1.5.0/jars"
 export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
 # elb-tools
 export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
+
+export ANDROID_HOME=$HOME/work/tools/android-sdk-linux/
+export AIR_ANDROID_SDK_HOME=$HOME/work/tools/android-sdk-linux/
 
 # }}}
 
@@ -875,7 +779,11 @@ $HOME/work/tools/play-2.0.1:\
 $GOBIN:\
 $HOME/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin:\
 $HOME/.rvm/bin:\
+$HOME/.perl5/bin:\
 $PATH
+
+# }}}
+
 
 if [ "`uname`" = "Darwin" ]; then
 export PATH=$PATH:\
@@ -889,8 +797,6 @@ $MANPATH
 # }}}
 
 # aliases {{{
-
-# common
 
 alias -s com=urlopen
 alias -s org=urlopen
@@ -980,47 +886,6 @@ alias hbase='$HBASE_HOME/bin/hbase'
 alias zk='$ZOOKEEPER_HOME/bin/zkCli.sh'
 alias storm='$STORM_HOME/bin/storm'
 alias psall='pswhich NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer ReportServer storm.daemon.nimbus storm.ui.core'
-
-function bases() {
-  # Determine base of the number
-  for i      # ==> in [list] missing...
-  do         # ==> so operates on command line arg(s).
-	case "$i" in
-    0b*)		ibase=2;;	# binary
-    0x*|[a-f]*|[A-F]*)	ibase=16;;	# hexadecimal
-    0*)			ibase=8;;	# octal
-    [1-9]*)		ibase=10;;	# decimal
-    *)
-		echo "illegal number $i - ignored"
-		continue;;
-	esac
-
-	# Remove prefix, convert hex digits to uppercase (bc needs this)
-	number=`echo "$i" | sed -e 's:^0[bBxX]::' | tr '[a-f]' '[A-F]'`
-	# ==> Uses ":" as sed separator, rather than "/".
-
-	# Convert number to decimal
-	dec=`echo "ibase=$ibase; $number" | bc`  # ==> 'bc' is calculator utility.
-	case "$dec" in
-    [0-9]*)	;;			 # number ok
-    *)		continue;;		 # error: ignore
-	esac
-
-	# Print all conversions in one line.
-	# ==> 'here document' feeds command list to 'bc'.
-	echo `bc <<!
-	    obase=16; "hex="; $dec
-	    obase=10; "dec="; $dec
-	    obase=8;  "oct="; $dec
-	    obase=2;  "bin="; $dec
-!
-    ` | sed -e 's: :	:g'
-    done
-}
-
-# }}}
-
-# aliases {{{
 alias d='dirs -v'
 alias ..='cd ..'
 alias cd..='cd ..'
@@ -1102,27 +967,18 @@ alias ggpnp='git pull origin $(current_branch) && git push origin $(current_bran
 
 #}}}
 
-# {{{ tmuxinator
+# final settings {{{
 [[ -s $HOME/.tmuxinator/scripts/tmuxinator ]] && source $HOME/.tmuxinator/scripts/tmuxinator
-# }}}
-
-# android {{{
-export ANDROID_HOME=$HOME/work/tools/android-sdk-linux/
-export AIR_ANDROID_SDK_HOME=$HOME/work/tools/android-sdk-linux/
-# }}}
-
-export ICE_HOME=/usr/local/Ice
-
-if [ "`uname`" = "Darwin" ]; then
-  compctl -f -x 'p[2]' -s "`/bin/ls -d1 /Applications/*/*.app /Applications/*.app $HOME/Applications/*/*.app $HOME/Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g'`" -- open alias run='open -a'
-fi
-
 eval "$(fasd --init auto)"
 
-[[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
-export ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
 source $ZSH/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $ZSH/zsh-history-substring-search/zsh-history-substring-search.zsh
 
+[[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
+
 source $HOME/.rvm/scripts/rvm
+
+# }}}
+#vim:foldmethod=marker

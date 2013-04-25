@@ -4,7 +4,7 @@
 "
 " License:
 "
-" Copyright (C) 2005 - 2012  Eric Van Dewoestine
+" Copyright (C) 2005 - 2013  Eric Van Dewoestine
 "
 " This program is free software: you can redistribute it and/or modify
 " it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@ function! eclim#common#buffers#Buffers(bang) " {{{
   endif
 
   let lines = []
+  let buflist = []
   let filelength = options['maxfilelength']
   let tabid = exists('*gettabvar') ? s:GetTabId() : 0
   let tabbuffers = tabpagebuflist()
@@ -67,6 +68,7 @@ function! eclim#common#buffers#Buffers(bang) " {{{
       endif
 
       call add(lines, s:BufferEntryToLine(buffer, filelength))
+      call add(buflist, buffer)
     endif
   endfor
 
@@ -76,7 +78,7 @@ function! eclim#common#buffers#Buffers(bang) " {{{
   call append(line('$'), ['', '" use ? to view help'])
   setlocal nomodifiable readonly
 
-  let b:eclim_buffers = buffers
+  let b:eclim_buffers = buflist
 
   " syntax
   set ft=eclim_buffers
@@ -158,12 +160,9 @@ endfunction " }}}
 function! eclim#common#buffers#GetBuffers(...) " {{{
   let options = a:0 ? a:1 : {}
 
-  let saved_lang = v:lang
-  language C
   redir => list
   silent buffers
   redir END
-  execute 'language' saved_lang
 
   let buffers = []
   let maxfilelength = 0
@@ -175,7 +174,7 @@ function! eclim#common#buffers#GetBuffers(...) " {{{
     let buffer.file = fnamemodify(buffer.path, ':p:t')
     let buffer.dir = fnamemodify(buffer.path, ':p:h')
     let buffer.bufnr = str2nr(substitute(entry, '\s*\([0-9]\+\).*', '\1', ''))
-    let buffer.lnum = str2nr(substitute(entry, '.*"\s\+line\s\+\([0-9]\+\).*', '\1', ''))
+    let buffer.lnum = str2nr(substitute(entry, '.*"\s\+\w\+\s\+\(\d\+\)', '\1', ''))
     call add(buffers, buffer)
 
     if len(buffer.file) > maxfilelength
@@ -221,7 +220,12 @@ function! eclim#common#buffers#TabEnter() " {{{
       " don't delete active buffers, just in case the tab has the wrong
       " eclim_tab_id
       if eclim_tab_id == s:tab_prev && buffer.status !~ 'a'
-        exec 'bdelete ' . buffer.bufnr
+        try
+          exec 'bdelete ' . buffer.bufnr
+        catch /E89/
+          " ignore since it happens when using bd! on the last buffer for
+          " another tab.
+        endtry
       endif
     endfor
   endif
