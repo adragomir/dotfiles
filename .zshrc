@@ -741,6 +741,7 @@ prompt_repo_status() {
         ret="${ret}${has_untracked}"
       fi
     fi
+    ret="${ret}${FX[reset]}"
     wrap_brackets $ret
   fi
 }
