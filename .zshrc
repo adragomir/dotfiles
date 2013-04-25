@@ -716,15 +716,15 @@ prompt_repo_status() {
         ret="${ret},"
         ret="${ret}${COMMITS_COLOR}$has_commit${FX[reset]}"
         ret="${ret})"
-        ret="${ret} ${has_stash}"
-        ret="${ret} ${has_untracked}"
+        ret="${ret}${has_stash}"
+        ret="${ret}${has_untracked}"
       else
         ret="${CHANGES_COLOR}${branch}${FX[reset]}"
         ret="${ret}("
         ret="${ret}${DIFF_COLOR}$has_lines${FX[reset]}"
         ret="${ret})"
-        ret="${ret} ${has_stash}"
-        ret="${ret} ${has_untracked}"
+        ret="${ret}${has_stash}"
+        ret="${ret}${has_untracked}"
       fi
     else
       if [[ "$has_commit" -gt "0" ]] ; then
@@ -733,12 +733,12 @@ prompt_repo_status() {
         ret="${ret}("
         ret="${ret}${COMMITS_COLOR}$has_commit${FX[reset]}"
         ret="${ret})"
-        ret="${ret} ${has_stash}"
-        ret="${ret} ${has_untracked}"
+        ret="${ret}${has_stash}"
+        ret="${ret}${has_untracked}"
       else
         ret="${UPTODATE_COLOR}${branch}"
-        ret="${ret} ${has_stash}"
-        ret="${ret} ${has_untracked}"
+        ret="${ret}${has_stash}"
+        ret="${ret}${has_untracked}"
       fi
     fi
     wrap_brackets $ret
