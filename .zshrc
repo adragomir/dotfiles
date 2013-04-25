@@ -44,6 +44,13 @@ for color in {000..255}; do
     FG[$color]="%{[38;5;${color}m%}"
     BG[$color]="%{[48;5;${color}m%}"
 done
+
+# Show all 256 colors with color number
+function spectrum_ls() {
+  for code in {000..255}; do
+    print -P -- "$code: %F{$code}Test%f"
+  done
+}
 # }}}
 
 # settings {{{
@@ -171,7 +178,7 @@ zstyle ':completion:complete-first:*' menu yes
 zstyle -e :urlglobber url-other-schema '[[ $words[1] == scp ]] && reply=("*") || reply=(http https ftp)'
 # }}}
 
-  hooks {{{
+# hooks {{{
 
 function preexec {
   emulate -L zsh
@@ -301,11 +308,11 @@ zle -N self-insert url-quote-magic
 # }}}
 
 # functions {{{
-function tree() {
+tree() {
   find . | sed -e 's/[^\/]*\//|--/g' -e 's/-- |/    |/g' | $PAGER
 }
 
-function title {
+title() {
   if [[ $TERM == "screen" ]]; then
     # Use these two for GNU Screen:
     print -nR $'\033k'$1$'\033'\\\
@@ -317,7 +324,7 @@ function title {
   fi
 }
 
-function bases() {
+bases() {
   # Determine base of the number
   for i      # ==> in [list] missing...
   do         # ==> so operates on command line arg(s).
@@ -367,7 +374,7 @@ function bases() {
 #
 #   $ cat `up .tmux.conf`
 #   set -g default-terminal "screen-256color"
-function up() {
+up() {
     if [ "$1" != "" -a "$2" != "" ]; then
         local DIR=$1
         local TARGET=$2
@@ -385,7 +392,7 @@ zman() {
   PAGER="less -g -s '+/^       "$1"'" man zshall
 }
 
-function zsh_stats() {
+zsh_stats() {
   history | awk '{print $2}' | sort | uniq -c | sort -rn | head
 }
 
@@ -562,31 +569,189 @@ mkcd () {
 # prompt settings {{{
 
 # get the name of the branch we are on
-function git_prompt_info() {
-  ref=$(git symbolic-ref HEAD 2> /dev/null) || return
-  echo "$ZSH_THEME_GIT_PROMPT_PREFIX${ref#refs/heads/}$(parse_git_dirty)$ZSH_THEME_GIT_PROMPT_SUFFIX"
-}
 
-parse_git_dirty () {
-  if [[ -n $(git status -s 2> /dev/null) ]]; then
-    echo "$ZSH_THEME_GIT_PROMPT_DIRTY"
-  else
-    echo "$ZSH_THEME_GIT_PROMPT_CLEAN"
+ERROR_COLOR="${FG[001]}"
+UPTODATE_COLOR="${FG[002]}"
+CHANGES_COLOR="${FG[009]}"
+COMMITS_COLOR="${FG[011]}"
+DIFF_COLOR="${FG[013]}"
+USER_COLOR="${FG[013]}"
+HOST_COLOR="${FG[011]}"
+DIR_COLOR="${FX[bold]}${FG[158]}"
+STOPPED_JOB_COLOR="${FX[bold]}${FG[226]}"
+RUNNING_JOB_COLOR="${FX[bold]}${FG[226]}"
+DETACHED_JOB_COLOR="${FX[bold]}${FG[226]}"
+
+_escape() {
+    printf "%q" "$*"
+}
+wrap_brackets() {
+  if [[ ! -z "$1" ]] ; then
+    echo -ne "[$1]"
   fi
 }
+
+prompt_exit_code() {
+  if [[ "$1" -ne "0" ]]
+  then
+    wrap_brackets "${ERROR_COLOR}$1${FX[reset]}"
+  fi
+}
+
+prompt_user_host() {
+  local ret=""
+  ret="${USER_COLOR}%n${FX[reset]}"
+  ret="${ret}@"
+  ret="${ret}${HOST_COLOR}%m${FX[reset]}"
+  wrap_brackets $ret
+}
+
+prompt_job_counts() {
+  local running=$(( $(jobs -r | wc -l) ))
+  local stopped=$(( $(jobs -s | wc -l) ))
+  local n_screen=$(screen -ls 2> /dev/null | grep -c Detach)
+  local n_tmux=$(tmux list-sessions 2> /dev/null | grep -cv attached)
+  local detached=$(( $n_screen + $n_tmux ))
+  local m_detached="d"
+  local m_stop="z"
+  local m_run="&"
+  local ret=""
+
+  if [[ $detached != "0" ]] ; then
+    ret="${ret}${DETACHED_JOB_COLOR}${detached}${m_detached}${FX[reset]}"
+  fi
+
+  if [[ $running != "0" ]] ; then
+    if [[ $ret != "" ]] ; then ret="${ret}/"; fi
+    ret="${ret}${RUNNING_JOB_COLOR}${running}${m_run}${FX[reset]}"
+  fi
+
+  if [[ $stopped != "0" ]] ; then
+    if [[ $ret != "" ]] ; then ret="${ret}/"; fi
+    ret="${ret}${STOPPED_JOB_COLOR}${stopped}${m_stop}${FX[reset]}"
+  fi
+  wrap_brackets $ret
+}
+
+prompt_folder() {
+  local ret=""
+  ret="${DIR_COLOR}${PWD/#$HOME/~}${FX[reset]}"
+  wrap_brackets $ret
+}
+
+prompt_git_branch() {
+  local gitdir
+  gitdir="$(git rev-parse --git-dir 2>/dev/null)"
+  [[ $? -ne 0 || ! $gitdir =~ (.*\/)?\.git.* ]] && return
+  local branch="$(git symbolic-ref HEAD 2>/dev/null)"
+  if [[ $? -ne 0 || -z "$branch" ]] ; then
+      # In detached head state, use commit instead
+      branch="$(git rev-parse --short HEAD 2>/dev/null)"
+  fi
+  [[ $? -ne 0 || -z "$branch" ]] && return
+  branch="${branch#refs/heads/}"
+  echo $(_escape "$branch")
+}
+
+prompt_repo_status() {
+  local branch
+  branch=$(prompt_git_branch)
+  if [[ ! -z "$branch" ]] ; then
+    local GD
+    git diff --quiet >/dev/null 2>&1
+    GD=$?
+
+    local GDC
+    git diff --cached --quiet >/dev/null 2>&1
+    GDC=$?
+
+    local has_untracked
+    has_untracked=$(git status 2>/dev/null | grep '\(# Untracked\)')
+    if [[ -z "$has_untracked" ]] ; then
+      has_untracked=""
+    else
+      has_untracked="${CHANGES_COLOR}*${FX[reset]}"
+    fi
+
+    local has_stash
+    has_stash=$(git stash list 2>/dev/null)
+    if [[ -z "$has_stash" ]] ; then
+      has_stash=""
+    else
+      has_stash="${COMMITS_COLOR}+${FX[reset]}"
+    fi
+
+    local remote
+    remote="$(git config --get branch.${branch}.remote 2>/dev/null)"
+    # if git has no upstream, use origin
+    if [[ -z "$remote" ]]; then
+      remote="origin"
+    fi
+    local remote_branch
+    remote_branch="$(git config --get branch.${branch}.merge 2>/dev/null)"
+    # without any remote branch, use the same name
+    if [[ -z "$remote_branch" ]]; then
+      remote_branch="$branch"
+    fi
+
+    local has_commit
+    has_commit=0
+    if [[ -n "$remote" && -n "$remote_branch" ]] ; then
+      has_commit=$(git rev-list --no-merges --count $remote/${remote_branch}..${branch} 2>/dev/null)
+      if [[ -z "$has_commit" ]] ; then
+        has_commit=0
+      fi
+    fi
+    if [[ "$GD" -eq 1 || "$GDC" -eq "1" ]] ; then
+      local has_line
+      has_lines=$(git diff --numstat 2>/dev/null | awk 'NF==3 {plus+=$1; minus+=$2} END {printf("+%d/-%d\n", plus, minus)}')
+      if [[ "$has_commit" -gt "0" ]] ; then
+        # Changes to commit and commits to push
+        ret="${CHANGES_COLOR}${branch}${FX[reset]}"
+        ret="${ret}("
+        ret="${ret}${DIFF_COLOR}$has_lines${FX[reset]}"
+        ret="${ret},"
+        ret="${ret}${COMMITS_COLOR}$has_commit${FX[reset]}"
+        ret="${ret})"
+        ret="${ret} ${has_stash}"
+        ret="${ret} ${has_untracked}"
+      else
+        ret="${CHANGES_COLOR}${branch}${FX[reset]}"
+        ret="${ret}("
+        ret="${ret}${DIFF_COLOR}$has_lines${FX[reset]}"
+        ret="${ret})"
+        ret="${ret} ${has_stash}"
+        ret="${ret} ${has_untracked}"
+      fi
+    else
+      if [[ "$has_commit" -gt "0" ]] ; then
+        # some commit(s) to push
+        ret="${COMMITS_COLOR}${branch}${FX[reset]}"
+        ret="${ret}("
+        ret="${ret}${COMMITS_COLOR}$has_commit${FX[reset]}"
+        ret="${ret})"
+        ret="${ret} ${has_stash}"
+        ret="${ret} ${has_untracked}"
+      else
+        ret="${UPTODATE_COLOR}${branch}"
+        ret="${ret} ${has_stash}"
+        ret="${ret} ${has_untracked}"
+      fi
+    fi
+    wrap_brackets $ret
+  fi
+}
+
+prompt_actual() {
+  echo -ne "${PROMPT_COLOR}➜ ${FX[reset]}"
+}
+
 # Setup the prompt with pretty colors
 
 # Load the theme
-PROMPT=$'%{$fg_bold[yellow]%}[%n@%{$fg_bold[green]%}%m%{$fg_bold[yellow]%}]%{$reset_color%}%{$fg[white]%}[$fg_bold[yellow]${PWD/#$HOME/~}]%{$reset_color%}$(git_prompt_info)\
-%{$fg_bold[yellow]%}➜ %{$reset_color%}'
-
-PROMPT2=$'%{$fg_bold[yellow]%}[<%n@%{$fg_bold[green]%}%m%{$fg_bold[yellow]%}>]%{$reset_color%}%{$fg[white]%}[$fg_bold[yellow]${PWD/#$HOME/~}]%{$reset_color%}$(git_prompt_info)\
-%{$fg_bold[yellow]%}%_➜ %{$reset_color%}'
-
-ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[green]%}["
-ZSH_THEME_GIT_PROMPT_SUFFIX="]%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_DIRTY=" %{$fg[red]%}*%{$fg[green]%}"
-ZSH_THEME_GIT_PROMPT_CLEAN=""
+PROMPT=$'$(prompt_exit_code $?)$(prompt_user_host)$(prompt_job_counts)$(prompt_folder)$(prompt_repo_status)\
+$(prompt_actual)'
+PROMPT2=$'%_$(prompt_actual)'
 # }}}
 
 # program settings & paths {{{
@@ -955,7 +1120,7 @@ alias git-svn-dcommit-push='git svn dcommit && git push github master:svntrunk'
 # Will return the current branch name
 # Usage example: git pull origin $(current_branch)
 #
-function current_branch() {
+current_branch() {
   ref=$(git symbolic-ref HEAD 2> /dev/null) || return
   echo ${ref#refs/heads/}
 }
