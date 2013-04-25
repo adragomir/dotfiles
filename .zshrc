@@ -577,14 +577,17 @@ COMMITS_COLOR="${FG[011]}"
 DIFF_COLOR="${FG[013]}"
 USER_COLOR="${FG[013]}"
 HOST_COLOR="${FG[011]}"
-DIR_COLOR="${FX[bold]}${FG[158]}"
-STOPPED_JOB_COLOR="${FX[bold]}${FG[226]}"
-RUNNING_JOB_COLOR="${FX[bold]}${FG[226]}"
-DETACHED_JOB_COLOR="${FX[bold]}${FG[226]}"
+DIR_COLOR="${FG[011]}"
+STOPPED_JOB_COLOR="${FG[008]}"
+RUNNING_JOB_COLOR="${FG[002]}"
+DETACHED_JOB_COLOR="${FG[226]}"
+DETACHED_JOB_COLOR="${FG[226]}"
+PROMPT_COLOR="${FG[011]}"
 
 _escape() {
     printf "%q" "$*"
 }
+
 wrap_brackets() {
   if [[ ! -z "$1" ]] ; then
     echo -ne "[$1]"
@@ -745,8 +748,6 @@ prompt_repo_status() {
 prompt_actual() {
   echo -ne "${PROMPT_COLOR}➜ ${FX[reset]}"
 }
-
-# Setup the prompt with pretty colors
 
 # Load the theme
 PROMPT=$'$(prompt_exit_code $?)$(prompt_user_host)$(prompt_job_counts)$(prompt_folder)$(prompt_repo_status)\
