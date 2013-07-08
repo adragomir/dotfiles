@@ -8,6 +8,7 @@
   branch = auto
 
 [alias]
+  cleanup = !git remote prune origin && git gc && git clean -df && git stash clear
   st = status --ignore-submodules
   st2 = "ls-files --exclude-per-directory=.gitignore  --exclude-from=.git/info/exclude  -t -o -u -s -m -d"
   dc = diff --stat --name-status --cached --ignore-submodules
@@ -42,12 +43,19 @@
 [mergetool]
   keepBackup = false
 
+[help]
+	autocorrect = 1
+
 [merge] 
   tool = araxis
 
 [core]
   legacyheaders = false
-	excludesfile = /Users/adragomi/.gitignore
+	excludesfile = ~/.gitignore
+	editor = vim --noplugin
+
+[apply]
+	whitespace = nowarn
 
 [repack]
   usedeltabaseoffset = true
@@ -58,13 +66,19 @@
 
 [github]
 	user = adragomir
-    token = 631abd318631e5d9ef2f932a811a8d7a
-    password = ! /usr/bin/security 2>&1 >/dev/null find-generic-password -gs github | ruby -e 'print $1 if STDIN.gets =~ /^password: \\\"(.*)\\\"$/'
+  token = 631abd318631e5d9ef2f932a811a8d7a
+  password = ! /usr/bin/security 2>&1 >/dev/null find-generic-password -gs github | ruby -e 'print $1 if STDIN.gets =~ /^password: \\\"(.*)\\\"$/'
 
-#[branch]
-#  autosetuprebase = always
+[branch]
+  autosetupmerge = true
+  autosetuprebase = always
+
 [cola]
 	fontdiff = DejaVu Sans Mono,9,-1,5,50,0,0,0,0,0
+
+[rerere]
+	enabled = 1
+
 [giggle]
 	main-window-maximized = true
 	main-window-geometry = 274x34+1164+486
