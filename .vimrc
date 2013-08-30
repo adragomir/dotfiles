@@ -207,7 +207,7 @@ if has("gui_running")
 
     if has("macunix")
       " mac
-      set guifont=Source\ Code\ Pro\ Light:h13
+      set guifont=Source\ Code\ Pro:h13
       set antialias
       set fuoptions=maxvert,maxhorz
     else

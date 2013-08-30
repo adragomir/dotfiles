@@ -604,9 +604,19 @@ function! eclim#util#ListContains(list, element)
   return 0
 endfunction " }}}
 
-" Make(bang, args) {{{
-" Executes make using the supplied arguments.
-function! eclim#util#Make(bang, args)
+function! eclim#util#Make(bang, args) " {{{
+  " Executes make using the supplied arguments.
+
+  " tpope/vim-rake/plugin/rake.vim will execute :Make if it exists, so mimic
+  " Rake's behavior here if that's the case.
+  if b:current_compiler == 'rake'
+    " See tpope/vim-rage/plugin/rake.vim s:Rake(bang,arg)
+    exec 'make! ' . a:args
+    if a:bang !=# '!'
+      exec 'cwindow'
+    endif
+    return
+  endif
   let makefile = findfile('makefile', '.;')
   let makefile2 = findfile('Makefile', '.;')
   if len(makefile2) > len(makefile)
@@ -1076,9 +1086,10 @@ function! eclim#util#Reload(options) " {{{
   endif
 endfunction " }}}
 
-" SetLocationList(list, [action]) {{{
-" Sets the contents of the location list for the current window.
-function! eclim#util#SetLocationList(list, ...)
+function! eclim#util#SetLocationList(list, ...) " {{{
+  " Sets the contents of the location list for the current window.
+  " Optional args:
+  "   action: The action passed to the setloclist() function call.
   let loclist = a:list
 
   " filter the list if the current buffer defines a list of filters.
@@ -1109,9 +1120,16 @@ function! eclim#util#SetLocationList(list, ...)
 
   let projectName = eclim#project#util#GetCurrentProjectName()
   if projectName != ''
+    " setbufvar seems to have the side affect of changing to the buffer's dir
+    " when autochdir is set.
+    let save_autochdir = &autochdir
+    set noautochdir
+
     for item in getloclist(0)
       call setbufvar(item.bufnr, 'eclim_project', projectName)
     endfor
+
+    let &autochdir = save_autochdir
   endif
 
   if g:EclimShowCurrentError && len(loclist) > 0
@@ -1419,6 +1437,7 @@ function! eclim#util#TempWindow(name, lines, ...)
     setlocal nomodified
     setlocal nomodifiable
     setlocal readonly
+    nmap <buffer> q :q<cr>
   endif
 
   silent doautocmd BufEnter

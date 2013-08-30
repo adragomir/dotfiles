@@ -424,6 +424,31 @@ function addsshkey() {
   echo "done!"
 }
 
+l() {
+  local p=$argv[-1]
+  [[ -d $p ]] && { argv[-1]=(); } || p='.'
+  find $p ! -type d | sed 's:^./::' | egrep "${@:-.}"
+}
+
+lr() {
+  zparseopts -D -E S=S t=t r=r h=h U=U l=l F=F d=d
+  local sort="sort -t/ -k2"                                # by name (default)
+  local numfmt="cat"
+  local long='s:[^/]* /::; s:^\./\(.\):\1:;'               # strip detail
+  local classify=''
+  [[ -n $F ]] && classify='/^d/s:$:/:; /^-[^ ]*x/s:$:*:;'  # dir/ binary*
+  [[ -n $l ]] && long='s: /\./\(.\): \1:; s: /\(.\): \1:;' # show detail
+  [[ -n $S ]] && sort="sort -n -k5"                        # by size
+  [[ -n $r ]] && sort+=" -r"                               # reverse
+  [[ -n $t ]] && sort="sort -k6" && { [[ -n $r ]] || sort+=" -r" } # by date
+  [[ -n $U ]] && sort=cat                                  # no sort, live output
+  [[ -n $h ]] && numfmt="numfmt --field=5 --to=iec --padding=6"  # human fmt
+  [[ -n $d ]] && set -- "$@" -prune                        # don't enter dirs
+  find "$@" -printf "%M %2n %u %g %9s %TY-%Tm-%Td %TH:%TM /%p -> %l\n" |
+    $=sort | $=numfmt |
+    sed '/^[^l]/s/ -> $//; '$classify' '$long
+}
+
 function eclipse_project() {
   from=$1
   to=$2
@@ -789,6 +814,9 @@ export JREBEL_PATH=$HOME/work/tools/jrebel/jrebel.jar
 #export M2=$HOME/work/apache-maven-3.0.3/bin/
 #export M2_HOME=$HOME/work/apache-maven-3.0.3/
 export MAVEN_REPO=$HOME/.m2/repository
+export MAVEN_OPTS="-Djava.awt.headless=true"
+export JAVA_TOOL_OPTIONS='-Djava.awt.headless=true'
+export MVN_OPTS="-Djava.awt.headless=true"
 
 #export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
 export LESS="-rX"
@@ -870,7 +898,10 @@ export HAXE_LIBRARY_PATH="$(/usr/local/bin/brew --prefix)/share/haxe/std"
 
 # java
 if [ "`uname`" = "Darwin" ]; then
-  export JAVA_HOME="$(/usr/libexec/java_home -v 1.6)"
+  export JENV_ROOT=/usr/local/opt/jenv
+  if which jenv > /dev/null; then eval "$(jenv init -)"; fi
+  export JAVA_HOME=$(readlink /usr/local/opt/jenv/versions/`cat /usr/local/opt/jenv/version`)
+  #export JAVA_HOME="$(/usr/libexec/java_home -v 1.6.0_43-b01-447)"
 else
   export JAVA_HOME=/usr/lib/jvm/java-6-sun/
 fi
@@ -893,8 +924,8 @@ export STORM_HOME=$HOME/work/s/storm
 export KAFKA_HOME=$HOME/work/s/kafka
 
 # saasbase
-export SAASBASE_DB_HOME=$HOME/work/s/saasbase/src/saasbase_db
-export SAASBASE_ANALYTICS_HOME=$HOME/work/s/saasbase/src/saasbase_analytics
+export SAASBASE_DB_HOME=$HOME/work/s/db/db
+export SAASBASE_ANALYTICS_HOME=$HOME/work/s/saasbase/analytics
 export SAASBASE_DATAROOT=/var
 
 if [ "`uname`" = "Darwin" ]; then
@@ -902,6 +933,9 @@ if [ "`uname`" = "Darwin" ]; then
 fi  
 export ENSIMEHOME=/Users/adr/work/tools/ensime/ensime_2.9.2-0.9.8.9/
 
+# go
+
+export GOPATH=$HOME/.gocode/
 # {{{ amazon
 
 # credentials
@@ -943,10 +977,10 @@ $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64:\
 $HOME/work/tools/android-sdk-$OS/tools:\
 $HOME/work/tools/android-sdk-$OS/platform-tools:\
 $HOME/work/tools/play-2.0.1:\
-$GOBIN:\
 $HOME/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin:\
 $HOME/.rvm/bin:\
 $HOME/.perl5/bin:\
+$GOPATH/bin:\
 $PATH
 
 # }}}
@@ -974,7 +1008,7 @@ alias -s io=urlopen
 alias vidir="EDITOR=v vidir"
 alias gvim="g"
 alias c="clear"
-alias l="ls -AGlFT"
+#alias l="ls -AGlFT"
 alias lt="ls -AGlFTtr"
 alias gwhat="grep -e $1"
  
@@ -1018,7 +1052,7 @@ alias top='top -ocpu'
 alias ttop='top -ocpu -R -F -s 2 -n30'
 
 # ls
-alias l="ls -AGlFT"
+#alias l="ls -AGlFT"
 alias la='ls -A'
 alias lt="ls -AGlFTtr"
 alias lc="cl"
@@ -1090,7 +1124,7 @@ alias history='fc -l 1'
 
 # List direcory contents
 alias lsa='ls -lah'
-alias l='ls -la'
+#alias l='ls -la'
 alias ll='ls -l'
 alias sl=ls # often screw this up
 

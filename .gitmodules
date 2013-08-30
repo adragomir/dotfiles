@@ -169,3 +169,9 @@
 [submodule ".vim/bundle/tern"]
 	path = .vim/bundle/tern
 	url = https://github.com/marijnh/tern_for_vim.git
+[submodule ".vim/bundle/airline"]
+	path = .vim/bundle/airline
+	url = https://github.com/bling/vim-airline.git
+[submodule ".vim/bundle/godef"]
+	path = .vim/bundle/godef
+	url = https://github.com/dgryski/vim-godef

@@ -5,6 +5,9 @@ let g:loaded_gocode = 1
 
 fu! s:gocodeCurrentBuffer()
 	let buf = getline(1, '$')
+	if &encoding != 'utf-8'
+		let buf = map(buf, 'iconv(v:val, &encoding, "utf-8")')
+	endif
 	if &l:fileformat == 'dos'
 		" XXX: line2byte() depend on 'fileformat' option.
 		" so if fileformat is 'dos', 'buf' must include '\r'.
@@ -15,8 +18,10 @@ fu! s:gocodeCurrentBuffer()
 	return file
 endf
 
+let s:vim_system = get(g:, 'gocomplete#system_function', function('system'))
+
 fu! s:system(str, ...)
-	return (a:0 == 0 ? system(a:str) : system(a:str, join(a:000)))
+	return (a:0 == 0 ? s:vim_system(a:str) : s:vim_system(a:str, join(a:000)))
 endf
 
 fu! s:gocodeShellescape(arg)
@@ -40,6 +45,9 @@ fu! s:gocodeCommand(cmd, preargs, args)
 	if v:shell_error != 0
 		return "[\"0\", []]"
 	else
+		if &encoding != 'utf-8'
+			let result = iconv(result, 'utf-8', &encoding)
+		endif
 		return result
 	endif
 endf
@@ -49,6 +57,12 @@ fu! s:gocodeCurrentBufferOpt(filename)
 endf
 
 fu! s:gocodeCursor()
+	if &encoding != 'utf-8'
+		let c = col('.')
+		let buf = line('.') == 1 ? "" : (join(getline(1, line('.')-1), "\n") . "\n")
+		let buf .= c < 1 ? "" : getline('.')[:c-1]
+		return printf('%d', len(iconv(buf, &encoding, "utf-8")))
+	endif
 	return printf('%d', line2byte(line('.')) + (col('.')-2))
 endf
 

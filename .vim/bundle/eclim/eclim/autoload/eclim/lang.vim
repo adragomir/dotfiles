@@ -24,6 +24,10 @@
 " }}}
 
 " Global Varables {{{
+  if !exists('g:EclimTempFilesEnable')
+    let g:EclimTempFilesEnable = 1
+  endif
+
   if !exists('g:EclimFileTypeValidate')
     let g:EclimFileTypeValidate = 1
   endif
@@ -39,9 +43,16 @@
   let s:undoredo_command = '-command refactor_<operation>'
 " }}}
 
-" CodeComplete(command, findstart, base, [options]) {{{
-" Handles code completion.
-function! eclim#lang#CodeComplete(command, findstart, base, ...)
+function! eclim#lang#CodeComplete(command, findstart, base, ...) " {{{
+  " Optional args:
+  "   options: dict containing one or more of the following:
+  "     temp: 1 to use a temp file, 0 otherwise
+  "     regex: regular expression of characters to walk back over to find the
+  "            starting position of the completion.
+  "     layout: passed through to the eclimd completion for languages that
+  "             support this (typically decides how overloaded method names are
+  "             presented in the completion list).
+
   if !eclim#project#util#IsCurrentFileInProject(0)
     return a:findstart ? -1 : []
   endif
@@ -61,7 +72,8 @@ function! eclim#lang#CodeComplete(command, findstart, base, ...)
       let start -= 1
     endif
 
-    while start > 0 && line[start - 1] =~ '\w'
+    let pattern = get(options, 'regex', '\w')
+    while start > 0 && line[start - 1] =~ pattern
       let start -= 1
     endwhile
 
@@ -290,9 +302,14 @@ function! eclim#lang#Validate(type, on_save, ...)
   endif
 endfunction " }}}
 
-" SilentUpdate([temp], [temp_write]) {{{
-" Silently updates the current source file w/out validation.
-function! eclim#lang#SilentUpdate(...)
+function! eclim#lang#SilentUpdate(...) " {{{
+  " Silently updates the current source file w/out validation.
+  " Optional args:
+  "   temp: construct a temp file path for the current file and return that path
+  "         (default is to not create a temp file)
+  "   temp_write: when constructing a temp file path, whether or not to write
+  "               the current file's contents to that path (default is to do so)
+
   " i couldn't reproduce the issue, but at least one person experienced the
   " cursor moving on update and breaking code completion:
   " http://sourceforge.net/tracker/index.php?func=detail&aid=1995319&group_id=145869&atid=763323
@@ -300,7 +317,7 @@ function! eclim#lang#SilentUpdate(...)
   let file = eclim#project#util#GetProjectRelativeFilePath()
   if file != ''
     try
-      if a:0 && a:1
+      if a:0 && a:1 && g:EclimTempFilesEnable
         " don't create temp files if no server is available to clean them up.
         let project = eclim#project#util#GetCurrentProjectName()
         let workspace = eclim#project#util#GetProjectWorkspace(project)
