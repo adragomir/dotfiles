@@ -175,3 +175,15 @@
 [submodule ".vim/bundle/godef"]
 	path = .vim/bundle/godef
 	url = https://github.com/dgryski/vim-godef
+[submodule ".vim/bundle/haskellmode-vim"]
+	path = .vim/bundle/haskellmode-vim
+	url = https://github.com/lukerandall/haskellmode-vim
+[submodule ".vim/bundle/ghcmod"]
+	path = .vim/bundle/ghcmod
+	url = https://github.com/eagletmt/ghcmod-vim
+[submodule ".vim/bundle/neco-ghc"]
+	path = .vim/bundle/neco-ghc
+	url = https://github.com/ujihisa/neco-ghc.git
+[submodule ".vim/bundle/abolish"]
+	path = .vim/bundle/abolish
+	url = https://github.com/tpope/vim-abolish
