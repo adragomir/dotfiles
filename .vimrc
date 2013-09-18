@@ -85,9 +85,8 @@ set completeopt=menu,menuone,longest "sjl: set completeopt=longest,menuone,previ
 set ttyfast
 set timeout
 set ttimeout
-set timeoutlen=500
-set ttimeoutlen=100
-"set noesckeys
+set timeoutlen=1000
+set ttimeoutlen=0
 set guipty
 set clipboard=unnamed "unnamed ",unnamedplus,autoselect
 set undofile
@@ -171,7 +170,7 @@ let g:loaded_manpageviewPlugin = 1
 " }}}
 " }}}
 
-let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers']
+let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'eclim', 'command-t']
 
 call pathogen#helptags()
 call pathogen#infect() 
@@ -207,7 +206,7 @@ if has("gui_running")
 
     if has("macunix")
       " mac
-      set guifont=Source\ Code\ Pro:h13
+      set guifont=Source\ Code\ Pro:h16
       set antialias
       set fuoptions=maxvert,maxhorz
     else
@@ -458,9 +457,6 @@ nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> t
                         \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
                         \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
 
-" Select entire buffer
-nnoremap vaa ggvGg_
-nnoremap Vaa ggVG
 
 " clean whitespace
 nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
@@ -480,11 +476,14 @@ nnoremap <silent> <leader>/ :execute 'vimgrep /'.@/.'/g %'<CR>:copen<CR>
 nnoremap <silent> <leader>? :execute "Ack! '" . substitute(substitute(substitute(@/, "\\\\<", "\\\\b", ""), "\\\\>", "\\\\b", ""), "\\\\v", "", "") . "'"<CR>
 
 " Fix linewise visual selection of various text objects
-nnoremap VV V
-nnoremap Vit vitVkoj
-nnoremap Vat vatV
-nnoremap Vab vabV
-nnoremap VaB vaBV
+" Select entire buffer
+" nnoremap vaa ggvGg_
+" nnoremap Vaa ggVG
+" nnoremap VV V
+" nnoremap Vit vitVkoj
+" nnoremap Vat vatV
+" nnoremap Vab vabV
+" nnoremap VaB vaBV
 
 nnoremap <m-Down> :cnext<cr>zvzz
 nnoremap <m-Up> :cprevious<cr>zvzz
@@ -557,10 +556,10 @@ imap <silent> <F5> <C-O>:CtrlPBuffer<CR>
 "inoremap <C-space> <C-p>
 
 " quicker window switching
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+nnoremap <C-h> <c-w>h
+nnoremap <C-j> <c-w>j
+nnoremap <C-k> <c-w>k
+nnoremap <C-l> <c-w>l
 
 nnoremap <leader>. :lcd %:p:h<CR>
 
@@ -615,10 +614,10 @@ if has("gui_running")
     let macvim_hig_shift_movement = 0
   endif
 
-  noremap h <Esc>:tabprev<Cr>
-  noremap l <Esc>:tabnext<Cr>
-  noremap n <Esc>:tabnew<Cr>
-  noremap c <Esc>:tabclose<Cr>
+  " noremap h <Esc>:tabprev<Cr>
+  " noremap l <Esc>:tabnext<Cr>
+  " noremap n <Esc>:tabnew<Cr>
+  " noremap c <Esc>:tabclose<Cr>
 
   if has("macunix")
     " can use D
@@ -784,35 +783,35 @@ if has("gui_running")
   endif
 else
   " terminal
-  map 1 1gt
-  map 2 2gt
-  map 3 3gt
-  map 4 4gt
-  map 5 5gt
-  map 6 6gt
-  map 7 7gt
-  map 8 8gt
-  map 9 9gt
-  map 0 10gt
+  " map 1 1gt
+  " map 2 2gt
+  " map 3 3gt
+  " map 4 4gt
+  " map 5 5gt
+  " map 6 6gt
+  " map 7 7gt
+  " map 8 8gt
+  " map 9 9gt
+  " map 0 10gt
 
-  imap 1 1gt
-  imap 2 2gt
-  imap 3 3gt
-  imap 4 4gt
-  imap 5 5gt
-  imap 6 6gt
-  imap 7 7gt
-  imap 8 8gt
-  imap 9 9gt
-  imap 0 10gt
+  " imap 1 1gt
+  " imap 2 2gt
+  " imap 3 3gt
+  " imap 4 4gt
+  " imap 5 5gt
+  " imap 6 6gt
+  " imap 7 7gt
+  " imap 8 8gt
+  " imap 9 9gt
+  " imap 0 10gt
 
-  noremap h <Esc>:tabprev<Cr>
-  noremap l <Esc>:tabnext<Cr>
-  noremap n <Esc>:tabnew<Cr>
-  noremap c <Esc>:tabclose<Cr>
-  noremap { <Esc>:tabprev<Cr>
-  noremap } <Esc>:tabnext<Cr>
-  noremap d <Esc>:tabnew<Cr>
+  " noremap h <Esc>:tabprev<Cr>
+  " noremap l <Esc>:tabnext<Cr>
+  " noremap n <Esc>:tabnew<Cr>
+  " noremap c <Esc>:tabclose<Cr>
+  " noremap { <Esc>:tabprev<Cr>
+  " noremap } <Esc>:tabnext<Cr>
+  " noremap d <Esc>:tabnew<Cr>
 endif
 
 " completion
@@ -913,6 +912,10 @@ let g:CommandTMaxCachedDirectories=0
 let g:CommandTMaxHeight=20
 " }}}
 
+" go settings {{{
+let g:godef_split = 3
+" }}}
+
 " ruby settings {{{
 let g:rubycomplete_debug = 1
 let g:rubycomplete_buffer_loading = 1
@@ -993,6 +996,7 @@ let g:localvimrc_ask = 0
 " }}}
 
 " eclim {{{
+let g:EclimDisable = 1
 let g:EclimShowCurrentError = 0
 let g:EclimMakeLCD = 1
 let g:EclimMenus = 0
@@ -1002,7 +1006,15 @@ let g:EclimJavaSearchSingleResult = "tabnew"
 let g:EclimDefaultFileOpenAction = "edit"
 let g:EclimXmlIndentDisabled = 1
 let g:EclimXmlValidate = 0
-let g:EclimSignLevel = 2
+let g:EclimSignLevel = 0
+let g:EclimBufferTabTracking = 0
+let g:EclimShowCurrentError = 0
+let g:EclimShowCurrentErrorBalloon = 0
+let g:EclimTemplatesDisabled = 1
+" }}}
+
+" haskell {{{
+let g:necoghc_enable_detailed_browse = 1
 " }}}
 
 " mru {{{
@@ -1115,12 +1127,14 @@ augroup settings
   autocmd BufRead *.mkd  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
   autocmd BufRead *.markdown  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
   autocmd FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
+  autocmd FileType go set noexpandtab ts=4 sw=4 sts=4
 augroup END
 
 " completions
 augroup completions
   au!
   autocmd FileType html setlocal omnifunc=htmlcomplete#CompleteTags
+  autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
   autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
   " autocmd FileType java setlocal omnifunc=javacomplete#Complete
   autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete

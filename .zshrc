@@ -55,12 +55,16 @@ function spectrum_ls() {
 
 # settings {{{
 setopt no_beep
+export KEYTIMEOUT=0
 setopt auto_cd
+setopt auto_pushd
 setopt multios
 setopt cdablevarS
 setopt ignoreeof
 setopt prompt_subst
 setopt transient_rprompt
+setopt rmstarsilent
+setopt c_bases
 
 unsetopt menu_complete   # do not autoselect the first completion entry
 unsetopt flowcontrol
@@ -72,6 +76,8 @@ setopt extended_glob
 setopt no_match
 setopt print_eight_bit
 setopt no_correct
+setopt no_correct_all
+setopt interactive_comments
 setopt complete_in_word
 setopt list_packed # Compact completion lists
 setopt list_types # Show types in completion
@@ -79,8 +85,12 @@ setopt rec_exact # Recognize exact, ambiguous matches
 setopt short_loops
 
 setopt auto_name_dirs
-setopt auto_pushd
+#setopt auto_param_slash
+#setopt auto_remove_slash
+setopt clobber
 setopt pushd_ignore_dups
+setopt pushd_silent
+setopt pushd_to_home
 
 WORDCHARS=''
 WORDCHARS=${WORDCHARS//[&=\/;\!#?[]~&;!$%^<>%\{]}
@@ -208,8 +218,6 @@ function _backward_kill_default_word() {
 zle -N backward-kill-default-word _backward_kill_default_word
 
 bindkey '\e=' backward-kill-default-word   # = is next to backspace
-bindkey "^W" complete-first
-bindkey "^Q" complete-files
 bindkey "^[[Z" complete-files
 
 # should this be in keybindings?
@@ -224,7 +232,7 @@ bindkey '^F' _complete_menu
 bindkey -M menuselect '^F' accept-and-infer-next-history
 bindkey -M menuselect '/'  accept-and-infer-next-history
 bindkey -M menuselect '^?' undo
-bindkey -M menuselect ' ' accept-and-hold
+#bindkey -M menuselect ' ' accept-and-hold
 bindkey -M menuselect '*' history-incremental-search-forward
 
 autoload -U edit-command-line
@@ -939,9 +947,16 @@ export GOPATH=$HOME/.gocode/
 # {{{ amazon
 
 # credentials
-export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/asit/pk-*.pem)"
-export EC2_CERT="$(/bin/ls $HOME/.ec2/asit/cert-*.pem)"
-export AWS_CREDENTIAL_FILE=$HOME/.secrets/.aws-credentials-pass
+aws_use_account() {
+export EC2_CERT_PAIR=$1
+export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/pk-*.pem)"
+export EC2_CERT="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/cert-*.pem)"
+export AWS_CREDENTIAL_FILE=$HOME/.secrets/.aws-credentials-$1
+export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
+export AWS_SECRET_ACCESS_KEY=$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')
+}
+export AWS_CONFIG_FILE=$HOME/.secrets/.awscli
+aws_use_account 'pass'
 
 # ec2-api-tools
 export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
@@ -950,14 +965,16 @@ export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
 # aws-iam-tools
 export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/1.5.0/jars"
 # aws-cfn-tools
-export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.8/jars"
+export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.12/jars"
 # elb-tools
 export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
+# auto scaling
+export AWS_AUTO_SCALING_HOME="/usr/local/Library/LinkedKegs/auto-scaling/jars"
+
+# }}}
 
 export ANDROID_HOME=$HOME/work/tools/android-sdk-linux/
 export AIR_ANDROID_SDK_HOME=$HOME/work/tools/android-sdk-linux/
-
-# }}}
 
 # path {{{
 export PATH=\
@@ -1005,6 +1022,7 @@ alias -s net=urlopen
 alias -s io=urlopen
 
 #alias ack="ack -i -a"
+alias v="view -"
 alias vidir="EDITOR=v vidir"
 alias gvim="g"
 alias c="clear"
