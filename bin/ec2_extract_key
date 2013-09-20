@@ -1,0 +1,4 @@
+#!/bin/bash
+F=$(mktemp /tmp/ssh.XXXX)
+openssl rsa -in $1 -pubout > $F
+ssh-keygen -i -m PKCS8 -f $F

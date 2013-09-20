@@ -18,7 +18,7 @@ zmodload zsh/net/tcp
 
 # autoload {{{
 autoload -U colors && colors  # Enables colours
-autoload -U compinit && compinit
+autoload -U compinit && compinit -d $HOME/.history/.zcompdump
 autoload -U url-quote-magic
 autoload allopt
 autoload -U zcalc
@@ -96,7 +96,7 @@ WORDCHARS=''
 WORDCHARS=${WORDCHARS//[&=\/;\!#?[]~&;!$%^<>%\{]}
 
 # history settings {{{
-HISTFILE=$HOME/.zsh_history
+HISTFILE=$HOME/.history/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 
@@ -195,6 +195,24 @@ function preexec {
   local -a cmd; cmd=(${(z)1})
 }
 
+function explain {
+  # base url with first command already injected
+  # $ explain tar
+  #   => http://explainshel.com/explain/tar?args=
+  url="http://explainshell.com/explain/$1?args="
+
+  # removes $1 (tar) from arguments ($@)
+  shift;
+
+  # iterates over remaining args and adds builds the rest of the url
+  for i in "$@"; do
+    url=$url"$i""+"
+  done
+
+  # opens url in browser
+  open $url
+}
+
 # Changing/making/removing directory
 cd () {
   if   [[ "x$*" == "x..." ]]; then
@@ -221,7 +239,6 @@ bindkey '\e=' backward-kill-default-word   # = is next to backspace
 bindkey "^[[Z" complete-files
 
 # should this be in keybindings?
-bindkey -M menuselect '^o' accept-and-infer-next-history
 zle -C complete-menu menu-select _generic
 _complete_menu() {
   setopt localoptions alwayslastprompt
@@ -229,6 +246,7 @@ _complete_menu() {
 }
 zle -N _complete_menu
 bindkey '^F' _complete_menu
+bindkey -M menuselect '^o' accept-and-infer-next-history
 bindkey -M menuselect '^F' accept-and-infer-next-history
 bindkey -M menuselect '/'  accept-and-infer-next-history
 bindkey -M menuselect '^?' undo
@@ -316,6 +334,9 @@ zle -N self-insert url-quote-magic
 # }}}
 
 # functions {{{
+# ssh_proxy() {
+# }
+
 tree() {
   find . | sed -e 's/[^\/]*\//|--/g' -e 's/-- |/    |/g' | $PAGER
 }

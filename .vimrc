@@ -52,6 +52,7 @@ set smartcase                 " ignore case when searching
 set hlsearch                  " highlight last search
 set incsearch                 " show matches while searching
 set gdefault
+set nojoinspaces
 
 set laststatus=2              " always show status line
 "set cursorcolumn
@@ -67,7 +68,7 @@ set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[tab:%{&ts},%{&sts},%{&sw},%{&et?'et'
 set undolevels=10000
 set numberwidth=5
 set pumheight=10
-set viminfo=%,h,'1000,"1000,:1000,n~/.vim/tmp/.viminfo,!
+set viminfo=%,h,'1000,\"1000,:1000,n~/.vim/tmp/.viminfo
 set scrolljump=10
 set virtualedit+=block
 set novisualbell
@@ -171,6 +172,7 @@ let g:loaded_manpageviewPlugin = 1
 " }}}
 
 let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'eclim', 'command-t']
+" let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'command-t']
 
 call pathogen#helptags()
 call pathogen#infect() 
@@ -783,35 +785,24 @@ if has("gui_running")
   endif
 else
   " terminal
-  " map 1 1gt
-  " map 2 2gt
-  " map 3 3gt
-  " map 4 4gt
-  " map 5 5gt
-  " map 6 6gt
-  " map 7 7gt
-  " map 8 8gt
-  " map 9 9gt
-  " map 0 10gt
+  map <leader>1 1gt
+  map <leader>2 2gt
+  map <leader>3 3gt
+  map <leader>4 4gt
+  map <leader>5 5gt
+  map <leader>6 6gt
+  map <leader>7 7gt
+  map <leader>8 8gt
+  map <leader>9 9gt
+  map <leader>0 10gt
 
-  " imap 1 1gt
-  " imap 2 2gt
-  " imap 3 3gt
-  " imap 4 4gt
-  " imap 5 5gt
-  " imap 6 6gt
-  " imap 7 7gt
-  " imap 8 8gt
-  " imap 9 9gt
-  " imap 0 10gt
-
-  " noremap h <Esc>:tabprev<Cr>
-  " noremap l <Esc>:tabnext<Cr>
-  " noremap n <Esc>:tabnew<Cr>
-  " noremap c <Esc>:tabclose<Cr>
-  " noremap { <Esc>:tabprev<Cr>
-  " noremap } <Esc>:tabnext<Cr>
-  " noremap d <Esc>:tabnew<Cr>
+  noremap <leader>h <Esc>:tabprev<Cr>
+  noremap <leader>l <Esc>:tabnext<Cr>
+  noremap <leader>n <Esc>:tabnew<Cr>
+  noremap <leader>d <Esc>:tabclose<Cr>
+  noremap <leader>[ <Esc>:tabprev<Cr>
+  noremap <leader>] <Esc>:tabnext<Cr>
+  noremap <leader>t <Esc>:tabnew<Cr>
 endif
 
 " completion
@@ -996,7 +987,9 @@ let g:localvimrc_ask = 0
 " }}}
 
 " eclim {{{
-let g:EclimDisable = 1
+" disable eclim, only load it by hand
+let g:EclimBaseDir = expand("$HOME") . "/.vim/bundle/eclim"
+"let g:EclimDisable = 1
 let g:EclimShowCurrentError = 0
 let g:EclimMakeLCD = 1
 let g:EclimMenus = 0
@@ -1011,6 +1004,12 @@ let g:EclimBufferTabTracking = 0
 let g:EclimShowCurrentError = 0
 let g:EclimShowCurrentErrorBalloon = 0
 let g:EclimTemplatesDisabled = 1
+function! ActivateEclim()
+  runtime! bundle/eclim/plugin/eclim.vim
+  runtime! bundle/eclim/eclim/plugin/*
+  runtime! bundle/eclim/eclim/plugin/after/*
+  call pathogen#infect()
+endfunction
 " }}}
 
 " haskell {{{

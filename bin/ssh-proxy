@@ -1,0 +1,26 @@
+#!/bin/bash
+
+usage() {
+  echo "Usage: $0 - Displays a list of active ssh proxies"
+  echo ""
+  echo "Usage: $0 local_port user@host - starts a new ssh proxy, stopping the one wwith the same specification before that"
+  echo "    local_port: port to be used as a SOCKS proxy on the local machine"
+  echo "    user@host: a ssh host specification"
+}
+
+if (( $# == 0 )); then
+  echo "No params, checking statuses ..."
+  pgrep -l -f "ssh.*C2qTnNf.*"
+elif (( $# == 1 )); then
+  usage
+  exit 1
+else
+  local_port=$1
+  host=$2
+  current=$(pgrep -f "ssh.*C2qTnNf.*$local_port" | xargs)
+  if [[ ! -z $current ]]; then
+    echo "Found current ssh proxy for local=$local_port, host=$host, killing..."
+  fi
+  echo $current | xargs kill -9
+  ssh -C2qTnNf -D $local_port $host
+fi

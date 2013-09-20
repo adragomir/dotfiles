@@ -1,6 +1,8 @@
 # vim FTW
 Pry.config.editor = "mvim --servername VIM --remote-tab-silent"
 
+Pry.config.history.file = "~/.history/.irb_history"
+
 # My pry is polite
 Pry.config.hooks.add_hook(:when_started, :load_rails) do
   self.send(:include, Rails::ConsoleMethods)
