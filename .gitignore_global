@@ -30,3 +30,5 @@ target
 .classpath
 .project
 .settings
+.ropeproject
+.tern-port

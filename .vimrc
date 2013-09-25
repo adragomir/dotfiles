@@ -114,7 +114,9 @@ set switchbuf=usetab
 "set ff=unix
 "set ffs=unix
 " settings: grep
-set grepprg=ag
+if executable("ag")
+  set grepprg=ag\ --nogroup\ --nocolor
+endif
 set grepformat=%f:%l:%m
 " settings: tabs and indentin
 set nofoldenable
@@ -208,7 +210,7 @@ if has("gui_running")
 
     if has("macunix")
       " mac
-      set guifont=Source\ Code\ Pro:h16
+      set guifont=Source\ Code\ Pro:h14
       set antialias
       set fuoptions=maxvert,maxhorz
     else
@@ -837,6 +839,11 @@ let g:sparkupExecuteMapping = '<c-e>'
 let g:sparkupNextMapping = '<c-s>'
 " }}}
 
+" airline {{{
+let g:airline#extensions#virtualenv#enabled = 0
+let g:airline#extensions#whitespace#enabled = 0
+" }}}
+
 " expand-region {{{
 " let g:expand_region_text_objects = {
 "       \ 'iw'  :1,
@@ -853,10 +860,16 @@ let g:sparkupNextMapping = '<c-s>'
 " }}}
 
 " python syntax settings {{{
-let g:pymode_rope = 0
+let g:pymode_syntax = 1
+let g:pymode_syntax_all = 1
+let g:pymode_syntax_indent_errors = g:pymode_syntax_all
+let g:pymode_rope = 1
+let g:pymode_rope_enable_autoimport = 1
+let g:pymode_rope_auto_project = 1
 let g:pymode_lint = 0
 let python_highlight_all = 1
-let g:pymode_rope_vim_completion = 0
+let g:pymode_rope_guess_project = 0
+let g:pymode_rope_vim_completion = 1
 " }}}
 
 " taglist settings {{{
@@ -881,6 +894,7 @@ let g:SuperTabDefaultCompletionTypeDiscovery = [
 " }}}
 
 " ctrl-p settings {{{
+let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
 let g:ctrlp_custom_ignore = {
   \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build\|vendor\|.settings\|storm-local\|logs\|cloudera\|dev-support\|jdiff$',
   \ 'file': '\.exe$\|\.so$\|\.dll$|\.class$|\.jar$',
@@ -1120,7 +1134,7 @@ augroup settings
   autocmd FileType java setlocal et ts=2 sw=2
   autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
   autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 et
-  autocmd FileType c set ts=4 sw=4
+  autocmd FileType c set ts=4 sw=4 sts=4
   autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
   autocmd FileType puppet setlocal sw=2 ts=2 expandtab
   autocmd BufRead *.mkd  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
