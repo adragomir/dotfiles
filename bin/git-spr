@@ -1,0 +1,17 @@
+#!/bin/bash
+
+NST=$(git stash list | wc -l)
+git stash save
+NNST=$(git stash list | wc -l)
+
+export CURRENT=$(git symbolic-ref HEAD | sed -e "s?.*/\\([^/]*\\)?\\1?")
+echo "Synchronising with origin/$CURRENT..."
+
+git fetch -p origin
+git rebase -p origin/$CURRENT
+
+if [ "x$NST" == "x$NNST" ]; then
+  echo "No stash to pop..."
+else
+  git stash pop
+fi
