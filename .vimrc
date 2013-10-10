@@ -29,6 +29,7 @@ set ruler                     " show the cursor position all the time
 set scrolloff=3               " start scrolling before end
 set showcmd                   " show incomplete commands
 set number                    " show line numbers
+set relativenumber
 set whichwrap=<,>,h,l,b,s,~,[,]
 set shortmess=aTI             " supress some file messages
 set sidescrolloff=4           " minchars to show around cursor
@@ -173,7 +174,7 @@ let g:loaded_manpageviewPlugin = 1
 " }}}
 " }}}
 
-let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'eclim', 'command-t']
+let g:pathogen_disabled = ['javacomplete', 'numbers', 'eclim', 'command-t']
 " let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'command-t']
 
 call pathogen#helptags()
@@ -470,7 +471,10 @@ nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
 vnoremap <leader>G :w !gist -p -t %:e \| pbcopy<cr>
 
 " GRB: clear the search buffer when hitting return
-nnoremap <CR> :nohlsearch<CR><CR>
+function! MapCR()
+  nnoremap <cr> :nohlsearch<cr>
+endfunction
+call MapCR()
 nnoremap <silent> <Leader>/ :nohlsearch<CR>
 
 " Open a Quickfix window for the last search.
@@ -972,8 +976,8 @@ endif
 " }}}
 
 " ensime / async {{{
-let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'} 
-let g:ensime = {'ensime-script': "/Users/adr/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
+" let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'} 
+" let g:ensime = {'ensime-script': "/Users/adr/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
 " }}}
 
 " simplenote {{{
@@ -1062,13 +1066,15 @@ let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 " syntastic {{{
 "let g:syntastic_enable_signs = 1
 "let g:syntastic_auto_loc_list=0
+let g:syntastic_check_on_open=0
+let g:syntastic_check_on_wq=0
 let g:syntastic_quiet_warnings=1
 "let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
 let g:syntastic_disabled_filetypes = ['java']
 let g:syntastic_echo_current_error = 0
 let g:syntastic_mode_map = { 'mode': 'active',
                            \ 'active_filetypes': [],
-                           \ 'passive_filetypes': ['puppet', 'java'] }
+                           \ 'passive_filetypes': ['puppet', 'java', 'scala', 'clojure'] }
 " }}}
 
 " javacomplete {{{
@@ -1116,6 +1122,15 @@ augroup all_buffers
       \ endif
 
   au InsertEnter * :set listchars-=trail:⌴
+
+  autocmd! CmdwinEnter * :unmap <cr>
+  autocmd! CmdwinLeave * :call MapCR()
+  autocmd! WinEnter * 
+    \ if &ft == "qf" |
+    \     execute 'normal! :unmap <cr>' |
+    \ else |
+    \     execute 'normal! :call MapCR()' |
+    \ endif
 augroup END
 
 " Only show cursorline in the current window and in normal mode.

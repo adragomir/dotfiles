@@ -19,33 +19,36 @@
   unreachable = "!git fsck --unreachable | grep commit | cut -d \\  -f3 | xargs git log --merges --no-walk"
   st = status --ignore-submodules
   st2 = "ls-files --exclude-per-directory=.gitignore  --exclude-from=.git/info/exclude  -t -o -u -s -m -d"
-  dc = diff --stat --name-status --cached --ignore-submodules
   cat = -p cat-file -p
   ci = commit
   co = checkout
   di = diff
+  dc = diff --stat --name-status --cached --ignore-submodules
   amend = commit --amend
   aa = add --all
+  ff = merge --ff-only
+  pullff = pull --ff-only
   # Divergence (commits we added and commits remote added)
   div = divergence
   # Goodness (summary of diff lines added/removed/total)
   gn = goodness
   gnc = goodness --cached
+  fa = fetch --all --prune
   un = rm --cached
   head = !git l -1
+  b = branch
   h = !git head
-  hp = "!source ~/.githelpers && show_git_head"
+  hp = "!source ~/bin/githelpers && show_git_head"
+  l = "!source ~/bin/githelpers && pretty_git_log"
+  la = !git l --all
   r = !git l -30
   ra = !git r --all
-  l = "!source ~/.githelpers && pretty_git_log"
-  la = !git l --all
   
   w = !git branch -a && git log --branches --oneline --graph --decorate --simplify-by-decoration --since='2 months ago'
   log1 = log --pretty=oneline --abbrev-commit --decorate
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
   file-blame = !git ls-files | xargs -n1 -i{} git log -1 --pretty=format:\"%ci {}\" -- {}
   pr = ! export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT
-  spr = ! git stash && export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT && git stash pop
   last = rev-list -n 1 HEAD -- "$1"
   restore = ! FILE=$1 && git checkout $(git rev-list -n 1 HEAD -- "$FILE")^ -- "$FILE"
 
