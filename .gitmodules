@@ -193,3 +193,6 @@
 [submodule ".vim/bundle/vimshell"]
 	path = .vim/bundle/vimshell
 	url = https://github.com/Shougo/vimshell
+[submodule ".vim/bundle/clever-f"]
+	path = .vim/bundle/clever-f
+	url = https://github.com/rhysd/clever-f.vim
