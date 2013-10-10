@@ -65,7 +65,10 @@ set showmatch                 " briefly jump to matching brace
 set matchtime=1               " show matching brace time (1/10 seconds)
 set showmode                  " show mode in status when not in normal mode
 set nostartofline             " don't move to start of line after commands
-set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[tab:%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [offset:\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y]{&fileformat}\ %)\ %L\ lines%)
+"set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y][%{&ff}]\ %)\ %L%)
+" grb statusline
+"set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
+set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o%)
 set undolevels=10000
 set numberwidth=5
 set pumheight=10
@@ -78,7 +81,7 @@ set tildeop
 set t_vb=
 set winaltkeys=no
 set writeany
-set iskeyword=:,@,48-57,128-167,224-235,_
+set iskeyword=@,48-57,128-167,224-235,_
 set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮,trail:.
 set showtabline=2
 set matchtime=3
@@ -172,9 +175,13 @@ set wildignore+=.idea
 let g:loaded_manpageview = 1
 let g:loaded_manpageviewPlugin = 1
 " }}}
+let g:loaded_getscript = 1
+let g:loaded_sql_completion = 1
+let g:loaded_vimball = 1
+let g:loaded_vimballPlugin = 1
 " }}}
 
-let g:pathogen_disabled = ['javacomplete', 'numbers', 'eclim', 'command-t']
+let g:pathogen_disabled = ['javacomplete', 'numbers', 'eclim', 'command-t', 'ultisnips']
 " let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'command-t']
 
 call pathogen#helptags()
@@ -846,6 +853,7 @@ let g:sparkupNextMapping = '<c-s>'
 " airline {{{
 let g:airline#extensions#virtualenv#enabled = 0
 let g:airline#extensions#whitespace#enabled = 0
+let g:airline_section_z = "%#__accent_bold#%4l%#__restore__#:%3c: %5o"
 " }}}
 
 " expand-region {{{
@@ -1127,9 +1135,9 @@ augroup all_buffers
   autocmd! CmdwinLeave * :call MapCR()
   autocmd! WinEnter * 
     \ if &ft == "qf" |
-    \     execute 'normal! :unmap <cr>' |
+    \     execute ':unmap <cr>' |
     \ else |
-    \     execute 'normal! :call MapCR()' |
+    \     execute ':call MapCR()' |
     \ endif
 augroup END
 
@@ -1167,11 +1175,6 @@ augroup completions
   " autocmd FileType java setlocal omnifunc=javacomplete#Complete
   autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 augroup END
-
-augroup iskeywords
-  au!
-  autocmd FileType actionscript setlocal iskeyword-=:
-augroup end
 
 augroup comments
   autocmd FileType actionscript setlocal commentstring=//\ %s

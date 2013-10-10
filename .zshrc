@@ -1020,7 +1020,7 @@ prompt_wunjo_scm_status() {
 			commits+="on $mess"
 		fi
 	elif [ -n "$gitcommit" ]; then
-		commits+="on $pc[scm_branch]$head$pc[punc]($pc[scm_commitid]$gitcommit$pc[punc])$pc[reset]"
+		commits+="$pc[scm_branch]$head$pc[punc]($pc[scm_commitid]$gitcommit$pc[punc])$pc[reset]"
 		local track_merge=$(zgit_tracking_merge)
 		if [ -n "$track_merge" ]; then
 			if git rev-parse --verify -q $track_merge >/dev/null; then
@@ -1054,7 +1054,7 @@ prompt_wunjo_scm_status() {
 						track_name=${track_name##*/}
 					fi
 					tracked=$(revstring $tracked)
-					commits+="tracking $pc[scm_branch]$track_name$pc[punc]"
+					commits+="<> $pc[scm_branch]$track_name$pc[punc]"
 					if [[ "$tracked" != "$gitcommit" ]]; then
 						commits[$#commits]+="($pc[scm_commitid]$tracked$pc[punc])"
 					fi
