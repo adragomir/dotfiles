@@ -1503,6 +1503,13 @@ $GOPATH/bin:\
 $PATH
 
 # }}}
+#
+# plan 9 {{{
+
+# * Add these to your profile environment.
+export PLAN9=/usr/local/Cellar/plan9/HEAD
+export PATH=${PATH}:${PLAN9}/bin
+# }}}
 
 
 if [ "`uname`" = "Darwin" ]; then
@@ -1578,8 +1585,7 @@ alias lt="ls -AGlFTtr"
 alias lc="cl"
 alias cdd='cd - '
 alias mkdir='mkdir -p'
-alias reload="source ~/.profile"
-alias rc='v ~/.profile && source ~/.profile'
+alias reload="source ~/.zshrc"
 alias finde='find -E'
 alias pgrep='pgrep -lf'
 alias df='df -h'

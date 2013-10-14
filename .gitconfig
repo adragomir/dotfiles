@@ -6,53 +6,81 @@
   diff = auto
   status = auto
   branch = auto
-  wtf = true
+
+[log]
+  decorate = full
+  date = relative
+
+[interactive]
+  singlekey = true
 
 [alias]
+  cleanup = !git remote prune origin && git gc && git clean -df && git stash clear
+  unreachable = "!git fsck --unreachable | grep commit | cut -d \\  -f3 | xargs git log --merges --no-walk"
   st = status --ignore-submodules
   st2 = "ls-files --exclude-per-directory=.gitignore  --exclude-from=.git/info/exclude  -t -o -u -s -m -d"
   cat = -p cat-file -p
   ci = commit
   co = checkout
   di = diff
-  dc = diff --cached
+  dc = diff --cached --ignore-submodules
   amend = commit --amend
   aa = add --all
-  fa = fetch --all
+  ff = merge --ff-only
+  pullff = pull --ff-only
   # Divergence (commits we added and commits remote added)
   div = divergence
-  ds = diff --stat=160,120
-  dh1 = diff HEAD~1
   # Goodness (summary of diff lines added/removed/total)
   gn = goodness
   gnc = goodness --cached
+  fa = fetch --all --prune
+  un = rm --cached
   head = !git l -1
+  b = branch
+  ba = branch --all
+  bd = "!git branch -D $1; git push origin \":${1}\""
   h = !git head
-  hp = "!source ~/.githelpers && show_git_head"
+  hp = "!source ~/bin/githelpers && show_git_head"
+  l = "!source ~/bin/githelpers && pretty_git_log"
+  la = !git l --all
   r = !git l -30
   ra = !git r --all
-  l = "!source ~/.githelpers && pretty_git_log"
-  la = !git l --all
-  
   w = !git branch -a && git log --branches --oneline --graph --decorate --simplify-by-decoration --since='2 months ago'
   log1 = log --pretty=oneline --abbrev-commit --decorate
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
   file-blame = !git ls-files | xargs -n1 -i{} git log -1 --pretty=format:\"%ci {}\" -- {}
-  pr = ! export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin -p && git rebase -p origin/$CURRENT
-  spr = ! git stash && export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin -p && git rebase -p origin/$CURRENT && git stash pop
+  pr = ! export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT
   last = rev-list -n 1 HEAD -- "$1"
   restore = ! FILE=$1 && git checkout $(git rev-list -n 1 HEAD -- "$FILE")^ -- "$FILE"
 
+[pull]
+  rebase = true
+
+[push]
+  default = simple
+
+[rebase]
+  stat = true
+
+[diff]
+  algorithm = patience
+
 [mergetool]
   keepBackup = false
-	prompt = false
+
+[help]
+	autocorrect = 1
 
 [merge] 
-	tool = araxis
+  tool = araxis
 
 [core]
   legacyheaders = false
 	excludesfile = ~/.gitignore_global
+	editor = vim --noplugin
+
+[apply]
+	whitespace = nowarn
 
 [repack]
   usedeltabaseoffset = true
@@ -63,33 +91,23 @@
 
 [github]
 	user = adragomir
-    token = 631abd318631e5d9ef2f932a811a8d7a
-    password = ! /usr/bin/security 2>&1 >/dev/null find-generic-password -gs github | ruby -e 'print $1 if STDIN.gets =~ /^password: \\\"(.*)\\\"$/'
+  password = ! /usr/bin/security 2>&1 >/dev/null find-generic-password -gs github | ruby -e 'print $1 if STDIN.gets =~ /^password: \\\"(.*)\\\"$/'
 
-#[branch]
-#  autosetuprebase = always
-[cola]
-	fontdiff = DejaVu Sans Mono,9,-1,5,50,0,0,0,0,0
+[branch]
+  autosetupmerge = false
+  autosetuprebase = always
+
+[status]
+  relativePaths = false
+  showUntrackedFiles = all
+  submodulesummary = true
+
+[rerere]
+	enabled = true
+
 [giggle]
 	main-window-maximized = true
 	main-window-geometry = 274x34+1164+486
 	history-view-vpane-position = 300
 	main-window-view = FileView
 	file-view-vpane-position = 443
-[push]
-	default = simple
-[difftool "Kaleidoscope"]
-	cmd = ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
-[diff]
-	tool = Kaleidoscope
-[difftool]
-	prompt = false
-[mergetool "Kaleidoscope"]
-	cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
-	trustExitCode = true
-
-[url "https://github.com"]
-  insteadOf = "git://github.com"
-
-[hub]
-	host = git.corp.adobe.com
