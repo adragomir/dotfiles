@@ -61,8 +61,8 @@ set laststatus=2              " always show status line
 set showbreak=…
 set fillchars=diff:⣿,vert:\|
 set noshowcmd                   " show number of selected chars/lines in status
-set showmatch                 " briefly jump to matching brace
-set matchtime=1               " show matching brace time (1/10 seconds)
+"set showmatch                 " briefly jump to matching brace
+"set matchtime=1               " show matching brace time (1/10 seconds)
 set showmode                  " show mode in status when not in normal mode
 set nostartofline             " don't move to start of line after commands
 "set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y][%{&ff}]\ %)\ %L%)
@@ -181,7 +181,7 @@ let g:loaded_vimball = 1
 let g:loaded_vimballPlugin = 1
 " }}}
 
-let g:pathogen_disabled = ['javacomplete', 'numbers', 'eclim', 'command-t', 'ultisnips']
+let g:pathogen_disabled = ['numbers', 'eclim', 'command-t', 'ultisnips']
 " let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'command-t']
 
 call pathogen#helptags()
@@ -226,8 +226,8 @@ if has("gui_running")
     endif
 else
   if $TERM_PROGRAM =~ 'iTerm.*'
-    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-    let &t_EI = "\<Esc>]50;CursorShape=0\x7" 
+    " let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+    " let &t_EI = "\<Esc>]50;CursorShape=0\x7" 
   endif
 endif
 
