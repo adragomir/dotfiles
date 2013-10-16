@@ -13,6 +13,7 @@ endif
 
 " general settings {{{
 set nocompatible              " use VI incompatible features
+filetype off
 let no_buffers_menu=1
 set noautochdir
 set history=10000             " number of history items
@@ -71,7 +72,7 @@ set nostartofline             " don't move to start of line after commands
 set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o%)
 set undolevels=10000
 set numberwidth=5
-set pumheight=10
+set pumheight=15
 set viminfo=%,h,'1000,\"1000,:1000,n~/.vim/tmp/.viminfo
 set scrolljump=10
 set virtualedit+=block
@@ -85,7 +86,7 @@ set iskeyword=@,48-57,128-167,224-235,_
 set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮,trail:.
 set showtabline=2
 set matchtime=3
-set complete=.,w,b,u,t,i	" completion by Ctrl-N
+set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
 set completeopt=menu,menuone,longest "sjl: set completeopt=longest,menuone,preview
 set ttyfast
 set timeout
@@ -139,12 +140,12 @@ set laststatus=2
 set suffixes+=.lo,.o,.moc,.la,.closure,.loT
 set suffixes+=.bak,~,.o,.h,.info,.swp,.obj
 set suffixes+=class,.6
-
 " }}}
 
 " wildmenu settings {{{
 set wildmenu
-set wildmode=list:longest,full
+"set wildmode=list:longest,full
+set wildmode=longest,full
 set wildignore+=.svn,CVS,.git,.hg
 set wildignore+=*.aux,*.out,*.toc " latex files
 set wildignore+=*.o,*.d,*.obj,*.dylib,*.so,*.exe,*.manifest,*.a,*.mo,*.la " objects
@@ -184,8 +185,8 @@ let g:loaded_vimballPlugin = 1
 let g:pathogen_disabled = ['numbers', 'eclim', 'command-t', 'ultisnips']
 " let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'command-t']
 
-call pathogen#helptags()
 call pathogen#infect() 
+call pathogen#helptags()
 " }}}
 
 " mapleader {{{
@@ -196,11 +197,6 @@ let maplocalleader = ","
 " look & feel {{{
 set t_Co=256
 set background=dark
-" solarized
-" set t_Co=16
-" let g:solarized_termtrans=1
-" let g:solarized_termcolors=256
-" let g:solarized_italic=0
 colorscheme grb256
 
 if has("gui_running")
@@ -459,7 +455,16 @@ set tabline=%!MyTabLine()
 
 " key mappings {{{
 " System clipboard interaction.  Mostly from:
-map \ :call CursorPing()<cr>
+if $TERM =~ '^screen-256color'
+  set t_Co=256
+  nmap <Esc>OH <Home>
+  imap <Esc>OH <Home>
+  cmap <esc>OH <Home>
+  nmap <Esc>OF <End>
+  imap <Esc>OF <End>
+  cmap <Esc>OF <End>
+endif
+
 map <leader>y "*y
 
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>

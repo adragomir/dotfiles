@@ -19,3 +19,4 @@ bin/svnup.yaml
 .bitlbee/adragomir.xml
 .irssi/*.log
 bin/binary/*
+.zsh/cache

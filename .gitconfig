@@ -17,8 +17,9 @@
 [alias]
   cleanup = !git remote prune origin && git gc && git clean -df && git stash clear
   unreachable = "!git fsck --unreachable | grep commit | cut -d \\  -f3 | xargs git log --merges --no-walk"
-  st = status --ignore-submodules
+  st = status --ignore-submodules=all
   st2 = "ls-files --exclude-per-directory=.gitignore  --exclude-from=.git/info/exclude  -t -o -u -s -m -d"
+  sts = status -sb --ignore-submodules=all -unormal
   cat = -p cat-file -p
   ci = commit
   co = checkout
@@ -36,8 +37,8 @@
   fa = fetch --all --prune
   un = rm --cached
   head = !git l -1
-  b = branch
-  ba = branch --all
+  b = branch -v
+  ba = branch -av
   bd = "!git branch -D $1; git push origin \":${1}\""
   h = !git head
   hp = "!source ~/bin/githelpers && show_git_head"
@@ -61,9 +62,12 @@
 
 [rebase]
   stat = true
+  autostash = true
 
 [diff]
   algorithm = patience
+  ignoresubmodules = all
+  mnemonicprefix = true
 
 [mergetool]
   keepBackup = false
@@ -100,7 +104,6 @@
 [status]
   relativePaths = false
   showUntrackedFiles = all
-  submodulesummary = true
 
 [rerere]
 	enabled = true

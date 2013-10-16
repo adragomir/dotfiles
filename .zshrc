@@ -1138,8 +1138,6 @@ prompt_exit_code() {
 
 prompt_user_host() {
   local ret=""
-  ret="${USER_COLOR}%n${FX[reset]}"
-  ret="${ret}@"
   ret="${ret}${HOST_COLOR}%m${FX[reset]}"
   wrap_brackets $ret
 }
@@ -1207,7 +1205,6 @@ export OS=`uname | tr "[:upper:]" "[:lower:]"`
 # ls
 export LSCOLORS="gxfxcxdxbxegedabagacad"
 export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
-# export LS_COLORS="*.tar.bz2=38;5;226:*.tar.xz=38;5;130:*PKGBUILD=48;5;233;38;5;160:*.html=38;5;213:*.htm=38;5;213:*.vim=38;5;142:*.css=38;5;209:*.screenrc=38;5;120:*.procmailrc=38;5;120:*.zshrc=38;5;120:*.bashrc=38;5;120:*.xinitrc=38;5;120:*.vimrc=38;5;120:*.htoprc=38;5;120:*.muttrc=38;5;120:*.gtkrc-2.0=38;5;120:*.fehrc=38;5;120:*.rc=38;5;120:*.md=38;5;130:*.markdown=38;5;130:*.conf=38;5;148:*.h=38;5;81:*.rb=38;5;192:*.c=38;5;110:*.diff=38;5;31:*.yml=38;5;208:*.pl=38;5;178:*.csv=38;5;136:tw=38;5;003:*.chm=38;5;144:*.bin=38;5;249:*.pdf=38;5;203:*.mpg=38;5;38:*.ts=38;5;39:*.sfv=38;5;191:*.m3u=38;5;172:*.txt=38;5;192:*.log=38;5;190:*.swp=38;5;241:*.swo=38;5;240:*.theme=38;5;109:*.zsh=38;5;173:*.nfo=38;5;113:mi=38;5;124:or=38;5;160:ex=38;5;197:ln=target:pi=38;5;130:ow=38;5;208:fi=38;5;007:so=38;5;167:di=38;5;30:*.pm=38;5;197:*.pl=38;5;166:*.sh=38;5;243:*.patch=38;5;37:*.tar=38;5;118:*.tar.gz=38;5;172:*.zip=38;5;11::*.rar=38;5;11:*.tgz=38;5;11:*.7z=38;5;11:*.mp3=38;5;173:*.flac=38;5;166:*.mkv=38;5;115:*.avi=38;5;114:*.wmv=38;5;113:*.jpg=38;5;66:*.jpeg=38;5;67:*.png=38;5;68:*.pacnew=38;5;33"
 
 # grep
 export GREP_OPTIONS='--color=auto'
@@ -1477,6 +1474,7 @@ alias g-update-deleted="git ls-files -z --deleted | git update-index -z --remove
 alias gfr="git fetch && git rebase refs/remotes/origin/master"
 alias gci="git commit"
 alias gco="git checkout"
+alias pk="pkill -9 -f"
 
 # clojure
 alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.4.0/clojure-1.4.0.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.2.0/clojure-contrib-1.2.0.jar clojure.main'
