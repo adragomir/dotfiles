@@ -27,6 +27,8 @@
   dc = diff --cached --ignore-submodules
   amend = commit --amend
   aa = add --all
+  au = add -pu
+  cu = checkout -p
   ff = merge --ff-only
   pullff = pull --ff-only
   # Divergence (commits we added and commits remote added)
