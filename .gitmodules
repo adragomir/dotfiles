@@ -196,3 +196,18 @@
 [submodule ".vim/bundle/clever-f"]
 	path = .vim/bundle/clever-f
 	url = https://github.com/rhysd/clever-f.vim
+[submodule ".vim/bundle/textobj-brace"]
+	path = .vim/bundle/textobj-brace
+	url = https://github.com/Julian/vim-textobj-brace
+[submodule ".vim/bundle/textobj-indblock"]
+	path = .vim/bundle/textobj-indblock
+	url = https://github.com/glts/vim-textobj-indblock
+[submodule ".vim/bundle/textobj-parameter"]
+	path = .vim/bundle/textobj-parameter
+	url = https://github.com/sgur/vim-textobj-parameter
+[submodule ".vim/bundle/textobj-variable-segment"]
+	path = .vim/bundle/textobj-variable-segment
+	url = https://github.com/Julian/vim-textobj-variable-segment
+[submodule ".vim/bundle/json"]
+	path = .vim/bundle/json
+	url = https://github.com/elzr/vim-json
