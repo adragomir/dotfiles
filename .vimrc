@@ -55,7 +55,7 @@ set hlsearch                  " highlight last search
 set incsearch                 " show matches while searching
 set gdefault
 set nojoinspaces
-
+set cursorline
 set laststatus=2              " always show status line
 "set cursorcolumn
 "set cursorline
@@ -65,7 +65,7 @@ set noshowcmd                   " show number of selected chars/lines in status
 "set showmatch                 " briefly jump to matching brace
 "set matchtime=1               " show matching brace time (1/10 seconds)
 set showmode                  " show mode in status when not in normal mode
-set nostartofline             " don't move to start of line after commands
+"set nostartofline             " don't move to start of line after commands
 "set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y][%{&ff}]\ %)\ %L%)
 " grb statusline
 "set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
@@ -112,7 +112,7 @@ set splitright
 set title
 set linebreak
 set dictionary=/usr/share/dict/words
-set exrc
+set noexrc " don't read dotfiles in folders
 set gcr=a:blinkon0
 set switchbuf=usetab
 " settings: line endings
@@ -214,7 +214,7 @@ if has("gui_running")
 
     if has("macunix")
       " mac
-      set guifont=Source\ Code\ Pro:h14
+      set guifont=Inconsolata:h14
       set antialias
       set fuoptions=maxvert,maxhorz
     else
@@ -246,13 +246,6 @@ autocmd BufEnter * :syntax sync fromstart
 "}}}
 
 " my functions {{{
-function! CursorPing()
-    set cursorline cursorcolumn
-    redraw
-    sleep 50m
-    set nocursorline nocursorcolumn
-endfunction
-
 function! s:VSetSearch()
   let temp = @@
   norm! gvy
@@ -454,7 +447,6 @@ set tabline=%!MyTabLine()
 " }}}
 
 " key mappings {{{
-" System clipboard interaction.  Mostly from:
 if $TERM =~ '^screen-256color'
   set t_Co=256
   nmap <Esc>OH <Home>
@@ -465,6 +457,7 @@ if $TERM =~ '^screen-256color'
   cmap <Esc>OF <End>
 endif
 
+" System clipboard interaction.  Mostly from:
 map <leader>y "*y
 
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
@@ -516,14 +509,16 @@ nnoremap * *<c-o>
 " Use c-\ to do c-] but open it in a new split.
 nnoremap <c-\> <c-w>v<c-]>zvzz
 
-nnoremap / /\v
-vnoremap / /\v
+" nnoremap / /\v
+" vnoremap / /\v
 
 " Fuck you, help key.
 noremap  <F1> :set invfullscreen<CR>
 inoremap <F1> <ESC>:set invfullscreen<CR>a
 " Kill window instead of man page
 nnoremap K :q<cr>
+vnoremap J j
+vnoremap K k
 inoremap # X<BS>#
 
 " Keep search matches in the middle of the window.
@@ -535,8 +530,10 @@ nnoremap g; g;zz
 nnoremap g, g,zz
 nnoremap <c-o> <c-o>zz
 
-noremap H ^
-noremap L g_ "or $?
+vnoremap H ^
+vnoremap L $
+nnoremap H ^
+nnoremap L $
 
 " Heresy
 inoremap <c-a> <esc>I

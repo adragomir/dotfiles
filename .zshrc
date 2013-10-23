@@ -865,7 +865,6 @@ zgit_info_update
 
 # git
 revstring() {
-	git describe --tags --always $1 2>/dev/null ||
 	git rev-parse --short $1 2>/dev/null
 }
 
@@ -892,6 +891,41 @@ colorword() {
 	fi
 
 	echo "%{"$'\e['${(j:;:)s}m"%}"
+}
+
+function minutes_since_last_commit {
+    now=`date +%s`
+    last_commit=`git log --pretty=format:'%at' -1 2>/dev/null`
+    if $lastcommit ; then
+      seconds_since_last_commit=$((now-last_commit))
+      minutes_since_last_commit=$((seconds_since_last_commit/60))
+      echo $minutes_since_last_commit
+    else
+      echo "-1"
+    fi
+}
+
+function prompt_grb_scm_time_since_commit() {
+	local -A pc
+	pc=(${(kv)wunjo_prompt_colors})
+
+	if zgit_inworktree; then
+        local MINUTES_SINCE_LAST_COMMIT=`minutes_since_last_commit`
+        if [ "$MINUTES_SINCE_LAST_COMMIT" -eq -1 ]; then
+          COLOR="$pc[scm_time_uncommitted]"
+          local SINCE_LAST_COMMIT="${COLOR}uncommitted$pc[reset]"  
+        else
+          if [ "$MINUTES_SINCE_LAST_COMMIT" -gt 30 ]; then
+            COLOR="$pc[scm_time_long]"
+          elif [ "$MINUTES_SINCE_LAST_COMMIT" -gt 10 ]; then
+            COLOR="$pc[scm_time_medium]"
+          else
+            COLOR="$pc[scm_time_short]"
+          fi
+          local SINCE_LAST_COMMIT="${COLOR}$(minutes_since_last_commit)m$pc[reset]"
+        fi
+        echo $SINCE_LAST_COMMIT
+    fi
 }
 
 prompt_repo_status() {
@@ -965,7 +999,7 @@ prompt_repo_status() {
 	wunjo_prompt_colors=(${(kv)pc})
 
 	local ret
-	ret="$(prompt_wunjo_scm_status)|$(prompt_wunjo_scm_branch)"
+  ret="$(prompt_grb_scm_time_since_commit)|$(prompt_wunjo_scm_status)|$(prompt_wunjo_scm_branch)"
   wrap_brackets $ret
 	#add-zsh-hook precmd prompt_wunjo_precmd
 }
@@ -1074,8 +1108,6 @@ prompt_wunjo_scm_branch() {
 	local -A pc
 	pc=(${(kv)wunjo_prompt_colors})
 
-	echo -n "$pc[punc]:$pc[scm_branch]$(zgit_head)"
-
 	if zgit_inworktree; then
 		if ! zgit_isindexclean; then
 			echo -n "$pc[scm_status_staged]+"
@@ -1173,20 +1205,6 @@ prompt_folder() {
   local ret=""
   ret="${DIR_COLOR}${PWD/#$HOME/~}${FX[reset]}"
   wrap_brackets $ret
-}
-
-prompt_git_branch() {
-  local gitdir
-  gitdir="$(git rev-parse --show-toplevel 2>/dev/null)"
-  [[ $? -ne 0 || ! $gitdir =~ (.*\/)?\.git.* ]] && return
-  local branch="$(git symbolic-ref HEAD 2>/dev/null)"
-  if [[ $? -ne 0 || -z "$branch" ]] ; then
-      # In detached head state, use commit instead
-      branch="$(git rev-parse --short HEAD 2>/dev/null)"
-  fi
-  [[ $? -ne 0 || -z "$branch" ]] && return
-  branch="${branch#refs/heads/}"
-  echo $(_escape "$branch")
 }
 
 prompt_actual() {
@@ -1362,7 +1380,7 @@ export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/pk-*.pem)"
 export EC2_CERT="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/cert-*.pem)"
 export AWS_CREDENTIAL_FILE=$HOME/.secrets/.aws-credentials-$1
 export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
-export AWS_SECRET_ACCESS_KEY=$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')
+export AWS_SECRET_ACCESS_KEY="$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')"
 }
 export AWS_CONFIG_FILE=$HOME/.secrets/.awscli
 aws_use_account 'pass'
@@ -1445,6 +1463,7 @@ alias c="clear"
 #alias l="ls -AGlFT"
 alias lt="ls -AGlFTtr"
 alias gwhat="grep -e $1"
+alias h=" history | tail -n 10 | cut -d' ' -f3-"
  
 #editor
 case "$HOST" in
@@ -1567,38 +1586,6 @@ alias dtrace-providers="sudo dtrace -l | perl -pe 's/^.*?\S+\s+(\S+?)([0-9]|\s).
 alias tail_java_complete="tail -f $HOME/javacomplete.txt $HOME/dotfiles/.vim/bundle/javacomplete/java/javacomplete_java.log"
 alias gitg="/usr/local/bin/gitg >/dev/null 2>&1 &"
 alias jps="jps -l | grep -vE \"^[0-9]*\s+$\" | grep -v \"sun.tools.jps\" | sort -k 2,2"
-
-alias g='git'
-alias gst='git status'
-alias gl='git pull'
-alias gup='git fetch && git rebase'
-alias gp='git push'
-alias gd='git diff | mate'
-alias gdv='git diff -w "$@" | vim -R -'
-alias gc='git commit -v'
-alias gca='git commit -v -a'
-alias gb='git branch'
-alias gba='git branch -a'
-alias gcount='git shortlog -sn'
-alias gcp='git cherry-pick'
-alias glg='git log --stat --max-count=5'
-
-# Git and svn mix
-alias git-svn-dcommit-push='git svn dcommit && git push github master:svntrunk'
-
-#
-# Will return the current branch name
-# Usage example: git pull origin $(current_branch)
-#
-current_branch() {
-  ref=$(git symbolic-ref HEAD 2> /dev/null) || return
-  echo ${ref#refs/heads/}
-}
-
-# these aliases take advangate of the previous function
-alias ggpull='git pull origin $(current_branch)'
-alias ggpush='git push origin $(current_branch)'
-alias ggpnp='git pull origin $(current_branch) && git push origin $(current_branch)'
 
 #}}}
 
