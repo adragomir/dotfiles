@@ -211,3 +211,6 @@
 [submodule ".vim/bundle/json"]
 	path = .vim/bundle/json
 	url = https://github.com/elzr/vim-json
+[submodule ".vim/bundle/toml"]
+	path = .vim/bundle/toml
+	url = https://github.com/cespare/vim-toml

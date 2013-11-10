@@ -17,6 +17,7 @@ filetype off
 let no_buffers_menu=1
 set noautochdir
 set history=10000             " number of history items
+set conceallevel=0
 set shiftround
 "set autowriteall
 " backup settings
@@ -39,6 +40,7 @@ set keymodel=startsel         ",stopsel
 set autoread                  " read outside modified files
 set encoding=UTF-8            " file encoding
 set modeline
+set regexpengine=0
 "set modelines=0
 set t_ti=
 set t_te=
@@ -65,7 +67,7 @@ set noshowcmd                   " show number of selected chars/lines in status
 "set showmatch                 " briefly jump to matching brace
 "set matchtime=1               " show matching brace time (1/10 seconds)
 set showmode                  " show mode in status when not in normal mode
-"set nostartofline             " don't move to start of line after commands
+set startofline             " don't move to start of line after commands
 "set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y][%{&ff}]\ %)\ %L%)
 " grb statusline
 "set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
@@ -246,6 +248,22 @@ autocmd BufEnter * :syntax sync fromstart
 "}}}
 
 " my functions {{{
+function! ToggleQuickfix()
+  if BufferIsOpen("Quickfix List")
+    cclose
+  else
+    call OpenQuickfix()
+  endif
+endfunction
+
+function! OpenQuickfix()
+  cgetfile tmp/quickfix
+  topleft cwindow
+  if &ft == "qf"
+      cc
+  endif
+endfunction
+
 function! s:VSetSearch()
   let temp = @@
   norm! gvy
@@ -549,6 +567,13 @@ inoremap <c-e> <esc>A
 " imap <left> <nop>
 " imap <right> <nop>
 
+" quickfix
+" :
+nnoremap <leader>q :call ToggleQuickfix()<cr>
+nnoremap <leader>Q :cc<cr>
+nnoremap <leader>j :cnext<cr>
+nnoremap <leader>k :cprev<cr>
+
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
@@ -563,7 +588,7 @@ nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 
 " emacs bindings, like the shell
 cnoremap <c-a> <home>
-cnoremap <c-e> <home>
+cnoremap <c-e> <end>
 
 nnoremap <leader>z zMzvzz
 
@@ -1069,6 +1094,8 @@ let g:gist_open_browser_after_post = 1
 let g:molokai_original = 0
 " }}}
 
+let g:vim_json_syntax_conceal = 0
+
 " ack {{{
 let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 " }}}
@@ -1166,6 +1193,7 @@ augroup settings
   autocmd BufRead *.markdown  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
   autocmd FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
   autocmd FileType go set noexpandtab ts=4 sw=4 sts=4
+  autocmd BufRead,BufNewFile gopack.config setfiletype toml
 augroup END
 
 " completions
@@ -1192,6 +1220,7 @@ augroup mappings
   autocmd FileType java map <leader>s :JavaImportOrganize<CR>
   autocmd FileType java map <leader>jh :JavaHierarchy<CR>
   autocmd FileType clojure let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+  autocmd FileType go let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
   autocmd FileType java let g:SuperTabDefaultCompletionType = "<c-x><c-u>"
 augroup END
 

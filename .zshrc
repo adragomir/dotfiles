@@ -6,7 +6,6 @@ fpath=(/usr/local/share/zsh-completions $fpath)
 
 # {{{ modules
 zmodload zsh/datetime
-zmodload zsh/stat
 zmodload zsh/mathfunc
 zmodload -i zsh/complist
 zmodload -F zsh/parameter
@@ -59,7 +58,6 @@ setopt no_beep
 export KEYTIMEOUT=0
 setopt auto_cd
 setopt auto_pushd
-setopt multios
 setopt cdablevarS
 setopt ignoreeof
 setopt prompt_subst
@@ -83,7 +81,6 @@ setopt complete_in_word
 setopt list_packed # Compact completion lists
 setopt list_types # Show types in completion
 setopt rec_exact # Recognize exact, ambiguous matches
-setopt short_loops
 
 setopt auto_name_dirs
 #setopt auto_param_slash
@@ -120,6 +117,7 @@ setopt long_list_jobs
 
 # {{{ completions 
 zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' users $USER
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' squeeze-slashes true
 zstyle ':completion:*:*:*:*:*' menu select
@@ -127,6 +125,7 @@ zstyle ':completion:*' squeeze-slashes true
 zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
 zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
 zstyle ':completion:*:*:*:*:processes*'    force-list always
+zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion:*:*:kill:*' menu yes select
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
 zstyle ':completion:*:*:kill:*:processes'  sort false
@@ -153,20 +152,6 @@ compdef _gnu_generic slrnpull make df du mv cp makepkg
 zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
 cdpath=(.)
 
-# use /etc/hosts and known_hosts for hostname completion
-# if [[ -r ~/.ssh/known_hosts ]]; then
-#   _ssh_hosts=( ${${${${(f)"$(<$HOME/.ssh/known_hosts)"}:#[\|]*}%%\ *}%%,*} ) || _ssh_hosts=()
-# fi
-# if [[ -r /etc/hosts ]]; then
-#   _etc_hosts=( ${(s: :)${(ps:\t:)${${(f)~~"$(</etc/hosts)"}%%\#*}##[:blank:]#[^[:blank:]]#}} ) || _etc_hosts=()
-# fi
-# hosts=(
-#   "$_ssh_hosts[@]"
-#   "$_etc_hosts[@]"
-#   `hostname`
-#   localhost
-# )
-
 # zstyle ':completion:*:hosts' hosts $hosts
 # Use caching so that commands like apt and dpkg complete are useable
 zstyle ':completion::complete:*' use-cache 1
@@ -190,43 +175,9 @@ zstyle -e :urlglobber url-other-schema '[[ $words[1] == scp ]] && reply=("*") ||
 # }}}
 
 # hooks {{{
-
 function preexec {
   emulate -L zsh
   local -a cmd; cmd=(${(z)1})
-}
-
-function explain {
-  # base url with first command already injected
-  # $ explain tar
-  #   => http://explainshel.com/explain/tar?args=
-  url="http://explainshell.com/explain/$1?args="
-
-  # removes $1 (tar) from arguments ($@)
-  shift;
-
-  # iterates over remaining args and adds builds the rest of the url
-  for i in "$@"; do
-    url=$url"$i""+"
-  done
-
-  # opens url in browser
-  open $url
-}
-
-# Changing/making/removing directory
-cd () {
-  if   [[ "x$*" == "x..." ]]; then
-    cd ../..
-  elif [[ "x$*" == "x...." ]]; then
-    cd ../../..
-  elif [[ "x$*" == "x....." ]]; then
-    cd ../../..
-  elif [[ "x$*" == "x......" ]]; then
-    cd ../../../..
-  else
-    builtin cd "$@"
-  fi
 }
 # }}}
 
@@ -333,10 +284,6 @@ bindkey "^[m" copy-prev-shell-word
 
 zle -N self-insert url-quote-magic
 # }}}
-
-# functions {{{
-# ssh_proxy() {
-# }
 
 tree() {
   find . | sed -e 's/[^\/]*\//|--/g' -e 's/-- |/    |/g' | $PAGER
@@ -479,52 +426,9 @@ lr() {
     sed '/^[^l]/s/ -> $//; '$classify' '$long
 }
 
-function eclipse_project() {
-  from=$1
-  to=$2
-
-  to_move=( .settings .externalToolBuilders .eclipse.templates .launches .classpath .project )
-  to_move_type=( d d d d f f )
-  for idx in $(seq 0 $((${#to_move[@]} - 1))); do
-    t=${to_move[$idx]}
-    tf=${to_move_type[$idx]}
-    echo "Moving $t..."
-
-    for d in `find $from \( -iname "$t" -a -type $tf \)`; do
-      df=$(dirname $d)
-      fc=${df#$from/}
-      mkdir -p $to/$fc/
-      echo mv $d $to/$fc/
-      mv $d $to/$fc/
-    done
-    
-  done
-}
-
-function gcc_defines() {
-  gcc -dM -E - < /dev/null
-}
-
 function getwanip() {
   wget -q -O- www.showmyip.com/xml | xml2 | grep '/ip_address/ip=' | cut -d= -f2
   curl -s http://checkip.dyndns.org | awk '{print $6}' | awk ' BEGIN { FS = "<" } { print $1 } '
-}
-
-function gitroot() {
-  gitroot=`git rev-parse --show-cdup 2>/dev/null`
-  retval="$?"
-  if [ "$retval" == "0" ]; then
-    # There is a git root
-    if [ -z "$gitroot" ]; then
-      # It's the current dir.
-      pwd
-    else
-      readlink -f "$gitroot"
-    fi
-  else
-    # No gitroot. Return status 1.
-    exit 1
-  fi
 }
 
 function iphone_transcode() {
@@ -536,31 +440,7 @@ function iphone_transcode() {
 function javap_method() {
   class=${1%#*}
   method=${1#*\#}
-
   javap -classpath `cat .run-classpath` -c $class | sed -n -e "/$method(/,/^$/p"
-}
-
-function cl() {
-  cd "$@" && l;
-}
-
-function cs () {
-  cd "$@"
-  if [ -n "$(git status 2>/dev/null)" ]; then
-    echo "$(git status 2>/dev/null)"
-  fi
-}
-
-function mkd() {
-  mkdir -p "$*" && cd "$*" && pwd
-}
-
-function gco {
-  if [ -z "$1" ]; then
-    git checkout master
-  else
-    git checkout $1
-  fi
 }
 
 extract () {
@@ -584,45 +464,9 @@ extract () {
   fi
 }
 
-# hack & ship
-function current_git_branch {
-  git branch 2> /dev/null | grep '\*' | awk '{print $2}'
-}
-
-hack() {
-  CURRENT=$(current_git_branch)
-  git checkout master
-  git pull origin master
-  git checkout ${CURRENT}
-  git rebase master
-  unset CURRENT
-}
- 
-ship() {
-  CURRENT=$(current_git_branch)
-  git checkout master
-  git merge ${CURRENT}
-  git push origin master
-  git checkout ${CURRENT}
-  unset CURRENT
-}
-
-function pswhich {
-  for i in $*; do
-    grepstr=[${i[1,2]}]${i[2,${#i}]}
-    tmp=`ps axwww | grep $grepstr | awk '{print $1}'`
-    echo "${i}: ${tmp/\\n/,}"
-  done
-}
-
-mkcd () {
-  mkdir -p "$*"
-  cd "$*"
-}
 # }}}
 
 # prompt settings {{{
-
 # wunjo {{{
 typeset -gA zgit_info
 zgit_info=()
@@ -1136,7 +980,6 @@ prompt_wunjo_scm_branch() {
 # }}}
 
 # get the name of the branch we are on
-
 ERROR_COLOR="${FG[001]}"
 UPTODATE_COLOR="${FG[002]}"
 CHANGES_COLOR="${FG[009]}"
@@ -1150,10 +993,6 @@ RUNNING_JOB_COLOR="${FG[002]}"
 DETACHED_JOB_COLOR="${FG[226]}"
 DETACHED_JOB_COLOR="${FG[226]}"
 PROMPT_COLOR="${FG[011]}"
-
-_escape() {
-    printf "%q" "$*"
-}
 
 wrap_brackets() {
   if [[ ! -z "$1" ]] ; then
@@ -1218,7 +1057,6 @@ PROMPT2=$'%_$(prompt_actual)'
 # }}}
 
 # program settings & paths {{{
-
 export OS=`uname | tr "[:upper:]" "[:lower:]"`
 # ls
 export LSCOLORS="gxfxcxdxbxegedabagacad"
@@ -1341,7 +1179,7 @@ else
   export JAVA_HOME=/usr/lib/jvm/java-6-sun/
 fi
 
-# luatext
+# luatex
 #export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c/
 #export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,/usr/local/texlive/texmf-local/scripts/context/lua,$HOME/texmf/scripts/context/lua}'
 #export TEXMF='{$HOME/.texlive2008/texmf-config,$HOME/.texlive2008/texmf-var,$HOME/texmf,/usr/local/texlive/2008/texmf-config,/usr/local/texlive/2008/texmf-var,/usr/local/texlive/2008/texmf,/usr/local/texlive/texmf-local,/usr/local/texlive/2008/texmf-dist,/usr/local/texlive/2008/texmf.gwtex}'
@@ -1449,7 +1287,6 @@ $MANPATH
 # }}}
 
 # aliases {{{
-
 alias -s com=urlopen
 alias -s org=urlopen
 alias -s net=urlopen
@@ -1459,10 +1296,6 @@ alias -s io=urlopen
 alias v="view -"
 alias vidir="EDITOR=v vidir"
 alias gvim="g"
-alias c="clear"
-#alias l="ls -AGlFT"
-alias lt="ls -AGlFTtr"
-alias gwhat="grep -e $1"
 alias h=" history | tail -n 10 | cut -d' ' -f3-"
  
 #editor
@@ -1479,22 +1312,6 @@ case "$HOST" in
   ;;
 esac
 
-# git commands
-alias gss="git stash save"
-alias gsp="git stash pop"
-alias gl="git log"
-alias ga="git add"
-alias gr="git reset"
-alias gs="git status"
-alias gst="git status"
-alias gd="git diff"
-alias gdc="git diff --cached"
-alias g-update-deleted="git ls-files -z --deleted | git update-index -z --remove --stdin"
-alias gfr="git fetch && git rebase refs/remotes/origin/master"
-alias gci="git commit"
-alias gco="git checkout"
-alias pk="pkill -9 -f"
-
 # clojure
 alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.4.0/clojure-1.4.0.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.2.0/clojure-contrib-1.2.0.jar clojure.main'
 
@@ -1510,83 +1327,30 @@ alias ttop='top -ocpu -R -F -s 2 -n30'
 alias la='ls -A'
 alias lt="ls -AGlFTtr"
 alias lc="cl"
-alias cdd='cd - '
 alias mkdir='mkdir -p'
 alias reload="source ~/.zshrc"
 alias finde='find -E'
-alias pgrep='pgrep -lf'
 alias df='df -h'
 alias du='du -h -c'
 alias psa='ps auxwww'
 alias ping='ping -c 5'
 alias grep='grep --colour'
-alias svnaddall='svn status | grep "^\?" | awk "{print \$2}" | xargs svn add'
-#alias irb='irb --readline -r irb/completion -rubygems'
 alias irb='pry'
 alias ri='ri -Tf ansi'
 alias tu='top -o cpu'
 alias tm='top -o vsize'
-alias t="~/bin/todo.py -d '$HOME/Documents/personal/life/exploded/todo@/'"
-
-# text 2 html
-alias textile='/usr/bin/redcloth'
-alias markdown='/usr/local/bin/markdown'
-
-# mathematica
-alias math='rlwrap $HOME/Applications/Mathematica.app/Contents/MacOS/MathKernel'
 
 # hadoop, hbase, etc
 alias hbase='$HBASE_HOME/bin/hbase'
 alias zk='$ZOOKEEPER_HOME/bin/zkCli.sh'
 alias storm='$STORM_HOME/bin/storm'
-alias psall='pswhich NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer ReportServer storm.daemon.nimbus storm.ui.core'
+alias psall='pgrep -l -f NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer ReportServer storm.daemon.nimbus storm.ui.core'
 alias d='dirs -v'
-alias ..='cd ..'
-alias cd..='cd ..'
-alias cd...='cd ../..'
-alias cd....='cd ../../..'
-alias cd.....='cd ../../../..'
-alias cd/='cd /'
-
-alias 1='cd -'
-alias 2='cd +2'
-alias 3='cd +3'
-alias 4='cd +4'
-alias 5='cd +5'
-alias 6='cd +6'
-alias 7='cd +7'
-alias 8='cd +8'
-alias 9='cd +9'
-
-
-# Push and pop directories on directory stack
-alias pu='pushd'
-alias po='popd'
-
-# Basic directory operations
-alias ...='cd ../..'
-alias -- -='cd -'
-
-# Super user
-alias _='sudo'
-
-#alias g='grep -in'
 
 # Show history
 alias history='fc -l 1'
 
-# List direcory contents
-alias lsa='ls -lah'
-#alias l='ls -la'
-alias ll='ls -l'
-alias sl=ls # often screw this up
-
-alias afind='ack-grep -il'
 alias dtrace-providers="sudo dtrace -l | perl -pe 's/^.*?\S+\s+(\S+?)([0-9]|\s).*/\1/' | sort | uniq"
-alias tail_java_complete="tail -f $HOME/javacomplete.txt $HOME/dotfiles/.vim/bundle/javacomplete/java/javacomplete_java.log"
-alias gitg="/usr/local/bin/gitg >/dev/null 2>&1 &"
-alias jps="jps -l | grep -vE \"^[0-9]*\s+$\" | grep -v \"sun.tools.jps\" | sort -k 2,2"
-
 #}}}
 
 # final settings {{{
@@ -1594,10 +1358,8 @@ alias jps="jps -l | grep -vE \"^[0-9]*\s+$\" | grep -v \"sun.tools.jps\" | sort 
 eval "$(fasd --init auto)"
 
 source $ZSH/zsh-history-substring-search/zsh-history-substring-search.zsh
-
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
 source $HOME/.rvm/scripts/rvm
-
 # }}}
 #vim:foldmethod=marker
