@@ -1190,7 +1190,7 @@ export WIKI=$HOME/Documents/personal/life/exploded/
 export NOTES=$HOME/Documents/personal/life/notes@/
 
 export SAASBASE_HOME=$HOME/work/s
-source $HOME/work/s/services/use-hadoop-1
+source $HOME/work/s/services/use-hadoop-2
 export HBASE_HOME=$HOME/work/s/hbase
 export ZOOKEEPER_HOME=$HOME/work/s/zookeeper
 export STORM_HOME=$HOME/work/s/storm

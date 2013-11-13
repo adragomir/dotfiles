@@ -184,7 +184,7 @@ let g:loaded_vimball = 1
 let g:loaded_vimballPlugin = 1
 " }}}
 
-let g:pathogen_disabled = ['numbers', 'eclim', 'command-t', 'ultisnips']
+let g:pathogen_disabled = ['numbers', 'eclim', 'command-t']
 " let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'command-t']
 
 call pathogen#infect() 
@@ -478,8 +478,6 @@ endif
 " System clipboard interaction.  Mostly from:
 map <leader>y "*y
 
-nnoremap <leader>ev :vsplit $MYVIMRC<cr>
-
 " Highlight Group(s)
 nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
                         \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
@@ -500,11 +498,7 @@ endfunction
 call MapCR()
 nnoremap <silent> <Leader>/ :nohlsearch<CR>
 
-" Open a Quickfix window for the last search.
-nnoremap <silent> <leader>/ :execute 'vimgrep /'.@/.'/g %'<CR>:copen<CR>
-
-" Ack for the last search.
-nnoremap <silent> <leader>? :execute "Ack! '" . substitute(substitute(substitute(@/, "\\\\<", "\\\\b", ""), "\\\\>", "\\\\b", ""), "\\\\v", "", "") . "'"<CR>
+nnoremap <silent> <leader>/ :execute "Ag! '" . substitute(substitute(substitute(@/, "\\\\<", "\\\\b", ""), "\\\\>", "\\\\b", ""), "\\\\v", "", "") . "'"<CR>
 
 " Fix linewise visual selection of various text objects
 " Select entire buffer
@@ -981,11 +975,6 @@ let OmniCpp_ShowAccess = 1
 let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 " }}}
 
-" ultisnips {{{
-"let g:UltiSnipsExpandTrigger = "<C-/>"
-"let g:UltiSnipsListSnippets = ""
-" }}}
-
 " tex {{{
 let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
@@ -999,8 +988,7 @@ let g:clang_use_library = 1
 let g:clang_complete_macros = 1
 let g:clang_periodic_quickfix = 0
 let g:clang_close_preview = 1
-let g:clang_snippets = 1
-"let g:clang_snippets_engine = 'ultisnips'
+let g:clang_snippets = 0
 let g:clang_debug = 1
 if has("macunix")
   "let g:clang_library_path = $HOME . "/work/tools/libclang"
@@ -1159,25 +1147,25 @@ augroup all_buffers
       \ endif
 
   au InsertEnter * :set listchars-=trail:⌴
+  " package_repository
 
   autocmd! CmdwinEnter * :unmap <cr>
   autocmd! CmdwinLeave * :call MapCR()
-  autocmd! WinEnter * 
+  autocmd! WinEnter,BufWinEnter *
     \ if &ft == "qf" |
-    \     execute ':unmap <cr>' |
+    \     execute ':silent! unmap <cr>' |
     \ else |
-    \     execute ':call MapCR()' |
+    \     execute ':silent! call MapCR()' |
+    \ endif
+  autocmd! WinLeave * 
+    \ if &ft == "qf" |
+    \     execute ':silent! unmap <cr>' |
+    \ else |
+    \     execute ':silent! call MapCR()' |
     \ endif
 augroup END
 
 " Only show cursorline in the current window and in normal mode.
-" augroup cline
-"     au!
-"     au WinLeave * set nocursorline
-"     au WinEnter * set cursorline
-"     au InsertEnter * set nocursorline
-"     au InsertLeave * set cursorline
-" augroup END
 
 " indentations
 augroup settings
@@ -1194,6 +1182,15 @@ augroup settings
   autocmd FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
   autocmd FileType go set noexpandtab ts=4 sw=4 sts=4
   autocmd BufRead,BufNewFile gopack.config setfiletype toml
+augroup END
+
+augroup endwiseadr
+  au!
+  autocmd FileType go
+    \ let b:endwise_addition = '}' |
+    \ let b:endwise_words = 'func,for,switch,if,else,range,select' |
+    \ let b:endwise_pattern = '^\s*\zs\%(func\|for\|switch\|if\|else\|range\|select\)\>\%(.*\)$' |
+    \ let b:endwise_syngroups = 'goConditional,goRepeat,goType,goDeclaration'
 augroup END
 
 " completions
