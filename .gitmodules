@@ -214,3 +214,9 @@
 [submodule ".vim/bundle/toml"]
 	path = .vim/bundle/toml
 	url = https://github.com/cespare/vim-toml
+[submodule ".vim/bundle/textobjectify"]
+	path = .vim/bundle/textobjectify
+	url = https://github.com/paradigm/TextObjectify
+[submodule ".vim/bundle/vim-sneak"]
+	path = .vim/bundle/vim-sneak
+	url = https://github.com/justinmk/vim-sneak

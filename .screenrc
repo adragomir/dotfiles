@@ -21,4 +21,3 @@ bind b eval "writebuf" "exec sh -c 'pbcopy < /tmp/screen-exchange'"
 attrcolor b ".I"
 
 screen -l -a -t main
-screen -l -a -t ssh
