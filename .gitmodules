@@ -70,24 +70,12 @@
 [submodule ".vim/bundle/matchit"]
 	path = .vim/bundle/matchit
 	url = https://github.com/edsono/vim-matchit.git
-[submodule ".vim/bundle/ir_black"]
-	path = .vim/bundle/ir_black
-	url = https://github.com/wgibbs/vim-irblack.git
-[submodule ".vim/bundle/Kwbd"]
-	path = .vim/bundle/Kwbd
-	url = https://github.com/rgarver/Kwbd.vim.git
 [submodule ".vim/bundle/scala"]
 	path = .vim/bundle/scala
 	url = https://github.com/derekwyatt/vim-scala.git
 [submodule ".vim/bundle/endwise"]
 	path = .vim/bundle/endwise
 	url = https://github.com/tpope/vim-endwise
-[submodule ".vim/bundle/localvimrc"]
-	path = .vim/bundle/localvimrc
-	url = https://github.com/embear/vim-localvimrc.git
-[submodule ".vim/bundle/flashdevelop"]
-	path = .vim/bundle/flashdevelop
-	url = https://github.com/endel/flashdevelop.vim.git
 [submodule ".vim/bundle/commaobject"]
 	path = .vim/bundle/commaobject
 	url = https://github.com/austintaylor/vim-commaobject.git
@@ -103,9 +91,6 @@
 [submodule ".vim/bundle/vimproc"]
 	path = .vim/bundle/vimproc
 	url = https://github.com/Shougo/vimproc.git
-[submodule ".vim/bundle/powerline"]
-	path = .vim/bundle/powerline
-	url = https://github.com/Lokaltog/powerline.git
 [submodule ".vim/bundle/classpath"]
 	path = .vim/bundle/classpath
 	url = https://github.com/tpope/vim-classpath.git
@@ -148,12 +133,6 @@
 [submodule ".vim/bundle/rainbow_parentheses"]
 	path = .vim/bundle/rainbow_parentheses
 	url = https://github.com/kien/rainbow_parentheses.vim.git
-[submodule ".vim/bundle/ultisnips"]
-	path = .vim/bundle/ultisnips
-	url = https://github.com/SirVer/ultisnips.git
-[submodule ".vim/bundle/maven-ide"]
-	path = .vim/bundle/maven-ide
-	url = https://github.com/dareni/vim-maven-ide
 [submodule ".vim/bundle/tbone"]
 	path = .vim/bundle/tbone
 	url = https://github.com/tpope/vim-tbone.git
@@ -169,9 +148,6 @@
 [submodule ".vim/bundle/tern"]
 	path = .vim/bundle/tern
 	url = https://github.com/marijnh/tern_for_vim.git
-[submodule ".vim/bundle/airline"]
-	path = .vim/bundle/airline
-	url = https://github.com/bling/vim-airline.git
 [submodule ".vim/bundle/godef"]
 	path = .vim/bundle/godef
 	url = https://github.com/dgryski/vim-godef
@@ -199,9 +175,6 @@
 [submodule ".vim/bundle/textobj-brace"]
 	path = .vim/bundle/textobj-brace
 	url = https://github.com/Julian/vim-textobj-brace
-[submodule ".vim/bundle/textobj-indblock"]
-	path = .vim/bundle/textobj-indblock
-	url = https://github.com/glts/vim-textobj-indblock
 [submodule ".vim/bundle/textobj-parameter"]
 	path = .vim/bundle/textobj-parameter
 	url = https://github.com/sgur/vim-textobj-parameter
