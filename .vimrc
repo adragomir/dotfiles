@@ -19,7 +19,6 @@ set noautochdir
 set history=10000             " number of history items
 set conceallevel=0
 set shiftround
-"set autowriteall
 " backup settings
 set nobackup " do not keep backups after close
 set nowritebackup " do not keep a backup while working
@@ -35,8 +34,8 @@ set relativenumber
 set whichwrap=<,>,h,l,b,s,~,[,]
 set shortmess=aTI             " supress some file messages
 set sidescrolloff=4           " minchars to show around cursor
-set selectmode=mouse,key      " select model
-set keymodel=startsel         ",stopsel
+" set selectmode=mouse,key      " select model
+" set keymodel=startsel         ",stopsel
 set autoread                  " read outside modified files
 set encoding=UTF-8            " file encoding
 set modeline
@@ -48,8 +47,7 @@ set formatoptions=tcqjn1     " auto format -ro
 set colorcolumn=+1
 "set guioptions=cr+bie"M"m	  " aA BAD
 set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
-set synmaxcol=800
-"set guioptions=+
+set synmaxcol=140
 " visual cues
 set ignorecase                " ignore case when searching
 set smartcase                 " ignore case when searching
@@ -59,18 +57,11 @@ set gdefault
 set nojoinspaces
 set cursorline
 set laststatus=2              " always show status line
-"set cursorcolumn
-"set cursorline
 set showbreak=…
 set fillchars=diff:⣿,vert:\|
 set noshowcmd                   " show number of selected chars/lines in status
 "set showmatch                 " briefly jump to matching brace
 "set matchtime=1               " show matching brace time (1/10 seconds)
-set showmode                  " show mode in status when not in normal mode
-set startofline             " don't move to start of line after commands
-"set statusline=%-2(%M\ %)%5l,%-5v%<%F\ %m%=[%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}]\ [byte:\ %3b]\ [\ %5o]\ %(%-5([%R%H%W]\ %)\ %10([%Y][%{&ff}]\ %)\ %L%)
-" grb statusline
-"set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
 set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o%)
 set undolevels=10000
 set numberwidth=5
@@ -111,15 +102,12 @@ set shellcmdflag=-lc
 set hidden
 set splitbelow                " split windows below current one
 set splitright
-set title
 set linebreak
 set dictionary=/usr/share/dict/words
 set noexrc " don't read dotfiles in folders
 set gcr=a:blinkon0
 set switchbuf=usetab
 " settings: line endings
-"set ff=unix
-"set ffs=unix
 " settings: grep
 if executable("ag")
   set grepprg=ag\ --nogroup\ --nocolor
@@ -138,7 +126,6 @@ set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 set cmdheight=2
-set laststatus=2
 set suffixes+=.lo,.o,.moc,.la,.closure,.loT
 set suffixes+=.bak,~,.o,.h,.info,.swp,.obj
 set suffixes+=class,.6
@@ -184,8 +171,7 @@ let g:loaded_vimball = 1
 let g:loaded_vimballPlugin = 1
 " }}}
 
-let g:pathogen_disabled = ['numbers', 'eclim', 'command-t']
-" let g:pathogen_disabled = ['vimside', 'javacomplete', 'numbers', 'command-t']
+let g:pathogen_disabled = ['command-t', 'ios', 'gundo', 'vim-rails']
 
 call pathogen#infect() 
 call pathogen#helptags()
@@ -223,10 +209,6 @@ if has("gui_running")
       " normal linuxes, gui mode
     endif
 else
-  if $TERM_PROGRAM =~ 'iTerm.*'
-    " let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-    " let &t_EI = "\<Esc>]50;CursorShape=0\x7" 
-  endif
 endif
 
 " }}}
@@ -248,6 +230,23 @@ autocmd BufEnter * :syntax sync fromstart
 "}}}
 
 " my functions {{{
+function! DashUnderCursor()
+  let term = expand('<cword>')
+  let mft = &ft
+  call DashSearch(term, mft)
+endfunction
+
+function! DashSearch(term, keyword) "{{{
+  let keyword = a:keyword
+
+  if !empty(keyword)
+    let keyword = keyword . ':'
+  endif
+
+  silent execute '!open dash://' . shellescape(keyword . a:term)
+  redraw!
+endfunction
+
 function! ToggleQuickfix()
   if BufferIsOpen("Quickfix List")
     cclose
@@ -456,7 +455,38 @@ function! ReplaceWithRegister()
 endfunction
 xnoremap <silent> <expr> p ReplaceWithRegister()
 
-" }}}
+function! MapSearch(rhs_pattern, bang)
+    let mode = ( a:0 >= 1 ? a:1 : '' )
+    let more = &more
+    setl nomore
+    redir => maps
+	exe "silent ".mode."map"
+    redir end
+    let &l:more = more
+    let list = split(maps, "\n")
+    let rhs_list  = ( a:bang == "" ? map(copy(list), 'matchstr(v:val, ''.\s\+\S\+\s\+\zs.*'')') :
+		\ map(copy(list), 'matchstr(v:val, ''.\s\+\zs\S\+\s\+.*'')') )
+    let i = 0
+    let i_list = []
+    for rhs in rhs_list
+	if rhs =~ a:rhs_pattern
+	    call add(i_list, i)
+	endif
+	let i+=1
+    endfor
+
+    let found_maps = []
+    for i in i_list
+	call add(found_maps, list[i])
+    endfor
+    if len(found_maps) > 0
+	echo join(found_maps, "\n")
+    else
+	echohl WarningMsg
+	echo "No such map"
+	echohl Normal
+    endif
+endfunction" }}}
 
 " settings after functions {{{ 
 set guitablabel=%{GuiTabLabel()}
@@ -479,6 +509,7 @@ endif
 map <leader>y "*y
 
 " Highlight Group(s)
+noremap <f7> :Ag<cr>
 nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
                         \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
                         \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
@@ -993,9 +1024,8 @@ else
 endif
 " }}}
 
-" ensime / async {{{
-" let g:async = {'vim' : '$HOME/Applications/MacVim.app/Contents/MacOS/Vim'} 
-" let g:ensime = {'ensime-script': "/Users/adr/work/vim/scala_vim/MarcWeber-ensime/dist_2.9.2-SNAPSHOT/bin/server"}
+" vimside {{{
+
 " }}}
 
 " simplenote {{{
@@ -1064,6 +1094,10 @@ let javaScript_fold=1
 let g:FactorRoot="$HOME/temp/source/other/factor"
 " }}}
 
+" tabular {{{
+let g:no_default_tabular_maps=1
+" }}}
+
 " netrw {{{
 let g:netrw_browsex_viewer="open"
 " }}}
@@ -1088,14 +1122,23 @@ let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 "let g:syntastic_auto_loc_list=0
 let g:syntastic_check_on_open=0
 let g:syntastic_check_on_wq=0
-let g:syntastic_quiet_warnings=1
+let g:syntastic_quiet_warnings=0
 "let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
-let g:syntastic_disabled_filetypes = ['java']
+let g:syntastic_disabled_filetypes = ['java', 'css', 'scss']
 let g:syntastic_echo_current_error = 0
 let g:syntastic_mode_map = { 'mode': 'active',
                            \ 'active_filetypes': [],
                            \ 'passive_filetypes': ['puppet', 'java', 'scala', 'clojure'] }
+let g:syntastic_javascript_checkers = ['jshint']
 " }}}
+
+
+" sneak {
+nmap z       <Plug>SneakForward
+xmap z       <Plug>VSneakForward
+nmap Z       <Plug>SneakBackward
+xmap Z       <Plug>VSneakBackward
+" }
 
 " javacomplete {{{
 " let g:first_nailgun_port=2114
@@ -1160,8 +1203,6 @@ augroup all_buffers
     \ endif
 augroup END
 
-" Only show cursorline in the current window and in normal mode.
-
 " indentations
 augroup settings
   au!
@@ -1170,6 +1211,8 @@ augroup settings
   autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
   autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 et
   autocmd FileType c set ts=4 sw=4 sts=4
+  autocmd FileType css set expandtab ts=4 sw=4 sts=4
+  autocmd FileType scss set expandtab ts=4 sw=4 sts=4
   autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
   autocmd FileType puppet setlocal sw=2 ts=2 expandtab
   autocmd BufRead *.mkd  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
