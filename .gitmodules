@@ -124,9 +124,6 @@
 [submodule ".vim/bundle/vimside"]
 	path = .vim/bundle/vimside
 	url = https://github.com/megaannum/vimside.git
-[submodule ".vim/bundle/vim-expand-region"]
-	path = .vim/bundle/vim-expand-region
-	url = https://github.com/terryma/vim-expand-region.git
 [submodule ".vim/bundle/repeat"]
 	path = .vim/bundle/repeat
 	url = https://github.com/tpope/vim-repeat.git
@@ -166,9 +163,6 @@
 [submodule ".vim/bundle/vim-pandoc"]
 	path = .vim/bundle/vim-pandoc
 	url = https://github.com/vim-pandoc/vim-pandoc
-[submodule ".vim/bundle/vimshell"]
-	path = .vim/bundle/vimshell
-	url = https://github.com/Shougo/vimshell
 [submodule ".vim/bundle/clever-f"]
 	path = .vim/bundle/clever-f
 	url = https://github.com/rhysd/clever-f.vim
