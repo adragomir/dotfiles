@@ -66,7 +66,7 @@ set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})
 set undolevels=10000
 set numberwidth=5
 set pumheight=15
-set viminfo=%,h,'1000,\"1000,:1000,n~/.vim/tmp/.viminfo
+set viminfo=h,'10000,\"1000,n$HOME/.vim/tmp/.viminfo
 set scrolljump=10
 set virtualedit+=block
 set novisualbell
@@ -169,9 +169,10 @@ let g:loaded_getscript = 1
 let g:loaded_sql_completion = 1
 let g:loaded_vimball = 1
 let g:loaded_vimballPlugin = 1
+let g:loaded_netrwPlugin = 1
 " }}}
 
-let g:pathogen_disabled = ['command-t', 'ios', 'gundo', 'vim-rails']
+let g:pathogen_disabled = ['command-t', 'ios', 'gundo', 'vim-rails', 'scriptease', 'vim-expand-region']
 
 call pathogen#infect() 
 call pathogen#helptags()
@@ -186,7 +187,9 @@ let maplocalleader = ","
 set t_Co=256
 set background=dark
 colorscheme grb256
+" }}}
 
+" gui settings {{{
 if has("gui_running")
     set mouse=a
     " behave mswin
@@ -210,10 +213,6 @@ if has("gui_running")
     endif
 else
 endif
-
-" }}}
-
-" gui settings {{{
 " }}}
 
 " syntax highlighting {{{
@@ -245,6 +244,23 @@ function! DashSearch(term, keyword) "{{{
 
   silent execute '!open dash://' . shellescape(keyword . a:term)
   redraw!
+endfunction
+
+function! GetBufferList()
+  redir =>buflist
+  silent! ls
+  redir END
+  return buflist
+endfunction
+
+function! BufferIsOpen(bufname)
+  let buflist = GetBufferList()
+  for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
+    if bufwinnr(bufnum) != -1
+      return 1
+    endif
+  endfor
+  return 0
 endfunction
 
 function! ToggleQuickfix()
@@ -490,7 +506,6 @@ endfunction" }}}
 
 " settings after functions {{{ 
 set guitablabel=%{GuiTabLabel()}
-"set guitablabel=MyTabLine()
 set tabline=%!MyTabLine()
 " }}}
 
@@ -505,7 +520,7 @@ if $TERM =~ '^screen-256color'
   cmap <Esc>OF <End>
 endif
 
-" System clipboard interaction.  Mostly from:
+" System clipboard interaction.
 map <leader>y "*y
 
 " Highlight Group(s)
@@ -531,16 +546,6 @@ nnoremap <silent> <Leader>/ :nohlsearch<CR>
 
 nnoremap <silent> <leader>/ :execute "Ag! '" . substitute(substitute(substitute(@/, "\\\\<", "\\\\b", ""), "\\\\>", "\\\\b", ""), "\\\\v", "", "") . "'"<CR>
 
-" Fix linewise visual selection of various text objects
-" Select entire buffer
-" nnoremap vaa ggvGg_
-" nnoremap Vaa ggVG
-" nnoremap VV V
-" nnoremap Vit vitVkoj
-" nnoremap Vat vatV
-" nnoremap Vab vabV
-" nnoremap VaB vaBV
-
 nnoremap <m-Down> :cnext<cr>zvzz
 nnoremap <m-Up> :cprevious<cr>zvzz
 
@@ -552,12 +557,6 @@ nnoremap * *<c-o>
 " Use c-\ to do c-] but open it in a new split.
 nnoremap <c-\> <c-w>v<c-]>zvzz
 
-" nnoremap / /\v
-" vnoremap / /\v
-
-" Fuck you, help key.
-noremap  <F1> :set invfullscreen<CR>
-inoremap <F1> <ESC>:set invfullscreen<CR>a
 " Kill window instead of man page
 nnoremap K :q<cr>
 vnoremap J j
@@ -581,6 +580,9 @@ nnoremap L $
 " Heresy
 inoremap <c-a> <esc>I
 inoremap <c-e> <esc>A
+" emacs bindings, like the shell
+cnoremap <c-a> <home>
+cnoremap <c-e> <end>
 
 " whole hog
 " map <up> <nop>
@@ -596,31 +598,16 @@ inoremap <c-e> <esc>A
 " :
 nnoremap <leader>q :call ToggleQuickfix()<cr>
 nnoremap <leader>Q :cc<cr>
-nnoremap <leader>j :cnext<cr>
-nnoremap <leader>k :cprev<cr>
 
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
 nnoremap <silent> Q <nop>
 
-"nnoremap ; :
-" no Ex mode
-nnoremap Q gqip
-vnoremap Q gq
-
 nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
-
-" emacs bindings, like the shell
-cnoremap <c-a> <home>
-cnoremap <c-e> <end>
-
-nnoremap <leader>z zMzvzz
 
 map <silent> <F5> :CtrlPBuffer<CR>
 imap <silent> <F5> <C-O>:CtrlPBuffer<CR>
-
-"inoremap <C-space> <C-p>
 
 " quicker window switching
 nnoremap <C-h> <c-w>h
@@ -628,16 +615,8 @@ nnoremap <C-j> <c-w>j
 nnoremap <C-k> <c-w>k
 nnoremap <C-l> <c-w>l
 
-nnoremap <leader>. :lcd %:p:h<CR>
-
-" ; is an alias for :
-"nnoremap ; :
-
 " Thank you vi
 "nnoremap Y y$
-
-" sudo write this
-cmap w!! w !sudo tee % >/dev/null
 
 " disable middle mouse pasting
 map  <MiddleMouse>  <Nop>
@@ -650,15 +629,11 @@ imap  <3-MiddleMouse>  <Nop>
 imap  <4-MiddleMouse>  <Nop>
 
 inoremap <S-Space> <Space>
-inoremap <S-CR> <C-o>O
-inoremap <C-CR> <C-o>o
-inoremap <C-S-CR> <CR><C-o>O
 inoremap <silent> <Home> <C-o>:call HomeKey()<CR>
 nnoremap <silent> <Home> :call HomeKey()<CR>
 
 " switch cpp/h
 nmap <MapLocalLeader>h :AT<CR>
-
 map <Leader>s :call ToggleScratch()<CR>
 
 " make word back / forward to be cooloer
@@ -666,12 +641,16 @@ map <Leader>s :call ToggleScratch()<CR>
 "noremap b W
 
 " Disable recording
-"nmap q <esc>
-"vmap q <esc>
+nmap q <nop>
+vmap q <nop>
 
 " tab keys
 if has("gui_running")
   if has("gui_macvim")
+    " Fuck you, help key.
+    noremap  <F1> :set invfullscreen<CR>
+    inoremap <F1> <ESC>:set invfullscreen<CR>a
+
     let macvim_skip_cmd_opt_movement = 1
     let macvim_hig_shift_movement = 0
   endif
@@ -684,6 +663,7 @@ if has("gui_running")
   if has("macunix")
     " can use D
     " backspace in Visual mode deletes selection
+
     vnoremap <BS> d
 
     " Cut
@@ -865,23 +845,19 @@ else
   noremap <leader>t <Esc>:tabnew<Cr>
 endif
 
-" completion
-" inoremap <expr> <CR>  pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-" inoremap <expr> <C-n> pumvisible() ? '<C-n>' : '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
-" snoremap <expr> <C-p> pumvisible() ? '<C-n>' : '<C-p><C-r>=pumvisible() ? "\<lt>Up>" : ""<CR>'
-" inoremap <expr> <M-,> pumvisible() ? '<C-n>' : '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+" sneak {{{
+nmap z       <Plug>SneakForward
+xmap z       <Plug>VSneakForward
+nmap Z       <Plug>SneakBackward
+xmap Z       <Plug>VSneakBackward
+" }}}
+
 " }}}
 
 " abbreviations {{{
-iabbrev mdy <C-r>=strftime("%Y-%m-%d %H:%M:%S")
-iabbrev fpritnf fprintf
-iabbrev fro for
-iabbrev pritnf printf
-iabbrev stirng string
-iabbrev teh the
 " }}}
 
-" settings {{{
+" plugin settings {{{
 
 " java plugin settings {{{
 let java_mark_braces_in_parens_as_errors=0
@@ -895,12 +871,6 @@ let java_highlight_functions="style"
 " sparkup {{{
 let g:sparkupExecuteMapping = '<c-e>'
 let g:sparkupNextMapping = '<c-s>'
-" }}}
-
-" airline {{{
-let g:airline#extensions#virtualenv#enabled = 0
-let g:airline#extensions#whitespace#enabled = 0
-let g:airline_section_z = "%#__accent_bold#%4l%#__restore__#:%3c: %5o"
 " }}}
 
 " expand-region {{{
@@ -977,7 +947,7 @@ let g:CommandTMaxHeight=20
 " }}}
 
 " go settings {{{
-let g:godef_split = 3
+let g:godef_split = 0
 " }}}
 
 " ruby settings {{{
@@ -1045,11 +1015,6 @@ let vimclojure#NailgunClient = expand("$HOME") . "/bin/darwin/ng"
 let vimclojure#NailgunPort = "2113"
 let vimclojure#ParenRainbow = 1
 let g:paredit_mode = 0
-" }}}
-
-" localvimrc {{{
-let g:localvimrc_name = ".lvimrc"
-let g:localvimrc_ask = 0
 " }}}
 
 " eclim {{{
@@ -1133,13 +1098,6 @@ let g:syntastic_javascript_checkers = ['jshint']
 " }}}
 
 
-" sneak {
-nmap z       <Plug>SneakForward
-xmap z       <Plug>VSneakForward
-nmap Z       <Plug>SneakBackward
-xmap Z       <Plug>VSneakBackward
-" }
-
 " javacomplete {{{
 " let g:first_nailgun_port=2114
 " let g:javacomplete_ng="/Users/adr/dotfiles/bin/binary/ng"
@@ -1168,12 +1126,14 @@ command! -bang WQ wq<bang>
 augroup all_buffers
   au!
   " Has to be an autocommand because repeat.vim eats the mapping otherwise :(
-  autocmd VimEnter * :nnoremap U <c-r>
+  " autocmd VimEnter * :nnoremap U <c-r>
 
   " remove all buffers on exit so we don't have them as hidden on reopen
   autocmd VimLeavePre * 1,255bwipeout
+
   " remove empty or otherwise dead buffers when moving away from them
   autocmd TabLeave    * call OnTabLeave()
+
   " move to last position on file
   autocmd BufReadPost *
     \ if line("'\"") > 0 && line("'\"") <= line("$") |
@@ -1183,9 +1143,6 @@ augroup all_buffers
       \ if line("'\"") > 0 && line("'\"") <= line("$") |
       \     execute 'normal! g`"zvzz' |
       \ endif
-
-  au InsertEnter * :set listchars-=trail:⌴
-  " package_repository
 
   autocmd! CmdwinEnter * :unmap <cr>
   autocmd! CmdwinLeave * :call MapCR()
