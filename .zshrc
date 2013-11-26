@@ -54,41 +54,40 @@ function spectrum_ls() {
 # }}}
 
 # settings {{{
-setopt no_beep
+
+# general
+setopt NO_BEEP
 export KEYTIMEOUT=0
-setopt auto_cd
-setopt auto_pushd
-setopt cdablevarS
-setopt ignoreeof
-setopt prompt_subst
-setopt transient_rprompt
-setopt rmstarsilent
-setopt c_bases
+setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt CDABLE_VARS
+setopt IGNORE_EOF
+setopt INTERACTIVE_COMMENTS
+setopt PROMPT_SUBST
+setopt TRANSIENT_RPROMPT
+setopt RM_STAR_SILENT
+setopt C_BASES
+unsetopt FLOW_CONTROL
+setopt PRINT_EIGHT_BIT
+setopt NO_CORRECT
+setopt NO_CORRECT_ALL
+setopt EXTENDED_GLOB
+setopt CLOBBER
 
-unsetopt menu_complete   # do not autoselect the first completion entry
-unsetopt flowcontrol
-setopt auto_menu         # show completion menu on succesive tab press
-setopt complete_in_word
-setopt always_to_end
-setopt c_bases
-setopt extended_glob
-setopt no_match
-setopt print_eight_bit
-setopt no_correct
-setopt no_correct_all
-setopt interactive_comments
-setopt complete_in_word
-setopt list_packed # Compact completion lists
-setopt list_types # Show types in completion
-setopt rec_exact # Recognize exact, ambiguous matches
-
-setopt auto_name_dirs
-#setopt auto_param_slash
-#setopt auto_remove_slash
-setopt clobber
-setopt pushd_ignore_dups
-setopt pushd_silent
-setopt pushd_to_home
+# completion
+unsetopt MENU_COMPLETE   # do not autoselect the first completion entry
+unsetopt AUTO_MENU         # show completion menu on succesive tab press
+setopt COMPLETE_IN_WORD
+setopt ALWAYS_TO_END
+setopt NOMATCH
+setopt COMPLETE_IN_WORD
+setopt LIST_PACKED
+setopt LIST_TYPES # Show types in completion
+setopt REC_EXACT # Recognize exact, ambiguous matches
+setopt AUTO_NAME_DIRS
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_SILENT
+setopt PUSHD_TO_HOME
 
 WORDCHARS='*?[]~&;!$%^<>'
 WORDCHARS=${WORDCHARS//[&=\/;\!#?[]~&;!$%^<>%\{]}
@@ -98,19 +97,16 @@ HISTFILE=$HOME/.history/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 
-setopt hist_find_no_dups # ignore duplication command history list
-setopt hist_ignore_all_dups # ignore duplication command history list
-setopt share_history # share command history data
-
-setopt hist_verify
-setopt inc_append_history
-setopt extended_history
-setopt hist_expire_dups_first
-setopt hist_ignore_space
-
-setopt SHARE_HISTORY
+setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_ALL_DUPS # ignore duplication command history list
+setopt SHARE_HISTORY # share command history data
+setopt HIST_VERIFY
+setopt INC_APPEND_HISTORY
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_SPACE
 setopt APPEND_HISTORY
-setopt long_list_jobs
+setopt LONG_LIST_JOBS
 # }}}
 
 # }}}
@@ -190,20 +186,19 @@ zle -N backward-kill-default-word _backward_kill_default_word
 bindkey '\e=' backward-kill-default-word   # = is next to backspace
 bindkey "^[[Z" complete-files
 
-# should this be in keybindings?
-zle -C complete-menu menu-select _generic
-_complete_menu() {
-  setopt localoptions alwayslastprompt
-  zle complete-menu
-}
-zle -N _complete_menu
-bindkey '^F' _complete_menu
-bindkey -M menuselect '^o' accept-and-infer-next-history
-bindkey -M menuselect '^F' accept-and-infer-next-history
-bindkey -M menuselect '/'  accept-and-infer-next-history
-bindkey -M menuselect '^?' undo
-#bindkey -M menuselect ' ' accept-and-hold
-bindkey -M menuselect '*' history-incremental-search-forward
+# should this be in keybindings DISABLED
+# zle -C complete-menu menu-select _generic
+# _complete_menu() {
+#   setopt localoptions alwayslastprompt
+#   zle complete-menu
+# }
+# zle -N _complete_menu
+# bindkey '^F' _complete_menu
+# bindkey -M menuselect '^o' accept-and-infer-next-history
+# bindkey -M menuselect '^F' accept-and-infer-next-history
+# bindkey -M menuselect '/'  accept-and-infer-next-history
+# bindkey -M menuselect '^?' undo
+# bindkey -M menuselect '*' history-incremental-search-forward
 
 autoload -U edit-command-line
 zle -N edit-command-line
@@ -211,9 +206,13 @@ bindkey '\C-x\C-e' edit-command-line
 
 _completeme() {
   zle -I
-  completeme
-  echo $tmp
+  TMPFILE=`mktemp 2> /dev/null || mktemp -t completeme 2> /dev/null`
+  completeme $TMPFILE
+  test -e $TMPFILE
+  source $TMPFILE
+  rm -f $TMPFILE
 }
+
 zle -N _completeme
 bindkey "\C-t" _completeme
 
@@ -232,7 +231,6 @@ bindkey "^r" _history-incremental-preserving-pattern-search-backward
 bindkey -e
 bindkey '\ew' kill-region
 bindkey -M isearch "^r" history-incremental-pattern-search-backward
-#bindkey '^r' history-incremental-pattern-search-backward
 bindkey "^s" history-incremental-pattern-search-forward
 bindkey "^[[5~" up-line-or-history
 bindkey "^[[6~" down-line-or-history
@@ -243,26 +241,20 @@ bindkey '^[[B' down-line-or-search
 
 bindkey "^[[7~" beginning-of-line # Home
 bindkey "^[[8~" end-of-line # End
-
 bindkey "^[[H" beginning-of-line
 bindkey "^[[1~" beginning-of-line
 bindkey "^[[F"  end-of-line
 bindkey "^[[4~" end-of-line
 bindkey ' ' magic-space    # also do history expansion on space
 
-bindkey '^[[Z' reverse-menu-complete
-
 bindkey "\e[1;3D" backward-word
-bindkey "\e[1;3C" forward-word
 bindkey "\e3D" backward-word
-bindkey "\e3C" forward-word
-
 bindkey '^[5D' backward-word
-bindkey '^[5C' forward-word
-
 bindkey '^[[5D' backward-word
+bindkey "\e[1;3C" forward-word
+bindkey "\e3C" forward-word
+bindkey '^[5C' forward-word
 bindkey '^[[5C' forward-word
-
 bindkey '^[[3~' delete-char
 
 # Move to where the arguments belong.
@@ -281,9 +273,10 @@ bindkey '^Z' foreground-vi
 
 # file rename magick
 bindkey "^[m" copy-prev-shell-word
-
 zle -N self-insert url-quote-magic
 # }}}
+
+# functions {{{
 
 tree() {
   find . | sed -e 's/[^\/]*\//|--/g' -e 's/-- |/    |/g' | $PAGER
@@ -1181,13 +1174,21 @@ fi
 
 # luatex
 #export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c/
-#export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,/usr/local/texlive/texmf-local/scripts/context/lua,$HOME/texmf/scripts/context/lua}'
-#export TEXMF='{$HOME/.texlive2008/texmf-config,$HOME/.texlive2008/texmf-var,$HOME/texmf,/usr/local/texlive/2008/texmf-config,/usr/local/texlive/2008/texmf-var,/usr/local/texlive/2008/texmf,/usr/local/texlive/texmf-local,/usr/local/texlive/2008/texmf-dist,/usr/local/texlive/2008/texmf.gwtex}'
+#export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,\
+#  /usr/local/texlive/texmf-local/scripts/context/lua,$HOME/texmf/scripts/context/lua}'
+#export TEXMF='{\
+#$HOME/.texlive2008/texmf-config,\
+#$HOME/.texlive2008/texmf-var,\
+#$HOME/texmf,\
+#/usr/local/texlive/2008/texmf-config,\
+#/usr/local/texlive/2008/texmf-var,\
+#/usr/local/texlive/2008/texmf,\
+#/usr/local/texlive/texmf-local,\
+#/usr/local/texlive/2008/texmf-dist,\
+#/usr/local/texlive/2008/texmf.gwtex\
+#}'
 export TEXMFCACHE=/tmp
 #export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
-
-export WIKI=$HOME/Documents/personal/life/exploded/
-export NOTES=$HOME/Documents/personal/life/notes@/
 
 export SAASBASE_HOME=$HOME/work/s
 source $HOME/work/s/services/use-hadoop-2
@@ -1274,15 +1275,11 @@ export PLAN9=/usr/local/Cellar/plan9/HEAD
 export PATH=${PATH}:${PLAN9}/bin
 # }}}
 
-
-if [ "`uname`" = "Darwin" ]; then
-export PATH=$PATH:\
-$HOME/bin/$OS/clic
-fi
-
+# man path {{{
 export MANPATH=\
 /usr/local/man:\
 $MANPATH
+# }}}
 
 # }}}
 
@@ -1302,7 +1299,6 @@ alias h=" history | tail -n 10 | cut -d' ' -f3-"
 case "$HOST" in
   $USER-mac*)
   alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g';
-  #alias vim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim';
   ;;
   sheeva*)
   #alias vim='/usr/bin/vim';
@@ -1313,7 +1309,8 @@ case "$HOST" in
 esac
 
 # clojure
-alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.4.0/clojure-1.4.0.jar:$MAVEN_REPO/org/clojure/clojure-contrib/1.2.0/clojure-contrib-1.2.0.jar clojure.main'
+alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.4.0/clojure-1.4.0.jar:\
+$MAVEN_REPO/org/clojure/clojure-contrib/1.2.0/clojure-contrib-1.2.0.jar clojure.main'
 
 # builtin commands
 
@@ -1344,7 +1341,8 @@ alias tm='top -o vsize'
 alias hbase='$HBASE_HOME/bin/hbase'
 alias zk='$ZOOKEEPER_HOME/bin/zkCli.sh'
 alias storm='$STORM_HOME/bin/storm'
-alias psall='pgrep -l -f NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer ReportServer storm.daemon.nimbus storm.ui.core'
+alias psall='pgrep -l -f NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer \
+  ReportServer storm.daemon.nimbus storm.ui.core'
 alias d='dirs -v'
 
 # Show history

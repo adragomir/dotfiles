@@ -197,7 +197,8 @@ class Search
   end
 
   def delete_word
-    merge(:query => @query.sub(/[^ ]* *$/, ""))
+    merge(:index => 0,
+          :query => @query.sub(/[^ ]* *$/, ""))
   end
 
   def matches
@@ -400,17 +401,18 @@ class Screen
   end
 
   def write_text_object(line, column, text)
+    # Blank the line before drawing to it
+    ansi.setpos!(line, 0)
+    ansi.addstr!(" " * width)
+
     text.components.each do |component|
       if component.is_a? String
         ansi.setpos!(line, column)
         # Don't draw off the edge of the screen.
-        #   - (column + component.length) is the number of bytes we'd draw if
-        #     we just dumped the string out.
-        #   - Subtracting that from width gives the number of bytes we should
-        #     draw to avoid going off the edge of the screen.
-        #   - Subtracting 1 from that gives us the zero-indexed location of the
-        #     last character we should draw.
-        chars_to_draw = width - (column + component.length) - 1
+        #   - width - 1 is the last column we have (zero-indexed)
+        #   - subtract the current column from that to get the number of
+        #   columns we have left.
+        chars_to_draw = [0, width - 1 - column].max
         component = component[0..chars_to_draw]
         ansi.addstr!(component)
         column += component.length
@@ -427,8 +429,6 @@ class Screen
         ansi.color!(fg, bg)
       end
     end
-    remaining_cols = [width - column, 0].max
-    ansi.addstr!(" " * remaining_cols)
   end
 end
 

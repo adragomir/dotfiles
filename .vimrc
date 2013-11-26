@@ -134,7 +134,7 @@ set suffixes+=class,.6
 " wildmenu settings {{{
 set wildmenu
 "set wildmode=list:longest,full
-set wildmode=longest,full
+set wildmode=longest,list
 set wildignore+=.svn,CVS,.git,.hg
 set wildignore+=*.aux,*.out,*.toc " latex files
 set wildignore+=*.o,*.d,*.obj,*.dylib,*.so,*.exe,*.manifest,*.a,*.mo,*.la " objects
@@ -156,6 +156,8 @@ set wildignore+=*sass-cache*
 set wildignore+=target,target/classes,classes
 set wildignore+=.idea
 
+let g:sh_noisk=1
+let g:is_bash=1
 " }}}
 
 " pathogen {{{
@@ -609,6 +611,7 @@ nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 map <silent> <F5> :CtrlPBuffer<CR>
 imap <silent> <F5> <C-O>:CtrlPBuffer<CR>
 
+imap <c-c> <Esc>
 " quicker window switching
 nnoremap <C-h> <c-w>h
 nnoremap <C-j> <c-w>j
@@ -825,24 +828,24 @@ if has("gui_running")
   endif
 else
   " terminal
-  map <leader>1 1gt
-  map <leader>2 2gt
-  map <leader>3 3gt
-  map <leader>4 4gt
-  map <leader>5 5gt
-  map <leader>6 6gt
-  map <leader>7 7gt
-  map <leader>8 8gt
-  map <leader>9 9gt
-  map <leader>0 10gt
+  " map <leader>1 1gt
+  " map <leader>2 2gt
+  " map <leader>3 3gt
+  " map <leader>4 4gt
+  " map <leader>5 5gt
+  " map <leader>6 6gt
+  " map <leader>7 7gt
+  " map <leader>8 8gt
+  " map <leader>9 9gt
+  " map <leader>0 10gt
 
-  noremap <leader>h <Esc>:tabprev<Cr>
-  noremap <leader>l <Esc>:tabnext<Cr>
-  noremap <leader>n <Esc>:tabnew<Cr>
-  noremap <leader>d <Esc>:tabclose<Cr>
-  noremap <leader>[ <Esc>:tabprev<Cr>
-  noremap <leader>] <Esc>:tabnext<Cr>
-  noremap <leader>t <Esc>:tabnew<Cr>
+  " noremap <leader>h <Esc>:tabprev<Cr>
+  " noremap <leader>l <Esc>:tabnext<Cr>
+  " noremap <leader>n <Esc>:tabnew<Cr>
+  " noremap <leader>d <Esc>:tabclose<Cr>
+  " noremap <leader>[ <Esc>:tabprev<Cr>
+  " noremap <leader>] <Esc>:tabnext<Cr>
+  " noremap <leader>t <Esc>:tabnew<Cr>
 endif
 
 " sneak {{{
@@ -1174,6 +1177,7 @@ augroup settings
   autocmd FileType puppet setlocal sw=2 ts=2 expandtab
   autocmd BufRead *.mkd  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
   autocmd BufRead *.markdown  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
+  autocmd BufRead gopack.config  set comments=n:#
   autocmd FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
   autocmd FileType go set noexpandtab ts=4 sw=4 sts=4
   autocmd BufRead,BufNewFile gopack.config setfiletype toml
