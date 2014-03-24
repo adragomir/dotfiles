@@ -112,7 +112,7 @@ setopt LONG_LIST_JOBS
 # }}}
 
 # {{{ completions 
-zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' users $USER
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' squeeze-slashes true
@@ -212,9 +212,16 @@ _completeme() {
   source $TMPFILE
   rm -f $TMPFILE
 }
-
 zle -N _completeme
-bindkey "\C-t" _completeme
+
+_selecta() {
+  zle -I
+  result=$( ag -l --nocolor -g . | selecta )
+  RBUFFER="$result "
+  CURSOR+=$#RBUFFER
+}
+zle -N _selecta
+bindkey "\C-t" _selecta
 
 autoload -Uz narrow-to-region
 function _history-incremental-preserving-pattern-search-backward {
@@ -1209,7 +1216,7 @@ export ENSIMEHOME=/Users/adr/work/tools/ensime/
 
 # go
 
-export GOPATH=$HOME/.gocode/
+export GOPATH=$HOME/.gocode
 # {{{ amazon
 
 # credentials
@@ -1239,9 +1246,6 @@ export AWS_AUTO_SCALING_HOME="/usr/local/Library/LinkedKegs/auto-scaling/jars"
 
 # }}}
 
-export ANDROID_HOME=$HOME/work/tools/android-sdk-linux/
-export AIR_ANDROID_SDK_HOME=$HOME/work/tools/android-sdk-linux/
-
 # path {{{
 export PATH=\
 /usr/local/bin:\
@@ -1257,13 +1261,13 @@ $HOME/work/tools/nasm:\
 $HOME/temp/source/other/rock/bin:\
 $ROO_HOME/bin:\
 $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64:\
-$HOME/work/tools/android-sdk-$OS/tools:\
-$HOME/work/tools/android-sdk-$OS/platform-tools:\
-$HOME/work/tools/play-2.0.1:\
 $HOME/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin:\
 $HOME/.rvm/bin:\
 $HOME/.perl5/bin:\
 $GOPATH/bin:\
+$GOPATH/src/github.com/mitchellh/packer/pkg/darwin_amd64/:\
+/usr/local/openresty/nginx/sbin/:\
+/usr/local/openresty/luajit/bin/:\
 $PATH
 
 # }}}

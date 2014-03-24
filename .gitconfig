@@ -22,6 +22,9 @@
   sts = status -sb --ignore-submodules=all -unormal
   cat = -p cat-file -p
   ci = commit
+  root = rev-parse --show-toplevel
+  id = rev-parse
+  this = rev-parse --abbrev-ref HEAD
   co = checkout
   di = diff
   dc = diff --cached --ignore-submodules

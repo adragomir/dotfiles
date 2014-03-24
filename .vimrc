@@ -36,6 +36,7 @@ set shortmess=aTI             " supress some file messages
 set sidescrolloff=4           " minchars to show around cursor
 " set selectmode=mouse,key      " select model
 " set keymodel=startsel         ",stopsel
+set display+=lastline
 set autoread                  " read outside modified files
 set encoding=UTF-8            " file encoding
 set modeline
@@ -45,9 +46,8 @@ set t_ti=
 set t_te=
 set formatoptions=tcqjn1     " auto format -ro
 set colorcolumn=+1
-"set guioptions=cr+bie"M"m	  " aA BAD
 set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
-set synmaxcol=140
+set synmaxcol=200
 " visual cues
 set ignorecase                " ignore case when searching
 set smartcase                 " ignore case when searching
@@ -119,7 +119,6 @@ set autoindent
 set nocindent
 set nosmartindent
 set copyindent
-"set smarttab
 "set indentexpr=
 set expandtab
 set tabstop=2
@@ -193,27 +192,27 @@ colorscheme grb256
 
 " gui settings {{{
 if has("gui_running")
-    set mouse=a
-    " behave mswin
-    set selectmode=mouse "key,mouse
-    set mousemodel=popup
-    set keymodel=startsel ",stopsel
-    set selection=exclusive
+  set mouse=a
+  " set selectmode=mouse "key,mouse
+  " set mousemodel=popup
+  " set keymodel=startsel ",stopsel
+  " set selection=exclusive
 
-    " source $VIMRUNTIME/mswin.vim
-    " mswin.vim, INLINE
-    " backspace and cursor keys wrap to previous/next line
-    set backspace=indent,eol,start whichwrap+=<,>,[,]
+  " source $VIMRUNTIME/mswin.vim
+  " mswin.vim, INLINE
+  " backspace and cursor keys wrap to previous/next line
+  set backspace=indent,eol,start whichwrap+=<,>,[,]
 
-    if has("macunix")
-      " mac
-      set guifont=Inconsolata:h14
-      set antialias
-      set fuoptions=maxvert,maxhorz
-    else
-      " normal linuxes, gui mode
-    endif
+  if has("macunix")
+    " mac
+    set guifont=Inconsolata:h14
+    set antialias
+    set fuoptions=maxvert,maxhorz
+  else
+    " normal linuxes, gui mode
+  endif
 else
+  set mouse=a
 endif
 " }}}
 
@@ -512,6 +511,8 @@ set tabline=%!MyTabLine()
 " }}}
 
 " key mappings {{{
+
+" home and end
 if $TERM =~ '^screen-256color'
   set t_Co=256
   nmap <Esc>OH <Home>
@@ -525,45 +526,30 @@ endif
 " System clipboard interaction.
 map <leader>y "*y
 
-" Highlight Group(s)
-noremap <f7> :Ag<cr>
-nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-                        \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-                        \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
+" re-select old stuff
+noremap gV `<v'>
+noremap g> `<v'>
+noremap g< `<v'>
+noremap g] `[v']
+noremap g[ `[v']
 
-
-" clean whitespace
-nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
-
-" Send visual selection to gist.github.com as a private, filetyped Gist
-" Requires the gist command line too (brew install gist)
-vnoremap <leader>G :w !gist -p -t %:e \| pbcopy<cr>
-
-" GRB: clear the search buffer when hitting return
-function! MapCR()
-  nnoremap <cr> :nohlsearch<cr>
-endfunction
-call MapCR()
-nnoremap <silent> <Leader>/ :nohlsearch<CR>
-
-nnoremap <silent> <leader>/ :execute "Ag! '" . substitute(substitute(substitute(@/, "\\\\<", "\\\\b", ""), "\\\\>", "\\\\b", ""), "\\\\v", "", "") . "'"<CR>
-
-nnoremap <m-Down> :cnext<cr>zvzz
-nnoremap <m-Up> :cprevious<cr>zvzz
-
+" fix movement keys
 noremap j gj
 noremap k gk
 nnoremap D d$
 nnoremap * *<c-o>
 
-" Use c-\ to do c-] but open it in a new split.
-nnoremap <c-\> <c-w>v<c-]>zvzz
-
-" Kill window instead of man page
+" remap: Kill window instead of man page
 nnoremap K :q<cr>
+" remap: mistake, move visual
 vnoremap J j
 vnoremap K k
-inoremap # X<BS>#
+" remap: mistake, hit u
+vnoremap u <nop>
+" nnoremap <BS> "_x
+nnoremap <Del> "_x
+" vnoremap <BS> "_x
+" vnoremap <Del> "_x
 
 " Keep search matches in the middle of the window.
 nnoremap n nzzzv
@@ -596,10 +582,41 @@ cnoremap <c-e> <end>
 " imap <left> <nop>
 " imap <right> <nop>
 
+" ag word
+noremap <f7> :Ag<cr>
+nnoremap <silent> <leader>/ :execute "Ag! '" . substitute(substitute(substitute(@/, "\\\\<", "\\\\b", ""), "\\\\>", "\\\\b", ""), "\\\\v", "", "") . "'"<CR>
+
+" command: debug highlight groups
+nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+                        \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+                        \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
+
+" command:  clean whitespace
+nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
+
+" command: send to gist
+vnoremap <leader>G :w !gist -p -t %:e \| pbcopy<cr>
+
+" GRB: clear the search buffer when hitting return
+function! MapCR()
+  nnoremap <cr> :nohlsearch<cr>
+endfunction
+call MapCR()
+nnoremap <silent> <Leader>/ :nohlsearch<CR>
+
+nnoremap <m-Down> :cnext<cr>zvzz
+nnoremap <m-Up> :cprevious<cr>zvzz
+
+" Use c-\ to do c-] but open it in a new split.
+nnoremap <c-\> <c-w>v<c-]>zvzz
+
 " quickfix
-" :
 nnoremap <leader>q :call ToggleQuickfix()<cr>
 nnoremap <leader>Q :cc<cr>
+
+" remap: always go to character, with ' and `
+noremap ' `
+inoremap <C-u> <esc>mzgUiw`za
 
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
@@ -647,7 +664,30 @@ map <Leader>s :call ToggleScratch()<CR>
 nmap q <nop>
 vmap q <nop>
 
-" tab keys
+noremap <f1> :set invpaste<cr>
+inoremap <f1> <esc>:set invpaste<cr>
+
+" terminal
+map <leader>1 1gt
+map <leader>2 2gt
+map <leader>3 3gt
+map <leader>4 4gt
+map <leader>5 5gt
+map <leader>6 6gt
+map <leader>7 7gt
+map <leader>8 8gt
+map <leader>9 9gt
+map <leader>0 10gt
+
+noremap <leader>h <Esc>:tabprev<Cr>
+noremap <leader>l <Esc>:tabnext<Cr>
+noremap <leader>n <Esc>:tabnew<Cr>
+noremap <leader>d <Esc>:tabclose<Cr>
+noremap <leader>[ <Esc>:tabprev<Cr>
+noremap <leader>] <Esc>:tabnext<Cr>
+noremap <leader>t <Esc>:tabnew<Cr>
+
+" GUI keys
 if has("gui_running")
   if has("gui_macvim")
     " Fuck you, help key.
@@ -684,9 +724,6 @@ if has("gui_running")
 
     exe 'inoremap <script> <D-V>' paste#paste_cmd['i']
     exe 'vnoremap <script> <D-V>' paste#paste_cmd['v']
-
-    " Use CTRL-Q to do what CTRL-V used to do
-    noremap <C-Q>		<C-V>
 
     " CTRL-A is Select all
     noremap <D-A> gggH<C-O>G
@@ -827,25 +864,6 @@ if has("gui_running")
     imap <M-0> <C-o>10gt<CR>
   endif
 else
-  " terminal
-  " map <leader>1 1gt
-  " map <leader>2 2gt
-  " map <leader>3 3gt
-  " map <leader>4 4gt
-  " map <leader>5 5gt
-  " map <leader>6 6gt
-  " map <leader>7 7gt
-  " map <leader>8 8gt
-  " map <leader>9 9gt
-  " map <leader>0 10gt
-
-  " noremap <leader>h <Esc>:tabprev<Cr>
-  " noremap <leader>l <Esc>:tabnext<Cr>
-  " noremap <leader>n <Esc>:tabnew<Cr>
-  " noremap <leader>d <Esc>:tabclose<Cr>
-  " noremap <leader>[ <Esc>:tabprev<Cr>
-  " noremap <leader>] <Esc>:tabnext<Cr>
-  " noremap <leader>t <Esc>:tabnew<Cr>
 endif
 
 " sneak {{{
@@ -922,6 +940,7 @@ let g:SuperTabDefaultCompletionTypeDiscovery = [
         \ "&completefunc:<c-x><c-u>",
         \ "&omnifunc:<c-x><c-o>",
         \ ]
+let g:SuperTabContextDefaultCompletionType = "<c-n>"
 " let g:SuperTabDefaultCompletionType = '<c-n>'
 " }}}
 
@@ -990,8 +1009,7 @@ let g:clang_close_preview = 1
 let g:clang_snippets = 0
 let g:clang_debug = 1
 if has("macunix")
-  "let g:clang_library_path = $HOME . "/work/tools/libclang"
-  let g:clang_library_path = "/usr/local/lib/libclang.dylib"
+  let g:clang_library_path = "/usr/local/opt/llvm/lib/"
 else
   let g:clang_library_path = "/usr/lib/"
 endif
@@ -1038,6 +1056,7 @@ let g:EclimBufferTabTracking = 0
 let g:EclimShowCurrentError = 0
 let g:EclimShowCurrentErrorBalloon = 0
 let g:EclimTemplatesDisabled = 1
+
 function! ActivateEclim()
   runtime! bundle/eclim/plugin/eclim.vim
   runtime! bundle/eclim/eclim/plugin/*
@@ -1092,12 +1111,12 @@ let g:syntastic_check_on_open=0
 let g:syntastic_check_on_wq=0
 let g:syntastic_quiet_warnings=0
 "let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
-let g:syntastic_disabled_filetypes = ['java', 'css', 'scss']
+let g:syntastic_disabled_filetypes = ['java', 'css', 'scss', 'html']
 let g:syntastic_echo_current_error = 0
 let g:syntastic_mode_map = { 'mode': 'active',
                            \ 'active_filetypes': [],
-                           \ 'passive_filetypes': ['puppet', 'java', 'scala', 'clojure'] }
-let g:syntastic_javascript_checkers = ['jshint']
+                           \ 'passive_filetypes': ['puppet', 'java', 'scala', 'clojure', 'html'] }
+"let g:syntastic_javascript_checkers = ['jshint']
 " }}}
 
 
@@ -1115,7 +1134,7 @@ command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent!
 " typos
 command! -bang E e<bang>
 command! -bang Q q<bang>
-command! -bang W w<bang>
+" command! -bang W w<bang>
 command! -bang QA qa<bang>
 command! -bang Qa qa<bang>
 command! -bang Wa wa<bang>
