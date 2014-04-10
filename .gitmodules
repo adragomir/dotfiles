@@ -145,9 +145,6 @@
 [submodule ".vim/bundle/tern"]
 	path = .vim/bundle/tern
 	url = https://github.com/marijnh/tern_for_vim.git
-[submodule ".vim/bundle/godef"]
-	path = .vim/bundle/godef
-	url = https://github.com/dgryski/vim-godef
 [submodule ".vim/bundle/haskellmode-vim"]
 	path = .vim/bundle/haskellmode-vim
 	url = https://github.com/lukerandall/haskellmode-vim
@@ -196,3 +193,6 @@
 [submodule ".vim/bundle/textobj-function-javascript"]
 	path = .vim/bundle/textobj-function-javascript
 	url = https://github.com/thinca/vim-textobj-function-javascript
+[submodule ".vim/bundle/vim-go"]
+	path = .vim/bundle/vim-go
+	url = https://github.com/fatih/vim-go

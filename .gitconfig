@@ -1,6 +1,6 @@
 [user]
-  name = Andrei Dragomir
-  email = adragomir@gmail.com
+	name = Andrei Dragomir
+	email = adragomi@adobe.com
 
 [color]
   diff = auto
@@ -75,7 +75,7 @@
   mnemonicprefix = true
 
 [mergetool]
-  keepBackup = false
+	keepBackup = false
 
 [help]
 	autocorrect = 1
