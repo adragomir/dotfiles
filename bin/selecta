@@ -26,9 +26,13 @@ KEY_CTRL_P = ?\C-p
 KEY_CTRL_U = ?\C-u
 KEY_CTRL_H = ?\C-h
 KEY_CTRL_W = ?\C-w
+KEY_CTRL_J = ?\C-j
+KEY_CTRL_M = ?\C-m
 KEY_DELETE = 127.chr # Equivalent to ?\C-?
 
 class Selecta
+  VERSION = [0, 0, 2]
+
   def main
     # We have to parse options before setting up the screen or trying to read
     # the input in case the user did '-h', an invalid option, etc. and we need
@@ -40,7 +44,9 @@ class Selecta
       run_in_screen(config, screen, tty)
     end
 
-    puts search.selected_choice
+    unless search.selection == Search::NoSelection
+      puts search.selection
+    end
   rescue ScreenValidator::NotATTY
     $stderr.puts(
       "Can't get a working TTY. Selecta requires an ANSI-compatible terminal.")
@@ -82,8 +88,7 @@ class Selecta
     when KEY_CTRL_W then search.delete_word
     when KEY_CTRL_H, KEY_DELETE then search.backspace
 
-    when ?\r then search.done
-    when KEY_CTRL_C then raise SystemExit
+    when ?\r, KEY_CTRL_J, KEY_CTRL_M then search.done
 
     when /[[:print:]]/ then search.append_search_string(key.chr)
 
@@ -117,8 +122,13 @@ class Configuration < Struct.new(:visible_choices, :initial_search, :choices)
     parser = OptionParser.new do |opts|
       opts.banner = "Usage: #{$PROGRAM_NAME} [options]"
 
-      opts.on("-h", "--help", "Show this message") do |v|
+      opts.on_tail("-h", "--help", "Show this message") do |v|
         puts opts
+        exit
+      end
+
+      opts.on_tail("--version", "Show version") do
+        puts Selecta::VERSION.join('.')
         exit
       end
 
@@ -184,9 +194,8 @@ class Search
     @done
   end
 
-  def selected_choice
-    raise SystemExit if matches.empty?
-    matches.fetch(@index)
+  def selection
+    matches.fetch(@index) { NoSelection }
   end
 
   def down
@@ -233,6 +242,8 @@ class Search
   def done
     merge(:done => true)
   end
+
+  class NoSelection; end
 end
 
 class Score
@@ -352,10 +363,9 @@ class Screen
 
 
   def configure_tty
-    # raw: Disable input and output processing
-    # -echo: Don't echo keys back
-    # cbreak: Set up lots of standard stuff, including INTR signal on ^C
-    tty.stty("raw -echo cbreak")
+    # -echo: terminal doesn't echo typed characters back to the terminal
+    # -icanon: terminal doesn't  interpret special characters (like backspace)
+    tty.stty("-echo -icanon")
   end
 
   def restore_tty
@@ -604,7 +614,7 @@ end
 if $0 == __FILE__
   begin
     Selecta.new.main
-  rescue SystemExit, Interrupt
+  rescue Interrupt
     exit(1)
   end
 end

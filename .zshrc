@@ -426,6 +426,19 @@ lr() {
     sed '/^[^l]/s/ -> $//; '$classify' '$long
 }
 
+function autoenv_chpwd_hook() {
+  local env_file="$PWD/.env"
+  local unenv_file="${dirstack[1]}/.unenv"
+  if [[ -f $unenv_file ]]; then
+      source $unenv_file
+  fi
+  if [[ -f $env_file ]]; then
+      source $env_file
+      return 0
+  fi
+}
+add-zsh-hook chpwd autoenv_chpwd_hook
+
 function getwanip() {
   wget -q -O- www.showmyip.com/xml | xml2 | grep '/ip_address/ip=' | cut -d= -f2
   curl -s http://checkip.dyndns.org | awk '{print $6}' | awk ' BEGIN { FS = "<" } { print $1 } '
@@ -744,6 +757,16 @@ function minutes_since_last_commit {
       seconds_since_last_commit=$((now-last_commit))
       minutes_since_last_commit=$((seconds_since_last_commit/60))
       echo $minutes_since_last_commit
+      # local T=$((now-last_commit))
+      # D=$((T/60/60/24))
+      # H=$((T/60/60%24))
+      # M=$((T/60%60))
+      # S=$((T%60))
+      # (( $D > 0 )) && printf '%d days ' $D
+      # # [[ $H > 0 ]] && printf '%d hours ' $H
+      # # [[ $M > 0 ]] && printf '%d minutes ' $M
+      # # [[ $D > 0 || $H > 0 || $M > 0 ]] && printf 'and '
+      # # printf '%d seconds\n' $S
     else
       echo "-1"
     fi
@@ -766,7 +789,7 @@ function prompt_grb_scm_time_since_commit() {
           else
             COLOR="$pc[scm_time_short]"
           fi
-          local SINCE_LAST_COMMIT="${COLOR}$(minutes_since_last_commit)m$pc[reset]"
+          local SINCE_LAST_COMMIT="${COLOR}$(minutes_since_last_commit)$pc[reset]"
         fi
         echo $SINCE_LAST_COMMIT
     fi
@@ -1157,7 +1180,7 @@ export P4CONFIG=.p4conf
 export HTML_TIDY=$HOME/.tidyconf
 
 # ansible
-export ANSIBLE_HOSTS=~/.ansible_hosts
+export ANSIBLE_HOSTS=~/.ansible/hosts
 
 export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
 
@@ -1198,9 +1221,9 @@ export TEXMFCACHE=/tmp
 #export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
 
 export SAASBASE_HOME=$HOME/work/s
-source $HOME/work/s/services/use-hadoop-2
-export HBASE_HOME=$HOME/work/s/hbase
-export ZOOKEEPER_HOME=$HOME/work/s/zookeeper
+# source $HOME/work/s/services/use-hadoop-2
+# export HBASE_HOME=$HOME/work/s/hbase
+# export ZOOKEEPER_HOME=$HOME/work/s/zookeeper
 export STORM_HOME=$HOME/work/s/storm
 export KAFKA_HOME=$HOME/work/s/kafka
 
@@ -1342,8 +1365,8 @@ alias tu='top -o cpu'
 alias tm='top -o vsize'
 
 # hadoop, hbase, etc
-alias hbase='$HBASE_HOME/bin/hbase'
-alias zk='$ZOOKEEPER_HOME/bin/zkCli.sh'
+# alias hbase='$HBASE_HOME/bin/hbase'
+# alias zk='$ZOOKEEPER_HOME/bin/zkCli.sh'
 alias storm='$STORM_HOME/bin/storm'
 alias psall='pgrep -l -f NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer \
   ReportServer storm.daemon.nimbus storm.ui.core'

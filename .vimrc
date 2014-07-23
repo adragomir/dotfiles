@@ -55,7 +55,7 @@ set hlsearch                  " highlight last search
 set incsearch                 " show matches while searching
 set gdefault
 set nojoinspaces
-set cursorline
+"set cursorline
 set laststatus=2              " always show status line
 set showbreak=…
 set fillchars=diff:⣿,vert:\|
@@ -76,7 +76,7 @@ set t_vb=
 set winaltkeys=no
 set writeany
 set iskeyword=@,48-57,128-167,224-235,_
-set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮,trail:.
+"set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮,trail:.
 set showtabline=2
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
@@ -118,6 +118,7 @@ set nofoldenable
 set autoindent
 set nocindent
 set nosmartindent
+set selection=old
 set copyindent
 "set indentexpr=
 set expandtab
@@ -223,8 +224,9 @@ filetype on
 filetype indent on
 filetype plugin on
 highlight WHITE_ON_BLACK ctermfg=white
+hi NonText cterm=NONE ctermfg=NONE
 hi SignColor guibg=red
-autocmd BufEnter * :syntax sync fromstart
+au BufEnter * :syntax sync fromstart
 " }}}
 
 "}}}
@@ -664,8 +666,7 @@ map <Leader>s :call ToggleScratch()<CR>
 nmap q <nop>
 vmap q <nop>
 
-noremap <f1> :set invpaste<cr>
-inoremap <f1> <esc>:set invpaste<cr>
+set pastetoggle=<f1>
 
 " terminal
 map <leader>1 1gt
@@ -690,7 +691,9 @@ noremap <leader>t <Esc>:tabnew<Cr>
 " GUI keys
 if has("gui_running")
   if has("gui_macvim")
-    " Fuck you, help key.
+	set guicursor=n-v-c:block-Cursor
+	set guicursor+=i:block-Cursor
+	" Fuck you, help key.
     noremap  <F1> :set invfullscreen<CR>
     inoremap <F1> <ESC>:set invfullscreen<CR>a
 
@@ -909,6 +912,12 @@ let g:sparkupNextMapping = '<c-s>'
 "       \ }
 " }}}
 
+" match paren settings {{{
+let g:loaded_matchparen = 1
+let g:matchparen_timeout = 10
+let g:matchparen_insert_timeout = 10
+" }}}
+"
 " python syntax settings {{{
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
@@ -970,6 +979,16 @@ let g:CommandTMaxHeight=20
 
 " go settings {{{
 let g:godef_split = 0
+let g:go_play_open_browser = 0
+let g:go_fmt_fail_silently = 1
+let g:go_fmt_autosave = 0
+let g:go_disable_autoinstall = 1
+let g:go_gocode_bin=expand("~/.gocode/bin/gocode")
+let g:go_goimports_bin=expand("~/.gocode/bin/goimports")
+let g:go_godef_bin=expand("~/.gocode/bin/godef")
+let g:go_oracle_bin=expand("~/.gocode/bin/oracle")
+let g:go_golint_bin=expand("~/.gocode/bin/golint")
+let g:go_errcheck_bin=expand("~/.gocode/bin/errcheck")
 " }}}
 
 " ruby settings {{{
@@ -1009,7 +1028,8 @@ let g:clang_close_preview = 1
 let g:clang_snippets = 0
 let g:clang_debug = 1
 if has("macunix")
-  let g:clang_library_path = "/usr/local/opt/llvm/lib/"
+  "let g:clang_library_path = "/usr/local/opt/llvm/lib/"
+  let g:clang_library_path = "/usr/local/Cellar/llvm/HEAD/lib/"
 else
   let g:clang_library_path = "/usr/lib/"
 endif
@@ -1148,16 +1168,16 @@ command! -bang WQ wq<bang>
 augroup all_buffers
   au!
   " Has to be an autocommand because repeat.vim eats the mapping otherwise :(
-  " autocmd VimEnter * :nnoremap U <c-r>
+  " au VimEnter * :nnoremap U <c-r>
 
   " remove all buffers on exit so we don't have them as hidden on reopen
-  autocmd VimLeavePre * 1,255bwipeout
+  au VimLeavePre * 1,255bwipeout
 
   " remove empty or otherwise dead buffers when moving away from them
-  autocmd TabLeave    * call OnTabLeave()
+  au TabLeave    * call OnTabLeave()
 
   " move to last position on file
-  autocmd BufReadPost *
+  au BufReadPost *
     \ if line("'\"") > 0 && line("'\"") <= line("$") |
     \   exe "normal g`\"" |
     \ endif
@@ -1185,26 +1205,26 @@ augroup END
 " indentations
 augroup settings
   au!
-  autocmd FileType python setlocal et ts=4 sw=4
-  autocmd FileType java setlocal et ts=2 sw=2
-  autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
-  autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 et
-  autocmd FileType c set ts=4 sw=4 sts=4
-  autocmd FileType css set expandtab ts=4 sw=4 sts=4
-  autocmd FileType scss set expandtab ts=4 sw=4 sts=4
-  autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
-  autocmd FileType puppet setlocal sw=2 ts=2 expandtab
-  autocmd BufRead *.mkd  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
-  autocmd BufRead *.markdown  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
-  autocmd BufRead gopack.config  set comments=n:#
-  autocmd FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
-  autocmd FileType go set noexpandtab ts=4 sw=4 sts=4
-  autocmd BufRead,BufNewFile gopack.config setfiletype toml
+  au FileType python setlocal et ts=4 sw=4
+  au FileType java setlocal et ts=2 sw=2
+  au FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
+  au FileType javascript setlocal ai sw=4 ts=4 sts=4 et
+  au FileType c set ts=4 sw=4 sts=4
+  au FileType css set expandtab ts=4 sw=4 sts=4
+  au FileType scss set expandtab ts=4 sw=4 sts=4
+  au FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
+  au FileType puppet setlocal sw=2 ts=2 expandtab
+  au BufRead *.mkd  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
+  au BufRead *.markdown  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
+  au BufRead gopack.config  set comments=n:#
+  au FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
+  au FileType go set noexpandtab ts=4 sw=4 sts=4
+  au BufRead,BufNewFile gopack.config setfiletype toml
 augroup END
 
 augroup endwiseadr
   au!
-  autocmd FileType go
+  au FileType go
     \ let b:endwise_addition = '}' |
     \ let b:endwise_words = 'func,for,switch,if,else,range,select' |
     \ let b:endwise_pattern = '^\s*\zs\%(func\|for\|switch\|if\|else\|range\|select\)\>\%(.*\)$' |
@@ -1214,15 +1234,15 @@ augroup END
 " completions
 augroup completions
   au!
-  autocmd FileType html setlocal omnifunc=htmlcomplete#CompleteTags
-  autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
-  autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-  " autocmd FileType java setlocal omnifunc=javacomplete#Complete
-  autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
+  au FileType html setlocal omnifunc=htmlcomplete#CompleteTags
+  au FileType haskell setlocal omnifunc=necoghc#omnifunc
+  au FileType css setlocal omnifunc=csscomplete#CompleteCSS
+  " au FileType java setlocal omnifunc=javacomplete#Complete
+  au FileType ruby,eruby set omnifunc=rubycomplete#Complete
 augroup END
 
 augroup comments
-  autocmd FileType actionscript setlocal commentstring=//\ %s
+  au FileType actionscript setlocal commentstring=//\ %s
 augroup end
 
 augroup mappings
@@ -1230,13 +1250,20 @@ augroup mappings
   au FileType markdown nnoremap <buffer> <localleader>1 yypVr=
   au FileType markdown nnoremap <buffer> <localleader>2 yypVr-
   au FileType markdown nnoremap <buffer> <localleader>3 I### <ESC>
-  autocmd FileType java map <leader>b :JavaSearchContext<CR>
-  autocmd FileType java map <leader>1 :JavaCorrect<CR>
-  autocmd FileType java map <leader>s :JavaImportOrganize<CR>
-  autocmd FileType java map <leader>jh :JavaHierarchy<CR>
-  autocmd FileType clojure let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
-  autocmd FileType go let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
-  autocmd FileType java let g:SuperTabDefaultCompletionType = "<c-x><c-u>"
+  au FileType java map <leader>b :JavaSearchContext<CR>
+  au FileType java map <leader>1 :JavaCorrect<CR>
+  au FileType java map <leader>s :JavaImportOrganize<CR>
+  au FileType java map <leader>jh :JavaHierarchy<CR>
+  au FileType clojure let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+  au FileType go let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+  au FileType go nmap <Leader>i <Plug>(go-import)
+  au FileType go nmap <Leader>gd <Plug>(go-doc)
+  au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
+  au FileType go nmap <leader>r <Plug>(go-run)
+  au FileType go nmap <leader>b <Plug>(go-build)
+  au FileType go nmap <leader>t <Plug>(go-test)
+  au FileType go nmap gd <Plug>(go-def)
+  au FileType java let g:SuperTabDefaultCompletionType = "<c-x><c-u>"
 augroup END
 
 " }}}

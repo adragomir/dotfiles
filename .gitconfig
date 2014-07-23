@@ -119,5 +119,9 @@
 	history-view-vpane-position = 300
 	main-window-view = FileView
 	file-view-vpane-position = 443
+
 [url "https://github.com"]
 	insteadOf = git://github.com
+
+[url "git@git.corp.adobe.com:"]
+  insteadOf = https://git.corp.adobe.com/
