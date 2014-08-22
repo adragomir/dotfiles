@@ -178,3 +178,12 @@
 [submodule ".vim/bundle/go-impl"]
 	path = .vim/bundle/go-impl
 	url = https://github.com/rhysd/vim-go-impl
+[submodule ".vim/bundle/markdown"]
+	path = .vim/bundle/markdown
+	url = https://github.com/plasticboy/vim-markdown
+[submodule ".vim/bundle/gitgutter"]
+	path = .vim/bundle/gitgutter
+	url = https://github.com/airblade/vim-gitgutter
+[submodule ".vim/bundle/dash"]
+	path = .vim/bundle/dash
+	url = https://github.com/rizzatti/dash.vim
