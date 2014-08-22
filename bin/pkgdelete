@@ -1,0 +1,13 @@
+#!/bin/bash
+
+P=$1
+echo $P
+
+v=$(pkgutil --pkg-info $P | grep "volume" | sed 's/^volume: //')
+l=$(pkgutil --pkg-info $P | grep "location" | sed 's/^location: //')
+f=$v$l
+files=$(pkgutil --files $P)
+while read line; do
+  rm -f "$f$line"
+done <<< "$files"
+pkgutil --forget $P

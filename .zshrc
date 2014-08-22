@@ -1288,9 +1288,9 @@ $HOME/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin:\
 $HOME/.rvm/bin:\
 $HOME/.perl5/bin:\
 $GOPATH/bin:\
-$GOPATH/src/github.com/mitchellh/packer/pkg/darwin_amd64/:\
-/usr/local/openresty/nginx/sbin/:\
-/usr/local/openresty/luajit/bin/:\
+$GOPATH/src/github.com/mitchellh/packer/pkg/darwin_amd64:\
+/usr/local/openresty/nginx/sbin:\
+/usr/local/openresty/luajit/bin:\
 $PATH
 
 # }}}

@@ -16,9 +16,6 @@
 [submodule ".vim/bundle/javascript"]
 	path = .vim/bundle/javascript
 	url = https://github.com/pangloss/vim-javascript.git
-[submodule ".vim/bundle/gundo"]
-	path = .vim/bundle/gundo
-	url = https://github.com/sjl/gundo.vim.git
 [submodule ".vim/bundle/textobj-user"]
 	path = .vim/bundle/textobj-user
 	url = https://github.com/kana/vim-textobj-user.git
@@ -199,3 +196,6 @@
 [submodule ".vim/bundle/vim-yaml"]
 	path = .vim/bundle/vim-yaml
 	url = https://github.com/stephpy/vim-yaml
+[submodule ".vim/bundle/go-impl"]
+	path = .vim/bundle/go-impl
+	url = https://github.com/rhysd/vim-go-impl
