@@ -88,9 +88,6 @@
 [submodule ".vim/bundle/commentary"]
 	path = .vim/bundle/commentary
 	url = https://github.com/tpope/vim-commentary.git
-[submodule ".vim/bundle/eunuch"]
-	path = .vim/bundle/eunuch
-	url = https://github.com/tpope/vim-eunuch.git
 [submodule ".vim/bundle/fireplace"]
 	path = .vim/bundle/fireplace
 	url = https://github.com/tpope/vim-fireplace.git
@@ -136,9 +133,6 @@
 [submodule ".vim/bundle/abolish"]
 	path = .vim/bundle/abolish
 	url = https://github.com/tpope/vim-abolish
-[submodule ".vim/bundle/vim-pandoc"]
-	path = .vim/bundle/vim-pandoc
-	url = https://github.com/vim-pandoc/vim-pandoc
 [submodule ".vim/bundle/clever-f"]
 	path = .vim/bundle/clever-f
 	url = https://github.com/rhysd/clever-f.vim
