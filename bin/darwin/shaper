@@ -1,0 +1,5 @@
+#!/bin/bash
+sudo ipfw pipe 1 config bw 10Kbit/s delay 800
+sudo ipfw add 10 pipe 1 tcp from any to me 8000
+sudo ipfw add 11 pipe 1 tcp from any 8000 to me
+

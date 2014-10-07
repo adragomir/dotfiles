@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+if [ $# -lt 1 ]
+then
+  exit 1
+fi
+ 
+# get instance id
+raw=$1
+arr=(${raw//@/ })
+instance_name=$(echo "${arr[1]}" | sed -e 's/\([^.]*\)\.\([^.]*\)$/\1/')
+region=$(echo "${arr[1]}" | sed -e 's/\([^.]*\)\.\([^.]*\)$/\2/')
+user=${arr[0]}
+
+instance_address=`aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=${instance_name}" --query "Reservations[0].Instances[0].PublicDnsName" --output text`
+ssh $user@$instance_address

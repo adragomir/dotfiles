@@ -112,9 +112,6 @@
 [submodule ".vim/bundle/scriptease"]
 	path = .vim/bundle/scriptease
 	url = https://github.com/tpope/vim-scriptease.git
-[submodule ".zsh/zsh-syntax-highlighting"]
-	path = .zsh/zsh-syntax-highlighting
-	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
 [submodule ".zsh/zsh-history-substring-search"]
 	path = .zsh/zsh-history-substring-search
 	url = https://github.com/zsh-users/zsh-history-substring-search.git
@@ -187,3 +184,9 @@
 [submodule ".vim/bundle/dash"]
 	path = .vim/bundle/dash
 	url = https://github.com/rizzatti/dash.vim
+[submodule ".vim/bundle/vim-bundler"]
+	path = .vim/bundle/vim-bundler
+	url = https://github.com/tpope/vim-bundler
+[submodule ".vim/bundle/gem-browse"]
+	path = .vim/bundle/gem-browse
+	url = https://github.com/tpope/gem-browse

@@ -26,7 +26,7 @@ unless defined? ETC_IRBRC_LOADED
     end
     Kernel::at_exit do
       lines = Readline::HISTORY.to_a.reverse.uniq.reverse
-      lines = lines[-MAXHISTSIZE, MAXHISTSIZE] if lines.nitems > MAXHISTSIZE
+      lines = lines[-MAXHISTSIZE, MAXHISTSIZE] if lines.length > MAXHISTSIZE
       puts "Saving #{lines.length} history lines to '#{histfile}'." if $VERBOSE
       File::open(histfile, File::WRONLY|File::CREAT|File::TRUNC) { |io| io.puts lines.join("\n") }
     end

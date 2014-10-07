@@ -98,9 +98,9 @@
   fontdiff = -family Courier -size 13 -weight normal -slant roman -underline 0 -overstrike 0
 	editor = mvim
 
-[github]
-	user = adragomir
-  password = ! /usr/bin/security 2>&1 >/dev/null find-generic-password -gs github | ruby -e 'print $1 if STDIN.gets =~ /^password: \\\"(.*)\\\"$/'
+; [github]
+; 	user = adragomir
+;   password = ! /usr/bin/security 2>&1 >/dev/null find-generic-password -gs github | ruby -e 'print $1 if STDIN.gets =~ /^password: \\\"(.*)\\\"$/'
 
 [branch]
   autosetupmerge = false
@@ -125,3 +125,5 @@
 
 [url "git@git.corp.adobe.com:"]
   insteadOf = https://git.corp.adobe.com/
+[grep]
+	fullname = true

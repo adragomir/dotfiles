@@ -1,3 +1,11 @@
 target
 jdiff
 jdiff-cloudera
+log/
+logs/
+tmp/
+vendor/
+*.sql
+*.tags*
+tags
+*.tmp*

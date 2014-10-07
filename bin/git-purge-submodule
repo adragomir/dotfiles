@@ -1,0 +1,5 @@
+#!/bin/bash
+git submodule deinit -f $1
+git rm $1
+git rm --cached $1
+rm -rf .git/modules/$1

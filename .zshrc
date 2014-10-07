@@ -18,7 +18,7 @@ zmodload zsh/net/tcp
 # autoload {{{
 autoload add-zsh-hook
 autoload -U colors && colors  # Enables colours
-autoload -U compinit && compinit -d $HOME/.history/.zcompdump
+autoload -U compinit && compinit -d "$ZSH/cache/zcompdump-$HOST"
 autoload -U url-quote-magic
 autoload allopt
 autoload -U zcalc
@@ -220,8 +220,32 @@ _selecta() {
   RBUFFER="$result "
   CURSOR+=$#RBUFFER
 }
+
+function insert-selecta-path-in-command-line() {
+    local selected_path
+    # Print a newline or we'll clobber the old prompt.
+    echo
+    # Find the path; abort if the user doesn't select anything.
+    selected_path=$(find * -type f | selecta) || return
+    # Append the selection to the current command buffer.
+    eval 'LBUFFER="$LBUFFER$selected_path"'
+    # Redraw the prompt since Selecta has drawn several new lines of text.
+    zle reset-prompt
+}
+# Create the zle widget
+zle -N insert-selecta-path-in-command-line
+# Bind the key to the newly created widget
+bindkey "^S" "insert-selecta-path-in-command-line"
+
 zle -N _selecta
 bindkey "\C-t" _selecta
+
+function p() {
+    proj=$(cat ~/.projects | awk '{print $1}' | selecta)
+    if [[ -n "$proj" ]]; then
+        cd $(cat ~/.projects | grep "^$proj" | awk '{print $2}')
+    fi
+}
 
 autoload -Uz narrow-to-region
 function _history-incremental-preserving-pattern-search-backward {
@@ -233,7 +257,24 @@ function _history-incremental-preserving-pattern-search-backward {
   narrow-to-region -R state
 }
 zle -N _history-incremental-preserving-pattern-search-backward
-bindkey "^r" _history-incremental-preserving-pattern-search-backward
+#bindkey "^r" _history-incremental-preserving-pattern-search-backward
+
+# http://qiita.com/uchiko/items/f6b1528d7362c9310da0
+function peco-select-history() {
+    local tac
+    if which gtac > /dev/null; then
+        tac="gtac"
+    else
+        tac="tail -r"
+    fi
+    BUFFER=$(\history -n 1 | \
+        eval $tac | \
+        peco --query "$LBUFFER")
+    CURSOR=$#BUFFER
+    zle clear-screen
+}
+zle -N peco-select-history
+bindkey '^r' peco-select-history
 
 bindkey -e
 bindkey '\ew' kill-region
@@ -373,8 +414,17 @@ zsh_stats() {
   history | awk '{print $2}' | sort | uniq -c | sort -rn | head
 }
 
+function up() {
+    local DIR=$PWD
+    local TARGET=$1
+    while [ ! -e $DIR/$TARGET -a $DIR != "/" ]; do
+        DIR=$(dirname $DIR)
+    done
+    test $DIR != "/" && echo $DIR/$TARGET
+}
+
 function allopen() {
-  if [ "`uname`" = "Darwin" ]; then
+  if [ "$OSTYPE" = darwin* ]; then
     open $1
   else
     gnome-open > /dev/null 2>&1 $*
@@ -642,9 +692,14 @@ zgit_isindexclean() {
 	fi
 }
 
+if [ -f /usr/local/Library/LinkedKegs/awscli/libexec/bin/aws_zsh_completer.sh ]
+then
+    source /usr/local/Library/LinkedKegs/awscli/libexec/bin/aws_zsh_completer.sh
+fi
+
 zgit_isworktreeclean() {
 	zgit_isgit || return 1
-	if [ -z "$(git ls-files $zgit_info[dir] --modified)" ]; then
+	if [ -z "$(git ls-files $zgit_info[dir] --full-name --modified)" ]; then
 		return 0
 	else
 		return 1
@@ -1118,7 +1173,7 @@ export MVN_OPTS="-Djava.awt.headless=true"
 export LESS="-rX"
 export PAGER=less
 
-if [ "`uname`" = "Darwin" ]; then
+if [ "$OSTYPE" = darwin* ]; then
   export EDITOR=/usr/local/bin/vim
   export GIT_EDITOR=/usr/local/bin/vim
 else
@@ -1189,11 +1244,13 @@ export FLEX_SDK_BIN_DIR=/Users/adr/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/b
 export MONO_GAC_PREFIX=/usr/local
 
 # haxe
-export HAXE_LIBRARY_PATH="$(/usr/local/bin/brew --prefix)/share/haxe/std"
+if [ "$OSTYPE" = darwin* ]; then
+    export HAXE_LIBRARY_PATH="$(/usr/local/bin/brew --prefix)/share/haxe/std"
+fi
 #export NEKOPATH=/usr/local/neko
 
 # java
-if [ "`uname`" = "Darwin" ]; then
+if [ "$OSTYPE" = darwin* ]; then
   export JENV_ROOT=/usr/local/opt/jenv
   if which jenv > /dev/null; then eval "$(jenv init -)"; fi
   export JAVA_HOME=$(readlink /usr/local/opt/jenv/versions/`cat /usr/local/opt/jenv/version`)
@@ -1232,7 +1289,7 @@ export SAASBASE_DB_HOME=$HOME/work/s/db/db
 export SAASBASE_ANALYTICS_HOME=$HOME/work/s/saasbase/analytics
 export SAASBASE_DATAROOT=/var
 
-if [ "`uname`" = "Darwin" ]; then
+if [ "$OSTYPE" = darwin* ]; then
   export VIMRUNTIME=$HOME/Applications/MacVim.app/Contents/Resources/vim/runtime/
 fi  
 export ENSIMEHOME=/Users/adr/work/tools/ensime/
@@ -1243,29 +1300,32 @@ export GOPATH=$HOME/.gocode
 # {{{ amazon
 
 # credentials
-aws_use_account() {
-export EC2_CERT_PAIR=$1
-export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/pk-*.pem)"
-export EC2_CERT="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/cert-*.pem)"
-export AWS_CREDENTIAL_FILE=$HOME/.secrets/.aws-credentials-$1
-export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
-export AWS_SECRET_ACCESS_KEY="$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')"
-}
+export EC2_CERT_PAIR=pass
+if [ -d $HOME/.ec2/$EC2_CERT_PAIR ]; then
+    export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/pk-*.pem)"
+    export EC2_CERT="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/cert-*.pem)"
+fi
+if [ -d $HOME/.secrets/.aws-credentials-$EC2_CERT_PAIR ]; then
+    export AWS_CREDENTIAL_FILE=$HOME/.secrets/.aws-credentials-$EC2_CERT_PAIR
+    export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
+    export AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
+    export AWS_SECRET_ACCESS_KEY="$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')"
+    export AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
+fi
 export AWS_CONFIG_FILE=$HOME/.secrets/.awscli
-aws_use_account 'pass'
 
 # ec2-api-tools
-export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
+export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/libexec"
 # ec2-ami-tools
-export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
+export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/libexec/"
 # aws-iam-tools
-export AWS_IAM_HOME="/usr/local/Cellar/aws-iam-tools/1.5.0/jars"
+export AWS_IAM_HOME="/usr/local/Library/LinkedKegs/aws-iam-tools"
 # aws-cfn-tools
-export AWS_CLOUDFORMATION_HOME="/usr/local/Cellar/aws-cfn-tools/1.0.12/jars"
+export AWS_CLOUDFORMATION_HOME="/usr/local/Library/LinkedKegs/aws-cfn-tools"
 # elb-tools
-export AWS_ELB_HOME="/usr/local/Cellar/elb-tools/1.0.12.0/jars"
+export AWS_ELB_HOME="/usr/local/Library/LinkedKegs/elb-tools"
 # auto scaling
-export AWS_AUTO_SCALING_HOME="/usr/local/Library/LinkedKegs/auto-scaling/jars"
+export AWS_AUTO_SCALING_HOME="/usr/local/Library/LinkedKegs/auto-scaling"
 
 # }}}
 
@@ -1352,7 +1412,6 @@ alias la='ls -A'
 alias lt="ls -AGlFTtr"
 alias lc="cl"
 alias mkdir='mkdir -p'
-alias reload="source ~/.zshrc"
 alias finde='find -E'
 alias df='df -h'
 alias du='du -h -c'
@@ -1378,13 +1437,29 @@ alias history='fc -l 1'
 alias dtrace-providers="sudo dtrace -l | perl -pe 's/^.*?\S+\s+(\S+?)([0-9]|\s).*/\1/' | sort | uniq"
 #}}}
 
+# plugins {{{
+# zsh-reload.plugin.zsh
+function reload() {
+  local cache="$ZSH/cache"
+  autoload -U compinit zrecompile
+  compinit -d "$cache/zcomp-$HOST"
+
+  for f in ~/.zshrc "$cache/zcomp-$HOST"; do
+    zrecompile -p $f && command rm -f $f.zwc.old
+  done
+
+  source ~/.zshrc
+}
+# }}}
+
 # final settings {{{
 [[ -s $HOME/.tmuxinator/scripts/tmuxinator ]] && source $HOME/.tmuxinator/scripts/tmuxinator
-eval "$(fasd --init auto)"
 
 source $ZSH/zsh-history-substring-search/zsh-history-substring-search.zsh
+
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
-source $HOME/.rvm/scripts/rvm
+
+[[ -f $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
 # }}}
 #vim:foldmethod=marker

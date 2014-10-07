@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+import sys
+import os
+import jira.client as j
+import getpass
+
+sys.path.insert(1, os.path.expanduser("~") + "/.secrets/")
+try:
+    import jira_config
+    mode = 0
+except:
+    mode = 1
+
+JIRA_SERVER="https://issues.adobe.com"
+print "Creating an issue on %s" % JIRA_SERVER
+
+issue_project=raw_input("Issue Project: ")
+issue_type=raw_input("Issue Type: ")
+summary=raw_input("Issue Title: ")
+labels=[]
+
+user_raw_input = []
+entry = raw_input("Issue Summary (enter . to end)\n")
+while entry != ".":
+    user_raw_input.append(entry)
+    entry = raw_input("")
+description = '\n'.join(user_raw_input)
+
+if mode == 1:
+    username = raw_input("Jira Username: ")
+    password = getpass.getpass('LDAP password: ')
+else:
+    username = jira_config.username
+    password = jira_config.password
+jira = j.JIRA(options={'server': JIRA_SERVER}, basic_auth=(username, password))
+new_issue = jira.create_issue(project={'key': issue_project}, summary=summary, issuetype={'name': issue_type}, description=description)
+jira.transition_issue(new_issue,'781')
+
+print ("[%s] - %s" % (new_issue.key, new_issue.fields.summary))

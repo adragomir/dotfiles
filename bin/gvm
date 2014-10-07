@@ -1,0 +1,291 @@
+#!/usr/bin/env bash
+
+## Functions/
+
+is_in_use() {
+  [[ -e "$1/.git/index.lock" || -e "$1/.hg/store/lock"  || -e "$1/.bzr/checkout/lock" ]]
+}
+
+# Iterates over Godep file dependencies and sets
+# the specified version on each of them.
+set_dependencies() {
+  local deps=$(sed 's/#.*//;/^\s*$/d' < $1) || echo ""
+
+  while read package version; do
+    (
+      echo ">> Getting package "$package""
+      go get -u -d "$package"
+    ) &
+  done < <(echo "$deps")
+  wait
+
+  while read package version; do
+    (
+      local pkg_path=$(echo "$package" | awk -F/ '{print $1"/"$2"/"$3}')
+      local install_path="${GOPATH%%:*}/src/${pkg_path%%/...}"
+      echo ">> Setting $package to version $version"
+      cd $install_path
+      is_in_use $install_path && wait
+
+      [ -d .bzr ] && bzr revert   -q -r   "$version"
+      [ -d .git ] && git checkout -q      "$version"
+      [ -d .hg  ] && hg update    -q      "$version"
+      [ -d .svn ] && svn update   -r      "$version"
+    ) &
+  done < <(echo "$deps")
+  wait
+  echo ">> All Done"
+}
+
+link() {
+  folder=".godeps/src/$1"
+  cont=$(dirname "$folder")
+  pwd=$(pwd)
+  dest=${2:-$pwd}
+
+  [[ ! -d $cont ]] && mkdir -p $cont
+  [[ -d $folder ]] && echo "Exists" && exit 1
+
+  ln -vs $dest $folder
+}
+
+bootstrap() {
+  echo ">> Installing dependencies."
+  go get -d
+  dependencies=`go list -f '{{join .Deps "\n"}}' ./... | xargs go list -f '{{if not .Standard}}{{.ImportPath}}{{end}}'`
+
+  while read package; do
+    (
+      version=`find_last_tag_or_HEAD "$package"`
+      [ -n "$version" ] && (
+        echo ">> Adding package "$package" version "$version" to Godeps."
+        echo ""$package" "$version"" >> Godeps
+        set_package_to_version $package $version
+      )
+    ) &
+  done < <(echo "$dependencies")
+
+  wait
+  echo ">> All Done."
+}
+
+## Sets a given package to a given revision using
+## the appropriate VCS.
+#
+set_package_to_version() {
+  cd "${GOPATH%%:*}/src/${1%%/...}"
+
+  ## Avoid multiple processes messing with the same
+  ## package at the same time.
+  [[ -e "$PWD/.git/index.lock" ||
+  -e "$PWD/.hg/store/lock" ||
+  -e "$PWD/.bzr/checkout/lock" ]] && wait
+
+  [ -d .hg ]  && hg update    -q      "$2"
+  [ -d .git ] && git checkout -q      "$2"
+  [ -d .bzr ] && bzr revert   -q -r   "$2"
+}
+
+## Returns the latest tag (or, failing that latest revision)
+## for an installed package.
+#
+find_last_tag_or_HEAD() {
+  cd "${GOPATH%%:*}/src/${1%%/...}"
+
+  ## If no repo file is found it means we are inside a repo's
+  ## subdirectory tree, we can just ignore this package.
+  [ ! -d .git ] && [ ! -d .bzr ] && [ ! -d .hg ] &&
+    echo ">> Ignored $1, not top-level package." 1>&2 && return
+
+  [ -d .git ] && (
+    # FIXME: there should be a better way,  but git tags returns in alphabetical order.
+    version=`git tag |
+            xargs -I@ git log --format=format:"%ai @%n" -1 @ |
+            sort |
+            awk '{print $4}' |
+            tail -1`
+
+
+    [ -n "$version" ] && echo "$version" && return
+
+    version=`git log -n 1 --pretty=oneline | cut -d " " -f 1`
+    echo ">> No tags on package "$1", setting version to latest revision." 1>&2
+    echo "$version" && return
+  )
+
+  [ -d .bzr ] && (
+    version=`bzr tags | tail -1 | cut -d " " -f 1`
+    [ -n "$version" ] && echo "$version" && return
+
+    version=`bzr log -r-1 --log-format=line | cut -d ":" -f 1`
+    echo ">> No tags on package "$1", setting version to latest revision." 1>&2
+    echo "$version" && return
+  )
+
+  [ -d .hg ] && (
+    version=`hg parents --template "{latesttag}"`
+
+    [ "$version" != "null" ] && echo "$version" && return
+
+    version=`hg log --template "{node}" -l 1`
+    echo ">> No tags on package "$1", setting version to latest_revision." 1>&2
+    echo "$version" && return
+  )
+
+  echo " "
+}
+
+godeps_build() {
+  local deps=$(sed 's/#.*//;/^\s*$/d' < $1) || echo ""
+
+  while read package version; do
+    go_install $package
+  done < <(echo "$deps")
+}
+
+godeps_git_build() {
+  local deps=$(sed 's/#.*//;/^\s*$/d' < $1) || echo ""
+
+  while read repo package version; do
+    go_install $package
+  done < <(echo "$deps")
+}
+
+go_install() {
+  local package=$1
+  echo ">> Pre-building $package/..."
+  go install $package/...
+  echo ">> Pre-building $package"
+  go install $package
+}
+
+## /Functions
+
+## Command Line Parsing
+case "${1:-"install"}" in
+  "version")
+    echo ">> gvm v1.0"
+    ;;
+  "install")
+    deps_file="${2:-"Godeps"}"
+    [[ -r "$deps_file" ]] || (echo ">> $deps_file file does not exist." && exit 1)
+    (which go > /dev/null) ||
+      ( echo ">> Go is currently not installed or in your PATH" && exit 1)
+    set_dependencies $deps_file
+    ;;
+  "prebuild")
+    case "${2}" in
+      "build")
+        (which go > /dev/null) ||
+          ( echo ">> Go is currently not installed or in your PATH" && exit 1)
+        if [ ! -z "${3:-}" ]; then
+          [[ -f "$3" ]] || (echo ">> $3 file does not exist." && exit 1)
+          if [ $(expr $(cat "$3" | head -n 1 | grep -o " " | wc -l)) -eq 1 ]; then
+            # Godeps
+            godeps_build "$3"
+          # elif [ $(expr $(cat "$2" | head -n 1 | grep -o " " | wc -l)) -eq 2 ]; then
+          #   # Godeps-Git
+          #   godeps_git_build "$2"
+          else
+            echo ">> $3 file is not in Godeps or Godeps-Git format." && exit 1
+          fi
+        else
+          godeps_file="Godeps"
+          [[ -f $godeps_file ]] ||
+            (echo ">> $godeps_file does not exist." && exit 1)
+          [[ -f $godeps_file ]] && godeps_build $godeps_file
+        fi
+        wait
+        echo ">> All Done"
+        ;;
+      "clean")
+        rm -rf ${GOPATH%%:*}/pkg/*
+        ;;
+    esac ;;
+  "local")
+    case "${2}" in
+      "name")
+        [[ "${3:-""}" == "" ]] && exit 1
+        ln_path="${GOPATH%%:*}/src/${3}"
+        ln_base=$(dirname "${GOPATH%%:*}")
+        echo ">> Linking $ln_base to $ln_path"
+        mkdir -p $(dirname "$ln_path")
+        ln -s "$ln_base" "$ln_path"
+        ;;
+    esac ;;
+  "link")
+    case "${2}" in
+      "add")
+        [[ -z $3 ]] && exit 1
+        link $3 $4
+        ;;
+      "del")
+        [[ -z $3 ]] && exit 1
+        folder=".godeps/src/$3"
+        [[ -d "$folder" ]] && rm -rf $folder
+
+        echo ">> $folder removed"
+        ;;
+    esac ;;
+  "bootstrap")
+    [[ -f "Godeps" ]] &&
+      echo ">> A Godeps file exists within this directory." && exit 1
+    mkdir -p .godeps/{src,pkg,bin}
+    bootstrap
+    if [ ! -z "${2:-}" ]; then
+      link $2
+    fi
+    ;;
+  "run" | "in")
+    do=1
+    if [[ -n $GVM_NAME ]]; then
+      echo ">> Already set path to $GOPATH, exiting..."
+      do=0
+      #kill -INT $$;
+    fi
+
+    GVM_DIR="$(pwd)/.godeps"
+
+    if [[ ! -d $GVM_DIR ]]; then
+      echo '>> Directory .godeps not found. Run `gvp init` first.'
+      do=0
+      #kill -INT $$
+    fi
+
+    if [ "$do" -eq "1" ]; then
+      GVM_OLD_GOPATH=$GOPATH
+      GVM_OLD_GOBIN=$GOBIN
+      GVM_OLD_PATH=$PATH
+      export GVM_OLD_GOPATH GVM_OLD_GOBIN PATH
+
+      GVM_NAME=$(pwd | sed -E "s/^.*\/(.*)$/\\1/")
+      GOBIN="$GVM_DIR/bin"
+      GOPATH="$GVM_DIR:$PWD"
+      PATH="$GOBIN:$PATH"
+
+      export GOBIN GOPATH GVM_NAME PATH
+      echo ">> Local GOPATH set."
+
+      if [[ -n $2 ]]; then
+        eval ${@:2}
+      fi
+    fi
+    ;;
+  "out")
+    do=1
+    if [[ -z $GVM_NAME ]]; then
+      echo ">> Already reverted, exiting..."
+      do=0
+    fi
+
+    if [ "$do" -eq "1" ]; then
+      GOBIN=$GVM_OLD_GOBIN
+      GOPATH=$GVM_OLD_GOPATH
+      PATH=$GVM_OLD_PATH
+
+      export PATH GOPATH GOBIN
+      unset GVM_OLD_GOPATH GVM_OLD_GOBIN GVM_OLD_PATH GVM_NAME
+      echo ">> Reverted to system GOPATH."
+    fi
+    ;;
+esac

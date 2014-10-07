@@ -585,8 +585,7 @@ cnoremap <c-e> <end>
 " imap <right> <nop>
 
 " ag word
-noremap <f7> :Ag<cr>
-nnoremap <silent> <leader>/ :execute "Ag! '" . substitute(substitute(substitute(@/, "\\\\<", "\\\\b", ""), "\\\\>", "\\\\b", ""), "\\\\v", "", "") . "'"<CR>
+nnoremap <silent> <leader>/ :Ag<cr>
 
 " command: debug highlight groups
 nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
@@ -869,13 +868,6 @@ if has("gui_running")
 else
 endif
 
-" sneak {{{
-nmap z       <Plug>SneakForward
-xmap z       <Plug>VSneakForward
-nmap Z       <Plug>SneakBackward
-xmap Z       <Plug>VSneakBackward
-" }}}
-
 " }}}
 
 " abbreviations {{{
@@ -956,7 +948,7 @@ let g:SuperTabContextDefaultCompletionType = "<c-n>"
 " ctrl-p settings {{{
 let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
 let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build\|vendor\|.settings\|storm-local\|logs\|cloudera\|dev-support\|jdiff$',
+  \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build\|.settings\|storm-local\|logs\|cloudera\|dev-support\|jdiff$',
   \ 'file': '\.exe$\|\.so$\|\.dll$|\.class$|\.jar$',
   \ }
 let g:ctrlp_working_path_mode = 0
@@ -968,6 +960,11 @@ let g:ctrlp_max_files = 0
 
 " jedi {{{
 let g:jedi#auto_initialization = 0
+" }}}
+
+" textobjectify settings {{{
+" let g:loaded_textobjectify = 1
+let g:textobjectify_onthefly = 0
 " }}}
 
 " command-t settings {{{
@@ -1129,7 +1126,7 @@ let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
 "let g:syntastic_auto_loc_list=0
 let g:syntastic_check_on_open=0
 let g:syntastic_check_on_wq=0
-let g:syntastic_quiet_warnings=0
+let g:syntastic_quiet_messages = {'level': 'warnings'}
 "let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
 let g:syntastic_disabled_filetypes = ['java', 'css', 'scss', 'html']
 let g:syntastic_echo_current_error = 0
@@ -1209,7 +1206,7 @@ augroup settings
   au FileType java setlocal et ts=2 sw=2
   au FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
   au FileType javascript setlocal ai sw=4 ts=4 sts=4 et
-  au FileType c set ts=4 sw=4 sts=4
+  au FileType c set ts=4 sw=4 sts=4 commentstring=//\ %s
   au FileType css set expandtab ts=4 sw=4 sts=4
   au FileType scss set expandtab ts=4 sw=4 sts=4
   au FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
@@ -1219,6 +1216,7 @@ augroup settings
   au BufRead gopack.config  set comments=n:#
   au FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
   au FileType go set noexpandtab ts=4 sw=4 sts=4
+  au FileType sh set iskeyword=35,36,45,46,48-57,64,65-90,97-122,_
   au BufRead,BufNewFile gopack.config setfiletype toml
 augroup END
 
