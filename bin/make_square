@@ -1,0 +1,8 @@
+#!/bin/bash
+tmp=$(mktemp /tmp/imgsquare.XXXXX)
+f="${1}"
+fnoext="${f%.*}"
+ext="${f##*.}"
+convert "${1}" -resize "${2}>" $tmp
+mogrify -extent "${2}" -gravity Center -fill white $tmp
+cp $tmp "${fnoext}.square.${ext}"

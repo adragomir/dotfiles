@@ -13,6 +13,10 @@ zmodload zsh/termcap
 zmodload zsh/terminfo
 zmodload zsh/net/socket
 zmodload zsh/net/tcp
+zmodload zsh/system
+zmodload zsh/attr
+zmodload zsh/pcre
+zmodload zsh/regex
 # }}}
 
 # autoload {{{
@@ -281,8 +285,8 @@ function peco-select-history() {
     CURSOR=$#BUFFER
     zle clear-screen
 }
-zle -N peco-select-history
-bindkey '^r' peco-select-history
+#zle -N peco-select-history
+#bindkey '^r' peco-select-history
 
 bindkey -e
 bindkey '\ew' kill-region
@@ -432,7 +436,7 @@ function up() {
 }
 
 function allopen() {
-  if [ "$OSTYPE" = darwin* ]; then
+  if [[ "$OSTYPE" = darwin* ]]; then
     open $1
   else
     gnome-open > /dev/null 2>&1 $*
@@ -1181,7 +1185,7 @@ export MVN_OPTS="-Djava.awt.headless=true"
 export LESS="-rX"
 export PAGER=less
 
-if [ "$OSTYPE" = darwin* ]; then
+if [[ "$OSTYPE" = darwin* ]]; then
   export EDITOR=/usr/local/bin/vim
   export GIT_EDITOR=/usr/local/bin/vim
 else
@@ -1252,13 +1256,13 @@ export FLEX_SDK_BIN_DIR=/Users/adr/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/b
 export MONO_GAC_PREFIX=/usr/local
 
 # haxe
-if [ "$OSTYPE" = darwin* ]; then
+if [[ "$OSTYPE" = darwin* ]]; then
     export HAXE_LIBRARY_PATH="$(/usr/local/bin/brew --prefix)/share/haxe/std"
 fi
 #export NEKOPATH=/usr/local/neko
 
 # java
-if [ "$OSTYPE" = darwin* ]; then
+if [[ "$OSTYPE" = darwin* ]]; then
   export JENV_ROOT=/usr/local/opt/jenv
   if which jenv > /dev/null; then eval "$(jenv init -)"; fi
   export JAVA_HOME=$(readlink /usr/local/opt/jenv/versions/`cat /usr/local/opt/jenv/version`)
@@ -1297,7 +1301,7 @@ export SAASBASE_DB_HOME=$HOME/work/s/db/db
 export SAASBASE_ANALYTICS_HOME=$HOME/work/s/saasbase/analytics
 export SAASBASE_DATAROOT=/var
 
-if [ "$OSTYPE" = darwin* ]; then
+if [[ "$OSTYPE" = darwin* ]]; then
   export VIMRUNTIME=$HOME/Applications/MacVim.app/Contents/Resources/vim/runtime/
 fi  
 export ENSIMEHOME=/Users/adr/work/tools/ensime/
@@ -1463,7 +1467,9 @@ function reload() {
 # final settings {{{
 [[ -s $HOME/.tmuxinator/scripts/tmuxinator ]] && source $HOME/.tmuxinator/scripts/tmuxinator
 
-source $ZSH/zsh-history-substring-search/zsh-history-substring-search.zsh
+source $ZSH/golang.plugin.zsh
+source $ZSH/url-tools.plugin.zsh
+source $ZSH/history-substring-search.zsh
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
@@ -1471,3 +1477,4 @@ source $ZSH/zsh-history-substring-search/zsh-history-substring-search.zsh
 [[ -f $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
 # }}}
 #vim:foldmethod=marker
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
