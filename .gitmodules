@@ -178,9 +178,6 @@
 [submodule ".vim/bundle/gitgutter"]
 	path = .vim/bundle/gitgutter
 	url = https://github.com/airblade/vim-gitgutter
-[submodule ".vim/bundle/dash"]
-	path = .vim/bundle/dash
-	url = https://github.com/rizzatti/dash.vim
 [submodule ".vim/bundle/vim-bundler"]
 	path = .vim/bundle/vim-bundler
 	url = https://github.com/tpope/vim-bundler
@@ -193,3 +190,6 @@
 [submodule ".vim/bundle/shabadou"]
 	path = .vim/bundle/shabadou
 	url = https://github.com/osyo-manga/shabadou.vim
+[submodule ".vim/bundle/vim-coffee-script"]
+	path = .vim/bundle/vim-coffee-script
+	url = https://github.com/kchmck/vim-coffee-script

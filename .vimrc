@@ -965,6 +965,24 @@ let g:jedi#auto_initialization = 0
 " textobjectify settings {{{
 " let g:loaded_textobjectify = 1
 let g:textobjectify_onthefly = 0
+let g:textobjectify = {
+            \'(': {'left': '(', 'right': ')', 'same': 0, 'seek': 1, 'line': 0},
+            \')': {'left': '(', 'right': ')', 'same': 0, 'seek': 2, 'line': 0},
+            \'{': {'left': '{', 'right': '}', 'same': 0, 'seek': 1, 'line': 0},
+            \'}': {'left': '{', 'right': '}', 'same': 0, 'seek': 2, 'line': 0},
+            \'[': {'left': '\[', 'right': '\]', 'same': 0, 'seek': 1, 'line': 0},
+            \']': {'left': '\[', 'right': '\]', 'same': 0, 'seek': 2, 'line': 0},
+            \'<': {'left': '<', 'right': '>', 'same': 0, 'seek': 1, 'line': 0},
+            \'>': {'left': '<', 'right': '>', 'same': 0, 'seek': 2, 'line': 0},
+            \'"': {'left': '"', 'right': '"', 'same': 1, 'seek': 1, 'line': 0},
+            \"'": {'left': "'", 'right': "'", 'same': 1, 'seek': 1, 'line': 0},
+            \'`': {'left': '`', 'right': '`', 'same': 1, 'seek': 1, 'line': 0},
+            \' ': {'left': ' ', 'right': ' ', 'same': 1, 'seek': 0, 'line': 0},
+            \'V': {'left': '^\s*\(if\|for\|function\|try\|while\)\>',
+                \'right': '^\s*end', 'same': 0, 'seek': 1, 'line': 1},
+            \"\<cr>": {'left': '\%^', 'right': '\%$', 'same': 0, 'seek': 0,
+            \'line': 0},
+            \}
 " }}}
 
 " command-t settings {{{
