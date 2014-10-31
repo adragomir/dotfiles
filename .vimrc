@@ -118,7 +118,7 @@ set nofoldenable
 set autoindent
 set nocindent
 set nosmartindent
-set selection=old
+set selection=inclusive
 set copyindent
 "set indentexpr=
 set expandtab
@@ -586,6 +586,7 @@ cnoremap <c-e> <end>
 
 " ag word
 nnoremap <silent> <leader>/ :Ag<cr>
+vnoremap <silent> <leader>/ :AgVisual<cr>
 
 " command: debug highlight groups
 nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
@@ -603,7 +604,6 @@ function! MapCR()
   nnoremap <cr> :nohlsearch<cr>
 endfunction
 call MapCR()
-nnoremap <silent> <Leader>/ :nohlsearch<CR>
 
 nnoremap <m-Down> :cnext<cr>zvzz
 nnoremap <m-Up> :cprevious<cr>zvzz
@@ -1227,7 +1227,7 @@ augroup settings
   au FileType c set ts=4 sw=4 sts=4 commentstring=//\ %s
   au FileType css set expandtab ts=4 sw=4 sts=4
   au FileType scss set expandtab ts=4 sw=4 sts=4
-  au FileType text,markdown,mkd,pandoc,mail setlocal textwidth=80
+  au FileType text,markdown,mkd,pandoc,mail setlocal textwidth=1000
   au FileType puppet setlocal sw=2 ts=2 expandtab
   au BufRead *.mkd  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
   au BufRead *.markdown  setlocal ai formatoptions=tcroqn2 comments=n:&gt;

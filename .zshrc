@@ -228,7 +228,7 @@ zle -N _completeme
 
 _selecta() {
   zle -I
-  result=$( ag -l --nocolor -g . | selecta )
+  result=$( pt -l --nocolor -g . | selecta )
   RBUFFER="$result "
   CURSOR+=$#RBUFFER
 }
@@ -542,566 +542,11 @@ extract () {
 # }}}
 
 # prompt settings {{{
-# wunjo {{{
-typeset -gA zgit_info
-zgit_info=()
 
-zgit_chpwd_hook() {
-	zgit_info_update
-}
-
-zgit_preexec_hook() {
-	if [[ $2 == git\ * ]] || [[ $2 == *\ git\ * ]]; then
-		zgit_precmd_do_update=1
-	fi
-}
-
-zgit_precmd_hook() {
-	if [ $zgit_precmd_do_update ]; then
-		unset zgit_precmd_do_update
-		zgit_info_update
-	fi
-}
-
-zgit_info_update() {
-	zgit_info=()
-
-	local gitdir="$(git rev-parse --show-toplevel 2>/dev/null)"
-	if [ $? -ne 0 ] || [ -z "$gitdir" ]; then
-		return
-	fi
-
-	zgit_info[dir]=$gitdir
-	zgit_info[bare]=$(git rev-parse --is-bare-repository)
-	zgit_info[inwork]=$(git rev-parse --is-inside-work-tree)
-}
-
-zgit_isgit() {
-	if [ -z "$zgit_info[dir]" ]; then
-		return 1
-	else
-		return 0
-	fi
-}
-
-zgit_inworktree() {
-	zgit_isgit || return
-	if [ "$zgit_info[inwork]" = "true" ]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
-zgit_isbare() {
-	zgit_isgit || return
-	if [ "$zgit_info[bare]" = "true" ]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
-zgit_head() {
-	zgit_isgit || return 1
-
-	if [ -z "$zgit_info[head]" ]; then
-		local name=''
-		name=$(git symbolic-ref -q HEAD)
-		if [ $? -eq 0 ]; then
-			if [[ $name == refs/(heads|tags)/* ]]; then
-				name=${name#refs/(heads|tags)/}
-			fi
-		else
-			name=$(git name-rev --name-only --no-undefined --always HEAD)
-			if [ $? -ne 0 ]; then
-				return 1
-			elif [[ $name == remotes/* ]]; then
-				name=${name#remotes/}
-			fi
-		fi
-		zgit_info[head]=$name
-	fi
-
-	echo $zgit_info[head]
-}
-
-zgit_branch() {
-	zgit_isgit || return 1
-	zgit_isbare && return 1
-
-	if [ -z "$zgit_info[branch]" ]; then
-		local branch=$(git symbolic-ref HEAD 2>/dev/null)
-		if [ $? -eq 0 ]; then
-			branch=${branch##*/}
-		else
-			branch=$(git name-rev --name-only --always HEAD)
-		fi
-		zgit_info[branch]=$branch
-	fi
-
-	echo $zgit_info[branch]
-	return 0
-}
-
-zgit_tracking_remote() {
-	zgit_isgit || return 1
-	zgit_isbare && return 1
-
-	local branch
-	if [ -n "$1" ]; then
-		branch=$1
-	elif [ -z "$zgit_info[branch]" ]; then
-		branch=$(zgit_branch)
-		[ $? -ne 0 ] && return 1
-	else
-		branch=$zgit_info[branch]
-	fi
-
-	local k="tracking_$branch"
-	local remote
-	if [ -z "$zgit_info[$k]" ]; then
-		remote=$(git config branch.$branch.remote)
-		zgit_info[$k]=$remote
-	fi
-
-	echo $zgit_info[$k]
-	return 0
-}
-
-zgit_tracking_merge() {
-	zgit_isgit || return 1
-	zgit_isbare && return 1
-
-	local branch
-	if [ -z "$zgit_info[branch]" ]; then
-		branch=$(zgit_branch)
-		[ $? -ne 0 ] && return 1
-	else
-		branch=$zgit_info[branch]
-	fi
-
-	local remote=$(zgit_tracking_remote $branch)
-	[ $? -ne 0 ] && return 1
-	if [ -n "$remote" ]; then # tracking branch
-		local merge=$(git config branch.$branch.merge)
-		if [ $remote != "." ]; then
-			merge=$remote/$(basename $merge)
-		fi
-		echo $merge
-		return 0
-	else
-		return 1
-	fi
-}
-
-zgit_isindexclean() {
-	zgit_isgit || return 1
-	if git diff --quiet --cached 2>/dev/null; then
-		return 0
-	else
-		return 1
-	fi
-}
-
-if [ -f /usr/local/Library/LinkedKegs/awscli/libexec/bin/aws_zsh_completer.sh ]
-then
-    source /usr/local/Library/LinkedKegs/awscli/libexec/bin/aws_zsh_completer.sh
-fi
-
-zgit_isworktreeclean() {
-	zgit_isgit || return 1
-	if [ -z "$(git ls-files $zgit_info[dir] --full-name --modified)" ]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
-zgit_hasuntracked() {
-	zgit_isgit || return 1
-	local -a flist
-	flist=($(git ls-files --others --exclude-standard))
-	if [ $#flist -gt 0 ]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
-zgit_hasunmerged() {
-	zgit_isgit || return 1
-	local -a flist
-	flist=($(git ls-files -u))
-	if [ $#flist -gt 0 ]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
-zgit_svnhead() {
-	zgit_isgit || return 1
-
-	local commit=$1
-	if [ -z "$commit" ]; then
-		commit='HEAD'
-	fi
-
-	git svn find-rev $commit
-}
-
-zgit_rebaseinfo() {
-	zgit_isgit || return 1
-	if [ -d $zgit_info[dir]/rebase-merge ]; then
-		dotest=$zgit_info[dir]/rebase-merge
-	elif [ -d $zgit_info[dir]/.dotest-merge ]; then
-		dotest=$zgit_info[dir]/.dotest-merge
-	elif [ -d .dotest ]; then
-		dotest=.dotest
-	else
-		return 1
-	fi
-
-	zgit_info[dotest]=$dotest
-
-	zgit_info[rb_onto]=$(cat "$dotest/onto")
-	if [ -f "$dotest/upstream" ]; then
-		zgit_info[rb_upstream]=$(cat "$dotest/upstream")
-	else
-		zgit_info[rb_upstream]=
-	fi
-	if [ -f "$dotest/orig-head" ]; then
-		zgit_info[rb_head]=$(cat "$dotest/orig-head")
-	elif [ -f "$dotest/head" ]; then
-		zgit_info[rb_head]=$(cat "$dotest/head")
-	fi
-	zgit_info[rb_head_name]=$(cat "$dotest/head-name")
-
-	return 0
-}
-
-add-zsh-hook chpwd zgit_chpwd_hook
-add-zsh-hook preexec zgit_preexec_hook
-add-zsh-hook precmd zgit_precmd_hook
-
-zgit_info_update
-
-# git
-revstring() {
-	git rev-parse --short $1 2>/dev/null
-}
-
-coloratom() {
-	local off=$1 atom=$2
-	if [[ $atom[1] == [[:upper:]] ]]; then
-		off=$(( $off + 60 ))
-	fi
-	echo $(( $off + $colorcode[${(L)atom}] ))
-}
-
-colorword() {
-	local fg=$1 bg=$2 att=$3
-	local -a s
-
-	if [ -n "$fg" ]; then
-		s+=$(coloratom 30 $fg)
-	fi
-	if [ -n "$bg" ]; then
-		s+=$(coloratom 40 $bg)
-	fi
-	if [ -n "$att" ]; then
-		s+=$attcode[$att]
-	fi
-
-	echo "%{"$'\e['${(j:;:)s}m"%}"
-}
-
-function minutes_since_last_commit {
-    now=`date +%s`
-    last_commit=`git log --pretty=format:'%at' -1 2>/dev/null`
-    if $lastcommit ; then
-      seconds_since_last_commit=$((now-last_commit))
-      minutes_since_last_commit=$((seconds_since_last_commit/60))
-      echo $minutes_since_last_commit
-      # local T=$((now-last_commit))
-      # D=$((T/60/60/24))
-      # H=$((T/60/60%24))
-      # M=$((T/60%60))
-      # S=$((T%60))
-      # (( $D > 0 )) && printf '%d days ' $D
-      # # [[ $H > 0 ]] && printf '%d hours ' $H
-      # # [[ $M > 0 ]] && printf '%d minutes ' $M
-      # # [[ $D > 0 || $H > 0 || $M > 0 ]] && printf 'and '
-      # # printf '%d seconds\n' $S
-    else
-      echo "-1"
-    fi
-}
-
-function prompt_grb_scm_time_since_commit() {
-	local -A pc
-	pc=(${(kv)wunjo_prompt_colors})
-
-	if zgit_inworktree; then
-        local MINUTES_SINCE_LAST_COMMIT=`minutes_since_last_commit`
-        if [ "$MINUTES_SINCE_LAST_COMMIT" -eq -1 ]; then
-          COLOR="$pc[scm_time_uncommitted]"
-          local SINCE_LAST_COMMIT="${COLOR}uncommitted$pc[reset]"  
-        else
-          if [ "$MINUTES_SINCE_LAST_COMMIT" -gt 30 ]; then
-            COLOR="$pc[scm_time_long]"
-          elif [ "$MINUTES_SINCE_LAST_COMMIT" -gt 10 ]; then
-            COLOR="$pc[scm_time_medium]"
-          else
-            COLOR="$pc[scm_time_short]"
-          fi
-          local SINCE_LAST_COMMIT="${COLOR}$(minutes_since_last_commit)$pc[reset]"
-        fi
-        echo $SINCE_LAST_COMMIT
-    fi
-}
-
-prompt_repo_status() {
-	zgit_isgit || return
-	local zgit_isgit || returnverbose
-	if [[ $TERM == screen* ]] && [ -n "$STY" ]; then
-		verbose=
-	else
-		verbose=1
-	fi
-
-	typeset -A colorcode
-	colorcode[black]=0
-	colorcode[red]=1
-	colorcode[green]=2
-	colorcode[yellow]=3
-	colorcode[blue]=4
-	colorcode[magenta]=5
-	colorcode[cyan]=6
-	colorcode[white]=7
-	colorcode[default]=9
-	colorcode[k]=$colorcode[black]
-	colorcode[r]=$colorcode[red]
-	colorcode[g]=$colorcode[green]
-	colorcode[y]=$colorcode[yellow]
-	colorcode[b]=$colorcode[blue]
-	colorcode[m]=$colorcode[magenta]
-	colorcode[c]=$colorcode[cyan]
-	colorcode[w]=$colorcode[white]
-	colorcode[.]=$colorcode[default]
-
-	typeset -A attcode
-	attcode[none]=00
-	attcode[bold]=01
-	attcode[faint]=02
-	attcode[standout]=03
-	attcode[underline]=04
-	attcode[blink]=05
-	attcode[reverse]=07
-	attcode[conceal]=08
-	attcode[normal]=22
-	attcode[no-standout]=23
-	attcode[no-underline]=24
-	attcode[no-blink]=25
-	attcode[no-reverse]=27
-	attcode[no-conceal]=28
-
-	local -A pc
-	pc[default]='default'
-	pc[date]='cyan'
-	pc[time]='Blue'
-	pc[host]='Green'
-	pc[user]='cyan'
-	pc[punc]='yellow'
-	pc[line]='magenta'
-	pc[hist]='green'
-	pc[path]='Cyan'
-	pc[shortpath]='default'
-	pc[rc]='red'
-	pc[scm_branch]='Cyan'
-	pc[scm_commitid]='Yellow'
-	pc[scm_status_dirty]='Red'
-	pc[scm_status_staged]='Green'
-	pc[#]='Yellow'
-	for cn in ${(k)pc}; do
-		pc[${cn}]=$(colorword $pc[$cn])
-	done
-	pc[reset]=$(colorword . . 00)
-
-	typeset -Ag wunjo_prompt_colors
-	wunjo_prompt_colors=(${(kv)pc})
-
-	local ret
-  ret="$(prompt_grb_scm_time_since_commit)|$(prompt_wunjo_scm_status)|$(prompt_wunjo_scm_branch)"
-  wrap_brackets $ret
-	#add-zsh-hook precmd prompt_wunjo_precmd
-}
-
-prompt_wunjo_precmd() {
-	local ex=$?
-	psvar=()
-
-	if [[ $ex -ge 128 ]]; then
-		sig=$signals[$ex-127]
-		psvar[1]="sig${(L)sig}"
-	else
-		psvar[1]="$ex"
-	fi
-}
-
-prompt_wunjo_scm_status() {
-	zgit_isgit || return
-	local -A pc
-	pc=(${(kv)wunjo_prompt_colors})
-
-	head=$(zgit_head)
-	gitcommit=$(revstring $head)
-
-	local -a commits
-
-	if zgit_rebaseinfo; then
-		orig_commit=$(revstring $zgit_info[rb_head])
-		orig_name=$(git name-rev --name-only $zgit_info[rb_head])
-		orig="$pc[scm_branch]$orig_name$pc[punc]($pc[scm_commitid]$orig_commit$pc[punc])"
-		onto_commit=$(revstring $zgit_info[rb_onto])
-		onto_name=$(git name-rev --name-only $zgit_info[rb_onto])
-		onto="$pc[scm_branch]$onto_name$pc[punc]($pc[scm_commitid]$onto_commit$pc[punc])"
-
-		if [ -n "$zgit_info[rb_upstream]" ] && [ $zgit_info[rb_upstream] != $zgit_info[rb_onto] ]; then
-			upstream_commit=$(revstring $zgit_info[rb_upstream])
-			upstream_name=$(git name-rev --name-only $zgit_info[rb_upstream])
-			upstream="$pc[scm_branch]$upstream_name$pc[punc]($pc[scm_commitid]$upstream_commit$pc[punc])"
-			commits+="rebasing $upstream$pc[reset]..$orig$pc[reset] onto $onto$pc[reset]"
-		else
-			commits+="rebasing $onto$pc[reset]..$orig$pc[reset]"
-		fi
-
-		local -a revs
-		revs=($(git rev-list $zgit_info[rb_onto]..HEAD))
-		if [ $#revs -gt 0 ]; then
-			commits+="\n$#revs commits in"
-		fi
-
-		if [ -f $zgit_info[dotest]/message ]; then
-			mess=$(head -n1 $zgit_info[dotest]/message)
-			commits+="on $mess"
-		fi
-	elif [ -n "$gitcommit" ]; then
-		commits+="$pc[scm_branch]$head$pc[punc]($pc[scm_commitid]$gitcommit$pc[punc])$pc[reset]"
-		local track_merge=$(zgit_tracking_merge)
-		if [ -n "$track_merge" ]; then
-			if git rev-parse --verify -q $track_merge >/dev/null; then
-				local track_remote=$(zgit_tracking_remote)
-				local tracked=$(revstring $track_merge 2>/dev/null)
-
-				local -a revs
-				revs=($(git rev-list --reverse $track_merge..HEAD))
-				if [ $#revs -gt 0 ]; then
-					local base=$(revstring $revs[1]~1)
-					local base_name=$(git name-rev --name-only $base)
-					local base_short=$(revstring $base)
-					local word_commits
-					if [ $#revs -gt 1 ]; then
-						word_commits='commits'
-					else
-						word_commits='commit'
-					fi
-
-					local conj="since"
-					if [[ "$base" == "$tracked" ]]; then
-						conj+=" tracked"
-						tracked=
-					fi
-					commits+="$#revs $word_commits $conj $pc[scm_branch]$base_name$pc[punc]($pc[scm_commitid]$base_short$pc[punc])$pc[reset]"
-				fi
-
-				if [ -n "$tracked" ]; then
-					local track_name=$track_merge
-					if [[ $track_remote == "." ]]; then
-						track_name=${track_name##*/}
-					fi
-					tracked=$(revstring $tracked)
-					commits+="<> $pc[scm_branch]$track_name$pc[punc]"
-					if [[ "$tracked" != "$gitcommit" ]]; then
-						commits[$#commits]+="($pc[scm_commitid]$tracked$pc[punc])"
-					fi
-					commits[$#commits]+="$pc[reset]"
-				fi
-			fi
-		fi
-	fi
-
-	if [ $#commits -gt 0 ]; then
-		echo -n "${(j: :)commits}"
-	fi
-}
-
-prompt_wunjo_scm_branch() {
-	zgit_isgit || return
-	local -A pc
-	pc=(${(kv)wunjo_prompt_colors})
-
-	if zgit_inworktree; then
-		if ! zgit_isindexclean; then
-			echo -n "$pc[scm_status_staged]+"
-		fi
-
-		local -a dirty
-		if ! zgit_isworktreeclean; then
-			dirty+='!'
-		fi
-
-		if zgit_hasunmerged; then
-			dirty+='*'
-		fi
-
-		if zgit_hasuntracked; then
-			dirty+='?'
-		fi
-
-		if [ $#dirty -gt 0 ]; then
-			echo -n "$pc[scm_status_dirty]${(j::)dirty}"
-		fi
-	fi
-	echo $pc[reset]
-}
-
-# }}}
-
-# get the name of the branch we are on
-ERROR_COLOR="${FG[001]}"
-UPTODATE_COLOR="${FG[002]}"
-CHANGES_COLOR="${FG[009]}"
-COMMITS_COLOR="${FG[011]}"
-DIFF_COLOR="${FG[013]}"
-USER_COLOR="${FG[013]}"
-HOST_COLOR="${FG[011]}"
-DIR_COLOR="${FG[011]}"
-STOPPED_JOB_COLOR="${FG[008]}"
-RUNNING_JOB_COLOR="${FG[002]}"
-DETACHED_JOB_COLOR="${FG[226]}"
-DETACHED_JOB_COLOR="${FG[226]}"
-PROMPT_COLOR="${FG[011]}"
-
-wrap_brackets() {
-  if [[ ! -z "$1" ]] ; then
-    echo -ne "[$1]"
-  fi
-}
-
-prompt_exit_code() {
-  if [[ "$1" -ne "0" ]]
-  then
-    wrap_brackets "${ERROR_COLOR}$1${FX[reset]}"
-  fi
-}
-
-prompt_user_host() {
-  local ret=""
-  ret="${ret}${HOST_COLOR}%m${FX[reset]}"
-  wrap_brackets $ret
-}
+# Load the theme
+# PROMPT=$'$(prompt_exit_code $?)$(prompt_user_host)$(prompt_job_counts)$(prompt_folder)$(prompt_repo_status)\
+# $(prompt_actual)'
+# PROMPT2=$'%_$(prompt_actual)'
 
 prompt_job_counts() {
   local running=$(( $(jobs -r | wc -l) ))
@@ -1127,23 +572,115 @@ prompt_job_counts() {
     if [[ $ret != "" ]] ; then ret="${ret}/"; fi
     ret="${ret}${STOPPED_JOB_COLOR}${stopped}${m_stop}${FX[reset]}"
   fi
-  wrap_brackets $ret
+  echo $ret
 }
 
-prompt_folder() {
-  local ret=""
-  ret="${DIR_COLOR}${PWD/#$HOME/~}${FX[reset]}"
-  wrap_brackets $ret
+prompt_pure_human_time() {
+  local tmp=$1
+  local days=$(( tmp / 60 / 60 / 24 ))
+  local hours=$(( tmp / 60 / 60 % 24 ))
+  local minutes=$(( tmp / 60 % 60 ))
+  local seconds=$(( tmp % 60 ))
+  (( $days > 0 )) && echo -n "${days}d "
+  (( $hours > 0 )) && echo -n "${hours}h "
+  (( $minutes > 0 )) && echo -n "${minutes}m "
+  echo "${seconds}s"
 }
 
-prompt_actual() {
-  echo -ne "${PROMPT_COLOR}➜ ${FX[reset]}"
+# fastest possible way to check if repo is dirty
+prompt_pure_git_dirty() {
+  # check if we're in a git repo
+  command git rev-parse --is-inside-work-tree &>/dev/null || return
+  # check if it's dirty
+  [[ "$PURE_GIT_UNTRACKED_DIRTY" == 0 ]] && local umode="-uno" || local umode="-unormal"
+  test -n "$(git status --porcelain --ignore-submodules ${umode})"
+
+  (($? == 0)) && echo '*'
 }
 
-# Load the theme
-PROMPT=$'$(prompt_exit_code $?)$(prompt_user_host)$(prompt_job_counts)$(prompt_folder)$(prompt_repo_status)\
-$(prompt_actual)'
-PROMPT2=$'%_$(prompt_actual)'
+# displays the exec time of the last command if set threshold was exceeded
+prompt_pure_cmd_exec_time() {
+  local stop=$EPOCHSECONDS
+  local start=${cmd_timestamp:-$stop}
+  integer elapsed=$stop-$start
+  (($elapsed > ${PURE_CMD_MAX_EXEC_TIME:=5})) && prompt_pure_human_time $elapsed
+}
+
+prompt_pure_preexec() {
+  cmd_timestamp=$EPOCHSECONDS
+
+  # shows the current dir and executed command in the title when a process is active
+  print -Pn "\e]0;"
+  echo -nE "$PWD:t: $2"
+  print -Pn "\a"
+}
+
+# string length ignoring ansi escapes
+prompt_pure_string_length() {
+  echo ${#${(S%%)1//(\%([KF1]|)\{*\}|\%[Bbkf])}}
+}
+
+prompt_pure_precmd() {
+  # shows the full path in the title
+  print -Pn '\e]0;%~\a'
+
+  # git info
+  vcs_info
+
+  local prompt_pure_preprompt="\n%F{blue}%~%F{242}$vcs_info_msg_0_`prompt_pure_git_dirty` $prompt_pure_username%f %F{yellow}`prompt_pure_cmd_exec_time`%f"
+  print -P $prompt_pure_preprompt
+
+  # check async if there is anything to pull
+  (( ${PURE_GIT_PULL:-1} )) && {
+    # check if we're in a git repo
+    command git rev-parse --is-inside-work-tree &>/dev/null &&
+    # make sure working tree is not $HOME
+    [[ "$(command git rev-parse --show-toplevel)" != "$HOME" ]] &&
+    # check check if there is anything to pull
+    command git fetch &>/dev/null &&
+    # check if there is an upstream configured for this branch
+    command git rev-parse --abbrev-ref @'{u}' &>/dev/null && {
+      local arrows=''
+      (( $(command git rev-list --right-only --count HEAD...@'{u}' 2>/dev/null) > 0 )) && arrows='⇣'
+      (( $(command git rev-list --left-only --count HEAD...@'{u}' 2>/dev/null) > 0 )) && arrows+='⇡'
+      print -Pn "\e7\e[A\e[1G\e[`prompt_pure_string_length $prompt_pure_preprompt`C%F{cyan}${arrows}%f\e8"
+    }
+  } &!
+
+  # reset value since `preexec` isn't always triggered
+  unset cmd_timestamp
+}
+
+
+prompt_pure_setup() {
+  # prevent percentage showing up
+  # if output doesn't end with a newline
+  export PROMPT_EOL_MARK=''
+
+  prompt_opts=(cr subst percent)
+
+  zmodload zsh/datetime
+  autoload -Uz add-zsh-hook
+  autoload -Uz vcs_info
+
+  add-zsh-hook precmd prompt_pure_precmd
+  add-zsh-hook preexec prompt_pure_preexec
+
+  zstyle ':vcs_info:*' enable git
+  #zstyle ':vcs_info:*' check-for-changes true
+  zstyle ':vcs_info:git*:*' get-revision true
+  zstyle ':vcs_info:git*' formats ' %b %6.6i'
+  zstyle ':vcs_info:git*' actionformats ' %b %6.6i|%a'
+
+  # show username@host if logged in through SSH
+  [[ "$SSH_CONNECTION" != '' ]] && prompt_pure_username='%n@%m '
+
+  # prompt turns red if the previous command didn't exit with 0
+  PROMPT='%(?.%F{magenta}.%F{red})❯%f '
+}
+
+prompt_pure_setup "$@"
+
 # }}}
 
 # program settings & paths {{{
