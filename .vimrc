@@ -1032,6 +1032,10 @@ let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
 " }}}
 
+" delimitMate {{{
+let g:loaded_delimitMate = 1
+" }}}
+
 " clang_complete {{{
 "let g:clang_complete_copen = 1
 "let g:clang_user_options='|| exit 0'
@@ -1044,7 +1048,7 @@ let g:clang_snippets = 0
 let g:clang_debug = 1
 if has("macunix")
   "let g:clang_library_path = "/usr/local/opt/llvm/lib/"
-  let g:clang_library_path = "/usr/local/Cellar/llvm/HEAD/lib/"
+  let g:clang_library_path = "/usr/local/Cellar/llvm/3.5.0/lib/"
 else
   let g:clang_library_path = "/usr/lib/"
 endif

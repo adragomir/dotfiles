@@ -205,3 +205,9 @@
 [submodule ".vim/bundle/rust"]
 	path = .vim/bundle/rust
 	url = https://github.com/wting/rust.vim
+[submodule ".vim/bundle/vim-zexp"]
+	path = .vim/bundle/vim-zexp
+	url = https://github.com/guns/vim-sexp
+[submodule ".vim/bundle/vim-sexp-mappings-for-regular-people"]
+	path = .vim/bundle/vim-sexp-mappings-for-regular-people
+	url = https://github.com/tpope/vim-sexp-mappings-for-regular-people

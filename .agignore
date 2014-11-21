@@ -4,7 +4,6 @@ jdiff-cloudera
 log/
 logs/
 tmp/
-vendor/
 *.sql
 *.tags*
 tags
