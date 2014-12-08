@@ -45,19 +45,22 @@ bootstrap() {
   echo ">> Installing dependencies."
   go get -d
   dependencies=`go list -f '{{join .Deps "\n"}}' ./... | xargs go list -f '{{if not .Standard}}{{.ImportPath}}{{end}}'`
+  lines=$(echo $dependencies | sed '/^$/d' | wc -l)
 
-  while read package; do
-    (
-      package_and_version=`find_package_and_last_tag_or_head "$package"`
-      IFS=" " read p v <<< $package_and_version
-      echo ">> Adding package "$p" version "$v" to Godeps."
-      echo ""$p" "$v"" >> Godeps
-      set_package_to_version $p $v
-    )
-  done < <(echo "$dependencies")
+  [[ $lines > 0 ]] && (
+    while read package; do
+      (
+        package_and_version=`find_package_and_last_tag_or_head "$package"`
+        IFS=" " read p v <<< $package_and_version
+        echo ">> Adding package "$p" version "$v" to Godeps."
+        echo ""$p" "$v"" >> Godeps
+        set_package_to_version $p $v
+      )
+    done < <(echo "$dependencies")
+  )
 
   wait
-  sort -u -o Godeps Godeps
+  [[ -f Godeps ]] && sort -u -o Godeps Godeps
   echo ">> All Done."
 }
 
