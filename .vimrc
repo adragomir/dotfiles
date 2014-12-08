@@ -177,7 +177,7 @@ let g:loaded_netrwPlugin = 1
 let g:pathogen_disabled = ['command-t', 'ios', 'gundo', 'vim-rails', 'scriptease', 'vim-expand-region']
 
 call pathogen#infect() 
-call pathogen#helptags()
+"call pathogen#helptags()
 " }}}
 
 " mapleader {{{
@@ -1152,7 +1152,7 @@ let g:syntastic_quiet_messages = {'level': 'warnings'}
 "let g:syntastic_stl_format = '[%E{Err: %fe #%e #%t}]'
 let g:syntastic_disabled_filetypes = ['java', 'css', 'scss', 'html']
 let g:syntastic_echo_current_error = 0
-let g:syntastic_mode_map = { 'mode': 'active',
+let g:syntastic_mode_map = { 'mode': 'passive',
                            \ 'active_filetypes': [],
                            \ 'passive_filetypes': ['puppet', 'java', 'scala', 'clojure', 'html'] }
 "let g:syntastic_javascript_checkers = ['jshint']

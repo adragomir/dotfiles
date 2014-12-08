@@ -272,7 +272,20 @@ zle -N _history-incremental-preserving-pattern-search-backward
 #bindkey "^r" _history-incremental-preserving-pattern-search-backward
 
 # http://qiita.com/uchiko/items/f6b1528d7362c9310da0
-function peco-select-history() {
+function _selecta-select-history() {
+    local selected_entry
+    # Print a newline or we'll clobber the old prompt.
+    echo
+    # Find the path; abort if the user doesn't select anything.
+    selected_entry=$(history | selecta) || return
+    # Append the selection to the current command buffer.
+    eval 'LBUFFER="$LBUFFER$selected_entry"'
+    # Redraw the prompt since Selecta has drawn several new lines of text.
+    zle reset-prompt
+}
+zle -N _selecta-select-history
+
+function _peco-select-history() {
     local tac
     if which gtac > /dev/null; then
         tac="gtac"
@@ -285,8 +298,8 @@ function peco-select-history() {
     CURSOR=$#BUFFER
     zle clear-screen
 }
-#zle -N peco-select-history
-#bindkey '^r' peco-select-history
+zle -N _peco-select-history
+bindkey '^h' _selecta-select-history
 
 bindkey -e
 bindkey '\ew' kill-region
