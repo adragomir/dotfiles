@@ -211,3 +211,6 @@
 [submodule ".vim/bundle/vim-sexp-mappings-for-regular-people"]
 	path = .vim/bundle/vim-sexp-mappings-for-regular-people
 	url = https://github.com/tpope/vim-sexp-mappings-for-regular-people
+[submodule ".vim/bundle/scratch"]
+	path = .vim/bundle/scratch
+	url = https://github.com/mtth/scratch.vim

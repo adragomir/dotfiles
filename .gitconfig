@@ -127,3 +127,7 @@
   insteadOf = https://git.corp.adobe.com/
 [grep]
 	fullname = true
+[filter "media"]
+	clean = git media clean %f
+	smudge = git media smudge %f
+	required = true
