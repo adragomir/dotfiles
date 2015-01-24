@@ -112,9 +112,6 @@
 [submodule ".vim/bundle/scriptease"]
 	path = .vim/bundle/scriptease
 	url = https://github.com/tpope/vim-scriptease.git
-[submodule ".vim/bundle/tern"]
-	path = .vim/bundle/tern
-	url = https://github.com/marijnh/tern_for_vim.git
 [submodule ".vim/bundle/haskellmode-vim"]
 	path = .vim/bundle/haskellmode-vim
 	url = https://github.com/lukerandall/haskellmode-vim
@@ -214,3 +211,6 @@
 [submodule ".vim/bundle/scratch"]
 	path = .vim/bundle/scratch
 	url = https://github.com/mtth/scratch.vim
+[submodule ".vim/bundle/vim-racer"]
+	path = .vim/bundle/vim-racer
+	url = https://github.com/ebfe/vim-racer
