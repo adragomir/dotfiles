@@ -172,9 +172,6 @@
 [submodule ".vim/bundle/quickrun"]
 	path = .vim/bundle/quickrun
 	url = https://github.com/thinca/vim-quickrun
-[submodule ".vim/bundle/shabadou"]
-	path = .vim/bundle/shabadou
-	url = https://github.com/osyo-manga/shabadou.vim
 [submodule ".vim/bundle/vim-coffee-script"]
 	path = .vim/bundle/vim-coffee-script
 	url = https://github.com/kchmck/vim-coffee-script
