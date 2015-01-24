@@ -163,9 +163,6 @@
 [submodule ".vim/bundle/markdown"]
 	path = .vim/bundle/markdown
 	url = https://github.com/plasticboy/vim-markdown
-[submodule ".vim/bundle/vim-bundler"]
-	path = .vim/bundle/vim-bundler
-	url = https://github.com/tpope/vim-bundler
 [submodule ".vim/bundle/gem-browse"]
 	path = .vim/bundle/gem-browse
 	url = https://github.com/tpope/gem-browse
