@@ -40,10 +40,11 @@ set display+=lastline
 set autoread                  " read outside modified files
 set encoding=UTF-8            " file encoding
 set modeline
+set modelines=3
 set regexpengine=0
-"set modelines=0
 set t_ti=
 set t_te=
+set foldmethod=manual
 set formatoptions=tcqjn1     " auto format -ro
 set colorcolumn=+1
 set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
@@ -80,7 +81,7 @@ set iskeyword=@,48-57,128-167,224-235,_
 set showtabline=2
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
-set completeopt=menu,menuone,longest "sjl: set completeopt=longest,menuone,preview
+set completeopt=menu,menuone "sjl: set completeopt=longest,menuone,preview
 set ttyfast
 set timeout
 set ttimeout
@@ -97,6 +98,7 @@ set backup
 " settings: windows and buffers
 "set noequalalways
 set guiheadroom=0
+set shell=bash
 set shellcmdflag=-lc
 " 	When off a buffer is unloaded when it is |abandon|ed.
 set hidden
@@ -106,7 +108,7 @@ set linebreak
 set dictionary=/usr/share/dict/words
 set noexrc " don't read dotfiles in folders
 set gcr=a:blinkon0
-set switchbuf=usetab
+set switchbuf=useopen
 " settings: line endings
 " settings: grep
 if executable("ag")
@@ -562,11 +564,6 @@ nnoremap g; g;zz
 nnoremap g, g,zz
 nnoremap <c-o> <c-o>zz
 
-vnoremap H ^
-vnoremap L $
-nnoremap H ^
-nnoremap L $
-
 " Heresy
 inoremap <c-a> <esc>I
 inoremap <c-e> <esc>A
@@ -616,15 +613,19 @@ nnoremap <leader>q :call ToggleQuickfix()<cr>
 nnoremap <leader>Q :cc<cr>
 
 " remap: always go to character, with ' and `
-noremap ' `
+" noremap ' `
+map <leader>' ``
+map <leader>. `.
+map <leader>] `]
+map <leader>> `>
+map <leader>` `^
+
 inoremap <C-u> <esc>mzgUiw`za
 
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
 nnoremap <silent> Q <nop>
-
-nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 
 map <silent> <F5> :CtrlPBuffer<CR>
 imap <silent> <F5> <C-O>:CtrlPBuffer<CR>
@@ -662,8 +663,8 @@ map <Leader>s :call ToggleScratch()<CR>
 "noremap b W
 
 " Disable recording
-nmap q <nop>
-vmap q <nop>
+" nmap q <nop>
+" vmap q <nop>
 
 set pastetoggle=<f1>
 
@@ -683,8 +684,6 @@ noremap <leader>h <Esc>:tabprev<Cr>
 noremap <leader>l <Esc>:tabnext<Cr>
 noremap <leader>n <Esc>:tabnew<Cr>
 noremap <leader>d <Esc>:tabclose<Cr>
-noremap <leader>[ <Esc>:tabprev<Cr>
-noremap <leader>] <Esc>:tabnext<Cr>
 noremap <leader>t <Esc>:tabnew<Cr>
 
 " GUI keys
@@ -1032,10 +1031,6 @@ let g:tex_ignore_makefile = 1
 let g:tex_flavor = "/usr/texbin/pdftex"
 " }}}
 
-" delimitMate {{{
-let g:loaded_delimitMate = 1
-" }}}
-
 " clang_complete {{{
 "let g:clang_complete_copen = 1
 "let g:clang_user_options='|| exit 0'
@@ -1141,6 +1136,11 @@ let g:vim_json_syntax_conceal = 0
 
 " ack {{{
 let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
+" }}}
+
+" rust racer {{{
+let g:racer_cmd = $HOME . "/bin/darwin/racer"
+let $RUST_SRC_PATH="/usr/local/Cellar/rust/NIGHTLY/rust/src"
 " }}}
 
 " syntastic {{{

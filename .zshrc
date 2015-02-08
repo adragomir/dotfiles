@@ -891,6 +891,13 @@ export AWS_AUTO_SCALING_HOME="/usr/local/Library/LinkedKegs/auto-scaling"
 
 # }}}
 
+# esp8266 {{{
+export XTENSA_TOOL_ROOT=/usr/local/Cellar/xtensa-lx106-elf
+export XTENSA_TOOL_BIN=/usr/local/Cellar/xtensa-lx106-elf/bin
+export ESP8266_SDK_BASE=/usr/local/Cellar/esp_iot_sdk_v0.9.5/
+export ESP8266_RTOS_SDK_BASE=/usr/local/Cellar/esp_iot_rtos_sdk_v0.9.5/
+#}}}
+
 # path {{{
 export PATH=\
 /usr/local/bin:\
@@ -981,7 +988,7 @@ alias df='df -h'
 alias du='du -h -c'
 alias psa='ps auxwww'
 alias ping='ping -c 5'
-alias grep='grep --colour'
+alias grep='grep --colour -a'
 alias irb='pry'
 alias ri='ri -Tf ansi'
 alias tu='top -o cpu'
