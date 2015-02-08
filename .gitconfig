@@ -128,6 +128,6 @@
 [grep]
 	fullname = true
 [filter "media"]
+	required = true
 	clean = git media clean %f
 	smudge = git media smudge %f
-	required = true
