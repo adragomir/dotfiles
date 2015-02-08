@@ -151,9 +151,6 @@
 [submodule ".vim/bundle/openscad"]
 	path = .vim/bundle/openscad
 	url = https://github.com/sirtaj/vim-openscad
-[submodule ".vim/bundle/delimitMate"]
-	path = .vim/bundle/delimitMate
-	url = https://github.com/Raimondi/delimitMate
 [submodule ".vim/bundle/vim-yaml"]
 	path = .vim/bundle/vim-yaml
 	url = https://github.com/stephpy/vim-yaml
