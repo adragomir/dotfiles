@@ -166,3 +166,6 @@
 [submodule ".vim/bundle/vim-racer"]
 	path = .vim/bundle/vim-racer
 	url = https://github.com/ebfe/vim-racer
+[submodule ".vim/bundle/vim-sexp"]
+	path = .vim/bundle/vim-sexp
+	url = https://github.com/guns/vim-sexp
