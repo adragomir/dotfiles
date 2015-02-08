@@ -79,12 +79,6 @@
 [submodule ".vim/bundle/golang-alternate"]
 	path = .vim/bundle/golang-alternate
 	url = https://github.com/benmills/vim-golang-alternate.git
-[submodule ".vim/bundle/ios"]
-	path = .vim/bundle/ios
-	url = https://github.com/eraserhd/vim-ios.git
-[submodule ".vim/bundle/objc"]
-	path = .vim/bundle/objc
-	url = https://github.com/b4winckler/vim-objc.git
 [submodule ".vim/bundle/commentary"]
 	path = .vim/bundle/commentary
 	url = https://github.com/tpope/vim-commentary.git
@@ -109,9 +103,6 @@
 [submodule ".vim/bundle/tbone"]
 	path = .vim/bundle/tbone
 	url = https://github.com/tpope/vim-tbone.git
-[submodule ".vim/bundle/scriptease"]
-	path = .vim/bundle/scriptease
-	url = https://github.com/tpope/vim-scriptease.git
 [submodule ".vim/bundle/haskellmode-vim"]
 	path = .vim/bundle/haskellmode-vim
 	url = https://github.com/lukerandall/haskellmode-vim
@@ -130,15 +121,9 @@
 [submodule ".vim/bundle/json"]
 	path = .vim/bundle/json
 	url = https://github.com/elzr/vim-json
-[submodule ".vim/bundle/toml"]
-	path = .vim/bundle/toml
-	url = https://github.com/cespare/vim-toml
 [submodule ".vim/bundle/textobjectify"]
 	path = .vim/bundle/textobjectify
 	url = https://github.com/paradigm/TextObjectify
-[submodule ".vim/bundle/julia-vim"]
-	path = .vim/bundle/julia-vim
-	url = https://github.com/JuliaLang/julia-vim.git
 [submodule ".vim/bundle/textobj-function"]
 	path = .vim/bundle/textobj-function
 	url = https://github.com/kana/vim-textobj-function
@@ -154,9 +139,6 @@
 [submodule ".vim/bundle/vim-yaml"]
 	path = .vim/bundle/vim-yaml
 	url = https://github.com/stephpy/vim-yaml
-[submodule ".vim/bundle/go-impl"]
-	path = .vim/bundle/go-impl
-	url = https://github.com/rhysd/vim-go-impl
 [submodule ".vim/bundle/markdown"]
 	path = .vim/bundle/markdown
 	url = https://github.com/plasticboy/vim-markdown
@@ -169,18 +151,12 @@
 [submodule ".vim/bundle/vim-ansible-yaml"]
 	path = .vim/bundle/vim-ansible-yaml
 	url = https://github.com/chase/vim-ansible-yaml
-[submodule ".vim/bundle/javascript-libraries-syntax"]
-	path = .vim/bundle/javascript-libraries-syntax
-	url = https://github.com/othree/javascript-libraries-syntax.vim
 [submodule ".vim/bundle/vim-expand-region"]
 	path = .vim/bundle/vim-expand-region
 	url = https://github.com/terryma/vim-expand-region
 [submodule ".vim/bundle/rust"]
 	path = .vim/bundle/rust
 	url = https://github.com/wting/rust.vim
-[submodule ".vim/bundle/vim-zexp"]
-	path = .vim/bundle/vim-zexp
-	url = https://github.com/guns/vim-sexp
 [submodule ".vim/bundle/vim-sexp-mappings-for-regular-people"]
 	path = .vim/bundle/vim-sexp-mappings-for-regular-people
 	url = https://github.com/tpope/vim-sexp-mappings-for-regular-people
