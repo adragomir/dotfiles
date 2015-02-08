@@ -28,25 +28,23 @@ KEY_CTRL_W = ?\C-w
 KEY_CTRL_J = ?\C-j
 KEY_CTRL_M = ?\C-m
 KEY_DELETE = 127.chr # Equivalent to ?\C-?
-KEY_ESC    = ?\C-[
 
 class Selecta
-  VERSION = [0, 0, 2]
+  VERSION = [0, 0, 6]
 
   def main
     # We have to parse options before setting up the screen or trying to read
     # the input in case the user did '-h', an invalid option, etc. and we need
     # to terminate.
     options = Configuration.parse_options(ARGV)
+    input_lines = $stdin.readlines
 
     search = Screen.with_screen do |screen, tty|
-      config = Configuration.from_inputs($stdin.readlines, options, screen.height)
+      config = Configuration.from_inputs(input_lines, options, screen.height)
       run_in_screen(config, screen, tty)
     end
 
-    if search.selection == Search::NoSelection
-      exit(1)
-    else
+    unless search.selection == Search::NoSelection
       puts search.selection
     end
   rescue ScreenValidator::NotATTY
@@ -73,7 +71,7 @@ class Selecta
 
   # Use the search and screen to process user actions until they quit.
   def ui_event_loop(search, screen, tty)
-    while !search.done?
+    while not search.done?
       Renderer.render!(search, screen)
       search = handle_key(search, tty.get_char)
     end
@@ -92,8 +90,6 @@ class Selecta
     when KEY_CTRL_H, KEY_DELETE then search.backspace
 
     when ?\r, KEY_CTRL_J, KEY_CTRL_M then search.done
-
-    when KEY_ESC then search.abort
 
     when /[[:print:]]/ then search.append_search_string(key.chr)
 
@@ -184,7 +180,6 @@ class Search
     @index = vars.fetch(:index)
     @query = vars.fetch(:query)
     @done = vars.fetch(:done)
-    @aborted = vars.fetch(:aborted)
 
     # Lazily compute matches if there aren't any
     @matches = vars.fetch(:matches) { compute_matches }
@@ -196,8 +191,7 @@ class Search
         :choices => config.choices,
         :index => 0,
         :query => config.initial_search,
-        :done => false,
-        :aborted => false)
+        :done => false)
   end
 
   # Construct a new Search by merging in a hash of changes.
@@ -215,29 +209,23 @@ class Search
   end
 
   def done?
-    @done || @aborted
+    @done
   end
 
   def selection
-    if @aborted
-      NoSelection
-    else
-      matches.fetch(@index) { NoSelection }
-    end
+    matches.fetch(@index) { NoSelection }
   end
 
   def down
-    index = (@index + 1) % max_visible_choices
-    merge(:index => index)
+    move_cursor(1)
   end
 
   def up
-    index = (@index - 1) % max_visible_choices
-    merge(:index => index)
+    move_cursor(-1)
   end
 
   def max_visible_choices
-    [@config.visible_choices, choices.count].min
+    [@config.visible_choices, matches.count].min
   end
 
   def append_search_string(string)
@@ -264,10 +252,6 @@ class Search
     merge(:done => true)
   end
 
-  def abort
-    merge(:aborted => true)
-  end
-
   private
 
   def compute_matches
@@ -279,6 +263,15 @@ class Search
       -score
     end.map do |choice, score|
       choice
+    end
+  end
+
+  def move_cursor(direction)
+    if max_visible_choices > 0
+      index = (@index + direction) % max_visible_choices
+      merge(:index => index)
+    else
+      self
     end
   end
 
@@ -358,7 +351,7 @@ class Renderer < Struct.new(:search)
 
   def render
     index, matches = search.index, search.matches
-    search_line = "> " + search.query
+    search_line = "#{match_count_label} > " + search.query
     unless matches.empty?
       selection_line = Text[:inverse, matches.fetch(index), :reset]
       matches = replace_array_element(matches, index, selection_line)
@@ -366,6 +359,13 @@ class Renderer < Struct.new(:search)
     matches = correct_match_count(matches)
     lines = [search_line] + matches
     Rendered.new(lines, search_line)
+  end
+
+  def match_count_label
+    choice_count = search.choices.length
+    max_label_width = choice_count.to_s.length
+    match_count = search.matches.count
+    match_count.to_s.rjust(max_label_width)
   end
 
   def correct_match_count(matches)
@@ -489,7 +489,7 @@ class Screen
         #   - subtract the current column from that to get the number of
         #   columns we have left.
         chars_to_draw = [0, width - 1 - column].max
-        component = component[0..chars_to_draw]
+        component = expand_tabs(component)[0..chars_to_draw]
         ansi.addstr!(component)
         column += component.length
       elsif component == :inverse
@@ -504,6 +504,14 @@ class Screen
         end
         ansi.color!(fg, bg)
       end
+    end
+  end
+
+  def expand_tabs(string)
+    # Modified from http://markmail.org/message/avdjw34ahxi447qk
+    tab_width = 8
+    string.gsub(/([^\t\n]*)\t/) do
+      $1 + " " * (tab_width - ($1.size % tab_width))
     end
   end
 end
@@ -621,6 +629,10 @@ end
 
 class TTY < Struct.new(:in_file, :out_file)
   def self.with_tty(&block)
+    # Selecta reads data from stdin and writes it to stdout, so we can't draw
+    # UI and receive keystrokes through them. Fortunately, all modern
+    # Unix-likes provide /dev/tty, which will be the terminal that the program
+    # is attached to, so we can open that instead.
     File.open("/dev/tty", "r") do |in_file|
       File.open("/dev/tty", "w") do |out_file|
         tty = TTY.new(in_file, out_file)
