@@ -160,9 +160,6 @@
 [submodule ".vim/bundle/markdown"]
 	path = .vim/bundle/markdown
 	url = https://github.com/plasticboy/vim-markdown
-[submodule ".vim/bundle/gem-browse"]
-	path = .vim/bundle/gem-browse
-	url = https://github.com/tpope/gem-browse
 [submodule ".vim/bundle/quickrun"]
 	path = .vim/bundle/quickrun
 	url = https://github.com/thinca/vim-quickrun
