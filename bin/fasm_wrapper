@@ -1,0 +1,10 @@
+#!/bin/bash
+
+f=$1
+bf=$(basename $f)
+fn="${bf%.*}"
+echo $fn
+fasm -m 262144 "$f" "${fn}.o"
+#objconv -fmacho -ar:start:_start -nu "${fn}.o" "${fn}.mach.o"
+objconv -fmacho -ar:start:__start "${fn}.o"
+ld -image_base 400000 -pagezero_size 1000 "${fn}.mach.o" -o "${fn}"
