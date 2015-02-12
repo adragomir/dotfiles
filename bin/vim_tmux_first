@@ -1,0 +1,19 @@
+#!/bin/bash
+
+file=$(printf '%q' "$1")
+TMUX=/usr/local/bin/tmux
+PSTREE=/usr/local/bin/pstree
+
+for s in `$TMUX list-sessions -F '#{session_name}'` ; do
+  for p in `$TMUX list-panes -s -F '#{window_index}.#{pane_id}=#{pane_pid}' -t "$s"` ; do
+    wptmp="${p%%=*}"
+    first_pid="${p##*=}"
+    res=$($PSTREE -p $first_pid | egrep "MacOS\/[V]im" >/dev/null ; echo $?)
+    if [ "$res" -eq "0" ]; then
+      wptmp2=${wptmp//@/}
+      window_pane=${wptmp2//%/}
+      $TMUX send-keys -t "$window_pane" Escape ":e $file" Enter
+      exit 0
+    fi
+  done
+done
