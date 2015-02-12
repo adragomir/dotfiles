@@ -169,3 +169,6 @@
 [submodule ".vim/bundle/vim-sexp"]
 	path = .vim/bundle/vim-sexp
 	url = https://github.com/guns/vim-sexp
+[submodule ".vim/bundle/vim-sbd"]
+	path = .vim/bundle/vim-sbd
+	url = https://github.com/cespare/vim-sbd
