@@ -82,7 +82,9 @@ set showtabline=2
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
 set completeopt=menu,menuone "sjl: set completeopt=longest,menuone,preview
-set ttyfast
+if !has('nvim')
+  set ttyfast
+endif
 set timeout
 set ttimeout
 set timeoutlen=1000
@@ -196,15 +198,9 @@ colorscheme grb256
 " gui settings {{{
 if has("gui_running")
   set mouse=a
-  " set selectmode=mouse "key,mouse
-  " set mousemodel=popup
-  " set keymodel=startsel ",stopsel
-  " set selection=exclusive
-
-  " source $VIMRUNTIME/mswin.vim
-  " mswin.vim, INLINE
   " backspace and cursor keys wrap to previous/next line
-  set backspace=indent,eol,start whichwrap+=<,>,[,]
+  set backspace=indent,eol,start
+  set whichwrap+=<,>,[,]
 
   if has("macunix")
     " mac
@@ -216,6 +212,7 @@ if has("gui_running")
   endif
 else
   set mouse=a
+  set backspace=indent,eol,start
 endif
 " }}}
 
@@ -707,7 +704,6 @@ if has("gui_running")
   if has("macunix")
     " can use D
     " backspace in Visual mode deletes selection
-
     vnoremap <BS> d
 
     " Cut
@@ -913,9 +909,10 @@ let g:matchparen_insert_timeout = 10
 let g:pymode_syntax = 1
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_indent_errors = g:pymode_syntax_all
-let g:pymode_rope = 1
-let g:pymode_rope_enable_autoimport = 1
-let g:pymode_rope_auto_project = 1
+let g:pymode_rope = 0
+let g:pymode_rope_enable_autoimport = 0
+let g:pymode_rope_auto_project = 0
+let g:pymode_rope_lookup_project = 0
 let g:pymode_lint = 0
 let python_highlight_all = 1
 let g:pymode_rope_guess_project = 0
@@ -1043,7 +1040,7 @@ let g:clang_snippets = 0
 let g:clang_debug = 1
 if has("macunix")
   "let g:clang_library_path = "/usr/local/opt/llvm/lib/"
-  let g:clang_library_path = "/usr/local/Cellar/llvm/3.5.0/lib/"
+  let g:clang_library_path = "/usr/local/Cellar/llvm/3.5.1/lib/"
 else
   let g:clang_library_path = "/usr/lib/"
 endif

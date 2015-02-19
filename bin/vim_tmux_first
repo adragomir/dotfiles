@@ -12,6 +12,7 @@ for s in `$TMUX list-sessions -F '#{session_name}'` ; do
     if [ "$res" -eq "0" ]; then
       wptmp2=${wptmp//@/}
       window_pane=${wptmp2//%/}
+      echo "$TMUX send-keys -t "$window_pane" Escape ":e $file" Enter" >> ~/lg
       $TMUX send-keys -t "$window_pane" Escape ":e $file" Enter
       exit 0
     fi

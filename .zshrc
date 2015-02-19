@@ -117,6 +117,10 @@ setopt LONG_LIST_JOBS
 
 # {{{ completions 
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+# zstyle ':completion:*' matcher-list '' \
+#   'm:{a-z\-}={A-Z\_}' \
+#   'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+#   'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}'zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' users $USER
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' squeeze-slashes true
@@ -330,6 +334,13 @@ bindkey '^[5C' forward-word
 bindkey '^[[5C' forward-word
 bindkey '^[[3~' delete-char
 
+_physical_up_line()   { zle backward-char -n $COLUMNS }
+_physical_down_line() { zle forward-char  -n $COLUMNS }
+zle -N physical-up-line _physical_up_line
+zle -N physical-down-line _physical_down_line
+bindkey "\e\e[A" physical-up-line
+bindkey "\e\e[B" physical-down-line
+
 # Move to where the arguments belong.
 after-first-word() {
   zle beginning-of-line
@@ -404,31 +415,22 @@ bases() {
     done
 }
 
-# By @ieure; copied from https://gist.github.com/1474072
-#
-# It finds a file, looking up through parent directories until it finds one.
-# Use it like this:
-#
-#   $ ls .tmux.conf
-#   ls: .tmux.conf: No such file or directory
-#
-#   $ ls `up .tmux.conf`
-#   /Users/grb/.tmux.conf
-#
-#   $ cat `up .tmux.conf`
-#   set -g default-terminal "screen-256color"
 up() {
-    if [ "$1" != "" -a "$2" != "" ]; then
-        local DIR=$1
-        local TARGET=$2
-    elif [ "$1" ]; then
-        local DIR=$PWD
-        local TARGET=$1
-    fi
-    while [ ! -e $DIR/$TARGET -a $DIR != "/" ]; do
-        DIR=$(dirname $DIR)
-    done
-    test $DIR != "/" && echo $DIR/$TARGET
+  local op=print
+  [[ -t 1 ]] && op=cd
+  case "$1" in
+    '') up 1;;
+    -*|+*) $op ~$1;;
+    <->) $op $(printf '../%.0s' {1..$1});;
+    *) local -a seg; seg=(${(s:/:)PWD%/*})
+       local n=${(j:/:)seg[1,(I)$1*]}
+       if [[ -n $n ]]; then
+         $op /$n
+       else
+         print -u2 up: could not find prefix $1 in $PWD
+         return 1
+       fi
+  esac
 }
 
 zman() {
@@ -950,21 +952,7 @@ alias v="view -"
 alias vidir="EDITOR=v vidir"
 alias gvim="g"
 alias h=" history | tail -n 10 | cut -d' ' -f3-"
-
-alias etcdctl_cell3="etcdctl --peers \"http://scvm1231.dev.ut1.omniture.com:4001,http://scvm1232.dev.ut1.omniture.com:4001,http://scvm1235.dev.ut1.omniture.com:4001\""
- 
-#editor
-case "$HOST" in
-  $USER-mac*)
-  alias gvim='$HOME/Applications/MacVim.app/Contents/MacOS/Vim -g';
-  ;;
-  sheeva*)
-  #alias vim='/usr/bin/vim';
-  ;;
-  $USER-mbp*)
-  #alias vim='/usr/bin/vim';
-  ;;
-esac
+alias luarocks="luarocks --tree=user"
 
 # clojure
 alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.4.0/clojure-1.4.0.jar:\
@@ -1041,4 +1029,7 @@ source $ZSH/history-substring-search.zsh
 export DOCKER_TLS_VERIFY=1
 export DOCKER_HOST=tcp://192.168.59.103:2376
 export DOCKER_CERT_PATH=/Users/adr/.boot2docker/certs/boot2docker-vm
+
+export LUA_PATH='/Users/adr/.luarocks/share/lua/5.2/?.lua;/Users/adr/.luarocks/share/lua/5.2/?/init.lua;/usr/local/share/lua/5.2/?.lua;/usr/local/share/lua/5.2/?/init.lua;/usr/local/Cellar/luarocks/2.2.0_1/share/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?/init.lua;./?.lua'
+export LUA_CPATH='/Users/adr/.luarocks/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/loadall.so;./?.so'
 
