@@ -1,0 +1,247 @@
+#!/usr/bin/env bash
+
+usage() {
+cat << EOF
+SYNOPSIS
+
+    Wrapper over Go package management tools. 
+    Barely support: 
+    - Gopm https://github.com/gpmgo/gopm
+    - Godep https://github.com/tools/godep
+    - goop https://github.com/nitrous-io/goop
+    - Gom https://github.com/mattn/gom
+    - Glide https://github.com/Masterminds/glide
+    - Nut https://github.com/jingweno/nut
+
+    Symlinks the current folder into vendorized gopath for easy work
+
+    $ cat .goenv 2>/dev/null
+    github.com/your/package/name
+
+USAGE
+      Version information
+      $ gvm version
+
+      Parses all the go package dependencies, saves them into the Godeps file&
+      $ gvm bootstrap 
+
+      Set the package name and make a symlink
+      $ gvm self github.com/test/test
+
+      Parses the Godeps file, installs dependencies and sets them to the appropriate version.
+      $ gvm install
+
+      Builds all the dependencies
+      $ gvm prebuild
+EOF
+}
+
+link() {
+  local to=$1
+  local from=${2:-$PWD}
+
+  [[ $verbose = "1" ]] && echo "Linking $from/* to $to ..."
+
+  [[ -d "$from" ]] || return
+
+  [[ ! -d $to ]] && mkdir -p $to
+
+  # cleanup old symlinks
+  for f in $to/*; do
+      local bf=$(basename $f)
+      [[ -L "$to/$bf" ]] && rm "$to/$bf"
+  done
+
+  # make new symlinks
+  for f in $from/*; do 
+    [[ "$f" =~ .*(\.vendor|vendor|_vendor|Godeps|\.gopmfile|Goopfile|glide\.yaml|Gomfile|Nut\.toml)$ ]] && continue
+    local bf=$(basename $f)
+    [[ $verbose = "1" ]] && echo ">> Linking $from/$bf to $to/$bf..."
+    ln -vs $from/$bf $to/$bf
+  done
+}
+
+# detect settings
+goenv_ok=0
+if [ -e .gopmfile ]
+then
+    mode=gopm
+    gp=$(pwd)/.vendor
+    package=$(cat .goenv 2>/dev/null)
+    needs_link=1
+    goenv_ok=1
+    exec_prefix=""
+elif [ -e Godeps/Godeps.json ]
+then
+    mode=godep
+    gp=$(pwd)/Godeps/_workspace
+    package=$(cat .goenv 2>/dev/null)
+    needs_link=1
+    goenv_ok=1
+    exec_prefix=""
+elif [ -e Goopfile ]
+then
+    mode=goop
+    gp=$(pwd)/.vendor
+    package=$(cat .goenv 2>/dev/null)
+    needs_link=1
+    goenv_ok=1
+    exec_prefix="goop exec"
+elif [ -e Gomfile ]
+then
+    mode=gom
+    gp=$(pwd)/_vendor
+    package=$(cat .goenv 2>/dev/null)
+    needs_link=1
+    goenv_ok=1
+    exec_prefix="gom exec"
+elif [ -e Glide.yaml ]
+then
+    mode=glide
+    gp=$(pwd)/_vendor
+    package=$(cat glide.yaml | egrep "^package" | awk '{print $2}')
+    needs_link=0
+    goenv_ok=1
+    exec_prefix=""
+elif [ -e Nut.toml ]
+then
+    mode=nut
+    gp=$(pwd)/vendor/_nuts
+    package=$(cat .goenv 2>/dev/null)
+    needs_link=1
+    goenv_ok=1
+    exec_prefix=""
+fi
+
+if [ ! "$goenv_ok" -eq "1" ]; then
+    echo "Can't run here"
+    exit 1
+fi
+
+# parse arguments
+args=($@)
+echo "${args[@]}"
+for arg in "${args[@]}"; do
+    echo "xx $arg"
+    case $arg in
+        -v)
+            verbose=1
+            args=(${args[@]/$arg})
+            ;;
+        "prepare")
+            command=prepare 
+            args=(${args[@]/$arg})
+            ;;
+        "link")
+            command=link
+            args=(${args[@]/$arg})
+            ;;
+        "in")
+            command=in
+            args=(${args[@]/$arg})
+            ;;
+        "out")
+            command=out
+            args=(${args[@]/$arg})
+            ;;
+        "exec"|"run")
+            command="exec"
+            args=(${args[@]/$arg})
+            ;;
+    esac
+done
+
+if [[ "$needs_link" = "1" ]] && [[ "$package" = "" ]] && [[ "$command" != "help" ]]; then
+    echo "Mode '$mode' detected; You need to specify a package in .goenv"
+    exit 1
+fi
+
+case "$command" in 
+    "help")
+        usage
+    ;;
+    "prepare")
+        # prepare env
+        case "$mode" in
+            "gopm")
+                gopm install
+            ;;
+            "godep")
+                godep get
+            ;;
+            "goop")
+                goop install
+            ;;
+            "gom")
+                gom install
+            ;;
+            "glide")
+                glide install
+                glide rebuild
+            ;;
+            "nut")
+                nut install
+            ;;
+        esac
+        if [[ $needs_link == 1 ]];
+        then
+            link "${gp}/$package"
+        fi
+    ;;
+    "link")
+        if [[ $needs_link == 1 ]];
+        then
+            link "${gp}/$package"
+        fi
+    ;;
+    "in")
+        do=1
+        if [[ -n $GOENV_NAME ]]; then
+            [[ $verbose = "1" ]] && echo ">> Already set path to $GOPATH, exiting..."
+            do=0
+        fi
+
+        if [ "$do" -eq "1" ]; then
+            GOENV_OLD_GOPATH=$GOPATH
+            GOENV_OLD_GOBIN=$GOBIN
+            export GOENV_OLD_GOPATH GOENV_OLD_GOBIN
+
+            GOENV_NAME=$(pwd | sed -E "s/^.*\/(.*)$/\\1/")
+            GOBIN="$gp/bin"
+            GOPATH="$gp"
+
+            export GOBIN GOPATH GOENV_NAME
+            [[ $verbose = "1" ]] && echo ">> Local GOPATH set."
+
+            if [[ -n $2 ]]; then
+                [[ $verbose = "1" ]] && echo ">> Running ${@:2}"
+                eval ${@:2}
+            fi
+        fi
+    ;;
+    "out")
+        do=1
+        if [[ -z $GOENV_NAME ]]; then
+            [[ $verbose = "1" ]] && echo ">> Already reverted, exiting..."
+            do=0
+        fi
+
+        if [ "$do" -eq "1" ]; then
+            GOBIN=$GOENV_OLD_GOBIN
+            GOPATH=$GOENV_OLD_GOPATH
+
+            export GOPATH GOBIN
+            unset GOENV_OLD_GOPATH GOENV_OLD_GOBIN GOENV_NAME
+            [[ $verbose = "1" ]] && echo ">> Reverted to system GOPATH."
+        fi
+    ;;
+    "exec")
+        if [ ! -z "$exec_prefix" ];
+        then
+            eval "$exec_prefix ${args[@]}"
+        else
+            GOPATH=$gp eval "${args[@]}"
+        fi
+    ;;
+
+esac

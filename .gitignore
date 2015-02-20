@@ -20,3 +20,6 @@ bin/svnup.yaml
 .irssi/*.log
 bin/binary/*
 .zsh/cache
+.tmux/resurrect
+.config/ranger/*.pyo
+.config/ranger/history
