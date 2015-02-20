@@ -11,7 +11,6 @@ commits_len=${#commits[@]}
 for (( i=0; i<=$(( $commits_len -1 )); i++ ))
 do
   commit_msg=$(git log -1 --pretty=format:%s "${commits[$i]}")
-  #echo "At commit $commit_msg ..."
   issue_name=`expr "$commit_msg" : '^\[\([A-Z0-9\-]*\)\]'`
   echo "git push origin ${commits[$i]}:refs/heads/$issue_name"
   echo "hub pull-request -b $base -h $issue_name"

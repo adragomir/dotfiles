@@ -122,7 +122,8 @@ set nofoldenable
 set autoindent
 set nocindent
 set nosmartindent
-set selection=inclusive
+" don't delete past the end of line
+set selection=old
 set copyindent
 "set indentexpr=
 set expandtab
@@ -173,8 +174,8 @@ let g:loaded_manpageviewPlugin = 1
 " }}}
 let g:loaded_getscript = 1
 let g:loaded_sql_completion = 1
-let g:loaded_vimball = 1
-let g:loaded_vimballPlugin = 1
+let g:loaded_sql_completion=1
+let g:loaded_vimball=1
 let g:loaded_netrwPlugin = 1
 " }}}
 
@@ -183,6 +184,8 @@ let g:pathogen_disabled = ['command-t', 'ios', 'gundo', 'vim-rails', 'scriptease
 call pathogen#infect() 
 "call pathogen#helptags()
 " }}}
+
+" disable plugins in runtime
 
 " mapleader {{{
 let mapleader = ","
