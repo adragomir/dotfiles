@@ -20,19 +20,19 @@ SYNOPSIS
 
 USAGE
       Version information
-      $ gvm version
+      $ goenv version
 
       Parses all the go package dependencies, saves them into the Godeps file&
-      $ gvm bootstrap 
+      $ goenv bootstrap 
 
       Set the package name and make a symlink
-      $ gvm self github.com/test/test
+      $ goenv self github.com/test/test
 
       Parses the Godeps file, installs dependencies and sets them to the appropriate version.
-      $ gvm install
+      $ goenv install
 
       Builds all the dependencies
-      $ gvm prebuild
+      $ goenv prebuild
 EOF
 }
 
@@ -210,6 +210,7 @@ case "$command" in
             GOBIN="$gp/bin"
             GOPATH="$gp"
 
+            hash gocode 2>/dev/null && gocode set lib-path "$GOPATH"
             export GOBIN GOPATH GOENV_NAME
             [[ $verbose = "1" ]] && echo ">> Local GOPATH set."
 
@@ -232,6 +233,7 @@ case "$command" in
 
             export GOPATH GOBIN
             unset GOENV_OLD_GOPATH GOENV_OLD_GOBIN GOENV_NAME
+            hash gocode 2>/dev/null && gocode set lib-path "$GOPATH"
             [[ $verbose = "1" ]] && echo ">> Reverted to system GOPATH."
         fi
     ;;
