@@ -179,10 +179,72 @@ let g:loaded_vimball=1
 let g:loaded_netrwPlugin = 1
 " }}}
 
-let g:pathogen_disabled = ['command-t', 'ios', 'gundo', 'vim-rails', 'scriptease', 'vim-expand-region']
-
-call pathogen#infect() 
+"let g:pathogen_disabled = ['command-t', 'ios', 'gundo', 'vim-rails', 'scriptease', 'vim-expand-region']
+"call pathogen#infect() 
 "call pathogen#helptags()
+
+" vim-plug
+let g:plug_url_format='https://github.com/%s.git'
+
+call plug#begin('~/.vim/bundle')
+Plug 'vim-scripts/a.vim', { 'dir': '.vim/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
+Plug 'tpope/vim-abolish', { 'dir': '.vim/bundle/abolish' }
+Plug 'epmatsw/ag.vim', { 'dir': '.vim/bundle/ag', 'do': 'patch -p1 < ~/.vim/patches/ag.patch' }
+Plug 'Rip-Rip/clang_complete', { 'dir': '.vim/bundle/clang_complete' }
+Plug 'tpope/vim-classpath', { 'dir': '.vim/bundle/classpath' }
+Plug 'austintaylor/vim-commaobject', { 'dir': '.vim/bundle/commaobject' }
+Plug 'tpope/vim-commentary', { 'dir': '.vim/bundle/commentary' }
+Plug 'ctrlpvim/ctrlp.vim', { 'dir': '.vim/bundle/ctrlp' }
+Plug 'vim-scripts/DetectIndent', { 'dir': '.vim/bundle/detectindent' }
+Plug 'tpope/vim-dispatch', { 'dir': '.vim/bundle/dispatch' }
+Plug 'tpope/vim-endwise', { 'dir': '.vim/bundle/endwise' }
+Plug 'tpope/vim-fireplace', { 'dir': '.vim/bundle/fireplace' }
+Plug 'tpope/vim-fugitive', { 'dir': '.vim/bundle/fugitive' }
+Plug 'benmills/vim-golang-alternate', { 'dir': '.vim/bundle/golang-alternate', 'do': 'patch -p1 < ~/.vim/patches/golang-alternate.patch' }
+Plug 'lukerandall/haskellmode-vim', { 'dir': '.vim/bundle/haskellmode-vim' }
+Plug 'othree/html5.vim', { 'dir': '.vim/bundle/html5' }
+Plug 'pangloss/vim-javascript', { 'dir': '.vim/bundle/javascript' }
+Plug 'elzr/vim-json', { 'dir': '.vim/bundle/json' }
+Plug 'plasticboy/vim-markdown', { 'dir': '.vim/bundle/markdown' }
+Plug 'edsono/vim-matchit', { 'dir': '.vim/bundle/matchit' }
+Plug 'tpope/vim-obsession', { 'dir': '.vim/bundle/obsession' }
+Plug 'sirtaj/vim-openscad', { 'dir': '.vim/bundle/openscad' }
+Plug 'ajf/puppet-vim', { 'dir': '.vim/bundle/puppet-vim' }
+Plug 'klen/python-mode', { 'dir': '.vim/bundle/python-mode' }
+Plug 'thinca/vim-quickrun', { 'dir': '.vim/bundle/quickrun' }
+Plug 'kien/rainbow_parentheses.vim', { 'dir': '.vim/bundle/rainbow_parentheses' }
+Plug 'tpope/vim-repeat', { 'dir': '.vim/bundle/repeat' }
+Plug 'wting/rust.vim', { 'dir': '.vim/bundle/rust' }
+Plug 'derekwyatt/vim-scala', { 'dir': '.vim/bundle/scala' }
+Plug 'mtth/scratch.vim', { 'dir': '.vim/bundle/scratch' }
+Plug 'ervandew/supertab', { 'dir': '.vim/bundle/supertab' }
+Plug 'tpope/vim-surround', { 'dir': '.vim/bundle/surround' }
+Plug 'scrooloose/syntastic', { 'dir': '.vim/bundle/syntastic', 'do': 'git am ~/.vim/patches/syntastic.patch' }
+Plug 'godlygeek/tabular', { 'dir': '.vim/bundle/tabular' }
+Plug 'tpope/vim-tbone', { 'dir': '.vim/bundle/tbone' }
+Plug 'Julian/vim-textobj-brace', { 'dir': '.vim/bundle/textobj-brace' }
+Plug 'kana/vim-textobj-function', { 'dir': '.vim/bundle/textobj-function' }
+Plug 'thinca/vim-textobj-function-javascript', { 'dir': '.vim/bundle/textobj-function-javascript' }
+Plug 'sgur/vim-textobj-parameter', { 'dir': '.vim/bundle/textobj-parameter' }
+Plug 'kana/vim-textobj-user', { 'dir': '.vim/bundle/textobj-user' }
+Plug 'paradigm/TextObjectify', { 'dir': '.vim/bundle/textobjectify' }
+Plug 'tpope/vim-unimpaired', { 'dir': '.vim/bundle/unimpaired' }
+Plug 'chase/vim-ansible-yaml', { 'dir': '.vim/bundle/vim-ansible-yaml' }
+Plug 'kchmck/vim-coffee-script', { 'dir': '.vim/bundle/vim-coffee-script' }
+Plug 'terryma/vim-expand-region', { 'dir': '.vim/bundle/vim-expand-region' }
+Plug 'fatih/vim-go', { 'dir': '.vim/bundle/vim-go', 'do': 'git am ~/.vim/patches/vim-go.patch' }
+Plug 'ebfe/vim-racer', { 'dir': '.vim/bundle/vim-racer' }
+Plug 'tpope/vim-rails', { 'dir': '.vim/bundle/vim-rails' }
+Plug 'vim-ruby/vim-ruby', { 'dir': '.vim/bundle/vim-ruby' }
+Plug 'cespare/vim-sbd', { 'dir': '.vim/bundle/vim-sbd' }
+Plug 'guns/vim-sexp', { 'dir': '.vim/bundle/vim-sexp' }
+Plug 'tpope/vim-sexp-mappings-for-regular-people', { 'dir': '.vim/bundle/vim-sexp-mappings-for-regular-people' }
+Plug 'stephpy/vim-yaml', { 'dir': '.vim/bundle/vim-yaml' }
+Plug 'guns/vim-clojure-static', { 'dir': '.vim/bundle/vimclojure-static' }
+Plug 'Shougo/vimproc', { 'dir': '.vim/bundle/vimproc', 'do': 'make' }
+Plug 'megaannum/vimside', { 'dir': '.vim/bundle/vimside' }
+call plug#end()
+
 " }}}
 
 " disable plugins in runtime
@@ -984,13 +1046,6 @@ let g:textobjectify = {
             \}
 " }}}
 
-" command-t settings {{{
-let g:CommandTMaxFiles=400000
-let g:CommandTMaxDepth=25
-let g:CommandTMaxCachedDirectories=0
-let g:CommandTMaxHeight=20
-" }}}
-
 " go settings {{{
 let g:godef_split = 0
 let g:go_play_open_browser = 0
@@ -1070,33 +1125,6 @@ let vimclojure#NailgunClient = expand("$HOME") . "/bin/darwin/ng"
 let vimclojure#NailgunPort = "2113"
 let vimclojure#ParenRainbow = 1
 let g:paredit_mode = 0
-" }}}
-
-" eclim {{{
-" disable eclim, only load it by hand
-let g:EclimBaseDir = expand("$HOME") . "/.vim/bundle/eclim"
-"let g:EclimDisable = 1
-let g:EclimShowCurrentError = 0
-let g:EclimMakeLCD = 1
-let g:EclimMenus = 0
-let g:EclimJavaImportExclude = [ "^com\.sun\..*", "^sun\..*", "^sunw\..*", "^java\.awt\..*" ]
-let g:EclimJavaHierarchyDefaultAction = "tabnew"
-let g:EclimJavaSearchSingleResult = "tabnew"
-let g:EclimDefaultFileOpenAction = "edit"
-let g:EclimXmlIndentDisabled = 1
-let g:EclimXmlValidate = 0
-let g:EclimSignLevel = 0
-let g:EclimBufferTabTracking = 0
-let g:EclimShowCurrentError = 0
-let g:EclimShowCurrentErrorBalloon = 0
-let g:EclimTemplatesDisabled = 1
-
-function! ActivateEclim()
-  runtime! bundle/eclim/plugin/eclim.vim
-  runtime! bundle/eclim/eclim/plugin/*
-  runtime! bundle/eclim/eclim/plugin/after/*
-  call pathogen#infect()
-endfunction
 " }}}
 
 " haskell {{{

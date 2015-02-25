@@ -1,0 +1,335 @@
+From 82935a35c2b01f84e32135aff2e4b339e1386856 Mon Sep 17 00:00:00 2001
+From: Andrei Dragomir <adragomi@adobe.com>
+Date: Sun, 8 Feb 2015 17:34:28 +0200
+Subject: [PATCH] fixes
+
+---
+ autoload/go/cmd.vim      | 41 +++++++++++++++++++++++++++++---------
+ autoload/go/complete.vim | 52 +++++++++++++++++++++++++++++++++++++++---------
+ autoload/go/def.vim      | 11 +++++++++-
+ autoload/go/doc.vim      | 11 +++++++++-
+ autoload/go/errcheck.vim |  6 +++++-
+ autoload/go/lint.vim     |  6 ++++--
+ autoload/go/package.vim  |  6 +++++-
+ autoload/go/tool.vim     |  6 +++++-
+ 8 files changed, 114 insertions(+), 25 deletions(-)
+
+diff --git a/autoload/go/cmd.vim b/autoload/go/cmd.vim
+index dfb5abd..f8faa70 100644
+--- a/autoload/go/cmd.vim
++++ b/autoload/go/cmd.vim
+@@ -3,6 +3,11 @@ if !exists("g:go_jump_to_error")
+ endif
+ 
+ function! go#cmd#Run(bang, ...)
++    let prefix=""
++    if $GOPATH != ""
++        let prefix .= "GOPATH=" . $GOPATH . " "
++    endif
++
+     let goFiles = '"' . join(go#tool#Files(), '" "') . '"'
+ 
+     if IsWin()
+@@ -18,9 +23,9 @@ function! go#cmd#Run(bang, ...)
+ 
+     let default_makeprg = &makeprg
+     if !len(a:000)
+-        let &makeprg = 'go run ' . goFiles
++        let &makeprg = prefix . "go run " . goFiles
+     else
+-        let &makeprg = "go run " . expand(a:1)
++        let &makeprg = prefix . "go run " . expand(a:1)
+     endif
+ 
+     exe 'make!'
+@@ -38,8 +43,12 @@ function! go#cmd#Run(bang, ...)
+ endfunction
+ 
+ function! go#cmd#Install(...)
+-    let pkgs = join(a:000, '" "')
+-    let command = 'go install "' . pkgs . '"'
++    let pkgs = join(a:000, ' ')
++    let prefix=""
++    if $GOPATH != ""
++        let prefix .= "GOPATH=" . $GOPATH . " "
++    endif
++    let command = prefix . 'go install "' . pkgs . '"'
+     let out = go#tool#ExecuteInDir(command)
+     if v:shell_error
+         call go#tool#ShowErrors(out)
+@@ -57,10 +66,14 @@ endfunction
+ function! go#cmd#Build(bang, ...)
+     let default_makeprg = &makeprg
+     let gofiles = join(go#tool#Files(), '" "')
++    let prefix=""
++    if $GOPATH != ""
++        let prefix .= "GOPATH=" . $GOPATH . " "
++    endif
+     if v:shell_error
+-        let &makeprg = "go build . errors"
++        let &makeprg = prefix . "go build . errors"
+     else
+-        let &makeprg = "go build -o /dev/null " . join(a:000, ' ') . ' "' . gofiles . '"'
++        let &makeprg = prefix . "go build -o /dev/null " . join(a:000, ' ') . ' "' . gofiles . '"'
+     endif
+ 
+     echon "vim-go: " | echohl Identifier | echon "building ..."| echohl None
+@@ -82,9 +95,14 @@ function! go#cmd#Build(bang, ...)
+ endfunction
+ 
+ function! go#cmd#Test(...)
+-    let command = "go test ."
++    let prefix=""
++    if $GOPATH != ""
++        let prefix .= "GOPATH=" . $GOPATH . " "
++    endif
++    let command = prefix . "go test ."
++
+     if len(a:000)
+-        let command = "go test " . expand(a:1)
++      let command = prefix . "go test " . expand(a:1)
+     endif
+ 
+     echon "vim-go: " | echohl Identifier | echon "testing ..." | echohl None
+@@ -110,7 +128,12 @@ endfunction
+ function! go#cmd#Coverage(...)
+     let l:tmpname=tempname()
+ 
+-    let command = "go test -coverprofile=".l:tmpname
++    let prefix=""
++    if $GOPATH != ""
++        let prefix .= "GOPATH=" . $GOPATH . " "
++    endif
++
++    let command = prefix . "go test -coverprofile=".l:tmpname
+ 
+     let out = go#tool#ExecuteInDir(command)
+     if v:shell_error
+diff --git a/autoload/go/complete.vim b/autoload/go/complete.vim
+index a1894ce..132b3c2 100644
+--- a/autoload/go/complete.vim
++++ b/autoload/go/complete.vim
+@@ -2,6 +2,27 @@ if !exists("g:go_gocode_bin")
+     let g:go_gocode_bin = "gocode"
+ endif
+ 
++function! s:gocodeFastExecute(args, buf)
++python << EOL
++import vim, os, subprocess
++params = vim.eval("a:args")
++#buf = vim.current.buffer
++buf = vim.eval("a:buf")
++buffer_str = "\n".join(buf[:])
++try:
++    process = subprocess.Popen(params, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
++    stdout = process.communicate(input=buffer_str)[0]
++    output_command_string = "let result = \"%s\"" % stdout.replace("\"", "\\\"")
++    vim.command(output_command_string)
++except:
++    vim.command("let result = \"['0', []]\"")
++EOL
++
++if &encoding != 'utf-8'
++    let result = iconv(result, 'utf-8', &encoding)
++endif
++return result
++endfunction
+ 
+ fu! s:gocodeCurrentBuffer()
+     let buf = getline(1, '$')
+@@ -13,13 +34,17 @@ fu! s:gocodeCurrentBuffer()
+         " so if fileformat is 'dos', 'buf' must include '\r'.
+         let buf = map(buf, 'v:val."\r"')
+     endif
++    return buf
++endf
++
++fu! s:gocodeCurrentBufferFile()
++	let buf = s:gocodeCurrentBuffer()
+     let file = tempname()
+     call writefile(buf, file)
+ 
+     return file
+ endf
+ 
+-
+ if go#vimproc#has_vimproc()
+     let s:vim_system = get(g:, 'gocomplete#system_function', 'vimproc#system2')
+ else
+@@ -80,21 +105,30 @@ fu! s:gocodeCursor()
+ endf
+ 
+ fu! s:gocodeAutocomplete()
+-    let filename = s:gocodeCurrentBuffer()
+-    let result = s:gocodeCommand('autocomplete',
++	if 1
++	    let toolPath = go#tool#BinPath(g:go_gocode_bin)
++	    let result = s:gocodeFastExecute([toolPath, '-f=vim', 'autocomplete',  expand('%:p'), s:gocodeCursor()], s:gocodeCurrentBuffer())
++	else
++	    let filename = s:gocodeCurrentBufferFile()
++	    let result = s:gocodeCommand('autocomplete',
+                 \ [s:gocodeCurrentBufferOpt(filename), '-f=vim'],
+                 \ [expand('%:p'), s:gocodeCursor()])
+-    call delete(filename)
++    	call delete(filename)
++	endif
+     return result
+ endf
+ 
+ function! go#complete#GetInfo()
+-    let filename = s:gocodeCurrentBuffer()
+-    let result = s:gocodeCommand('autocomplete',
++    if 1
++	    let result = s:gocodeFastExecute([toolPath, '-f=godit', 'autocomplete',  expand('%:p'), s:gocodeCursor()], s:gocodeCurrentBuffer)
++	else
++	    let filename = s:gocodeCurrentBufferFile()
++    	let result = s:gocodeCommand('autocomplete',
+                 \ [s:gocodeCurrentBufferOpt(filename), '-f=godit'],
+                 \ [expand('%:p'), s:gocodeCursor()])
+-    call delete(filename)
+-
++	    call delete(filename)
++    endif
++ 
+     " first line is: Charcount,,NumberOfCandidates, i.e: 8,,1
+     " following lines are candiates, i.e:  func foo(name string),,foo(
+     let out = split(result, '\n')
+@@ -104,7 +138,7 @@ function! go#complete#GetInfo()
+         return ""
+     endif
+ 
+-    " only one candiate is found
++    " only one candidate is found
+     if len(out) == 2
+         return split(out[1], ',,')[0]
+     endif
+diff --git a/autoload/go/def.vim b/autoload/go/def.vim
+index 0be1f02..99fa104 100644
+--- a/autoload/go/def.vim
++++ b/autoload/go/def.vim
+@@ -18,7 +18,12 @@ function! go#def#Jump(...)
+ 		return
+ 	endif
+ 
+-	let command = bin_path . " -f=" . expand("%:p") . " -i " . shellescape(arg)
++  let prefix = ""
++  if $GOPATH != ""
++    let prefix .= "GOPATH=" . $GOPATH . " "
++  endif
++
++	let command = prefix . bin_path . " -f=" . expand("%:p") . " -i " . shellescape(arg)
+ 
+ 	" get output of godef
+ 	let out=system(command, join(getbufline(bufnr('%'), 1, '$'), LineEnding()))
+@@ -36,6 +41,10 @@ function! go#def#JumpMode(mode)
+ 		return
+ 	endif
+ 
++  let prefix = ""
++  if $GOPATH != ""
++    let prefix .= "GOPATH=" . $GOPATH . " "
++  endif
+ 	let command = bin_path . " -f=" . expand("%:p") . " -i " . shellescape(arg)
+ 
+ 	" get output of godef
+diff --git a/autoload/go/doc.vim b/autoload/go/doc.vim
+index 9509b65..6a61179 100644
+--- a/autoload/go/doc.vim
++++ b/autoload/go/doc.vim
+@@ -18,6 +18,11 @@
+ "
+ "       Flag to indicate whether to enable the commands listed above.
+ 
++if exists("g:loaded_godoc")
++    finish
++endif
++let g:loaded_godoc = 1
++
+ let s:buf_nr = -1
+ 
+ if !exists("g:go_doc_command")
+@@ -94,7 +99,11 @@ function! go#doc#Open(newmode, mode, ...)
+     let pkg = pkgs[0]
+     let exported_name = pkgs[1]
+ 
+-    let command = g:go_doc_command . ' ' . g:go_doc_options . ' ' . pkg
++    let prefix = ""
++    if $GOPATH != ""
++      let prefix .= "GOPATH=" . $GOPATH . " "
++    endif
++    let command = prefix . g:go_doc_command . ' ' . g:go_doc_options . ' ' . pkg
+ 
+     silent! let content = system(command)
+     if v:shell_error || !len(content)
+diff --git a/autoload/go/errcheck.vim b/autoload/go/errcheck.vim
+index 0927667..03cee5d 100644
+--- a/autoload/go/errcheck.vim
++++ b/autoload/go/errcheck.vim
+@@ -18,8 +18,12 @@ function! go#errcheck#Run(...) abort
+         return
+     endif
+ 
++    let prefix = ""
++    if $GOPATH != ""
++        let prefix .= "GOPATH=" . $GOPATH . " "
++    endif
+     echon "vim-go: " | echohl Identifier | echon "errcheck analysing ..." | echohl None
+-    let out = system(bin_path . ' ' . package)
++    let out = system(prefix . bin_path . ' ' . package)
+     if v:shell_error
+         let errors = []
+         let mx = '^\(.\{-}\):\(\d\+\):\(\d\+\)\s*\(.*\)'
+diff --git a/autoload/go/lint.vim b/autoload/go/lint.vim
+index 89c103a..b2d293d 100644
+--- a/autoload/go/lint.vim
++++ b/autoload/go/lint.vim
+@@ -21,8 +21,10 @@ function! go#lint#Run() abort
+ 	if empty(bin_path) 
+ 		return 
+ 	endif
+-
+-    silent cexpr system(bin_path . " " . shellescape(expand('%')))
++    if $GOPATH != ""
++        let prefix .= "GOPATH=" . $GOPATH . " "
++    endif
++    silent cexpr system(prefix . " " . bin_path . " " . shellescape(expand('%')))
+     cwindow
+ endfunction
+ 
+diff --git a/autoload/go/package.vim b/autoload/go/package.vim
+index fe32a2c..c4f5ba3 100644
+--- a/autoload/go/package.vim
++++ b/autoload/go/package.vim
+@@ -96,7 +96,11 @@ function! go#package#FromPath(arg)
+ endfunction
+ 
+ function! go#package#CompleteMembers(package, member)
+-    silent! let content = system('godoc ' . a:package)
++    let prefix=""
++    if $GOPATH != ""
++      let prefix .= "GOPATH=" . $GOPATH . " "
++    endif
++    silent! let content = system(prefix . 'godoc ' . a:package)
+     if v:shell_error || !len(content)
+         return []
+     endif
+diff --git a/autoload/go/tool.vim b/autoload/go/tool.vim
+index db165e4..de351bd 100644
+--- a/autoload/go/tool.vim
++++ b/autoload/go/tool.vim
+@@ -77,7 +77,11 @@ function! go#tool#ExecuteInDir(cmd) abort
+     let dir = getcwd()
+     try
+         execute cd.'`=expand("%:p:h")`'
+-        let out = system(a:cmd)
++        let prefix=""
++        if $GOPATH != ""
++        let prefix .= "GOPATH=" . $GOPATH . " "
++        endif
++        let out = system(prefix . a:cmd)
+     finally
+         execute cd.'`=dir`'
+     endtry
+-- 
+2.2.2
+

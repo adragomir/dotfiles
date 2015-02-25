@@ -1,0 +1,12 @@
+diff --git i/plugin/ag.vim w/plugin/ag.vim
+index 7d15222..1d88981 100644
+--- i/plugin/ag.vim
++++ w/plugin/ag.vim
+@@ -76,7 +76,6 @@ function! s:Ag(cmd, args)
+     " echo "Searching ..."
+ 
+     " If no pattern is provided, search for the word under the cursor
+-    echom mode()
+     if empty(a:args)
+         let l:grepargs = expand("<cword>")
+     else
