@@ -801,10 +801,6 @@ export HTML_TIDY=$HOME/.tidyconf
 # ansible
 export ANSIBLE_HOSTS=~/.ansible/hosts
 
-export ROO_HOME=$HOME/work/tools/spring-roo-1.1.0.M1
-
-export FLEX_SDK_BIN_DIR=/Users/adr/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin
-
 export MONO_GAC_PREFIX=/usr/local
 
 # haxe
@@ -860,16 +856,18 @@ export ENSIMEHOME=/Users/adr/work/tools/ensime/
 
 # go
 
-export GOPATH=$HOME/.gocode
+if [ "" = "${ALREADY_GLIDING}" ]; then
+  export GOPATH=$HOME/.gocode
+fi
 # {{{ amazon
 
 # credentials
 export EC2_CERT_PAIR=pass
 if [ -d $HOME/.ec2/$EC2_CERT_PAIR ]; then
-    export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/pk-*.pem)"
-    export EC2_CERT="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/cert-*.pem)"
+    # export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/pk-*.pem)"
+    # export EC2_CERT="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/cert-*.pem)"
 fi
-if [ -d $HOME/.secrets/.aws-credentials-$EC2_CERT_PAIR ]; then
+if [ -f $HOME/.secrets/.aws-credentials-$EC2_CERT_PAIR ]; then
     export AWS_CREDENTIAL_FILE=$HOME/.secrets/.aws-credentials-$EC2_CERT_PAIR
     export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
     export AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
@@ -900,6 +898,8 @@ export ESP8266_SDK_BASE=/usr/local/Cellar/xtensa-lx106-elf/esp_iot_sdk
 export ESP8266_RTOS_SDK_BASE=/usr/local/Cellar/xtensa-lx106-elf/esp_iot_rtos_sdk
 #}}}
 
+[[ -f $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
+
 # path {{{
 export PATH=\
 /usr/local/bin:\
@@ -913,9 +913,7 @@ $HOME/temp/source/other/sshuttle:\
 $HOME/temp/source/other/factor:\
 $HOME/work/tools/nasm:\
 $HOME/temp/source/other/rock/bin:\
-$ROO_HOME/bin:\
 $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64:\
-$HOME/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin:\
 $HOME/.rvm/bin:\
 $HOME/.perl5/bin:\
 $GOPATH/bin:\
@@ -1021,7 +1019,6 @@ source $ZSH/history-substring-search.zsh
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
 
-[[ -f $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
 # }}}
 #vim:foldmethod=marker
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

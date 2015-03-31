@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+if [ $# -lt 1 ]
+then
+  exit 1
+fi
+ 
+# get instance id
+instance_name=$(echo "${1}" | sed -e 's/\([^.]*\)\.\([^.]*\)\.aws$/\1/')
+region=$(echo "${1}" | sed -e 's/\([^.]*\)\.\([^.]*\)\.aws$/\2/')
+aws ec2 describe-instances --region $region --filters "Name=tag:Name,Values=${instance_name}" --query "Reservations[0].Instances[0].PublicDnsName" --output text

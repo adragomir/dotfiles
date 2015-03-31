@@ -1,5 +1,7 @@
 #!/bin/bash
 
+debug=0
+
 if [[ $1 == /* ]]; then
   file=$(printf '%q' "$1")
 else
@@ -16,7 +18,7 @@ for s in `$TMUX list-sessions -F '#{session_name}'` ; do
       res=$($PSTREE -p $first_pid | egrep "MacOS\/[V]im" >/dev/null ; echo $?)
       if [ "$res" -eq "0" ]; then
         window_pane="${w}.${pane_index}"
-        echo "$TMUX send-keys -t $window_pane Escape ":e $file" Enter" >> ~/lg
+        [[ $debug == 1  ]] && echo "$TMUX send-keys -t $window_pane Escape ":e $file" Enter" >> ~/lg
         $TMUX send-keys -t "$window_pane" Escape ":e $file" Enter
         exit 0
       fi

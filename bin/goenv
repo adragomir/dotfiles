@@ -40,7 +40,7 @@ link() {
   local to=$1
   local from=${2:-$PWD}
 
-  [[ $verbose = "1" ]] && echo "Linking $from/* to $to ..."
+  [[ $verbose == "1" ]] && echo "Linking $from/* to $to ..."
 
   [[ -d "$from" ]] || return
 
@@ -56,7 +56,7 @@ link() {
   for f in $from/*; do 
     [[ "$f" =~ .*(\.vendor|vendor|_vendor|Godeps|\.gopmfile|Goopfile|glide\.yaml|Gomfile|Nut\.toml)$ ]] && continue
     local bf=$(basename $f)
-    [[ $verbose = "1" ]] && echo ">> Linking $from/$bf to $to/$bf..."
+    [[ $verbose == "1" ]] && echo ">> Linking $from/$bf to $to/$bf..."
     ln -vs $from/$bf $to/$bf
   done
 }
@@ -120,9 +120,7 @@ fi
 
 # parse arguments
 args=($@)
-echo "${args[@]}"
 for arg in "${args[@]}"; do
-    echo "xx $arg"
     case $arg in
         -v)
             verbose=1
@@ -197,7 +195,7 @@ case "$command" in
     "in")
         do=1
         if [[ -n $GOENV_NAME ]]; then
-            [[ $verbose = "1" ]] && echo ">> Already set path to $GOPATH, exiting..."
+            [[ $verbose == "1" ]] && echo ">> Already set path to $GOPATH, exiting..."
             do=0
         fi
 
@@ -212,10 +210,10 @@ case "$command" in
 
             hash gocode 2>/dev/null && gocode set lib-path "$GOPATH"
             export GOBIN GOPATH GOENV_NAME
-            [[ $verbose = "1" ]] && echo ">> Local GOPATH set."
+            [[ $verbose == "1" ]] && echo ">> Local GOPATH set."
 
             if [[ -n $2 ]]; then
-                [[ $verbose = "1" ]] && echo ">> Running ${@:2}"
+                [[ $verbose == "1" ]] && echo ">> Running ${@:2}"
                 eval ${@:2}
             fi
         fi
@@ -223,7 +221,7 @@ case "$command" in
     "out")
         do=1
         if [[ -z $GOENV_NAME ]]; then
-            [[ $verbose = "1" ]] && echo ">> Already reverted, exiting..."
+            [[ $verbose == "1" ]] && echo ">> Already reverted, exiting..."
             do=0
         fi
 
@@ -234,7 +232,7 @@ case "$command" in
             export GOPATH GOBIN
             unset GOENV_OLD_GOPATH GOENV_OLD_GOBIN GOENV_NAME
             hash gocode 2>/dev/null && gocode set lib-path "$GOPATH"
-            [[ $verbose = "1" ]] && echo ">> Reverted to system GOPATH."
+            [[ $verbose == "1" ]] && echo ">> Reverted to system GOPATH."
         fi
     ;;
     "exec")

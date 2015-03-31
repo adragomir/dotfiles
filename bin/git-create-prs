@@ -12,8 +12,8 @@ for (( i=0; i<=$(( $commits_len -1 )); i++ ))
 do
   commit_msg=$(git log -1 --pretty=format:%s "${commits[$i]}")
   issue_name=`expr "$commit_msg" : '^\[\([A-Z0-9\-]*\)\]'`
-  echo "git push origin ${commits[$i]}:refs/heads/$issue_name"
-  echo "hub pull-request -b $base -h $issue_name"
+  echo "git push -f origin ${commits[$i]}:refs/heads/$issue_name"
+  echo "hub pull-request -f -m \"${commit_msg}\" -b $base -h $issue_name"
   base=$issue_name
 done
 

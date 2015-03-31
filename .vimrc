@@ -48,7 +48,7 @@ set foldmethod=manual
 set formatoptions=tcqjn1     " auto format -ro
 set colorcolumn=+1
 set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
-set synmaxcol=200
+set synmaxcol=600
 " visual cues
 set ignorecase                " ignore case when searching
 set smartcase                 " ignore case when searching
@@ -134,6 +134,7 @@ set cmdheight=2
 set suffixes+=.lo,.o,.moc,.la,.closure,.loT
 set suffixes+=.bak,~,.o,.h,.info,.swp,.obj
 set suffixes+=class,.6
+let g:did_install_default_menus = 1
 " }}}
 
 " wildmenu settings {{{
@@ -187,62 +188,63 @@ let g:loaded_netrwPlugin = 1
 let g:plug_url_format='https://github.com/%s.git'
 
 call plug#begin('~/.vim/bundle')
-Plug 'vim-scripts/a.vim', { 'dir': '.vim/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
-Plug 'tpope/vim-abolish', { 'dir': '.vim/bundle/abolish' }
-Plug 'epmatsw/ag.vim', { 'dir': '.vim/bundle/ag', 'do': 'patch -p1 < ~/.vim/patches/ag.patch' }
-Plug 'Rip-Rip/clang_complete', { 'dir': '.vim/bundle/clang_complete' }
-Plug 'tpope/vim-classpath', { 'dir': '.vim/bundle/classpath' }
-Plug 'austintaylor/vim-commaobject', { 'dir': '.vim/bundle/commaobject' }
-Plug 'tpope/vim-commentary', { 'dir': '.vim/bundle/commentary' }
-Plug 'ctrlpvim/ctrlp.vim', { 'dir': '.vim/bundle/ctrlp' }
-Plug 'vim-scripts/DetectIndent', { 'dir': '.vim/bundle/detectindent' }
-Plug 'tpope/vim-dispatch', { 'dir': '.vim/bundle/dispatch' }
-Plug 'tpope/vim-endwise', { 'dir': '.vim/bundle/endwise' }
-Plug 'tpope/vim-fireplace', { 'dir': '.vim/bundle/fireplace' }
-Plug 'tpope/vim-fugitive', { 'dir': '.vim/bundle/fugitive' }
-Plug 'benmills/vim-golang-alternate', { 'dir': '.vim/bundle/golang-alternate', 'do': 'patch -p1 < ~/.vim/patches/golang-alternate.patch' }
-Plug 'lukerandall/haskellmode-vim', { 'dir': '.vim/bundle/haskellmode-vim' }
-Plug 'othree/html5.vim', { 'dir': '.vim/bundle/html5' }
-Plug 'pangloss/vim-javascript', { 'dir': '.vim/bundle/javascript' }
-Plug 'elzr/vim-json', { 'dir': '.vim/bundle/json' }
-Plug 'plasticboy/vim-markdown', { 'dir': '.vim/bundle/markdown' }
-Plug 'edsono/vim-matchit', { 'dir': '.vim/bundle/matchit' }
-Plug 'tpope/vim-obsession', { 'dir': '.vim/bundle/obsession' }
-Plug 'sirtaj/vim-openscad', { 'dir': '.vim/bundle/openscad' }
-Plug 'ajf/puppet-vim', { 'dir': '.vim/bundle/puppet-vim' }
-Plug 'klen/python-mode', { 'dir': '.vim/bundle/python-mode' }
-Plug 'thinca/vim-quickrun', { 'dir': '.vim/bundle/quickrun' }
-Plug 'kien/rainbow_parentheses.vim', { 'dir': '.vim/bundle/rainbow_parentheses' }
-Plug 'tpope/vim-repeat', { 'dir': '.vim/bundle/repeat' }
-Plug 'wting/rust.vim', { 'dir': '.vim/bundle/rust' }
-Plug 'derekwyatt/vim-scala', { 'dir': '.vim/bundle/scala' }
-Plug 'mtth/scratch.vim', { 'dir': '.vim/bundle/scratch' }
-Plug 'ervandew/supertab', { 'dir': '.vim/bundle/supertab' }
-Plug 'tpope/vim-surround', { 'dir': '.vim/bundle/surround' }
-Plug 'scrooloose/syntastic', { 'dir': '.vim/bundle/syntastic', 'do': 'git am ~/.vim/patches/syntastic.patch' }
-Plug 'godlygeek/tabular', { 'dir': '.vim/bundle/tabular' }
-Plug 'tpope/vim-tbone', { 'dir': '.vim/bundle/tbone' }
-Plug 'Julian/vim-textobj-brace', { 'dir': '.vim/bundle/textobj-brace' }
-Plug 'kana/vim-textobj-function', { 'dir': '.vim/bundle/textobj-function' }
-Plug 'thinca/vim-textobj-function-javascript', { 'dir': '.vim/bundle/textobj-function-javascript' }
-Plug 'sgur/vim-textobj-parameter', { 'dir': '.vim/bundle/textobj-parameter' }
-Plug 'kana/vim-textobj-user', { 'dir': '.vim/bundle/textobj-user' }
-Plug 'paradigm/TextObjectify', { 'dir': '.vim/bundle/textobjectify' }
-Plug 'tpope/vim-unimpaired', { 'dir': '.vim/bundle/unimpaired' }
-Plug 'chase/vim-ansible-yaml', { 'dir': '.vim/bundle/vim-ansible-yaml' }
-Plug 'kchmck/vim-coffee-script', { 'dir': '.vim/bundle/vim-coffee-script' }
-Plug 'terryma/vim-expand-region', { 'dir': '.vim/bundle/vim-expand-region' }
-Plug 'fatih/vim-go', { 'dir': '.vim/bundle/vim-go', 'do': 'git am ~/.vim/patches/vim-go.patch' }
-Plug 'ebfe/vim-racer', { 'dir': '.vim/bundle/vim-racer' }
-Plug 'tpope/vim-rails', { 'dir': '.vim/bundle/vim-rails' }
-Plug 'vim-ruby/vim-ruby', { 'dir': '.vim/bundle/vim-ruby' }
-Plug 'cespare/vim-sbd', { 'dir': '.vim/bundle/vim-sbd' }
-Plug 'guns/vim-sexp', { 'dir': '.vim/bundle/vim-sexp' }
-Plug 'tpope/vim-sexp-mappings-for-regular-people', { 'dir': '.vim/bundle/vim-sexp-mappings-for-regular-people' }
-Plug 'stephpy/vim-yaml', { 'dir': '.vim/bundle/vim-yaml' }
-Plug 'guns/vim-clojure-static', { 'dir': '.vim/bundle/vimclojure-static' }
-Plug 'Shougo/vimproc', { 'dir': '.vim/bundle/vimproc', 'do': 'make' }
-Plug 'megaannum/vimside', { 'dir': '.vim/bundle/vimside' }
+Plug 'vim-scripts/a.vim', { 'dir': '~/.vim/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
+Plug 'tpope/vim-abolish', { 'dir': '~/.vim/bundle/abolish' }
+Plug 'epmatsw/ag.vim', { 'dir': '~/.vim/bundle/ag', 'do': 'patch -p1 < ~/.vim/patches/ag.patch' }
+Plug 'Rip-Rip/clang_complete', { 'dir': '~/.vim/bundle/clang_complete' }
+Plug 'tpope/vim-classpath', { 'dir': '~/.vim/bundle/classpath' }
+Plug 'austintaylor/vim-commaobject', { 'dir': '~/.vim/bundle/commaobject' }
+Plug 'tpope/vim-commentary', { 'dir': '~/.vim/bundle/commentary' }
+Plug 'ctrlpvim/ctrlp.vim', { 'dir': '~/.vim/bundle/ctrlp' }
+Plug 'vim-scripts/DetectIndent', { 'dir': '~/.vim/bundle/detectindent' }
+Plug 'tpope/vim-dispatch', { 'dir': '~/.vim/bundle/dispatch' }
+Plug 'tpope/vim-endwise', { 'dir': '~/.vim/bundle/endwise' }
+Plug 'tpope/vim-fireplace', { 'dir': '~/.vim/bundle/fireplace' }
+Plug 'tpope/vim-fugitive', { 'dir': '~/.vim/bundle/fugitive' }
+Plug 'benmills/vim-golang-alternate', { 'dir': '~/.vim/bundle/golang-alternate', 'do': 'patch -p1 < ~/.vim/patches/golang-alternate.patch' }
+Plug 'lukerandall/haskellmode-vim', { 'dir': '~/.vim/bundle/haskellmode-vim' }
+Plug 'othree/html5.vim', { 'dir': '~/.vim/bundle/html5' }
+Plug 'pangloss/vim-javascript', { 'dir': '~/.vim/bundle/javascript' }
+Plug 'elzr/vim-json', { 'dir': '~/.vim/bundle/json' }
+Plug 'plasticboy/vim-markdown', { 'dir': '~/.vim/bundle/markdown' }
+Plug 'edsono/vim-matchit', { 'dir': '~/.vim/bundle/matchit' }
+Plug 'tpope/vim-obsession', { 'dir': '~/.vim/bundle/obsession' }
+Plug 'sirtaj/vim-openscad', { 'dir': '~/.vim/bundle/openscad' }
+Plug 'ajf/puppet-vim', { 'dir': '~/.vim/bundle/puppet-vim' }
+Plug 'klen/python-mode', { 'dir': '~/.vim/bundle/python-mode' }
+Plug 'thinca/vim-quickrun', { 'dir': '~/.vim/bundle/quickrun' }
+Plug 'kien/rainbow_parentheses.vim', { 'dir': '~/.vim/bundle/rainbow_parentheses' }
+Plug 'tpope/vim-repeat', { 'dir': '~/.vim/bundle/repeat' }
+Plug 'wting/rust.vim', { 'dir': '~/.vim/bundle/rust' }
+Plug 'derekwyatt/vim-scala', { 'dir': '~/.vim/bundle/scala' }
+Plug 'mtth/scratch.vim', { 'dir': '~/.vim/bundle/scratch' }
+Plug 'ervandew/supertab', { 'dir': '~/.vim/bundle/supertab' }
+Plug 'tpope/vim-surround', { 'dir': '~/.vim/bundle/surround' }
+Plug 'scrooloose/syntastic', { 'dir': '~/.vim/bundle/syntastic', 'do': 'git am ~/.vim/patches/syntastic.patch' }
+Plug 'godlygeek/tabular', { 'dir': '~/.vim/bundle/tabular' }
+Plug 'tpope/vim-tbone', { 'dir': '~/.vim/bundle/tbone' }
+Plug 'Julian/vim-textobj-brace', { 'dir': '~/.vim/bundle/textobj-brace' }
+Plug 'kana/vim-textobj-function', { 'dir': '~/.vim/bundle/textobj-function' }
+Plug 'thinca/vim-textobj-function-javascript', { 'dir': '~/.vim/bundle/textobj-function-javascript' }
+Plug 'sgur/vim-textobj-parameter', { 'dir': '~/.vim/bundle/textobj-parameter' }
+Plug 'kana/vim-textobj-user', { 'dir': '~/.vim/bundle/textobj-user' }
+Plug 'paradigm/TextObjectify', { 'dir': '~/.vim/bundle/textobjectify' }
+Plug 'tpope/vim-unimpaired', { 'dir': '~/.vim/bundle/unimpaired' }
+Plug 'chase/vim-ansible-yaml', { 'dir': '~/.vim/bundle/vim-ansible-yaml' }
+Plug 'kchmck/vim-coffee-script', { 'dir': '~/.vim/bundle/vim-coffee-script' }
+Plug 'terryma/vim-expand-region', { 'dir': '~/.vim/bundle/vim-expand-region' }
+Plug 'fatih/vim-go', { 'dir': '~/.vim/bundle/vim-go', 'do': 'git am ~/.vim/patches/vim-go.patch' }
+Plug 'ebfe/vim-racer', { 'dir': '~/.vim/bundle/vim-racer' }
+Plug 'tpope/vim-rails', { 'dir': '~/.vim/bundle/vim-rails' }
+Plug 'vim-ruby/vim-ruby', { 'dir': '~/.vim/bundle/vim-ruby' }
+Plug 'cespare/vim-sbd', { 'dir': '~/.vim/bundle/vim-sbd' }
+Plug 'guns/vim-sexp', { 'dir': '~/.vim/bundle/vim-sexp' }
+Plug 'tpope/vim-sexp-mappings-for-regular-people', { 'dir': '~/.vim/bundle/vim-sexp-mappings-for-regular-people' }
+Plug 'stephpy/vim-yaml', { 'dir': '~/.vim/bundle/vim-yaml' }
+Plug 'guns/vim-clojure-static', { 'dir': '~/.vim/bundle/vimclojure-static' }
+Plug 'Shougo/vimproc', { 'dir': '~/.vim/bundle/vimproc', 'do': 'make' }
+Plug 'megaannum/vimside', { 'dir': '~/.vim/bundle/vimside' }
+"Plug 'sudar/vim-arduino-syntax', { 'dir': '~/.vim/bundle/vim-arduino-syntax' }
 call plug#end()
 
 " }}}
@@ -675,12 +677,22 @@ nnoremap <leader>q :call ToggleQuickfix()<cr>
 nnoremap <leader>Q :cc<cr>
 
 " remap: always go to character, with ' and `
-" noremap ' `
+nnoremap ' `
+xnoremap ' `
 map <leader>' ``
 map <leader>. `.
 map <leader>] `]
 map <leader>> `>
 map <leader>` `^
+
+nnoremap - $
+xnoremap - $
+onoremap - $
+
+" vaporize delete without overwriting the default register
+nnoremap vd "_d
+xnoremap x  "_d
+nnoremap vD "_D
 
 inoremap <C-u> <esc>mzgUiw`za
 
@@ -691,6 +703,9 @@ nnoremap <silent> Q <nop>
 
 map <silent> <F5> :CtrlPBuffer<CR>
 imap <silent> <F5> <C-O>:CtrlPBuffer<CR>
+
+map <silent> <F6> :CtrlP /Users/adr/Documents/personal/notes/<CR>
+imap <silent> <F6> <C-O>:CtrlP /Users/adr/Documents/personal/notes/<CR>
 
 imap <c-c> <Esc>
 " quicker window switching
@@ -747,6 +762,8 @@ noremap <leader>l <Esc>:tabnext<Cr>
 noremap <leader>n <Esc>:tabnew<Cr>
 noremap <leader>d <Esc>:tabclose<Cr>
 noremap <leader>t <Esc>:tabnew<Cr>
+
+map <leader>r :w\|:silent !reload-chrome<cr>
 
 " GUI keys
 if has("gui_running")
@@ -928,6 +945,15 @@ if has("gui_running")
 else
 endif
 
+" noremap p "0p
+" noremap P "0P
+" vnoremap p "0p
+" vnoremap P "0P
+noremap c "_c
+noremap cc "_cc
+noremap C "_C
+
+
 " }}}
 
 " abbreviations {{{
@@ -971,7 +997,10 @@ let g:matchparen_insert_timeout = 10
 " }}}
 "
 " python syntax settings {{{
-let g:pymode_syntax = 1
+let g:pymode_syntax = 0
+let g:pymode_folding = 0
+let g:pymode_warning = 0
+let g:pymode_motion = 0
 let g:pymode_syntax_all = 1
 let g:pymode_syntax_indent_errors = g:pymode_syntax_all
 let g:pymode_rope = 0
@@ -981,7 +1010,7 @@ let g:pymode_rope_lookup_project = 0
 let g:pymode_lint = 0
 let python_highlight_all = 1
 let g:pymode_rope_guess_project = 0
-let g:pymode_rope_vim_completion = 1
+let g:pymode_rope_vim_completion = 0
 " }}}
 
 " taglist settings {{{
@@ -1194,6 +1223,9 @@ let g:syntastic_mode_map = { 'mode': 'passive',
 
 " }}}
 
+" abbreviations {{{
+nnoremap <F7> "=strftime("(%Y-%m-%d %H:%M)")<CR>P
+" }}}
 " commands {{{
 command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
 command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
@@ -1213,10 +1245,13 @@ command! -bang WQ wq<bang>
 " auto commands {{{
 
 augroup all_buffers
+
   au!
   " Has to be an autocommand because repeat.vim eats the mapping otherwise :(
   " au VimEnter * :nnoremap U <c-r>
 
+  au BufNewFile,BufRead *.ino set filetype=cpp
+  au BufNewFile,BufRead *.pde set filetype=cpp
   " remove all buffers on exit so we don't have them as hidden on reopen
   au VimLeavePre * 1,255bwipeout
 
@@ -1257,6 +1292,7 @@ augroup settings
   au FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
   au FileType javascript setlocal ai sw=4 ts=4 sts=4 et
   au FileType c set ts=4 sw=4 sts=4 commentstring=//\ %s
+  au FileType openscad set ts=4 sw=4 sts=4 commentstring=//\ %s
   au FileType css set expandtab ts=4 sw=4 sts=4
   au FileType scss set expandtab ts=4 sw=4 sts=4
   au FileType text,markdown,mkd,pandoc,mail setlocal textwidth=1000
