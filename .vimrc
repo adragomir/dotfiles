@@ -211,6 +211,7 @@ Plug 'edsono/vim-matchit', { 'dir': '~/.vim/bundle/matchit' }
 Plug 'tpope/vim-obsession', { 'dir': '~/.vim/bundle/obsession' }
 Plug 'sirtaj/vim-openscad', { 'dir': '~/.vim/bundle/openscad' }
 Plug 'ajf/puppet-vim', { 'dir': '~/.vim/bundle/puppet-vim' }
+Plug 'davidhalter/jedi-vim', { 'dir': '~/.vim/bundle/jedi-vim' }
 Plug 'klen/python-mode', { 'dir': '~/.vim/bundle/python-mode' }
 Plug 'thinca/vim-quickrun', { 'dir': '~/.vim/bundle/quickrun' }
 Plug 'kien/rainbow_parentheses.vim', { 'dir': '~/.vim/bundle/rainbow_parentheses' }
@@ -765,186 +766,6 @@ noremap <leader>t <Esc>:tabnew<Cr>
 
 map <leader>r :w\|:silent !reload-chrome<cr>
 
-" GUI keys
-if has("gui_running")
-  if has("gui_macvim")
-	set guicursor=n-v-c:block-Cursor
-	set guicursor+=i:block-Cursor
-	" Fuck you, help key.
-    noremap  <F1> :set invfullscreen<CR>
-    inoremap <F1> <ESC>:set invfullscreen<CR>a
-
-    let macvim_skip_cmd_opt_movement = 1
-    let macvim_hig_shift_movement = 0
-  endif
-
-  " noremap h <Esc>:tabprev<Cr>
-  " noremap l <Esc>:tabnext<Cr>
-  " noremap n <Esc>:tabnew<Cr>
-  " noremap c <Esc>:tabclose<Cr>
-
-  if has("macunix")
-    " can use D
-    " backspace in Visual mode deletes selection
-    vnoremap <BS> d
-
-    " Cut
-    vnoremap <D-X> "+x
-    " Copy
-    vnoremap <special> <D-C> "+y
-    " Paste
-    map <D-V>		"+gP
-    cmap <D-V>		<C-R>+
-
-    " Pasting blockwise and linewise selections is not possible in Insert and
-    " Visual mode without the +virtualedit feature.  They are pasted as if they
-    " were characterwise instead.
-    " Uses the paste.vim autoload script.
-
-    exe 'inoremap <script> <D-V>' paste#paste_cmd['i']
-    exe 'vnoremap <script> <D-V>' paste#paste_cmd['v']
-
-    " CTRL-A is Select all
-    noremap <D-A> gggH<C-O>G
-    inoremap <D-A> <C-O>gg<C-O>gH<C-O>G
-    cnoremap <D-A> <C-C>gggH<C-O>G
-    onoremap <D-A> <C-C>gggH<C-O>G
-    snoremap <D-A> <C-C>gggH<C-O>G
-    xnoremap <D-A> <C-C>ggVG
-
-    vnoremap <special> <D-x> "+x
-    vnoremap <special> <D-c> "+y
-    cnoremap <special> <D-c> <C-Y>
-    nnoremap <special> <D-v> "+gP
-    cnoremap <special> <D-v> <C-R>+
-    execute 'vnoremap <script> <special> <D-v>' paste#paste_cmd['v']
-    execute 'inoremap <script> <special> <D-v>' paste#paste_cmd['i']
-
-    nnoremap <silent> <special> <D-a> :if &slm != ""<Bar>exe ":norm gggH<C-O>G"<Bar> else<Bar>exe ":norm ggVG"<Bar>endif<CR>
-    vmap <special> <D-a> <Esc><D-a>
-    imap <special> <D-a> <Esc><D-a>
-    cmap <special> <D-a> <C-C><D-a>
-    omap <special> <D-a> <Esc><D-a>
-
-    map <D-t> :tabnew<CR>
-    map <D-n> :new<CR>
-    map <D-S-t> :browse tabe<CR>
-    map <D-S-n> :browse split<CR>
-    map <D-]> :tabn<CR>
-    map <D-[> :tabp<CR>
-    imap <D-]> <C-o>:tabn<CR>
-    imap <D-[> <C-o>:tabp<CR>
-
-    map <D-1> 1gt
-    map <D-2> 2gt
-    map <D-3> 3gt
-    map <D-4> 4gt
-    map <D-5> 5gt
-    map <D-6> 6gt
-    map <D-7> 7gt
-    map <D-8> 8gt
-    map <D-9> 9gt
-    map <D-0> 10gt
-    imap <D-1> <C-o>1gt<CR>
-    imap <D-2> <C-o>2gt<CR>
-    imap <D-3> <C-o>3gt<CR>
-    imap <D-4> <C-o>4gt<CR>
-    imap <D-5> <C-o>5gt<CR>
-    imap <D-6> <C-o>6gt<CR>
-    imap <D-7> <C-o>7gt<CR>
-    imap <D-8> <C-o>8gt<CR>
-    imap <D-9> <C-o>9gt<CR>
-    imap <D-0> <C-o>10gt<CR>
-
-    map <D-M-Right> :tabn<CR>
-    map <D-M-Left> :tabp<CR>
-    imap <D-M-Right> <C-o>:tabn<CR>
-    imap <D-M-Left> <C-o>:tabp<CR>
-
-    noremap <silent> <D-`> :maca selectNextWindow:<CR>
-    inoremap <silent> <D-`> <C-O>:maca selectNextWindow:<CR>
-    noremap <silent> <D-d> :bd<CR>
-    inoremap <silent> <D-d> <C-O>:bd<CR>
-  else
-    " use C
-    " backspace in Visual mode deletes selection
-    vnoremap <BS> d
-
-    " CTRL-X and SHIFT-Del are Cut
-    vnoremap <C-X> "+x
-    " CTRL-C and CTRL-Insert are Copy
-    vnoremap <special> <C-C> "+y
-    " CTRL-V and SHIFT-Insert are Paste
-    map <C-V>		"+gP
-    cmap <C-V>		<C-R>+
-
-    " Pasting blockwise and linewise selections is not possible in Insert and
-    " Visual mode without the +virtualedit feature.  They are pasted as if they
-    " were characterwise instead.
-    " Uses the paste.vim autoload script.
-
-    exe 'inoremap <script> <C-V>' paste#paste_cmd['i']
-    exe 'vnoremap <script> <C-V>' paste#paste_cmd['v']
-
-    " Use CTRL-Q to do what CTRL-V used to do
-    noremap <C-Q>		<C-V>
-
-    " CTRL-A is Select all
-    noremap <C-A> gggH<C-O>G
-    inoremap <C-A> <C-O>gg<C-O>gH<C-O>G
-    cnoremap <C-A> <C-C>gggH<C-O>G
-    onoremap <C-A> <C-C>gggH<C-O>G
-    snoremap <C-A> <C-C>gggH<C-O>G
-    xnoremap <C-A> <C-C>ggVG
-
-    vnoremap <special> <C-x> "+x
-    vnoremap <special> <C-c> "+y
-    cnoremap <special> <C-c> <C-Y>
-    nnoremap <special> <C-v> "+gP
-    cnoremap <special> <C-v> <C-R>+
-    execute 'vnoremap <script> <special> <C-v>' paste#paste_cmd['v']
-    execute 'inoremap <script> <special> <C-v>' paste#paste_cmd['i']
-
-    nnoremap <silent> <special> <C-a> :if &slm != ""<Bar>exe ":norm gggH<C-O>G"<Bar> else<Bar>exe ":norm ggVG"<Bar>endif<CR>
-    vmap <special> <C-a> <Esc><C-a>
-    imap <special> <C-a> <Esc><C-a>
-    cmap <special> <C-a> <C-C><C-a>
-    omap <special> <C-a> <Esc><C-a>
-
-    map <M-t> :tabnew<CR>
-    map <M-n> :new<CR>
-    map <M-S-t> :browse tabe<CR>
-    map <M-S-n> :browse split<CR>
-    map <M-]> :tabn<CR>
-    map <M-[> :tabp<CR>
-    imap <M-]> <C-o>:tabn<CR>
-    imap <M-[> <C-o>:tabp<CR>
-
-    map <M-1> 1gt
-    map <M-2> 2gt
-    map <M-3> 3gt
-    map <M-4> 4gt
-    map <M-5> 5gt
-    map <M-6> 6gt
-    map <M-7> 7gt
-    map <M-8> 8gt
-    map <M-9> 9gt
-    map <M-0> 10gt
-
-    imap <M-1> <C-o>1gt<CR>
-    imap <M-2> <C-o>2gt<CR>
-    imap <M-3> <C-o>3gt<CR>
-    imap <M-4> <C-o>4gt<CR>
-    imap <M-5> <C-o>5gt<CR>
-    imap <M-6> <C-o>6gt<CR>
-    imap <M-7> <C-o>7gt<CR>
-    imap <M-8> <C-o>8gt<CR>
-    imap <M-9> <C-o>9gt<CR>
-    imap <M-0> <C-o>10gt<CR>
-  endif
-else
-endif
-
 " noremap p "0p
 " noremap P "0P
 " vnoremap p "0p
@@ -1049,7 +870,10 @@ let g:ctrlp_max_files = 0
 " }}}
 
 " jedi {{{
-let g:jedi#auto_initialization = 0
+let g:jedi#completions_enabled = 0
+let g:jedi#auto_initialization = 1
+let g:jedi#auto_vim_configuration = 0
+let g:jedi#goto_definitions_command = "<leader>d"
 " }}}
 
 " textobjectify settings {{{

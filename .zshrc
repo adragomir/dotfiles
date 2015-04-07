@@ -1015,6 +1015,7 @@ function reload() {
 source $ZSH/golang.plugin.zsh
 source $ZSH/url-tools.plugin.zsh
 source $ZSH/history-substring-search.zsh
+source /usr/local/share/zsh/site-functions/_aws
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
@@ -1029,4 +1030,4 @@ export DOCKER_CERT_PATH=/Users/adr/.boot2docker/certs/boot2docker-vm
 
 export LUA_PATH='/Users/adr/.luarocks/share/lua/5.2/?.lua;/Users/adr/.luarocks/share/lua/5.2/?/init.lua;/usr/local/share/lua/5.2/?.lua;/usr/local/share/lua/5.2/?/init.lua;/usr/local/Cellar/luarocks/2.2.0_1/share/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?/init.lua;./?.lua'
 export LUA_CPATH='/Users/adr/.luarocks/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/loadall.so;./?.so'
-
+export LIBGUESTFS_PATH=/usr/local/share/libguestfs-appliance
