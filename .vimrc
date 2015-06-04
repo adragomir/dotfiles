@@ -49,6 +49,7 @@ set formatoptions=tcqjn1     " auto format -ro
 set colorcolumn=+1
 set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
 set synmaxcol=600
+set foldlevelstart=99
 " visual cues
 set ignorecase                " ignore case when searching
 set smartcase                 " ignore case when searching
@@ -58,6 +59,11 @@ set gdefault
 set nojoinspaces
 "set cursorline
 set laststatus=2              " always show status line
+
+if has('patch-7.4.338')
+  set breakindent
+  set breakindentopt=sbr
+endif
 set showbreak=…
 set fillchars=diff:⣿,vert:\|
 set noshowcmd                   " show number of selected chars/lines in status
@@ -72,6 +78,7 @@ set scrolljump=10
 set virtualedit+=block
 set novisualbell
 set noerrorbells
+set nostartofline
 set tildeop
 set t_vb=
 set winaltkeys=no
@@ -120,8 +127,9 @@ set grepformat=%f:%l:%m
 " settings: tabs and indentin
 set nofoldenable
 set autoindent
-set nocindent
-set nosmartindent
+"set nocindent
+set lazyredraw
+set smartindent
 " don't delete past the end of line
 set selection=old
 set copyindent
@@ -245,7 +253,10 @@ Plug 'stephpy/vim-yaml', { 'dir': '~/.vim/bundle/vim-yaml' }
 Plug 'guns/vim-clojure-static', { 'dir': '~/.vim/bundle/vimclojure-static' }
 Plug 'Shougo/vimproc', { 'dir': '~/.vim/bundle/vimproc', 'do': 'make' }
 Plug 'megaannum/vimside', { 'dir': '~/.vim/bundle/vimside' }
+" Plug 'dhruvasagar/vim-table-mode', { 'dir': '~/.vim/bundle/vim-table-mode' }
 "Plug 'sudar/vim-arduino-syntax', { 'dir': '~/.vim/bundle/vim-arduino-syntax' }
+Plug 'rhysd/vim-clang-format', { 'dir': '~/.vim/bundle/vim-clang-format' }
+
 call plug#end()
 
 " }}}
@@ -572,7 +583,68 @@ function! MapSearch(rhs_pattern, bang)
 	echo "No such map"
 	echohl Normal
     endif
-endfunction" }}}
+endfunction
+
+function! Kwbd(kwbdStage)
+  if(a:kwbdStage == 1)
+    if(!buflisted(winbufnr(0)))
+      bd!
+      return
+    endif
+    let s:kwbdBufNum = bufnr("%")
+    let s:kwbdWinNum = winnr()
+    windo call Kwbd(2)
+    execute s:kwbdWinNum . 'wincmd w'
+    let s:buflistedLeft = 0
+    let s:bufFinalJump = 0
+    let l:nBufs = bufnr("$")
+    let l:i = 1
+    while(l:i <= l:nBufs)
+      if(l:i != s:kwbdBufNum)
+        if(buflisted(l:i))
+          let s:buflistedLeft = s:buflistedLeft + 1
+        else
+          if(bufexists(l:i) && !strlen(bufname(l:i)) && !s:bufFinalJump)
+            let s:bufFinalJump = l:i
+          endif
+        endif
+      endif
+      let l:i = l:i + 1
+    endwhile
+    if(!s:buflistedLeft)
+      if(s:bufFinalJump)
+        windo if(buflisted(winbufnr(0))) | execute "b! " . s:bufFinalJump | endif
+      else
+        enew
+        let l:newBuf = bufnr("%")
+        windo if(buflisted(winbufnr(0))) | execute "b! " . l:newBuf | endif
+      endif
+      execute s:kwbdWinNum . 'wincmd w'
+    endif
+    if(buflisted(s:kwbdBufNum) || s:kwbdBufNum == bufnr("%"))
+      execute "bd! " . s:kwbdBufNum
+    endif
+    if(!s:buflistedLeft)
+      set buflisted
+      set bufhidden=delete
+      set buftype=
+      setlocal noswapfile
+    endif
+  else
+    if(bufnr("%") == s:kwbdBufNum)
+      let prevbufvar = bufnr("#")
+      if(prevbufvar > 0 && buflisted(prevbufvar) && prevbufvar != s:kwbdBufNum)
+        b #
+      else
+        bn
+      endif
+    endif
+  endif
+endfunction
+
+command! K call Kwbd(1)
+
+" }}}
 
 " settings after functions {{{ 
 set guitablabel=%{GuiTabLabel()}
@@ -666,6 +738,8 @@ function! MapCR()
   nnoremap <cr> :nohlsearch<cr>
 endfunction
 call MapCR()
+
+
 
 nnoremap <m-Down> :cnext<cr>zvzz
 nnoremap <m-Up> :cprevious<cr>zvzz
@@ -870,6 +944,8 @@ let g:ctrlp_max_files = 0
 " }}}
 
 " jedi {{{
+let g:jedi#use_tabs_not_buffers = 0
+let g:jedi#show_call_signatures = 0
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_initialization = 1
 let g:jedi#auto_vim_configuration = 0
@@ -951,18 +1027,19 @@ let g:clang_snippets = 0
 let g:clang_debug = 1
 if has("macunix")
   "let g:clang_library_path = "/usr/local/opt/llvm/lib/"
-  let g:clang_library_path = "/usr/local/Cellar/llvm/3.5.1/lib/"
+  let g:clang_library_path = "/usr/local/opt/llvm36/lib/llvm-3.6/lib/"
+  " let g:clang_library_path = "/usr/local/Cellar/llvm/3.5.1/lib/"
 else
   let g:clang_library_path = "/usr/lib/"
 endif
 " }}}
+" clang format {{{
+let g:clang_format#command = "/usr/local/bin/clang-format-3.6"
+let g:clang_format#detect_style_file = 1
+" }}}
 
 " vimside {{{
 
-" }}}
-
-" simplenote {{{
-source $HOME/.secrets/simplenote_credentials.vim
 " }}}
 
 " clojure {{{

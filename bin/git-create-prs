@@ -1,4 +1,14 @@
 #!/bin/bash
+
+push_only=0
+while getopts ":p" opt; do
+  case $opt in
+    p)
+      push_only=1
+      ;;
+  esac
+done
+
 branch_name="$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)"
 IFS=$'\r\n'
 commits=($(git rev-list --reverse "master..${branch_name}"))
@@ -8,12 +18,33 @@ base=master
 
 commits_len=${#commits[@]}
 
+last_issue=""
+commit_issue=""
+commit_message=""
 for (( i=0; i<=$(( $commits_len -1 )); i++ ))
 do
   commit_msg=$(git log -1 --pretty=format:%s "${commits[$i]}")
   issue_name=`expr "$commit_msg" : '^\[\([A-Z0-9\-]*\)\]'`
-  echo "git push -f origin ${commits[$i]}:refs/heads/$issue_name"
-  echo "hub pull-request -f -m \"${commit_msg}\" -b $base -h $issue_name"
-  base=$issue_name
+  if [[ "${issue_name}" != "" ]]; then
+    if [[ $commit_issue != "" ]]; then
+      # we have something to push
+      echo "git push -f origin ${last_commit}:refs/heads/$commit_issue"
+      if [[ $push_only == 0  ]]; then
+        echo "hub pull-request -f -m \"${commit_message}\" -b $base -h $commit_issue"
+      fi
+      base=$commit_issue
+    fi
+    commit_issue="${issue_name}"
+    commit_message=$commit_msg
+  fi
+  last_commit="${commits[$i]}"
 done
+
+if [[ $commit_issue != "" ]]; then
+  # we have something to push
+  echo "git push -f origin ${last_commit}:refs/heads/$commit_issue"
+  if [[ $push_only == 0  ]]; then
+    echo "hub pull-request -f -m \"${commit_message}\" -b $base -h $issue_name"
+  fi
+fi
 

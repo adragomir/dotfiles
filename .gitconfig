@@ -3,9 +3,23 @@
 	email = adragomi@adobe.com
 
 [color]
-  diff = auto
-  status = auto
-  branch = auto
+  ui = auto
+
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = cyan
 
 [log]
   decorate = full
@@ -15,7 +29,11 @@
   singlekey = true
 
 [alias]
+  chunkyadd = add --patch           # stage commits chunk by chunk
+  snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
+  snapshots = !git stash list --grep snapshot
   cleanup = !git remote prune origin && git gc && git clean -df && git stash clear
+  recent-branches = !git for-each-ref --count=15 --sort=-committerdate refs/heads/ --format='%(refname:short)'
   unreachable = "!git fsck --unreachable | grep commit | cut -d \\  -f3 | xargs git log --merges --no-walk"
   st = status --ignore-submodules=all
   st2 = "ls-files --exclude-per-directory=.gitignore  --exclude-from=.git/info/exclude  -t -o -u -s -m -d"
@@ -24,15 +42,19 @@
   ci = commit
   root = rev-parse --show-toplevel
   id = rev-parse
+  cp = cherry-pick -x               # grab a change from a branch
+
   this = rev-parse --abbrev-ref HEAD
   co = checkout
   di = diff
+  d = diff  --ignore-submodule                         # diff unstaged changes
   dc = diff --cached --ignore-submodules
   amend = commit --amend
   aa = add --all
   au = add -pu
   cu = checkout -p
   ff = merge --ff-only
+  pl = pull
   pullff = pull --ff-only
   # Divergence (commits we added and commits remote added)
   div = divergence
@@ -58,6 +80,36 @@
   pr = ! export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT
   last = rev-list -n 1 HEAD -- "$1"
   restore = ! FILE=$1 && git checkout $(git rev-list -n 1 HEAD -- "$FILE")^ -- "$FILE"
+  rc = rebase --continue            # continue rebase
+  mt = mergetool                    # fire up the merge tool
+  prb = "!rebase() { \
+         LOCAL_BRANCH=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && \
+         echo $LOCAL_BRANCH && \
+         REMOTE_BRANCH=${2:-$(git config branch.${LOCAL_BRANCH}.merge | sed -e \"s?.*/\\([^/]*\\)?\\1?\")} && \
+         REMOTE_NAME=${1:-$(git config branch.${LOCAL_BRANCH}.remote)} && \
+         echo \"Synchronising $LOCAL_BRANCH with $REMOTE_NAME/$REMOTE_BRANCH...\" &&\
+         git stash && \
+         git fetch $REMOTE_NAME && \
+         git rebase -p $REMOTE_NAME/$REMOTE_BRANCH && \
+         git stash pop; };\
+         rebase"
+  prbm = "!rebase() { \
+         LOCAL_BRANCH=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && \
+         echo $LOCAL_BRANCH && \
+         REMOTE_BRANCH=master && \
+         REMOTE_NAME=origin && \
+         echo \"Synchronising $LOCAL_BRANCH with $REMOTE_NAME/$REMOTE_BRANCH...\" &&\
+         git stash && \
+         git fetch $REMOTE_NAME && \
+         git rebase -p $REMOTE_NAME/$REMOTE_BRANCH && \
+         git stash pop; };\
+         rebase"
+  rbi = ! export LOCAL_BRANCH=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && echo $LOCAL_BRANCH && export REMOTE_BRANCH=$(git config branch.${LOCAL_BRANCH}.merge | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && REMOTE_NAME=$(git config branch.${LOCAL_BRANCH}.remote) && git rebase -i $REMOTE_NAME/$REMOTE_BRANCH
+  rb = "!fn() { git stash && git rebase -i HEAD~$1 && git stash pop; }; fn"
+  cos = "!fn() { git stash && git co $1 && git stash pop; }; fn"
+
+[format]
+  pretty = format:%C(blue)%ad%Creset %C(yellow)%h%C(green)%d%Creset %C(blue)%s %C(magenta) [%an]%Creset
 
 [pull]
   rebase = true
@@ -75,24 +127,33 @@
   mnemonicprefix = true
 
 [mergetool]
+  prompt = false
 	keepBackup = false
 
 [help]
 	autocorrect = 1
 
+[fetch]
+  prune = true
+
 [merge] 
+  summary = true
   tool = opendiff
 
 [core]
   legacyheaders = false
 	excludesfile = ~/.gitignore_global
 	editor = vim --noplugin
+	quotepath = false
 
 [apply]
 	whitespace = nowarn
 
 [repack]
   usedeltabaseoffset = true
+
+[advice]
+  statusHints = false
 
 [gui]
   fontdiff = -family Courier -size 13 -weight normal -slant roman -underline 0 -overstrike 0
@@ -101,6 +162,9 @@
 ; [github]
 ; 	user = adragomir
 ;   password = ! /usr/bin/security 2>&1 >/dev/null find-generic-password -gs github | ruby -e 'print $1 if STDIN.gets =~ /^password: \\\"(.*)\\\"$/'
+[hub]
+  host = git.corp.adobe.com
+  protocol = https
 
 [branch]
   autosetupmerge = false
@@ -125,8 +189,12 @@
 
 [url "git@git.corp.adobe.com:"]
   insteadOf = https://git.corp.adobe.com/
+
 [grep]
 	fullname = true
+  extendRegexp = true
+  lineNumber = true
+
 [filter "media"]
 	required = true
 	clean = git media clean %f

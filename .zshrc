@@ -819,6 +819,9 @@ else
   export JAVA_HOME=/usr/lib/jvm/java-6-sun/
 fi
 
+# scala
+export SCALA_HOME=/usr/local/opt/scala
+
 # luatex
 #export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c/
 #export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,\
@@ -864,17 +867,14 @@ fi
 # credentials
 export EC2_CERT_PAIR=pass
 if [ -d $HOME/.ec2/$EC2_CERT_PAIR ]; then
-    # export EC2_PRIVATE_KEY="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/pk-*.pem)"
-    # export EC2_CERT="$(/bin/ls $HOME/.ec2/$EC2_CERT_PAIR/cert-*.pem)"
+  export AWS_CREDENTIAL_FILE=$HOME/.ec2/$EC2_CERT_PAIR/.aws-credentials
+  export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
+  export AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
+  export AWS_SECRET_ACCESS_KEY="$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')"
+  export AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
+  export AWS_USER="$(cat $AWS_CREDENTIAL_FILE | grep AWSUser | sed 's/^.*=//')"
+  export AWS_CONFIG_FILE=$HOME/.ec2/$EC2_CERT_PAIR/.awscli
 fi
-if [ -f $HOME/.secrets/.aws-credentials-$EC2_CERT_PAIR ]; then
-    export AWS_CREDENTIAL_FILE=$HOME/.secrets/.aws-credentials-$EC2_CERT_PAIR
-    export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
-    export AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
-    export AWS_SECRET_ACCESS_KEY="$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')"
-    export AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
-fi
-export AWS_CONFIG_FILE=$HOME/.secrets/.awscli
 
 # ec2-api-tools
 export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/libexec"
