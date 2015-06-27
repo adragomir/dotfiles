@@ -194,11 +194,12 @@ let g:loaded_netrwPlugin = 1
 
 " vim-plug
 let g:plug_url_format='https://github.com/%s.git'
+source $HOME/.vim/autoload/plug.vim
 
 call plug#begin('~/.vim/bundle')
 Plug 'vim-scripts/a.vim', { 'dir': '~/.vim/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
 Plug 'tpope/vim-abolish', { 'dir': '~/.vim/bundle/abolish' }
-Plug 'epmatsw/ag.vim', { 'dir': '~/.vim/bundle/ag', 'do': 'patch -p1 < ~/.vim/patches/ag.patch' }
+Plug 'rking/ag.vim', { 'dir': '~/.vim/bundle/ag'}
 Plug 'Rip-Rip/clang_complete', { 'dir': '~/.vim/bundle/clang_complete' }
 Plug 'tpope/vim-classpath', { 'dir': '~/.vim/bundle/classpath' }
 Plug 'austintaylor/vim-commaobject', { 'dir': '~/.vim/bundle/commaobject' }
@@ -242,7 +243,7 @@ Plug 'tpope/vim-unimpaired', { 'dir': '~/.vim/bundle/unimpaired' }
 Plug 'chase/vim-ansible-yaml', { 'dir': '~/.vim/bundle/vim-ansible-yaml' }
 Plug 'kchmck/vim-coffee-script', { 'dir': '~/.vim/bundle/vim-coffee-script' }
 Plug 'terryma/vim-expand-region', { 'dir': '~/.vim/bundle/vim-expand-region' }
-Plug 'fatih/vim-go', { 'dir': '~/.vim/bundle/vim-go', 'do': 'git am ~/.vim/patches/vim-go.patch' }
+Plug 'fatih/vim-go', { 'dir': '~/.vim/bundle/vim-go' }
 Plug 'ebfe/vim-racer', { 'dir': '~/.vim/bundle/vim-racer' }
 Plug 'tpope/vim-rails', { 'dir': '~/.vim/bundle/vim-rails' }
 Plug 'vim-ruby/vim-ruby', { 'dir': '~/.vim/bundle/vim-ruby' }

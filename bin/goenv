@@ -63,54 +63,54 @@ link() {
 
 # detect settings
 goenv_ok=0
-if [ -e .gopmfile ]
-then
+if [ -e .gopmfile ]; then
     mode=gopm
     gp=$(pwd)/.vendor
     package=$(cat .goenv 2>/dev/null)
     needs_link=1
     goenv_ok=1
     exec_prefix=""
-elif [ -e Godeps/Godeps.json ]
-then
+elif [ -e Godeps/Godeps.json ]; then
     mode=godep
     gp=$(pwd)/Godeps/_workspace
     package=$(cat .goenv 2>/dev/null)
     needs_link=1
     goenv_ok=1
     exec_prefix=""
-elif [ -e Goopfile ]
-then
+elif [ -e Goopfile ]; then
     mode=goop
     gp=$(pwd)/.vendor
     package=$(cat .goenv 2>/dev/null)
     needs_link=1
     goenv_ok=1
     exec_prefix="goop exec"
-elif [ -e Gomfile ]
-then
+elif [ -e Gomfile ]; then
     mode=gom
     gp=$(pwd)/_vendor
     package=$(cat .goenv 2>/dev/null)
     needs_link=1
     goenv_ok=1
     exec_prefix="gom exec"
-elif [ -e Glide.yaml ]
-then
+elif [ -e Glide.yaml ]; then
     mode=glide
     gp=$(pwd)/_vendor
     package=$(cat glide.yaml | egrep "^package" | awk '{print $2}')
     needs_link=0
     goenv_ok=1
     exec_prefix=""
-elif [ -e Nut.toml ]
-then
+elif [ -e Nut.toml ]; then
     mode=nut
     gp=$(pwd)/vendor/_nuts
     package=$(cat .goenv 2>/dev/null)
     needs_link=1
     goenv_ok=1
     exec_prefix=""
+else 
+    mode=raw
+    gp=$(pwd)/vendor
+    package=$(cat .goenv 2>/dev/null)
+    needs_link=1
+    goenv_ok=1
 fi
 
 if [ ! "$goenv_ok" -eq "1" ]; then
