@@ -1,32 +1,39 @@
-From 1b6a785c5ca8782ca222d55db832e006cec577d2 Mon Sep 17 00:00:00 2001
+From 3039a77be1c9e5b0c7581a7ef1d94a9575af69d9 Mon Sep 17 00:00:00 2001
 From: Andrei Dragomir <adragomi@adobe.com>
 Date: Mon, 3 Nov 2014 12:02:23 +0200
 Subject: [PATCH] Fixed performance hit
 
 ---
- plugin/syntastic.vim | 20 +++-----------------
- 1 file changed, 3 insertions(+), 17 deletions(-)
+ plugin/syntastic.vim | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
 
 diff --git a/plugin/syntastic.vim b/plugin/syntastic.vim
-index c164d84..e8a74a6 100644
+index 038177d..c195e50 100644
 --- a/plugin/syntastic.vim
 +++ b/plugin/syntastic.vim
-@@ -39,24 +39,10 @@ for s:feature in [
+@@ -39,29 +39,17 @@ for s:feature in [
      endif
  endfor
  
 -let s:_running_windows = syntastic#util#isRunningWindows()
 +let s:_running_windows = 0
 +let s:_uname = "Darwin"
++let g:_SYNTASTIC_UNAME = "Darwin"
  lockvar s:_running_windows
--
++lockvar s:_uname
++lockvar g:_SYNTASTIC_UNAME
+ 
+ if !exists('g:syntastic_shell')
+     let g:syntastic_shell = &shell
+ endif
+ 
 -if s:_running_windows
 -    let g:_SYNTASTIC_UNAME = 'Windows'
 -elseif executable('uname')
 -    try
--        let g:_SYNTASTIC_UNAME = split(system('uname'), "\n")[0]
+-        let g:_SYNTASTIC_UNAME = split(syntastic#util#system('uname'), "\n")[0]
 -    catch /\m^Vim\%((\a\+)\)\=:E484/
--        call syntastic#log#error("your shell " . &shell . " can't handle traditional UNIX syntax for redirections")
+-        call syntastic#log#error("your shell " .  syntastic#util#var('shell') . " can't handle traditional UNIX syntax for redirections")
 -        finish
 -    catch /\m^Vim\%((\a\+)\)\=:E684/
 -        let g:_SYNTASTIC_UNAME = 'Unknown'
@@ -35,10 +42,10 @@ index c164d84..e8a74a6 100644
 -    let g:_SYNTASTIC_UNAME = 'Unknown'
 -endif
 -lockvar g:_SYNTASTIC_UNAME
-+lockvar s:_uname
- 
+-
  " }}}1
  
+ " Defaults {{{1
 -- 
-2.2.2
+2.3.5
 

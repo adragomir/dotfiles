@@ -1032,4 +1032,5 @@ export LUA_PATH='/Users/adr/.luarocks/share/lua/5.2/?.lua;/Users/adr/.luarocks/s
 export LUA_CPATH='/Users/adr/.luarocks/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/loadall.so;./?.so'
 export LIBGUESTFS_PATH=/usr/local/share/libguestfs-appliance
 export PATH="$HOME/.gobrew/bin:$PATH"
+export HOMEBREW_CASK_OPTS="--appdir=/Users/adr/Applications"
 eval "$(gobrew init -)"
