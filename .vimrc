@@ -1236,10 +1236,6 @@ augroup mappings
   au FileType markdown nnoremap <buffer> <localleader>1 yypVr=
   au FileType markdown nnoremap <buffer> <localleader>2 yypVr-
   au FileType markdown nnoremap <buffer> <localleader>3 I### <ESC>
-  au FileType java map <leader>b :JavaSearchContext<CR>
-  au FileType java map <leader>1 :JavaCorrect<CR>
-  au FileType java map <leader>s :JavaImportOrganize<CR>
-  au FileType java map <leader>jh :JavaHierarchy<CR>
   au FileType clojure let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
   au FileType go let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
   au FileType go nmap <Leader>i <Plug>(go-import)

@@ -142,7 +142,7 @@
 
 [core]
   legacyheaders = false
-	excludesfile = ~/.gitignore_global
+	excludesfile = /Users/adr/.gitignore_global
 	editor = vim --noplugin
 	quotepath = false
 

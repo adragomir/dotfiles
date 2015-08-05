@@ -202,20 +202,6 @@ zle -N backward-kill-default-word _backward_kill_default_word
 bindkey '\e=' backward-kill-default-word   # = is next to backspace
 bindkey "^[[Z" complete-files
 
-# should this be in keybindings DISABLED
-# zle -C complete-menu menu-select _generic
-# _complete_menu() {
-#   setopt localoptions alwayslastprompt
-#   zle complete-menu
-# }
-# zle -N _complete_menu
-# bindkey '^F' _complete_menu
-# bindkey -M menuselect '^o' accept-and-infer-next-history
-# bindkey -M menuselect '^F' accept-and-infer-next-history
-# bindkey -M menuselect '/'  accept-and-infer-next-history
-# bindkey -M menuselect '^?' undo
-# bindkey -M menuselect '*' history-incremental-search-forward
-
 autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '\C-x\C-e' edit-command-line
@@ -264,16 +250,6 @@ function p() {
 }
 
 autoload -Uz narrow-to-region
-function _history-incremental-preserving-pattern-search-backward {
-  local state
-  MARK=CURSOR  # magick, else multiple ^R don't work
-  narrow-to-region -p "$LBUFFER${BUFFER:+>>}" -P "${BUFFER:+<<}$RBUFFER" -S state
-  zle end-of-history
-  zle history-incremental-pattern-search-backward
-  narrow-to-region -R state
-}
-zle -N _history-incremental-preserving-pattern-search-backward
-#bindkey "^r" _history-incremental-preserving-pattern-search-backward
 
 # http://qiita.com/uchiko/items/f6b1528d7362c9310da0
 function _selecta-select-history() {
@@ -281,29 +257,15 @@ function _selecta-select-history() {
     # Print a newline or we'll clobber the old prompt.
     echo
     # Find the path; abort if the user doesn't select anything.
-    selected_entry=$(history | selecta) || return
+    BUFFER=$( fc -lnr 1 | selecta -x ) || return
+    CURSOR=$#BUFFER
     # Append the selection to the current command buffer.
-    eval 'LBUFFER="$LBUFFER$selected_entry"'
+    # eval 'LBUFFER="$LBUFFER$selected_entry"'
     # Redraw the prompt since Selecta has drawn several new lines of text.
     zle reset-prompt
 }
 zle -N _selecta-select-history
-
-function _peco-select-history() {
-    local tac
-    if which gtac > /dev/null; then
-        tac="gtac"
-    else
-        tac="tail -r"
-    fi
-    BUFFER=$(\history -n 1 | \
-        eval $tac | \
-        peco --query "$LBUFFER")
-    CURSOR=$#BUFFER
-    zle clear-screen
-}
-zle -N _peco-select-history
-bindkey '^h' _selecta-select-history
+bindkey '^r' _selecta-select-history
 
 bindkey -e
 bindkey '\ew' kill-region
@@ -1014,7 +976,6 @@ function reload() {
 
 source $ZSH/golang.plugin.zsh
 source $ZSH/url-tools.plugin.zsh
-source $ZSH/history-substring-search.zsh
 source /usr/local/share/zsh/site-functions/_aws
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
@@ -1022,7 +983,7 @@ source /usr/local/share/zsh/site-functions/_aws
 
 # }}}
 #vim:foldmethod=marker
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+#[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export DOCKER_TLS_VERIFY=1
 export DOCKER_HOST=tcp://192.168.59.103:2376
@@ -1031,6 +992,6 @@ export DOCKER_CERT_PATH=/Users/adr/.boot2docker/certs/boot2docker-vm
 export LUA_PATH='/Users/adr/.luarocks/share/lua/5.2/?.lua;/Users/adr/.luarocks/share/lua/5.2/?/init.lua;/usr/local/share/lua/5.2/?.lua;/usr/local/share/lua/5.2/?/init.lua;/usr/local/Cellar/luarocks/2.2.0_1/share/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?/init.lua;./?.lua'
 export LUA_CPATH='/Users/adr/.luarocks/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/loadall.so;./?.so'
 export LIBGUESTFS_PATH=/usr/local/share/libguestfs-appliance
-export PATH="$HOME/.gobrew/bin:$PATH"
+# export PATH="$HOME/.gobrew/bin:$PATH"
+# eval "$(gobrew init -)"
 export HOMEBREW_CASK_OPTS="--appdir=/Users/adr/Applications"
-eval "$(gobrew init -)"

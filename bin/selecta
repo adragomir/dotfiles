@@ -147,8 +147,8 @@ class Selecta
   class Abort < RuntimeError; end
 end
 
-class Configuration < Struct.new(:visible_choices, :initial_search, :choices)
-  def initialize(visible_choices, initialize, choices)
+class Configuration < Struct.new(:visible_choices, :initial_search, :choices, :simple)
+  def initialize(visible_choices, initialize, choices, simple)
     # Constructor is defined to force argument presence; otherwise Struct
     # defaults missing arguments to nil
     super
@@ -159,7 +159,7 @@ class Configuration < Struct.new(:visible_choices, :initial_search, :choices)
     visible_choices = [20, screen_height - 1].min
 
     choices = massage_choices(choices)
-    Configuration.new(visible_choices, options.fetch(:search), choices)
+    Configuration.new(visible_choices, options.fetch(:search), choices, options.fetch(:simple, false))
   end
 
   def self.default_options
@@ -185,6 +185,9 @@ class Configuration < Struct.new(:visible_choices, :initial_search, :choices)
       options[:search] = ""
       opts.on("-s", "--search SEARCH", "Specify an initial search string") do |search|
         options[:search] = search
+      end
+      opts.on("-x", "--simple", "use simple mode") do
+        options[:simple] = true
       end
     end
 
@@ -235,8 +238,8 @@ class Search
   end
 
   def self.from_config(config)
-    trivial_matches = config.choices.reject(&:empty?).map do |choice|
-      Match.trivial(choice)
+    trivial_matches = config.choices.reject(&:empty?).each_with_index.map do |choice, i|
+      Match.trivial_with_index(choice, i)
     end
 
     search = new(:config => config,
@@ -348,7 +351,7 @@ class Search
 
     matches = previous_matches.map do |match|
       choice = match.choice
-      score, range = Score.score(choice, query_chars)
+      score, range = Score.score(choice, query_chars, @config.simple)
       range ? match.refine(score, range) : nil
     end.compact
   end
@@ -358,6 +361,13 @@ class Search
 
     count = [@config.visible_choices, all_matches.count].min
     matches = []
+
+    if @config.simple
+      all_matches = all_matches.map do |match|
+        match.score += match.index
+        match
+      end
+    end
 
     best_score = all_matches.min_by(&:score).score
 
@@ -390,10 +400,14 @@ class Search
   class NoSelection; end
 end
 
-class Match < Struct.new(:original_choice, :choice, :score, :matching_range)
+class Match < Struct.new(:original_choice, :index, :choice, :score, :matching_range)
+  def self.trivial_with_index(choice, index)
+    empty_range = (0...0)
+    new(choice, index, choice.downcase, 0, empty_range)
+  end
   def self.trivial(choice)
     empty_range = (0...0)
-    new(choice, choice.downcase, 0, empty_range)
+    new(choice, 0, choice.downcase, 0, empty_range)
   end
 
   def to_text
@@ -408,7 +422,7 @@ class Match < Struct.new(:original_choice, :choice, :score, :matching_range)
   end
 
   def refine(score, range)
-    Match.new(original_choice, choice, score, range)
+    Match.new(original_choice, index, choice, score, range)
   end
 end
 
@@ -424,7 +438,7 @@ class Score
       char !~ /[A-Za-z0-9_]/
     end.to_set
 
-    def score(string, query_chars)
+    def score(string, query_chars, simple)
       first_char, *rest = query_chars
 
       # Keep track of the best match that we've seen. This is uglier than
@@ -438,7 +452,7 @@ class Score
         score = 1
 
         # Find the best score starting at this index.
-        score, last_index = find_end_of_match(string, rest, score, first_index)
+        score, last_index = find_end_of_match(string, rest, score, first_index, simple)
 
         # Did we do better than we have for the best starting point so far?
         if last_index && score < best_score
@@ -463,7 +477,7 @@ class Score
     end
 
     # Find each of the characters in the string, moving strictly left to right.
-    def find_end_of_match(string, chars, score, first_index)
+    def find_end_of_match(string, chars, score, first_index, simple)
       last_index = first_index
 
       # Remember the type of the last character match for special scoring.
@@ -487,7 +501,7 @@ class Score
             score += 1
           end
         # This character follows a boundary character.
-        elsif BOUNDARY_CHARS.include?(string[index - 1])
+        elsif BOUNDARY_CHARS.include?(string[index - 1]) && !simple
           if last_type != :boundary
             last_type = :boundary
             score += 1
