@@ -20,13 +20,14 @@ for s in `$TMUX list-sessions -F '#{session_name}'` ; do
         window_pane="${w}.${pane_index}"
         [[ $debug == 1  ]] && echo "$TMUX send-keys -t $window_pane Escape ":e $file" Enter" >> ~/lg
         $TMUX send-keys -t "$window_pane" Escape ":e $file" Enter
+        break 3
       fi
     done
   done
 done
 
 /usr/bin/osascript <<'EOT'
-tell application "System Events" to tell process "iTerm"
+tell application "System Events" to tell process "iTerm2"
 	set frontmost to true
 	key code 18 using {command down} -- Command+1
 	key code 0 using {control down} -- c-a

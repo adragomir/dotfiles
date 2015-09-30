@@ -6,6 +6,7 @@ require "open3"
 require "optparse"
 
 class ServeIt
+  VERSION = [0, 0, 1]
   def self.main
     serve_dir, command = parse_opts
     serve_dir = File.expand_path(serve_dir)
@@ -18,6 +19,10 @@ class ServeIt
       opts.banner = "Usage: #{$PROGRAM_NAME} [options] command"
       opts.on_tail("-s", "--serve-dir DIR", "Root directory for server") do |dir|
         options[:serve_dir] = dir
+      end
+      opts.on_tail("--version", "Show version") do |dir|
+        puts ServeIt::VERSION.join('.')
+        exit
       end
     end
 
@@ -59,14 +64,9 @@ class ServeIt
         local_abs_path = File.absolute_path(relative_path, @serve_dir)
 
         if relative_path == "favicon.ico"
-          favicon_response(res)
-        elsif File.directory?(local_abs_path)
-          rebuild_if_needed
-          dir_response(relative_path, local_abs_path, res)
+          respond_to_favicon(res)
         else
-          # We're building a file
-          rebuild_if_needed
-          file_response(local_abs_path, res)
+          respond_to_path(res, relative_path, local_abs_path)
         end
       end
 
@@ -74,25 +74,53 @@ class ServeIt
       server.start
     end
 
-    def favicon_response(res)
+    def respond_to_favicon(res)
       res.status = 404
     end
 
-    def dir_response(rel_path, local_abs_path, res)
+    def respond_to_path(res, relative_path, local_abs_path)
+      begin
+        rebuild_if_needed
+      rescue Rebuilder::RebuildFailed => e
+        return respond_to_error(res, e.to_s)
+      end
+
+      if File.directory?(local_abs_path)
+        respond_to_dir(res, relative_path, local_abs_path)
+      else
+        # We're building a file
+        respond_to_file(res, local_abs_path)
+      end
+    end
+
+    def respond_to_error(res, message)
+      res.content_type = "text/html"
+      res.body = "<pre>" + message + "</pre>"
+    end
+
+    def respond_to_dir(res, rel_path, local_abs_path)
       res.content_type = "text/html"
       res.body = (
         "<p><h3>Listing for /#{rel_path}</h3></p>\n" +
         Dir.entries(local_abs_path).select do |child|
           child != "."
-        end.map do |child|
+        end.sort.map do |child|
           full_child_path_on_server = File.join("/", rel_path, child)
           %{<a href="#{full_child_path_on_server}">#{child}</a><br>}
         end.join("\n")
       )
     end
 
-    def file_response(local_abs_path, res)
+    def respond_to_file(res, local_abs_path)
       res.body = File.read(local_abs_path)
+      res.content_type = guess_content_type(local_abs_path)
+    end
+
+    def guess_content_type(path)
+      extension = File.extname(path).sub(/^\./, '')
+      WEBrick::HTTPUtils::DefaultMimeTypes.fetch(extension) do
+        "application/octet-stream"
+      end
     end
 
     def rebuild_if_needed
@@ -115,8 +143,8 @@ class ServeIt
       if disk_state != @last_disk_state
         stdout_and_stderr, success = rebuild
         if !success
-          return ["Failed to build! Command output:\n\n" + stdout_and_stderr,
-                  false]
+          message = "Failed to build! Command output:\n\n" + stdout_and_stderr
+          raise RebuildFailed.new(message)
         end
 
         # Get a new post-build disk state so we don't pick up changes made during
@@ -142,6 +170,8 @@ class ServeIt
         [path, File.stat(path).mtime.to_s]
       end.sort
     end
+
+    class RebuildFailed < RuntimeError; end
   end
 end
 

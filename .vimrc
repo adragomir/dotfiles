@@ -96,7 +96,9 @@ set timeout
 set ttimeout
 set timeoutlen=1000
 set ttimeoutlen=0
-set guipty
+if !has('nvim')
+  set guipty
+endif
 set clipboard=unnamed "unnamed ",unnamedplus,autoselect
 set undofile
 set undoreload=10000

@@ -1,20 +1,24 @@
 #!/bin/bash
 
 push_only=0
-while getopts ":p" opt; do
+master_branch=master
+while getopts ":pb:" opt; do
   case $opt in
     p)
       push_only=1
+      ;;
+    b)
+      master_branch=$OPTARG
       ;;
   esac
 done
 
 branch_name="$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)"
 IFS=$'\r\n'
-commits=($(git rev-list --reverse "master..${branch_name}"))
+commits=($(git rev-list --reverse "${master_branch}..${branch_name}"))
 
 #base=$(git rev-parse master)
-base=master
+base=$master_branch
 
 commits_len=${#commits[@]}
 
@@ -39,7 +43,7 @@ do
       base=$branch_name
     fi
     commit_issue="${issue_name}"
-    commit_message=$commit_msg
+    commit_message="${commit_msg}"
   fi
   last_commit="${commits[$i]}"
 done
