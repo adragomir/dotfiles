@@ -92,6 +92,7 @@ set completeopt=menu,menuone "sjl: set completeopt=longest,menuone,preview
 if !has('nvim')
   set ttyfast
 endif
+set ttymouse=xterm
 set timeout
 set ttimeout
 set timeoutlen=1000
@@ -259,6 +260,17 @@ Plug 'megaannum/vimside', { 'dir': '~/.vim/bundle/vimside' }
 " Plug 'dhruvasagar/vim-table-mode', { 'dir': '~/.vim/bundle/vim-table-mode' }
 "Plug 'sudar/vim-arduino-syntax', { 'dir': '~/.vim/bundle/vim-arduino-syntax' }
 Plug 'rhysd/vim-clang-format', { 'dir': '~/.vim/bundle/vim-clang-format' }
+Plug 'Glench/Vim-Jinja2-Syntax', { 'dir': '~/.vim/bundle/vim-jinja2-syntax' }
+Plug 't9md/vim-choosewin', { 'dir': '~/.vim/bundle/vim-choosewin' }
+Plug 'moll/vim-bbye', { 'dir': '~/.vim/bundle/vim-jinja2-syntax' }
+Plug 'szw/vim-maximizer', { 'dir': '~/.vim/bundle/vim-maximizer' }
+
+Plug 'neovimhaskell/haskell-vim', { 'dir': '~/.vim/bundle/haskell-vim' }
+Plug 'enomsg/vim-haskellConcealPlus', { 'dir': '~/.vim/bundle/haskell-vim' }
+Plug 'eagletmt/ghcmod-vim', { 'dir': '~/.vim/bundle/ghcmod-vim' }
+Plug 'eagletmt/neco-ghc', { 'dir': '~/.vim/bundle/neco-ghc' }
+Plug 'Twinside/vim-hoogle', { 'dir': '~/.vim/bundle/vim-hoogle' }
+Plug 'artur-shaik/vim-javacomplete2', { 'dir': '~/.vim/bundle/vim-javacomplete2' }
 
 call plug#end()
 
@@ -851,6 +863,11 @@ noremap c "_c
 noremap cc "_cc
 noremap C "_C
 
+nnoremap -  <Plug>(choosewin)
+
+nnoremap <silent><F3> :MaximizerToggle<CR>
+vnoremap <silent><F3> :MaximizerToggle<CR>gv
+inoremap <silent><F3> <C-o>:MaximizerToggle<CR>
 
 " }}}
 
@@ -1011,6 +1028,13 @@ let OmniCpp_ShowScopeInAbbr = 1
 let OmniCpp_ShowPrototypeInAbbr = 1
 let OmniCpp_ShowAccess = 1
 let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
+" }}}
+
+" choosewin {{{
+let g:choosewin_overlay_enable = 1
+let g:choosewin_blink_on_land = 0
+let g:choosewin_label = "1234567890"
+let g:choosewin_tablabel = "ABCDEFGHIJKLMNOPQRTUVWYZ"
 " }}}
 
 " tex {{{

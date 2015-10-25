@@ -890,7 +890,7 @@ $PATH
 
 # * Add these to your profile environment.
 export PLAN9=/usr/local/Cellar/plan9/HEAD
-export PATH=${PATH}:${PLAN9}/bin
+#export PATH=${PATH}:${PLAN9}/bin
 # }}}
 
 # man path {{{
@@ -912,7 +912,8 @@ alias v="view -"
 alias vidir="EDITOR=v vidir"
 alias gvim="g"
 alias h=" history | tail -n 10 | cut -d' ' -f3-"
-alias luarocks="luarocks --tree=user"
+alias luarocks="luarocks --tree=/Users/adr/.luajitrocks"
+alias luajitrocks="luajitrocks --tree=/Users/adr/.luajitrocks"
 
 # clojure
 alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.4.0/clojure-1.4.0.jar:\

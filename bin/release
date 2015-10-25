@@ -1,0 +1,22 @@
+#!/bin/bash
+
+from=$1
+version=$2
+
+bn=$(basename $from)
+if [[ $version =~ ^[0-9] ]]; then
+  version="${bn}-$version"
+fi
+
+dir=$(mktemp -d -t release)
+mkdir -p $dir/$version
+cp -a $from/* $dir/$version
+rm -rf $dir/$version/.git
+here=$(pwd)
+
+pushd $dir
+tar zcf $version.tar.gz $version
+popd
+cp $dir/$version.tar.gz .
+
+aws s3 cp $version.tar.gz s3://saasbase-repo/${bn}/${version}.tar.gz
