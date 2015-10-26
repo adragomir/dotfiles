@@ -1,0 +1,12 @@
+#!/bin/bash
+
+tunnels=$(grep '^Host autossh-.*' ~/.ssh/config | grep -v 'disabled' | sed -e 's/.* //')
+
+for tunnel in $tunnels; do
+  echo "Stopping $tunnel"
+  pkill -9 -f "ssh -N ${tunnel}"
+  if [[ "$1" != "stop" ]]; then
+    echo "Starting $tunnel"
+    AUTOSSH_PORT=0 autossh -f -N ${tunnel}
+  fi
+done

@@ -14,9 +14,9 @@ cp -a $from/* $dir/$version
 rm -rf $dir/$version/.git
 here=$(pwd)
 
-pushd $dir
+pushd $dir &>/dev/null
 tar zcf $version.tar.gz $version
-popd
+popd &>/dev/null
 cp $dir/$version.tar.gz .
 
 aws s3 cp $version.tar.gz s3://saasbase-repo/${bn}/${version}.tar.gz
