@@ -243,7 +243,8 @@ Plug 'sgur/vim-textobj-parameter', { 'dir': '~/.vim/bundle/textobj-parameter' }
 Plug 'kana/vim-textobj-user', { 'dir': '~/.vim/bundle/textobj-user' }
 Plug 'paradigm/TextObjectify', { 'dir': '~/.vim/bundle/textobjectify' }
 Plug 'tpope/vim-unimpaired', { 'dir': '~/.vim/bundle/unimpaired' }
-Plug 'chase/vim-ansible-yaml', { 'dir': '~/.vim/bundle/vim-ansible-yaml' }
+"Plug 'chase/vim-ansible-yaml', { 'dir': '~/.vim/bundle/vim-ansible-yaml' }
+Plug 'pearofducks/ansible-vim', { 'dir': '~/.vim/bundle/ansible-vim' }
 Plug 'kchmck/vim-coffee-script', { 'dir': '~/.vim/bundle/vim-coffee-script' }
 Plug 'terryma/vim-expand-region', { 'dir': '~/.vim/bundle/vim-expand-region' }
 Plug 'fatih/vim-go', { 'dir': '~/.vim/bundle/vim-go' }
@@ -692,6 +693,8 @@ noremap g[ `[v']
 " fix movement keys
 noremap j gj
 noremap k gk
+noremap <up> gk
+noremap <down> gj
 nnoremap D d$
 nnoremap * *<c-o>
 
@@ -863,11 +866,20 @@ noremap c "_c
 noremap cc "_cc
 noremap C "_C
 
-nnoremap -  <Plug>(choosewin)
+nmap -  <Plug>(choosewin)
 
 nnoremap <silent><F3> :MaximizerToggle<CR>
 vnoremap <silent><F3> :MaximizerToggle<CR>gv
 inoremap <silent><F3> <C-o>:MaximizerToggle<CR>
+
+noremap ( <nop>
+noremap ) <nop>
+noremap { <nop>
+noremap } <nop>
+noremap ]] <nop>
+noremap ][ <nop>
+noremap [[ <nop>
+noremap [] <nop>
 
 " }}}
 
@@ -1032,9 +1044,13 @@ let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 
 " choosewin {{{
 let g:choosewin_overlay_enable = 1
+let g:choosewin_statusline_replace = 0
+let g:choosewin_tabline_replace = 0
 let g:choosewin_blink_on_land = 0
 let g:choosewin_label = "1234567890"
 let g:choosewin_tablabel = "ABCDEFGHIJKLMNOPQRTUVWYZ"
+
+let g:choosewin_overlay_clear_multibyte = 1
 " }}}
 
 " tex {{{

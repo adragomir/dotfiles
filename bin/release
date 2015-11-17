@@ -19,4 +19,7 @@ tar zcf $version.tar.gz $version
 popd &>/dev/null
 cp $dir/$version.tar.gz .
 
+rm -rf $dir
 aws s3 cp $version.tar.gz s3://saasbase-repo/${bn}/${version}.tar.gz
+rm -rf $version.tar.gz
+

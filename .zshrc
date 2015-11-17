@@ -222,6 +222,8 @@ _selecta() {
   RBUFFER="$result "
   CURSOR+=$#RBUFFER
 }
+zle -N _selecta
+bindkey "\C-t" _selecta
 
 function insert-selecta-path-in-command-line() {
     local selected_path
@@ -239,16 +241,6 @@ zle -N insert-selecta-path-in-command-line
 # Bind the key to the newly created widget
 bindkey "^S" "insert-selecta-path-in-command-line"
 
-zle -N _selecta
-bindkey "\C-t" _selecta
-
-function p() {
-    proj=$(cat ~/.projects | awk '{print $1}' | selecta)
-    if [[ -n "$proj" ]]; then
-        cd $(cat ~/.projects | grep "^$proj" | awk '{print $2}')
-    fi
-}
-
 autoload -Uz narrow-to-region
 
 # http://qiita.com/uchiko/items/f6b1528d7362c9310da0
@@ -257,7 +249,8 @@ function _selecta-select-history() {
     # Print a newline or we'll clobber the old prompt.
     echo
     # Find the path; abort if the user doesn't select anything.
-    BUFFER=$( fc -lnr 1 | selecta -x ) || return
+    BUFFER=$( fc -lnr 1 | hs --filter-only ) || return
+    # BUFFER=$( fc -lnr 1 | select -x ) || return
     CURSOR=$#BUFFER
     # Append the selection to the current command buffer.
     # eval 'LBUFFER="$LBUFFER$selected_entry"'
@@ -827,16 +820,21 @@ fi
 # {{{ amazon
 
 # credentials
+aws_env() {
+  cert_pair=$1
+  if [ -d $HOME/.ec2/$cert_pair ]; then
+    export AWS_CREDENTIAL_FILE=$HOME/.ec2/$cert_pair/.aws-credentials
+    export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
+    export AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
+    export AWS_SECRET_ACCESS_KEY="$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')"
+    export AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
+    export AWS_USER="$(cat $AWS_CREDENTIAL_FILE | grep AWSUser | sed 's/^.*=//')"
+    export AWS_CONFIG_FILE=$HOME/.ec2/$cert_pair/.awscli
+  fi
+}
+
 export EC2_CERT_PAIR=pass
-if [ -d $HOME/.ec2/$EC2_CERT_PAIR ]; then
-  export AWS_CREDENTIAL_FILE=$HOME/.ec2/$EC2_CERT_PAIR/.aws-credentials
-  export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
-  export AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
-  export AWS_SECRET_ACCESS_KEY="$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')"
-  export AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
-  export AWS_USER="$(cat $AWS_CREDENTIAL_FILE | grep AWSUser | sed 's/^.*=//')"
-  export AWS_CONFIG_FILE=$HOME/.ec2/$EC2_CERT_PAIR/.awscli
-fi
+aws_env $EC2_CERT_PAIR
 
 # ec2-api-tools
 export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/libexec"
@@ -977,7 +975,6 @@ function reload() {
 
 source $ZSH/golang.plugin.zsh
 source $ZSH/url-tools.plugin.zsh
-source /usr/local/share/zsh/site-functions/_aws
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
@@ -996,3 +993,6 @@ export LIBGUESTFS_PATH=/usr/local/share/libguestfs-appliance
 # export PATH="$HOME/.gobrew/bin:$PATH"
 # eval "$(gobrew init -)"
 export HOMEBREW_CASK_OPTS="--appdir=/Users/adr/Applications"
+
+# OPAM configuration
+. /Users/adr/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true

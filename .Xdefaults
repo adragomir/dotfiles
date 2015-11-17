@@ -1,44 +1,85 @@
+XTerm*foreground: white
+XTerm*background: black
 XTerm*allowSendEvents: true
-urxvt*foreground: #f2f2f2
-urxvt*background: #101010
 
-! Normal
-! color0    black
-! color1    red
-! color2    green
-! color3    yellow
-! color4    blue
-! color5    purple
-! color6    cyan
-! color7    white
+UXTerm*foreground: white
+UXTerm*background: black
 
-urxvt*color0:    #6c6c6c
-urxvt*color1:    #e9897c
-urxvt*color2:    #b6e77d
-urxvt*color3:    #ecebbe
-urxvt*color4:    #a9cdeb
-urxvt*color5:    #ea96eb
-urxvt*color6:    #c9caec
-urxvt*color7:    #f2f2f2
+! Xcursor --------------------------------------------------------------------
+Xcursor.theme: Vanilla-DMZ-AA
+Xcursor.size:   22
 
-! Light
-! color8    black
-! color9    red
-! color10    green
-! color11    yellow
-! color12    blue
-! color13    purple
-! color14    cyan
-! color15    white
+! colors
+*background:  #000000
+*foreground:  #c7c7c7
 
-urxvt*color8:    #747474
-urxvt*color9:    #f99286
-urxvt*color10:    #c3f786
-urxvt*color11:    #fcfbcc
-urxvt*color12:    #b6defb
-urxvt*color13:    #fba1fb
-urxvt*color14:    #d7d9fc
-urxvt*color15:    #e2e2e2
+! Black
+*color0:      #626262
+*color8:      #8f8f8f
+! Red
+*color1:      #ff8373
+*color9:      #ffc4be
+! Green
+*color2:      #b4fb73
+*color10:     #d6fcba
+! Yellow
+*color3:      #fffdc3
+*color11:     #fffed5
+! Blue
+*color4:      #a5d5fe
+*color12:     #c2e3ff
+! Magenta
+*color5:      #ff90fe
+*color13:     #ffb2fe
+! Cyan
+*color6:      #d1d1fe
+*color14:     #e6e7fe
+! White
+*color7:      #f1f1f1
+*color15:     #ffffff
+
+urxvt*foreground: #c7c7c7
+urxvt*background: #000000
+
+URxvt*scrollstyle:        plain
+URxvt*cursorBlink:        false
+urxvt*geometry:           160x50
+urxvt*internalBorder:     5
+urxvt*fading:             20
+urxvt*shading:            80
+urxvt*tintColor:          #222222
+urxvt*inheritPixmap:      false
+urxvt*depth:              24
+!urxvt*depth:              32
+urxvt*saveLines:          32767
+urxvt*visualBell:         false
+urxvt*scrollTtyKeypress:  true
+urxvt*scrollWithBuffer:   false
+urxvt*scrollTtyOutput:    false
+urxvt*scrollBar:          false
+urxvt*scrollstyle:        plain
+urxvt*scrollBar_right:    true
+urxvt*scrollColor:        #777777
+urxvt*cursorColor:        #ffcc00
+urxvt*loginShell:         true
+urxvt*termName:           xterm-256color
+urxvt*cutchars:           "()*,<>[]{}|'
+urxvt*print-pipe:         cat > $(echo urxvt.dump.`date +'%Y%M%d%H%m%S'`)
+urxvt*secondaryScroll:    true
+urxvt*mapAlert:           true
+urxvt*utmpInhibit:        true
+urxvt*perl-lib:           /opt/local/lib/urxvt/perl/
+urxvt*perl-ext-common:    default,matcher
+urxvt*urlLauncher:        /opt/local/bin/surf
+urxvt*matcher.button:     1
+urxvt*background:         #000000
+!urxvt*background:         rgba:2222/2222/2222/dddd
+!urxvt*background:         rgba:0000/0000/0000/dddd
+
+*VT100.translations: #override  Meta <KeyPress> V:  insert-selection(PRIMARY, CUT_BUFFER0)
+
+URxvt.keysym.C-Left:        \033[1;3D
+URxvt.keysym.C-Right:       \033[1;3C
 
 URxvt.perl-ext-common: macosx-clipboard
 URxvt*keysym.M-c: perl:macosx-clipboard:copy

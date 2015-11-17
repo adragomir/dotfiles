@@ -29,13 +29,12 @@
   singlekey = true
 
 [alias]
-  chunkyadd = add --patch           # stage commits chunk by chunk
+  st = status
   snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
   snapshots = !git stash list --grep snapshot
   cleanup = !git remote prune origin && git gc && git clean -df && git stash clear
   recent-branches = !git for-each-ref --count=15 --sort=-committerdate refs/heads/ --format='%(refname:short)'
   unreachable = "!git fsck --unreachable | grep commit | cut -d \\  -f3 | xargs git log --merges --no-walk"
-  st = status --ignore-submodules=all
   st2 = "ls-files --exclude-per-directory=.gitignore  --exclude-from=.git/info/exclude  -t -o -u -s -m -d"
   sts = status -sb --ignore-submodules=all -unormal
   cat = -p cat-file -p
@@ -43,7 +42,6 @@
   root = rev-parse --show-toplevel
   id = rev-parse
   cp = cherry-pick -x               # grab a change from a branch
-
   this = rev-parse --abbrev-ref HEAD
   co = checkout
   di = diff
