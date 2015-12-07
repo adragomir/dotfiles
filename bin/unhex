@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+import binascii,sys
+sys.stdout.write(
+  binascii.unhexlify(
+    sys.stdin.read().replace(' ', '').replace("\n", "")
+  )
+)

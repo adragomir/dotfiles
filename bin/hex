@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+import binascii,sys
+sys.stdout.write(binascii.hexlify(sys.stdin.read()))
+

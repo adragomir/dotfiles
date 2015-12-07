@@ -1,0 +1,37 @@
+#!/bin/bash
+
+EXHIBITOR=${EXHIBITOR:-http://localhost:8181}
+
+hex() {
+  python -c "import binascii,sys; sys.stdout.write(binascii.hexlify(sys.stdin.read().rstrip('\n')))"
+}
+
+unhex() {
+  python -c 'import binascii,sys; sys.stdout.write(binascii.unhexlify(sys.stdin.read().replace(" ", "").replace("\n", ""))'
+}
+
+command=$1
+shift
+case "$command" in 
+  get)
+    path="$1"
+    res="$(curl 2>/dev/null -X GET -H "Content-Type: application/json" "$EXHIBITOR/exhibitor/v1/explorer/node-data?key=${path}")"
+    if [[ "$res" == *"not found"* ]]; then
+      echo "$res"
+      exit 1
+    else
+      echo "$res"
+      exit 0
+    fi
+    ;;
+  put)
+    path=$1
+    data=$2
+    content=$(echo "$data" | hex)
+    curl -X PUT -H "Content-Type: application/json" "$EXHIBITOR/exhibitor/v1/explorer/znode${path}" -d $content
+  ;;
+  delete)
+    path=$1
+    curl -X DELETE -H "Content-Type: application/json" "$EXHIBITOR/exhibitor/v1/explorer/znode${path}"
+  ;;
+esac

@@ -260,6 +260,17 @@ function _selecta-select-history() {
 zle -N _selecta-select-history
 bindkey '^r' _selecta-select-history
 
+function _hs-select-instance() {
+    local selected_instance
+    echo
+    selected_instance=$(aws --no-paginate --output json ec2 describe-instances --max-results 9999 --region eu-west-1 --query 'Reservations[*].Instances[*]' --filters 'Name=instance-state-code,Values=16' | ec2_instances_dump | sort | hs --filter-only) || return
+    selected_instance=$(echo $selected_instance |  gawk '{print gensub(/^.*=(.*)/, "\\1", "g", $NF);}')
+    eval 'LBUFFER="$LBUFFER$selected_instance"'
+    zle reset-prompt
+}
+zle -N _hs-select-instance
+bindkey '^q' _hs-select-instance
+
 bindkey -e
 bindkey '\ew' kill-region
 bindkey -M isearch "^r" history-incremental-pattern-search-backward
@@ -816,6 +827,7 @@ export ENSIMEHOME=/Users/adr/work/tools/ensime/
 
 if [ "" = "${ALREADY_GLIDING}" ]; then
   export GOPATH=$HOME/.gocode
+  export GO15VENDOREXPERIMENT=1
 fi
 # {{{ amazon
 
@@ -877,7 +889,6 @@ $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64:\
 $HOME/.rvm/bin:\
 $HOME/.perl5/bin:\
 $GOPATH/bin:\
-$GOPATH/src/github.com/mitchellh/packer/pkg/darwin_amd64:\
 /usr/local/openresty/nginx/sbin:\
 /usr/local/openresty/luajit/bin:\
 $PATH
@@ -993,6 +1004,10 @@ export LIBGUESTFS_PATH=/usr/local/share/libguestfs-appliance
 # export PATH="$HOME/.gobrew/bin:$PATH"
 # eval "$(gobrew init -)"
 export HOMEBREW_CASK_OPTS="--appdir=/Users/adr/Applications"
+
+# unikernel
+export PATH=/usr/local/Cellar/netbsd-cross-compiler/HEAD/bin:$PATH
+export READELF=/usr/local/Cellar/netbsd-cross-compiler/HEAD/bin/x86_64--netbsd-readelf
 
 # OPAM configuration
 . /Users/adr/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true

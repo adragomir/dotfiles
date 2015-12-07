@@ -924,7 +924,7 @@ let g:matchparen_insert_timeout = 10
 " }}}
 "
 " python syntax settings {{{
-let g:pymode_syntax = 0
+let g:pymode_syntax = 1
 let g:pymode_folding = 0
 let g:pymode_warning = 0
 let g:pymode_motion = 0
@@ -978,7 +978,7 @@ let g:ctrlp_max_files = 0
 " jedi {{{
 let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#show_call_signatures = 0
-let g:jedi#completions_enabled = 0
+let g:jedi#completions_enabled = 1
 let g:jedi#auto_initialization = 1
 let g:jedi#auto_vim_configuration = 0
 let g:jedi#goto_definitions_command = "<leader>d"
