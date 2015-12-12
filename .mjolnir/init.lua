@@ -32,22 +32,30 @@ hotkey.bind(mash, "r", function()
 end)
 
 hotkey.bind(mash, "return", function()
-  window.focusedwindow():maximize()
+  if window.focusedwindow() then
+    window.focusedwindow():maximize()
+  else
+    alert.show("no focused window", 500)
+  end
 end)
 
 hotkey.bind(mash, "l", function()
-  grid.adjust_focused_window(function(c) 
-    local nx
-    if c.x == grid.GRIDWIDTH - 1 then
-      nx = 0
-    else
-      nx = c.x + 1
-    end
+  if window.focusedwindow() then
+    grid.adjust_focused_window(function(c) 
+      local nx
+      if c.x == grid.GRIDWIDTH - 1 then
+        nx = 0
+      else
+        nx = c.x + 1
+      end
 
-    local nw = grid.GRIDWIDTH - nx
-    c.x = nx
-    c.w = nw
-  end)
+      local nw = grid.GRIDWIDTH - nx
+      c.x = nx
+      c.w = nw
+    end)
+  else
+    alert.show("no focused window", 500)
+  end
 end)
 
 hotkey.bind(mash, "k", function()

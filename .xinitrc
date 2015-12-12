@@ -3,6 +3,8 @@
 [[ -f ~/.Xdefaults ]] && xrdb -merge ~/.Xdefaults
 [[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
 
+xrandr --dpi 140
+
 PATH=$PATH:/usr/local/bin
 xsetroot -solid '#4a525a'
 xsetroot -cursor_name left_ptr

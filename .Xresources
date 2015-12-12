@@ -9,6 +9,8 @@
 ! Fix local terminfo warnings:
 ! sudo ln -s /opt/local/share/terminfo/72/rxvt-unicode /usr/share/terminfo/72/rxvt-unicode
 
+Xft.dpi: 140
+
 urxvt.geometry: 161x50
 urxvt.background: Black
 urxvt.foreground: White
