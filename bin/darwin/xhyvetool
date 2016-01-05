@@ -54,6 +54,8 @@ vmvars() {
 
 command=$1
 shift
+[[ -z $1 ]] && { echo "Please specify machine name"; exit 1; }
+
 case "$command" in 
   register)
     path=$(grealpath $1)
@@ -65,13 +67,12 @@ case "$command" in
 
   start)
     vmvars $1 $2
-    [[ -f $pid_file ]] && error "Xhyve for $path ($disk_file) already running with pid $(cat $pid_file)"
 
     if [[ ! -f $uuid_file ]]; then
       uuidgen > $uuid_file
     fi
-
     uuid=$(cat $uuid_file)
+
     if [[ ! -f $mac_file ]]; then
       sudo uuid2mac $uuid > $mac_file
     fi
@@ -81,7 +82,9 @@ case "$command" in
     CMDLINE_FILE=$path/$(ls $path | grep  "cmdline")
     CMDLINE="$(cat $CMDLINE_FILE) ${3:-}"
 
-    ACPI=${ACPI:-""} # -A
+    [[ -f $path/env ]] && source $path/env
+
+    ACPI=${ACPI:-"-A"} # -A
     MEM=${MEM:-"-m 2G"}
     SMP=${SMP:-"-c 2"}
     NET=${NET:-"-s 2:0,virtio-net"}
@@ -92,24 +95,34 @@ case "$command" in
     IMG_HDD="-s 4,virtio-blk,$disk_file"
     UUID="-U $uuid"
 
+    out=$(pgrep -f "$uuid")
+    [[ "$out" != "" ]] && {
+      echo "Xhyve for $path($disk_file) already running with pid $out"
+      exit 1
+    }
     pushd $path
-    sudo nohup xhyve $ACPI $MEM $SMP $PCI_DEV $LPC_DEV $NET $IMG_CD $IMG_HDD $UUID -f kexec,$KERNEL,$INITRD,"$CMDLINE" &
-    echo $! > $pid_file
+    nohup sudo xhyve $ACPI $MEM $SMP $PCI_DEV $LPC_DEV $NET $IMG_CD $IMG_HDD $UUID -f kexec,$KERNEL,$INITRD,"$CMDLINE" &
     popd
 
     ;;
   status)
     vmvars $1 $2
+    uuid=$(cat $uuid_file)
 
-    if [[ -f $pid_file ]]; then
-      >&2 echo "Xhyve for $path ($disk_file) running with pid $(cat $pid_file)"
-    else
+    out=$(pgrep -f "$uuid")
+    if [[ "$out" == "" ]]; then
       >&2 echo "Xhyve for $path ($disk_file) not running"
+    else
+      >&2 echo "Xhyve for $path ($disk_file) running with pid $out"
     fi
     ;;
   stop)
     vmvars $1 $2
-    [[ -f $pid_file ]] && sudo kill $(cat $pid_file)
+    [[ -f $pid_file ]] && { 
+      sudo kill -9 $(cat $pid_file)
+      rm -f $pid_file
+    }
+    
     >&2 echo "Stopped $path ($disk_file)"
     ;;
   ip)

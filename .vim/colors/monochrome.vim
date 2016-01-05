@@ -25,7 +25,7 @@ hi Folded ctermfg=252 ctermbg=16 cterm=NONE term=NONE
 hi LineNr ctermfg=248 ctermbg=16 cterm=NONE term=NONE
 hi Statement ctermfg=15 ctermbg=16 cterm=bold term=bold
 hi PreProc ctermfg=15 ctermbg=16 cterm=bold term=bold
-hi String ctermfg=67 ctermbg=16 cterm=NONE term=NONE
+hi String ctermfg=green ctermbg=16 cterm=NONE term=NONE
 hi Comment ctermfg=243 ctermbg=16 cterm=NONE term=NONE
 hi Constant ctermfg=252 ctermbg=16 cterm=NONE term=NONE
 hi Type ctermfg=15 ctermbg=16 cterm=bold term=bold
@@ -47,8 +47,8 @@ hi perlMatchStartEnd ctermfg=67 ctermbg=16 cterm=NONE term=NONE
 hi pythonEscape ctermfg=67 ctermbg=16 cterm=NONE term=NONE
 hi javaScriptFunction ctermfg=15 ctermbg=16 cterm=bold term=bold
 hi elixirDelimiter ctermfg=67 ctermbg=16 cterm=NONE term=NONE
-hi Search ctermfg=NONE ctermbg=67 cterm=underline term=NONE
-hi Visual ctermfg=15 ctermbg=67 cterm=NONE term=NONE
+hi Search ctermfg=NONE ctermbg=NONE cterm=underline term=NONE
+hi Visual ctermfg=NONE ctermbg=darkgray cterm=NONE
 hi NonText ctermfg=248 ctermbg=16 cterm=NONE term=NONE
 hi Directory ctermfg=15 ctermbg=16 cterm=bold term=bold
 hi Title ctermfg=15 ctermbg=16 cterm=bold term=bold

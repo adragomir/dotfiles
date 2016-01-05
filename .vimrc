@@ -272,6 +272,7 @@ Plug 'eagletmt/ghcmod-vim', { 'dir': '~/.vim/bundle/ghcmod-vim' }
 Plug 'eagletmt/neco-ghc', { 'dir': '~/.vim/bundle/neco-ghc' }
 Plug 'Twinside/vim-hoogle', { 'dir': '~/.vim/bundle/vim-hoogle' }
 Plug 'artur-shaik/vim-javacomplete2', { 'dir': '~/.vim/bundle/vim-javacomplete2' }
+Plug 'lyuts/vim-rtags', { 'dir': '~/.vim/bundle/vim-rtags' }
 
 call plug#end()
 

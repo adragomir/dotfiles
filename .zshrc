@@ -1011,3 +1011,5 @@ export READELF=/usr/local/Cellar/netbsd-cross-compiler/HEAD/bin/x86_64--netbsd-r
 
 # OPAM configuration
 . /Users/adr/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+
+eval "$(direnv hook zsh)"

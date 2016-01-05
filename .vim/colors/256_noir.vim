@@ -38,7 +38,7 @@ hi Macro           ctermbg=16     ctermfg=250
 hi ModeMsg         ctermbg=16     ctermfg=250
 hi MoreMsg         ctermbg=16     ctermfg=250
 hi NonText         ctermbg=16     ctermfg=240
-hi Number          ctermbg=16     ctermfg=196
+hi Number          ctermbg=16     ctermfg=magenta
 hi Operator        ctermbg=16     ctermfg=255
 hi Pmenu           ctermbg=240    ctermfg=255
 hi PmenuSel        ctermbg=250    ctermfg=16
@@ -48,7 +48,7 @@ hi PreCondit       ctermbg=16     ctermfg=255
 hi PreProc         ctermbg=16     ctermfg=255
 hi Question        ctermbg=16     ctermfg=250
 hi Repeat          ctermbg=16     ctermfg=255
-hi Search          ctermbg=NONE     ctermfg=NONE cterm=underline
+hi Search          ctermbg=NONE   ctermfg=NONE cterm=underline
 hi SpecialChar     ctermbg=16     ctermfg=255
 hi SpecialComment  ctermbg=16     ctermfg=245
 hi Special         ctermbg=16     ctermfg=255
@@ -57,7 +57,7 @@ hi Statement       ctermbg=16     ctermfg=255
 hi StatusLine      ctermbg=darkgrey ctermfg=white
 hi StatusLineNC    ctermbg=black  ctermfg=lightgrey
 hi StorageClass    ctermbg=16     ctermfg=255
-hi String          ctermbg=16     ctermfg=245
+hi String          ctermbg=16     ctermfg=green
 hi Structure       ctermbg=16     ctermfg=255
 hi Tag             ctermbg=16     ctermfg=196
 hi Title           ctermbg=16     ctermfg=250
@@ -70,7 +70,7 @@ hi WildMenu        ctermbg=255    ctermfg=240
 hi Visual          ctermbg=250    ctermfg=16
 hi VisualNOS       ctermbg=250    ctermfg=16
 hi IncSearch       ctermbg=245    ctermfg=255
-hi Search          ctermbg=NONE     ctermfg=NONE cterm=underline
+hi Search          ctermbg=NONE   ctermfg=NONE cterm=underline
 hi ErrorMsg        ctermbg=124    ctermfg=255
 hi SpellBad        ctermbg=88     ctermfg=250
 hi SpellCap        ctermbg=124    ctermfg=255
