@@ -273,6 +273,7 @@ Plug 'eagletmt/neco-ghc', { 'dir': '~/.vim/bundle/neco-ghc' }
 Plug 'Twinside/vim-hoogle', { 'dir': '~/.vim/bundle/vim-hoogle' }
 Plug 'artur-shaik/vim-javacomplete2', { 'dir': '~/.vim/bundle/vim-javacomplete2' }
 Plug 'lyuts/vim-rtags', { 'dir': '~/.vim/bundle/vim-rtags' }
+Plug 'jdonaldson/vaxe', { 'dir': '~/.vim/bundle/vaxe' }
 
 call plug#end()
 
@@ -964,7 +965,7 @@ let g:SuperTabContextDefaultCompletionType = "<c-n>"
 " }}}
 
 " ctrl-p settings {{{
-let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+let g:ctrlp_user_command = 'ag %s -U -l --nocolor -g ""'
 let g:ctrlp_custom_ignore = {
   \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build\|.settings\|storm-local\|logs\|cloudera\|dev-support\|jdiff$',
   \ 'file': '\.exe$\|\.so$\|\.dll$|\.class$|\.jar$',

@@ -9,3 +9,4 @@ tmp/
 tags
 *.tmp*
 *.min.js
+.git

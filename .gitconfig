@@ -29,6 +29,7 @@
   singlekey = true
 
 [alias]
+  news = log -p @{1}..
   st = status
   snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
   snapshots = !git stash list --grep snapshot
@@ -60,6 +61,7 @@
   gn = goodness
   gnc = goodness --cached
   fa = fetch --all --prune
+  f = fetch -p --tags
   un = rm --cached
   head = !git l -1
   b = branch -v

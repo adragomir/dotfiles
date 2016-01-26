@@ -772,6 +772,7 @@ export MONO_GAC_PREFIX=/usr/local
 # haxe
 if [[ "$OSTYPE" = darwin* ]]; then
     export HAXE_LIBRARY_PATH="$(/usr/local/bin/brew --prefix)/share/haxe/std"
+    export HAXE_STD_PATH="$(/usr/local/bin/brew --prefix)/lib/haxe/std"
 fi
 #export NEKOPATH=/usr/local/neko
 
