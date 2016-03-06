@@ -50,6 +50,27 @@ vmvars() {
     pid_file="${tmp}.pid"
     uuid_file="${tmp}.uuid"
     mac_file="${tmp}.mac_address"
+    user_file="${tmp}.user"
+}
+
+ip_for_mac() {
+    awk '
+    {
+      if ($1 ~ /^ip_address/) {
+        ip_address=substr($1, 12)
+      }
+      if ($1 ~ /^hw_address/) {
+        hw_address=substr($1, 14)
+      }
+      if (hw_address != "" && ip_address != "") {
+        ip_addresses[hw_address]=ip_address
+        hw_address=ip_address=""
+      }
+    }
+    END {
+      print ip_addresses["'$1'"]
+    }
+    ' /var/db/dhcpd_leases
 }
 
 command=$1
@@ -118,8 +139,21 @@ case "$command" in
     ;;
   stop)
     vmvars $1 $2
+    mac_address=$(cat "${mac_file}")
+    ip=$(ip_for_mac $mac_address)
+    pid=$(cat $pid_file)
+    user=$(cat $user_file)
+    echo "AAAAAAAAA"
+
     [[ -f $pid_file ]] && { 
-      sudo kill -9 $(cat $pid_file)
+      ssh $user@$ip "echo s > /proc/sysrq-trigger"
+      ssh $user@$ip "shutdown -h now"
+      echo ssh $user@$ip "shutdown -h now"
+      sleep 2
+      ps axwww | grep pid &>/dev/null
+      echo $?
+      exit 1
+      [[ $? != 0 ]] && ssh $user@$ip "echo b > /proc/sysrq-trigger"
       rm -f $pid_file
     }
     
@@ -129,23 +163,6 @@ case "$command" in
     vmvars $1 $2
     mac_address=$(cat "${mac_file}")
 
-    awk '
-    {
-      if ($1 ~ /^ip_address/) {
-        ip_address=substr($1, 12)
-      }
-      if ($1 ~ /^hw_address/) {
-        hw_address=substr($1, 14)
-      }
-      if (hw_address != "" && ip_address != "") {
-        ip_addresses[hw_address]=ip_address
-        hw_address=ip_address=""
-      }
-    }
-    END {
-      print ip_addresses["'$mac_address'"]
-    }
-    ' /var/db/dhcpd_leases
     ;;
   *)
   usage

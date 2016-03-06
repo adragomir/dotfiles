@@ -680,8 +680,8 @@ export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/sc
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
 
 # python
-export PYTHONPATH="/usr/local/lib/python2.7/site-packages:$PYTHONPATH"
-export PYTHONPATH=$PYTHONPATH:$HOME/.python
+#export PYTHONPATH="/usr/local/lib/python2.7/site-packages:$PYTHONPATH"
+#export PYTHONPATH=$PYTHONPATH:$HOME/.python
 export PYTHONSTARTUP=$HOME/.pythonstartup
 
 #ant
@@ -912,22 +912,8 @@ $MANPATH
 # }}}
 
 # aliases {{{
-alias -s com=urlopen
-alias -s org=urlopen
-alias -s net=urlopen
-alias -s io=urlopen
-
-#alias ack="ack -i -a"
-alias v="view -"
-alias vidir="EDITOR=v vidir"
-alias gvim="g"
-alias h=" history | tail -n 10 | cut -d' ' -f3-"
-alias luarocks="luarocks --tree=/Users/adr/.luajitrocks"
+alias luarocks="luarocks --tree=/Users/adr/.luarocks"
 alias luajitrocks="luajitrocks --tree=/Users/adr/.luajitrocks"
-
-# clojure
-alias clojure='rlwrap java -cp $MAVEN_REPO/org/clojure/clojure/1.4.0/clojure-1.4.0.jar:\
-$MAVEN_REPO/org/clojure/clojure-contrib/1.2.0/clojure-contrib-1.2.0.jar clojure.main'
 
 # builtin commands
 
@@ -952,14 +938,6 @@ alias irb='pry'
 alias ri='ri -Tf ansi'
 alias tu='top -o cpu'
 alias tm='top -o vsize'
-
-# hadoop, hbase, etc
-# alias hbase='$HBASE_HOME/bin/hbase'
-# alias zk='$ZOOKEEPER_HOME/bin/zkCli.sh'
-alias storm='$STORM_HOME/bin/storm'
-alias psall='pgrep -l -f NameNode DataNode TaskTracker JobTracker Quorum HMaster HRegion ThriftServer \
-  ReportServer storm.daemon.nimbus storm.ui.core'
-alias d='dirs -v'
 
 # Show history
 alias history='fc -l 1'
@@ -999,8 +977,44 @@ export DOCKER_TLS_VERIFY=1
 export DOCKER_HOST=tcp://192.168.59.103:2376
 export DOCKER_CERT_PATH=/Users/adr/.boot2docker/certs/boot2docker-vm
 
-export LUA_PATH='/Users/adr/.luarocks/share/lua/5.2/?.lua;/Users/adr/.luarocks/share/lua/5.2/?/init.lua;/usr/local/share/lua/5.2/?.lua;/usr/local/share/lua/5.2/?/init.lua;/usr/local/Cellar/luarocks/2.2.0_1/share/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?/init.lua;./?.lua'
-export LUA_CPATH='/Users/adr/.luarocks/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/loadall.so;./?.so'
+export LUA_PATH="\
+/usr/local/opt/lua/share/lua/5.2/?.lua;\
+/usr/local/opt/lua/share/lua/5.2/?/init.lua;\
+/Users/adr/.luarocks/share/lua/5.2/?.lua;\
+/Users/adr/.luarocks/share/lua/5.2/?/init.lua;\
+./?.lua;\
+./?/init.lua\
+"
+
+export LUA_CPATH="\
+/usr/local/opt/lua/lib/lua/5.2/?.so;\
+/Users/adr/.luarocks/lib/lua/5.2/?.so;\
+/usr/local/opt/lua/lib/lua/5.2/loadall.so;\
+./?.so\
+"
+
+export LUAJIT_PATH="\
+/usr/local/opt/luajit/share/luajit-2.1.0-beta1/?.lua;\
+/usr/local/opt/luajit/share/lua/5.1/?.lua;\
+/usr/local/opt/luajit/share/lua/5.1/?/init.lua;\
+/Users/adr/.luajitrocks/share/lua/5.1/?.lua;\
+/Users/adr/.luajitrocks/share/lua/5.1/?/init.lua;\
+./?.lua;\
+./?/init.lua\
+"
+
+export LUAJIT_CPATH="\
+/usr/local/opt/luajit/lib/lua/5.1/?.so;\
+/Users/adr/.luajitrocks/lib/lua/5.1/?.so;\
+/usr/local/opt/luajit/lib/lua/5.1/loadall.so;\
+./?.so\
+"
+
+alias lua='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/lua'
+alias luarocks='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/luarocks --tree=/Users/adr/.luarocks'
+alias luajit='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajit'
+alias luajitrocks='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajitrocks --tree=/Users/adr/.luajitrocks'
+
 export LIBGUESTFS_PATH=/usr/local/share/libguestfs-appliance
 # export PATH="$HOME/.gobrew/bin:$PATH"
 # eval "$(gobrew init -)"
@@ -1014,3 +1028,11 @@ export READELF=/usr/local/Cellar/netbsd-cross-compiler/HEAD/bin/x86_64--netbsd-r
 . /Users/adr/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
 
 eval "$(direnv hook zsh)"
+
+test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
+
+# The next line updates PATH for the Google Cloud SDK.
+source '/Users/adr/work/tools/google-cloud-sdk/path.zsh.inc'
+
+# The next line enables shell command completion for gcloud.
+source '/Users/adr/work/tools/google-cloud-sdk/completion.zsh.inc'

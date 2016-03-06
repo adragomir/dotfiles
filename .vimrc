@@ -263,17 +263,17 @@ Plug 'megaannum/vimside', { 'dir': '~/.vim/bundle/vimside' }
 Plug 'rhysd/vim-clang-format', { 'dir': '~/.vim/bundle/vim-clang-format' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'dir': '~/.vim/bundle/vim-jinja2-syntax' }
 Plug 't9md/vim-choosewin', { 'dir': '~/.vim/bundle/vim-choosewin' }
-Plug 'moll/vim-bbye', { 'dir': '~/.vim/bundle/vim-jinja2-syntax' }
+Plug 'moll/vim-bbye', { 'dir': '~/.vim/bundle/vim-bbye' }
 Plug 'szw/vim-maximizer', { 'dir': '~/.vim/bundle/vim-maximizer' }
 
 Plug 'neovimhaskell/haskell-vim', { 'dir': '~/.vim/bundle/haskell-vim' }
-Plug 'enomsg/vim-haskellConcealPlus', { 'dir': '~/.vim/bundle/haskell-vim' }
+Plug 'enomsg/vim-haskellConcealPlus', { 'dir': '~/.vim/bundle/vim-haskellConcealPlus' }
 Plug 'eagletmt/ghcmod-vim', { 'dir': '~/.vim/bundle/ghcmod-vim' }
 Plug 'eagletmt/neco-ghc', { 'dir': '~/.vim/bundle/neco-ghc' }
 Plug 'Twinside/vim-hoogle', { 'dir': '~/.vim/bundle/vim-hoogle' }
-Plug 'artur-shaik/vim-javacomplete2', { 'dir': '~/.vim/bundle/vim-javacomplete2' }
 Plug 'lyuts/vim-rtags', { 'dir': '~/.vim/bundle/vim-rtags' }
 Plug 'jdonaldson/vaxe', { 'dir': '~/.vim/bundle/vaxe' }
+Plug 'elmcast/elm-vim', { 'dir': '~/.vim/bundle/elm-vim' }
 
 call plug#end()
 
@@ -1199,7 +1199,7 @@ augroup all_buffers
   au BufNewFile,BufRead *.ino set filetype=cpp
   au BufNewFile,BufRead *.pde set filetype=cpp
   " remove all buffers on exit so we don't have them as hidden on reopen
-  au VimLeavePre * 1,255bwipeout
+  au VimLeavePre * execute 'silent! 1,' . bufnr('$') . 'bwipeout!'
 
   " remove empty or otherwise dead buffers when moving away from them
   au TabLeave    * call OnTabLeave()
@@ -1267,7 +1267,6 @@ augroup completions
   au FileType html setlocal omnifunc=htmlcomplete#CompleteTags
   au FileType haskell setlocal omnifunc=necoghc#omnifunc
   au FileType css setlocal omnifunc=csscomplete#CompleteCSS
-  " au FileType java setlocal omnifunc=javacomplete#Complete
   au FileType ruby,eruby set omnifunc=rubycomplete#Complete
 augroup END
 

@@ -36,9 +36,9 @@ do
       if [[ "$branch_name" =~ ^[A-Z]*$ ]]; then
         branch_name="$branch_name-$(echo -n "$commit_message" | sha1sum | cut -f1 -d" " | cut -c1-8)"
       fi
-      echo "git push -f origin ${last_commit}:refs/heads/$branch_name"
+      echo " git push -f origin ${last_commit}:refs/heads/$branch_name"
       if [[ $push_only == 0  ]]; then
-        echo "hub pull-request -f -m \"${commit_message}\" -b $base -h $branch_name"
+        echo " hub pull-request -f -m \"${commit_message}\" -b $base -h $branch_name"
       fi
       base=$branch_name
     fi
@@ -54,9 +54,9 @@ if [[ $commit_issue != "" ]]; then
   if [[ "$branch_name" =~ ^[A-Z]*$ ]]; then
     branch_name="$branch_name-$(echo -n "$commit_message" | sha1sum | cut -f1 -d" " | cut -c1-8)"
   fi
-  echo "git push -f origin ${last_commit}:refs/heads/$branch_name"
+  echo " git push -f origin ${last_commit}:refs/heads/$branch_name"
   if [[ $push_only == 0  ]]; then
-    echo "hub pull-request -f -m \"${commit_message}\" -b $base -h $branch_name"
+    echo " hub pull-request -f -m \"${commit_message}\" -b $base -h $branch_name"
   fi
 fi
 
