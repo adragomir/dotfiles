@@ -224,8 +224,8 @@ Plug 'vim-ruby/vim-ruby', { 'dir': '~/.vim/bundle/vim-ruby' }
 "Plug 'sudar/vim-arduino-syntax', { 'dir': '~/.vim/bundle/vim-arduino-syntax' }
 Plug 'stephpy/vim-yaml', { 'dir': '~/.vim/bundle/vim-yaml' }
 Plug 'guns/vim-clojure-static', { 'dir': '~/.vim/bundle/vimclojure-static' }
-Plug 'guns/vim-sexp', { 'dir': '~/.vim/bundle/vim-sexp' }
-Plug 'tpope/vim-sexp-mappings-for-regular-people', { 'dir': '~/.vim/bundle/vim-sexp-mappings-for-regular-people' }
+Plug 'guns/vim-sexp', { 'dir': '~/.vim/bundle/vim-sexp', 'for': ['clojure', 'lisp', 'scheme']}
+Plug 'tpope/vim-sexp-mappings-for-regular-people', { 'dir': '~/.vim/bundle/vim-sexp-mappings-for-regular-people', 'for': ['clojure', 'lisp', 'scheme'] }
 Plug 'rhysd/vim-clang-format', { 'dir': '~/.vim/bundle/vim-clang-format' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'dir': '~/.vim/bundle/vim-jinja2-syntax' }
 Plug 'eagletmt/ghcmod-vim', { 'dir': '~/.vim/bundle/ghcmod-vim' }
@@ -964,6 +964,13 @@ let g:SuperTabContextDefaultCompletionType = "<c-n>"
 " }}}
 
 " targets.vim {{{ 
+let g:targets_nlNL = '    '
+let g:targets_pairs = '()b {}b []b <>b'
+let g:targets_quotes = '" '' `'
+let g:targets_separators = ', . ; : + - = ~ _ / |'
+let g:targets_argTrigger = ','
+let g:targets_argOpening = '[([]'
+let g:targets_argClosing = '[])]'
 
 " }}}
 
