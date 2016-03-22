@@ -200,80 +200,77 @@ let g:plug_url_format='https://github.com/%s.git'
 source $HOME/.vim/autoload/plug.vim
 
 call plug#begin('~/.vim/bundle')
-Plug 'vim-scripts/a.vim', { 'dir': '~/.vim/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
-Plug 'tpope/vim-abolish', { 'dir': '~/.vim/bundle/abolish' }
-Plug 'rking/ag.vim', { 'dir': '~/.vim/bundle/ag'}
+" languages
 Plug 'Rip-Rip/clang_complete', { 'dir': '~/.vim/bundle/clang_complete' }
-Plug 'tpope/vim-classpath', { 'dir': '~/.vim/bundle/classpath' }
-Plug 'austintaylor/vim-commaobject', { 'dir': '~/.vim/bundle/commaobject' }
-Plug 'tpope/vim-commentary', { 'dir': '~/.vim/bundle/commentary' }
-Plug 'ctrlpvim/ctrlp.vim', { 'dir': '~/.vim/bundle/ctrlp' }
-Plug 'vim-scripts/DetectIndent', { 'dir': '~/.vim/bundle/detectindent' }
-Plug 'tpope/vim-dispatch', { 'dir': '~/.vim/bundle/dispatch' }
-Plug 'tpope/vim-endwise', { 'dir': '~/.vim/bundle/endwise' }
 Plug 'tpope/vim-fireplace', { 'dir': '~/.vim/bundle/fireplace' }
-Plug 'tpope/vim-fugitive', { 'dir': '~/.vim/bundle/fugitive' }
+Plug 'fatih/vim-go', { 'dir': '~/.vim/bundle/vim-go' }
 Plug 'benmills/vim-golang-alternate', { 'dir': '~/.vim/bundle/golang-alternate', 'do': 'patch -p1 < ~/.vim/patches/golang-alternate.patch' }
-Plug 'lukerandall/haskellmode-vim', { 'dir': '~/.vim/bundle/haskellmode-vim' }
 Plug 'othree/html5.vim', { 'dir': '~/.vim/bundle/html5' }
 Plug 'pangloss/vim-javascript', { 'dir': '~/.vim/bundle/javascript' }
 Plug 'elzr/vim-json', { 'dir': '~/.vim/bundle/json' }
 Plug 'plasticboy/vim-markdown', { 'dir': '~/.vim/bundle/markdown' }
-Plug 'edsono/vim-matchit', { 'dir': '~/.vim/bundle/matchit' }
-Plug 'tpope/vim-obsession', { 'dir': '~/.vim/bundle/obsession' }
+Plug 'derekwyatt/vim-scala', { 'dir': '~/.vim/bundle/scala' }
+Plug 'wting/rust.vim', { 'dir': '~/.vim/bundle/rust' }
 Plug 'sirtaj/vim-openscad', { 'dir': '~/.vim/bundle/openscad' }
 Plug 'ajf/puppet-vim', { 'dir': '~/.vim/bundle/puppet-vim' }
 Plug 'davidhalter/jedi-vim', { 'dir': '~/.vim/bundle/jedi-vim' }
-Plug 'klen/python-mode', { 'dir': '~/.vim/bundle/python-mode' }
-Plug 'thinca/vim-quickrun', { 'dir': '~/.vim/bundle/quickrun' }
+Plug 'klen/python-mode', { 'dir': '~/.vim/bundle/python-mode', 'for': 'python' }
 Plug 'kien/rainbow_parentheses.vim', { 'dir': '~/.vim/bundle/rainbow_parentheses' }
+Plug 'pearofducks/ansible-vim', { 'dir': '~/.vim/bundle/ansible-vim' }
+Plug 'kchmck/vim-coffee-script', { 'dir': '~/.vim/bundle/vim-coffee-script' }
+Plug 'ebfe/vim-racer', { 'dir': '~/.vim/bundle/vim-racer' }
+Plug 'tpope/vim-rails', { 'dir': '~/.vim/bundle/vim-rails' }
+Plug 'vim-ruby/vim-ruby', { 'dir': '~/.vim/bundle/vim-ruby' }
+"Plug 'sudar/vim-arduino-syntax', { 'dir': '~/.vim/bundle/vim-arduino-syntax' }
+Plug 'stephpy/vim-yaml', { 'dir': '~/.vim/bundle/vim-yaml' }
+Plug 'guns/vim-clojure-static', { 'dir': '~/.vim/bundle/vimclojure-static' }
+Plug 'guns/vim-sexp', { 'dir': '~/.vim/bundle/vim-sexp' }
+Plug 'tpope/vim-sexp-mappings-for-regular-people', { 'dir': '~/.vim/bundle/vim-sexp-mappings-for-regular-people' }
+Plug 'rhysd/vim-clang-format', { 'dir': '~/.vim/bundle/vim-clang-format' }
+Plug 'Glench/Vim-Jinja2-Syntax', { 'dir': '~/.vim/bundle/vim-jinja2-syntax' }
+Plug 'eagletmt/ghcmod-vim', { 'dir': '~/.vim/bundle/ghcmod-vim' }
+Plug 'eagletmt/neco-ghc', { 'dir': '~/.vim/bundle/neco-ghc' }
+Plug 'neovimhaskell/haskell-vim', { 'dir': '~/.vim/bundle/haskell-vim' }
+Plug 'lukerandall/haskellmode-vim', { 'dir': '~/.vim/bundle/haskellmode-vim' }
+Plug 'enomsg/vim-haskellConcealPlus', { 'dir': '~/.vim/bundle/vim-haskellConcealPlus' }
+Plug 'elmcast/elm-vim', { 'dir': '~/.vim/bundle/elm-vim' }
+Plug 'elixir-lang/vim-elixir', { 'dir': '~/.vim/bundle/vim-elixir'}
+Plug 'megaannum/vimside', { 'dir': '~/.vim/bundle/vimside' }
+" Haxe
+Plug 'jdonaldson/vaxe', { 'dir': '~/.vim/bundle/vaxe' }
+" tools
+Plug 'tpope/vim-fugitive', { 'dir': '~/.vim/bundle/fugitive' }
+Plug 'ctrlpvim/ctrlp.vim', { 'dir': '~/.vim/bundle/ctrlp' }
+Plug 'rking/ag.vim', { 'dir': '~/.vim/bundle/ag'}
+Plug 'tpope/vim-tbone', { 'dir': '~/.vim/bundle/tbone' }
+Plug 'lyuts/vim-rtags', { 'dir': '~/.vim/bundle/vim-rtags' }
+" vim
+Plug 'vim-scripts/a.vim', { 'dir': '~/.vim/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
+"Plug 'tpope/vim-rsi', { 'dir': '~/.vim/bundle/rsi' }
+Plug 'tpope/vim-abolish', { 'dir': '~/.vim/bundle/abolish' }
+Plug 'tpope/vim-classpath', { 'dir': '~/.vim/bundle/classpath' }
+Plug 'tpope/vim-commentary', { 'dir': '~/.vim/bundle/commentary' }
+Plug 'tpope/vim-dispatch', { 'dir': '~/.vim/bundle/dispatch' }
+Plug 'tpope/vim-endwise', { 'dir': '~/.vim/bundle/endwise' }
+Plug 'vim-scripts/DetectIndent', { 'dir': '~/.vim/bundle/detectindent' }
+Plug 'edsono/vim-matchit', { 'dir': '~/.vim/bundle/matchit' }
+Plug 'tpope/vim-obsession', { 'dir': '~/.vim/bundle/obsession' }
+Plug 'thinca/vim-quickrun', { 'dir': '~/.vim/bundle/quickrun' }
 Plug 'tpope/vim-repeat', { 'dir': '~/.vim/bundle/repeat' }
-Plug 'wting/rust.vim', { 'dir': '~/.vim/bundle/rust' }
-Plug 'derekwyatt/vim-scala', { 'dir': '~/.vim/bundle/scala' }
 Plug 'mtth/scratch.vim', { 'dir': '~/.vim/bundle/scratch' }
 Plug 'ervandew/supertab', { 'dir': '~/.vim/bundle/supertab' }
 Plug 'tpope/vim-surround', { 'dir': '~/.vim/bundle/surround' }
 Plug 'scrooloose/syntastic', { 'dir': '~/.vim/bundle/syntastic', 'do': 'git am ~/.vim/patches/syntastic.patch' }
 Plug 'godlygeek/tabular', { 'dir': '~/.vim/bundle/tabular' }
-Plug 'tpope/vim-tbone', { 'dir': '~/.vim/bundle/tbone' }
-Plug 'Julian/vim-textobj-brace', { 'dir': '~/.vim/bundle/textobj-brace' }
-Plug 'kana/vim-textobj-function', { 'dir': '~/.vim/bundle/textobj-function' }
-Plug 'thinca/vim-textobj-function-javascript', { 'dir': '~/.vim/bundle/textobj-function-javascript' }
-Plug 'sgur/vim-textobj-parameter', { 'dir': '~/.vim/bundle/textobj-parameter' }
 Plug 'kana/vim-textobj-user', { 'dir': '~/.vim/bundle/textobj-user' }
-Plug 'paradigm/TextObjectify', { 'dir': '~/.vim/bundle/textobjectify' }
+Plug 'wellle/targets.vim', { 'dir': '~/.vim/bundle/targets.vim' }
 Plug 'tpope/vim-unimpaired', { 'dir': '~/.vim/bundle/unimpaired' }
-"Plug 'chase/vim-ansible-yaml', { 'dir': '~/.vim/bundle/vim-ansible-yaml' }
-Plug 'pearofducks/ansible-vim', { 'dir': '~/.vim/bundle/ansible-vim' }
-Plug 'kchmck/vim-coffee-script', { 'dir': '~/.vim/bundle/vim-coffee-script' }
 Plug 'terryma/vim-expand-region', { 'dir': '~/.vim/bundle/vim-expand-region' }
-Plug 'fatih/vim-go', { 'dir': '~/.vim/bundle/vim-go' }
-Plug 'ebfe/vim-racer', { 'dir': '~/.vim/bundle/vim-racer' }
-Plug 'tpope/vim-rails', { 'dir': '~/.vim/bundle/vim-rails' }
-Plug 'vim-ruby/vim-ruby', { 'dir': '~/.vim/bundle/vim-ruby' }
-Plug 'cespare/vim-sbd', { 'dir': '~/.vim/bundle/vim-sbd' }
-Plug 'guns/vim-sexp', { 'dir': '~/.vim/bundle/vim-sexp' }
-Plug 'tpope/vim-sexp-mappings-for-regular-people', { 'dir': '~/.vim/bundle/vim-sexp-mappings-for-regular-people' }
-Plug 'stephpy/vim-yaml', { 'dir': '~/.vim/bundle/vim-yaml' }
-Plug 'guns/vim-clojure-static', { 'dir': '~/.vim/bundle/vimclojure-static' }
 Plug 'Shougo/vimproc', { 'dir': '~/.vim/bundle/vimproc', 'do': 'make' }
-Plug 'megaannum/vimside', { 'dir': '~/.vim/bundle/vimside' }
-" Plug 'dhruvasagar/vim-table-mode', { 'dir': '~/.vim/bundle/vim-table-mode' }
-"Plug 'sudar/vim-arduino-syntax', { 'dir': '~/.vim/bundle/vim-arduino-syntax' }
-Plug 'rhysd/vim-clang-format', { 'dir': '~/.vim/bundle/vim-clang-format' }
-Plug 'Glench/Vim-Jinja2-Syntax', { 'dir': '~/.vim/bundle/vim-jinja2-syntax' }
 Plug 't9md/vim-choosewin', { 'dir': '~/.vim/bundle/vim-choosewin' }
-Plug 'moll/vim-bbye', { 'dir': '~/.vim/bundle/vim-bbye' }
-Plug 'szw/vim-maximizer', { 'dir': '~/.vim/bundle/vim-maximizer' }
-
-Plug 'neovimhaskell/haskell-vim', { 'dir': '~/.vim/bundle/haskell-vim' }
-Plug 'enomsg/vim-haskellConcealPlus', { 'dir': '~/.vim/bundle/vim-haskellConcealPlus' }
-Plug 'eagletmt/ghcmod-vim', { 'dir': '~/.vim/bundle/ghcmod-vim' }
-Plug 'eagletmt/neco-ghc', { 'dir': '~/.vim/bundle/neco-ghc' }
-Plug 'Twinside/vim-hoogle', { 'dir': '~/.vim/bundle/vim-hoogle' }
-Plug 'lyuts/vim-rtags', { 'dir': '~/.vim/bundle/vim-rtags' }
-Plug 'jdonaldson/vaxe', { 'dir': '~/.vim/bundle/vaxe' }
-Plug 'elmcast/elm-vim', { 'dir': '~/.vim/bundle/elm-vim' }
+Plug 'tmux-plugins/vim-tmux-focus-events', { 'dir': '~/.vim/bundle/vim-tmux-focus-events' }
+Plug 'mhinz/vim-sayonara', { 'dir': '~/.vim/bundle/vim-sayonara' }
+Plug 'jansedivy/jai.vim', {'dir': '~/.vim/bundle/jai' }
 
 call plug#end()
 
@@ -289,7 +286,7 @@ let maplocalleader = ","
 " look & feel {{{
 set t_Co=256
 set background=dark
-colorscheme grb256
+colorscheme monochrome
 " }}}
 
 " gui settings {{{
@@ -823,8 +820,10 @@ imap  <3-MiddleMouse>  <Nop>
 imap  <4-MiddleMouse>  <Nop>
 
 inoremap <S-Space> <Space>
+inoremap <C-Space> <C-o>m`
 inoremap <silent> <Home> <C-o>:call HomeKey()<CR>
 nnoremap <silent> <Home> :call HomeKey()<CR>
+noremap <Space> m`
 
 " switch cpp/h
 nmap <MapLocalLeader>h :AT<CR>
@@ -964,6 +963,10 @@ let g:SuperTabContextDefaultCompletionType = "<c-n>"
 " let g:SuperTabDefaultCompletionType = '<c-n>'
 " }}}
 
+" targets.vim {{{ 
+
+" }}}
+
 " ctrl-p settings {{{
 let g:ctrlp_user_command = 'ag %s -U -l --nocolor -g ""'
 let g:ctrlp_custom_ignore = {
@@ -984,6 +987,7 @@ let g:jedi#completions_enabled = 1
 let g:jedi#auto_initialization = 1
 let g:jedi#auto_vim_configuration = 0
 let g:jedi#goto_definitions_command = "<leader>d"
+let g:jedi#completions_command = "<C-x><C-o>"
 " }}}
 
 " textobjectify settings {{{
@@ -1072,7 +1076,7 @@ let g:clang_snippets = 0
 let g:clang_debug = 1
 if has("macunix")
   "let g:clang_library_path = "/usr/local/opt/llvm/lib/"
-  let g:clang_library_path = "/usr/local/opt/llvm36/lib/llvm-3.6/lib/"
+  let g:clang_library_path = "/usr/local/opt/llvm/lib/"
   " let g:clang_library_path = "/usr/local/Cellar/llvm/3.5.1/lib/"
 else
   let g:clang_library_path = "/usr/lib/"
