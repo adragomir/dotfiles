@@ -975,12 +975,13 @@ let g:targets_argClosing = '[])]'
 " }}}
 
 " ctrl-p settings {{{
-let g:ctrlp_user_command = 'ag %s -U -l --nocolor -g ""'
+let g:ctrlp_user_command = 'ag %s -f -U -l --nocolor -g ""'
 let g:ctrlp_custom_ignore = {
   \ 'dir':  '\.git$\|\.hg$\|\.svn\|tmp\|target\|test-output\|build\|.settings\|storm-local\|logs\|cloudera\|dev-support\|jdiff$',
   \ 'file': '\.exe$\|\.so$\|\.dll$|\.class$|\.jar$',
   \ }
 let g:ctrlp_working_path_mode = 0
+let g:ctrlp_follow_symlinks = 1
 let g:ctrlp_cache_dir = "$HOME/.vim/tmp"
 let g:ctrlp_switch_buffer = 2
 let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
