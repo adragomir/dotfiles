@@ -822,7 +822,6 @@ export SAASBASE_DATAROOT=/var
 if [[ "$OSTYPE" = darwin* ]]; then
   export VIMRUNTIME=$HOME/Applications/MacVim.app/Contents/Resources/vim/runtime/
 fi  
-export ENSIMEHOME=/Users/adr/work/tools/ensime/
 
 # go
 
@@ -912,8 +911,8 @@ $MANPATH
 # }}}
 
 # aliases {{{
-alias luarocks="luarocks --tree=/Users/adr/.luarocks"
-alias luajitrocks="luajitrocks --tree=/Users/adr/.luajitrocks"
+alias luarocks="luarocks --tree=${HOME}/.luarocks"
+alias luajitrocks="luajitrocks --tree=${HOME}/.luajitrocks"
 
 # builtin commands
 
@@ -975,20 +974,20 @@ source $ZSH/url-tools.plugin.zsh
 
 export DOCKER_TLS_VERIFY=1
 export DOCKER_HOST=tcp://192.168.59.103:2376
-export DOCKER_CERT_PATH=/Users/adr/.boot2docker/certs/boot2docker-vm
+export DOCKER_CERT_PATH=$HOME/.boot2docker/certs/boot2docker-vm
 
 export LUA_PATH="\
 /usr/local/opt/lua/share/lua/5.2/?.lua;\
 /usr/local/opt/lua/share/lua/5.2/?/init.lua;\
-/Users/adr/.luarocks/share/lua/5.2/?.lua;\
-/Users/adr/.luarocks/share/lua/5.2/?/init.lua;\
+${HOME}/.luarocks/share/lua/5.2/?.lua;\
+${HOME}/.luarocks/share/lua/5.2/?/init.lua;\
 ./?.lua;\
 ./?/init.lua\
 "
 
 export LUA_CPATH="\
 /usr/local/opt/lua/lib/lua/5.2/?.so;\
-/Users/adr/.luarocks/lib/lua/5.2/?.so;\
+${HOME}/.luarocks/lib/lua/5.2/?.so;\
 /usr/local/opt/lua/lib/lua/5.2/loadall.so;\
 ./?.so\
 "
@@ -997,42 +996,42 @@ export LUAJIT_PATH="\
 /usr/local/opt/luajit/share/luajit-2.1.0-beta1/?.lua;\
 /usr/local/opt/luajit/share/lua/5.1/?.lua;\
 /usr/local/opt/luajit/share/lua/5.1/?/init.lua;\
-/Users/adr/.luajitrocks/share/lua/5.1/?.lua;\
-/Users/adr/.luajitrocks/share/lua/5.1/?/init.lua;\
+${HOME}/.luajitrocks/share/lua/5.1/?.lua;\
+${HOME}/.luajitrocks/share/lua/5.1/?/init.lua;\
 ./?.lua;\
 ./?/init.lua\
 "
 
 export LUAJIT_CPATH="\
 /usr/local/opt/luajit/lib/lua/5.1/?.so;\
-/Users/adr/.luajitrocks/lib/lua/5.1/?.so;\
+${HOME}/.luajitrocks/lib/lua/5.1/?.so;\
 /usr/local/opt/luajit/lib/lua/5.1/loadall.so;\
 ./?.so\
 "
 
 alias lua='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/lua'
-alias luarocks='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/luarocks --tree=/Users/adr/.luarocks'
+alias luarocks='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/luarocks --tree=${HOME}/.luarocks'
 alias luajit='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajit'
-alias luajitrocks='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajitrocks --tree=/Users/adr/.luajitrocks'
+alias luajitrocks='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajitrocks --tree=${HOME}/.luajitrocks'
 
 export LIBGUESTFS_PATH=/usr/local/share/libguestfs-appliance
 # export PATH="$HOME/.gobrew/bin:$PATH"
 # eval "$(gobrew init -)"
-export HOMEBREW_CASK_OPTS="--appdir=/Users/adr/Applications"
+export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
 
 # unikernel
 export PATH=/usr/local/Cellar/netbsd-cross-compiler/HEAD/bin:$PATH
 export READELF=/usr/local/Cellar/netbsd-cross-compiler/HEAD/bin/x86_64--netbsd-readelf
 
 # OPAM configuration
-. /Users/adr/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+. ${HOME}/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
 
 eval "$(direnv hook zsh)"
 
 test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
 
 # The next line updates PATH for the Google Cloud SDK.
-source '/Users/adr/work/tools/google-cloud-sdk/path.zsh.inc'
+[ -f "${HOME}/work/tools/google-cloud-sdk/path.zsh.inc" ] && source "${HOME}/work/tools/google-cloud-sdk/path.zsh.inc"
 
 # The next line enables shell command completion for gcloud.
-source '/Users/adr/work/tools/google-cloud-sdk/completion.zsh.inc'
+[ -f "${HOME}/work/tools/google-cloud-sdk/completion.zsh.inc" ] && source "${HOME}/work/tools/google-cloud-sdk/completion.zsh.inc"

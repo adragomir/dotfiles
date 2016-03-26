@@ -42,7 +42,7 @@
   ci = commit
   root = rev-parse --show-toplevel
   id = rev-parse
-  cp = cherry-pick -x               # grab a change from a branch
+  cp = cherry-pick               # grab a change from a branch
   this = rev-parse --abbrev-ref HEAD
   co = checkout
   di = diff

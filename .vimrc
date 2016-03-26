@@ -1174,11 +1174,6 @@ let g:syntastic_mode_map = { 'mode': 'passive',
 " }}}
 
 
-" javacomplete {{{
-" let g:first_nailgun_port=2114
-" let g:javacomplete_ng="/Users/adr/dotfiles/bin/binary/ng"
-" }}}
-
 " }}}
 
 " abbreviations {{{
