@@ -271,6 +271,7 @@ Plug 't9md/vim-choosewin', { 'dir': '~/.vim/bundle/vim-choosewin' }
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'dir': '~/.vim/bundle/vim-tmux-focus-events' }
 Plug 'mhinz/vim-sayonara', { 'dir': '~/.vim/bundle/vim-sayonara' }
 Plug 'jansedivy/jai.vim', {'dir': '~/.vim/bundle/jai' }
+Plug 'SirVer/ultisnips', {'dir': '~/.vim/bundle/ultisnips' }
 
 call plug#end()
 
@@ -682,6 +683,10 @@ endif
 " System clipboard interaction.
 map <leader>y "*y
 
+" Don't move the cursor
+vnoremap y myy`y
+vnoremap Y myY`y
+
 " re-select old stuff
 noremap gV `<v'>
 noremap g> `<v'>
@@ -888,6 +893,10 @@ noremap [] <nop>
 " }}}
 
 " plugin settings {{{
+
+" ag plugin settings {{{
+let g:ag_prg =  "ag --vimgrep -f -t"
+" }}}
 
 " java plugin settings {{{
 let java_mark_braces_in_parens_as_errors=0

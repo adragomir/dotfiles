@@ -3,16 +3,6 @@
 usage() {
 cat << EOF
 SYNOPSIS
-
-    Wrapper over Go package management tools. 
-    Barely support: 
-    - Gopm https://github.com/gpmgo/gopm
-    - Godep https://github.com/tools/godep
-    - goop https://github.com/nitrous-io/goop
-    - Gom https://github.com/mattn/gom
-    - Glide https://github.com/Masterminds/glide
-    - Nut https://github.com/jingweno/nut
-
     Symlinks the current folder into vendorized gopath for easy work
 
     $ cat .goenv 2>/dev/null
@@ -21,18 +11,6 @@ SYNOPSIS
 USAGE
       Version information
       $ goenv version
-
-      Parses all the go package dependencies, saves them into the Godeps file&
-      $ goenv bootstrap 
-
-      Set the package name and make a symlink
-      $ goenv self github.com/test/test
-
-      Parses the Godeps file, installs dependencies and sets them to the appropriate version.
-      $ goenv install
-
-      Builds all the dependencies
-      $ goenv prebuild
 EOF
 }
 
@@ -54,69 +32,17 @@ link() {
 
   # make new symlinks
   for f in $from/*; do 
-    [[ "$f" =~ .*(\.vendor|vendor|_vendor|Godeps|\.gopmfile|Goopfile|glide\.yaml|Gomfile|Nut\.toml)$ ]] && continue
+    [[ "$f" =~ .*(\.vendor|vendor|_vendor)$ ]] && continue
     local bf=$(basename $f)
     [[ $verbose == "1" ]] && echo ">> Linking $from/$bf to $to/$bf..."
     ln -vs $from/$bf $to/$bf
   done
 }
 
-# detect settings
-goenv_ok=0
-if [ -e .gopmfile ]; then
-    mode=gopm
-    gp=$(pwd)/.vendor
-    package=$(cat .goenv 2>/dev/null)
-    needs_link=1
-    goenv_ok=1
-    exec_prefix=""
-elif [ -e Godeps/Godeps.json ]; then
-    mode=godep
-    gp=$(pwd)/Godeps/_workspace
-    package=$(cat .goenv 2>/dev/null)
-    needs_link=1
-    goenv_ok=1
-    exec_prefix=""
-elif [ -e Goopfile ]; then
-    mode=goop
-    gp=$(pwd)/.vendor
-    package=$(cat .goenv 2>/dev/null)
-    needs_link=1
-    goenv_ok=1
-    exec_prefix="goop exec"
-elif [ -e Gomfile ]; then
-    mode=gom
-    gp=$(pwd)/_vendor
-    package=$(cat .goenv 2>/dev/null)
-    needs_link=1
-    goenv_ok=1
-    exec_prefix="gom exec"
-elif [ -e Glide.yaml ]; then
-    mode=glide
-    gp=$(pwd)/_vendor
-    package=$(cat glide.yaml | egrep "^package" | awk '{print $2}')
-    needs_link=0
-    goenv_ok=1
-    exec_prefix=""
-elif [ -e Nut.toml ]; then
-    mode=nut
-    gp=$(pwd)/vendor/_nuts
-    package=$(cat .goenv 2>/dev/null)
-    needs_link=1
-    goenv_ok=1
-    exec_prefix=""
-else 
-    mode=raw
-    gp=$(pwd)/vendor
-    package=$(cat .goenv 2>/dev/null)
-    needs_link=1
-    goenv_ok=1
-fi
-
-if [ ! "$goenv_ok" -eq "1" ]; then
-    echo "Can't run here"
-    exit 1
-fi
+gp=$(pwd)/.gopath
+package=$(cat .goenv 2>/dev/null)
+[[ "${package}" == "" ]] && package=$PACKAGE
+[[ "${package}" == "" ]] && echo "You must set the package in PACKAGE or .goenv" && exit 1
 
 # parse arguments
 args=($@)
@@ -124,10 +50,6 @@ for arg in "${args[@]}"; do
     case $arg in
         -v)
             verbose=1
-            args=(${args[@]/$arg})
-            ;;
-        "prepare")
-            command=prepare 
             args=(${args[@]/$arg})
             ;;
         "link")
@@ -149,48 +71,12 @@ for arg in "${args[@]}"; do
     esac
 done
 
-if [[ "$needs_link" = "1" ]] && [[ "$package" = "" ]] && [[ "$command" != "help" ]]; then
-    echo "Mode '$mode' detected; You need to specify a package in .goenv"
-    exit 1
-fi
-
 case "$command" in 
     "help")
         usage
     ;;
-    "prepare")
-        # prepare env
-        case "$mode" in
-            "gopm")
-                gopm install
-            ;;
-            "godep")
-                godep get
-            ;;
-            "goop")
-                goop install
-            ;;
-            "gom")
-                gom install
-            ;;
-            "glide")
-                glide install
-                glide rebuild
-            ;;
-            "nut")
-                nut install
-            ;;
-        esac
-        if [[ $needs_link == 1 ]];
-        then
-            link "${gp}/$package"
-        fi
-    ;;
     "link")
-        if [[ $needs_link == 1 ]];
-        then
-            link "${gp}/$package"
-        fi
+        link "${gp}/src/$package"
     ;;
     "in")
         do=1
@@ -243,5 +129,4 @@ case "$command" in
             GOPATH=$gp eval "${args[@]}"
         fi
     ;;
-
 esac
