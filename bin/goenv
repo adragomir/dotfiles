@@ -32,7 +32,7 @@ link() {
 
   # make new symlinks
   for f in $from/*; do 
-    [[ "$f" =~ .*(\.vendor|vendor|_vendor)$ ]] && continue
+    [[ "$f" =~ .*(\.vendor|vendor|_vendor)$ || "$f" =~ ^\..*$ ]] && continue
     local bf=$(basename $f)
     [[ $verbose == "1" ]] && echo ">> Linking $from/$bf to $to/$bf..."
     ln -vs $from/$bf $to/$bf

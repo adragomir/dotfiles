@@ -1,0 +1,23 @@
+@binding-set gtk-adr-text-entry {
+  bind "<alt>Left" { "move-cursor" (words, -1, 0) };
+  bind "<shift><alt>Left" { "move-cursor" (words, -1, 1) };
+  bind "<alt>Right" { "move-cursor" (words, 1, 0) };
+  bind "<shift><alt>Right" { "move-cursor" (words, 1, 1) };
+  bind "<ctrl>a" { "move-cursor" (paragraph-ends, -1, 0) };
+  bind "<super>Left" { "move-cursor" (paragraph-ends, -1, 0) };
+  bind "<shift><ctrl>a" { "move-cursor" (paragraph-ends, -1, 1) };
+  bind "<shift><super>Left" { "move-cursor" (paragraph-ends, -1, 1) };
+  bind "<ctrl>e" { "move-cursor" (paragraph-ends, 1, 0) };
+  bind "<super>Right" { "move-cursor" (paragraph-ends, 1, 0) };
+  bind "<shift><ctrl>e" { "move-cursor" (paragraph-ends, 1, 1) };
+  bind "<shift><super>Right" { "move-cursor" (paragraph-ends, 1, 1) };
+  bind "<super>c" { "copy-clipboard" () };
+  bind "<super>x" { "cut-clipboard" () };
+  bind "<super>v" { "paste-clipboard" () };
+  bind "<alt>BackSpace" { "delete-from-cursor" (word-ends, -1) };
+}
+
+entry {
+  -gtk-key-bindings: gtk-adr-text-entry;
+}
+

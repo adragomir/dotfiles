@@ -1,0 +1,61 @@
+[global_config]
+  suppress_multiple_term_dialog = True
+[keybindings]
+  close_term = <Super>w
+  close_window = None
+  copy = <Super>c
+  cycle_next = None
+  cycle_prev = None
+  edit_window_title = None
+  go_down = None
+  go_left = None
+  go_next = <Super>bracketright
+  go_prev = <Super>bracketleft
+  go_right = None
+  go_up = None
+  help = None
+  hide_window = None
+  insert_number = None
+  insert_padded = None
+  move_tab_left = None
+  move_tab_right = None
+  new_tab = <Super>t
+  new_window = <Super>n
+  next_tab = <Super>braceright
+  paste = <Super>v
+  prev_tab = <Super>braceleft
+  reset_clear = <Super>k
+  resize_down = None
+  resize_left = None
+  resize_right = None
+  resize_up = None
+  rotate_ccw = None
+  rotate_cw = None
+  scaled_zoom = None
+  search = <Super>f
+  split_horiz = <Super>d
+  split_vert = <Shift><Super>d
+  switch_to_tab_1 = <Super>1
+  switch_to_tab_10 = <Super>0
+  switch_to_tab_2 = <Super>2
+  switch_to_tab_3 = <Super>3
+  switch_to_tab_4 = <Super>4
+  switch_to_tab_5 = <Super>5
+  switch_to_tab_6 = <Super>6
+  switch_to_tab_7 = <Super>6
+  switch_to_tab_8 = <Super>7
+  switch_to_tab_9 = <Super>8
+  toggle_scrollbar = None
+  toggle_zoom = None
+[layouts]
+  [[default]]
+    [[[child1]]]
+      parent = window0
+      type = Terminal
+    [[[window0]]]
+      parent = ""
+      type = Window
+[plugins]
+[profiles]
+  [[default]]
+    background_image = None

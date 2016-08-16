@@ -202,6 +202,7 @@ source $HOME/.vim/autoload/plug.vim
 call plug#begin('~/.vim/bundle')
 " languages
 Plug 'Rip-Rip/clang_complete', { 'dir': '~/.vim/bundle/clang_complete' }
+" Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/bundle/clang_complete' }
 Plug 'tpope/vim-fireplace', { 'dir': '~/.vim/bundle/fireplace' }
 Plug 'fatih/vim-go', { 'dir': '~/.vim/bundle/vim-go' }
 Plug 'benmills/vim-golang-alternate', { 'dir': '~/.vim/bundle/golang-alternate', 'do': 'patch -p1 < ~/.vim/patches/golang-alternate.patch' }
@@ -271,7 +272,7 @@ Plug 't9md/vim-choosewin', { 'dir': '~/.vim/bundle/vim-choosewin' }
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'dir': '~/.vim/bundle/vim-tmux-focus-events' }
 Plug 'mhinz/vim-sayonara', { 'dir': '~/.vim/bundle/vim-sayonara' }
 Plug 'jansedivy/jai.vim', {'dir': '~/.vim/bundle/jai' }
-Plug 'SirVer/ultisnips', {'dir': '~/.vim/bundle/ultisnips' }
+Plug 'rbgrouleff/bclose.vim', {'dir': '~/.vim/bundle/bclose' }
 
 call plug#end()
 
