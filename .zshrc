@@ -671,9 +671,11 @@ export LSCOLORS="gxfxcxdxbxegedabagacad"
 export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
 
 # grep
-export GREP_OPTIONS='--color=auto'
-export GREP_COLOR='1;32'
-export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
+if [[ "$OSTYPE" = darwin* ]]; then
+  export GREP_OPTIONS='--color=auto'
+  export GREP_COLOR='1;32'
+  export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
+fi
 
 # scons
 export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/scons-1.2.0"

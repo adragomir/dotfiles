@@ -46,7 +46,7 @@
   switch_to_tab_8 = <Super>7
   switch_to_tab_9 = <Super>8
   toggle_scrollbar = None
-  toggle_zoom = None
+  toggle_zoom = <Shift><Super>Return
 [layouts]
   [[default]]
     [[[child1]]]

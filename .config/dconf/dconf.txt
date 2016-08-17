@@ -1,0 +1,122 @@
+[org/gnome/shell/keybindings]
+toggle-message-tray=@as []
+open-application-menu=@as []
+toggle-application-view=@as []
+toggle-overview=@as []
+focus-active-notification=@as []
+
+[org/gnome/terminal/legacy]
+schema-version=uint32 3
+
+[org/gnome/settings-daemon/plugins/media-keys]
+screenshot-clip=''
+screenreader=''
+magnifier-zoom-out=''
+area-screenshot-clip=''
+screenshot=''
+window-screenshot-clip=''
+window-screenshot=''
+magnifier-zoom-in=''
+screensaver=''
+area-screenshot='<Shift><Super>4'
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+magnifier=''
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='<Alt><Super>Escape'
+command='gnome-system-monitor'
+name='Launch System Monitor'
+
+[org/gnome/mutter]
+overlay-key=''
+
+[org/gnome/mutter/keybindings]
+toggle-tiled-right=@as []
+toggle-tiled-left=@as []
+
+[org/gnome/mutter/wayland/keybindings]
+switch-to-session-10=@as []
+switch-to-session-11=@as []
+switch-to-session-12=@as []
+switch-to-session-1=@as []
+switch-to-session-2=@as []
+switch-to-session-3=@as []
+switch-to-session-4=@as []
+switch-to-session-5=@as []
+switch-to-session-6=@as []
+switch-to-session-7=@as []
+switch-to-session-8=@as []
+switch-to-session-9=@as []
+
+[org/gnome/gnome-system-monitor]
+show-dependencies=false
+maximized=false
+show-whose-processes='user'
+window-state=(1375, 846, 706, 502)
+
+[org/gnome/gnome-system-monitor/disktreenew]
+col-6-visible=true
+col-6-width=0
+
+[org/gnome/evolution-data-server]
+migrated=true
+
+[org/gnome/desktop/interface]
+gtk-key-theme='Adr'
+text-scaling-factor=1.5
+gtk-im-module='gtk-im-context-simple'
+
+[org/gnome/desktop/input-sources]
+sources=@a(ss) []
+xkb-options=@as []
+
+[org/gnome/desktop/wm/preferences]
+mouse-button-modifier='disabled'
+action-middle-click-titlebar='toggle-maximize-horizontally'
+
+[org/gnome/desktop/wm/keybindings]
+move-to-workspace-left=@as []
+move-to-monitor-right=@as []
+begin-move=@as []
+switch-to-workspace-left=@as []
+switch-to-workspace-1=@as []
+move-to-monitor-left=@as []
+toggle-maximized=@as []
+cycle-windows=@as []
+unmaximize=@as []
+maximize=@as []
+begin-resize=@as []
+panel-main-menu=['<Alt>F1']
+cycle-windows-backward=@as []
+cycle-group-backward=@as []
+cycle-panels-backward=@as []
+switch-input-source=@as []
+switch-to-workspace-right=@as []
+move-to-workspace-down=@as []
+move-to-workspace-1=@as []
+cycle-group=@as []
+move-to-workspace-last=@as []
+switch-applications=['<Super>Tab']
+minimize=@as []
+switch-to-workspace-down=@as []
+switch-panels-backward=@as []
+switch-applications-backward=['<Shift><Super>Tab']
+move-to-monitor-down=@as []
+switch-group=['<Super>Above_Tab']
+activate-window-menu=@as []
+cycle-panels=@as []
+move-to-workspace-up=@as []
+move-to-workspace-right=@as []
+switch-group-backward=['<Shift><Super>Above_Tab']
+switch-panels=@as []
+switch-input-source-backward=@as []
+move-to-monitor-up=@as []
+switch-to-workspace-last=@as []
+switch-to-workspace-up=@as []
+
+[ca/desrt/dconf-editor]
+saved-view='/org/gnome/mutter/wayland/keybindings/'
+window-is-fullscreen=false
+window-height=600
+window-width=800
+window-is-maximized=true
