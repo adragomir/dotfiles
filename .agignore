@@ -10,3 +10,4 @@ tags
 *.tmp*
 *.min.js
 .git
+dist

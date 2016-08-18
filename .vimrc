@@ -100,7 +100,11 @@ set ttimeoutlen=0
 if !has('nvim')
   set guipty
 endif
-set clipboard=unnamed "unnamed ",unnamedplus,autoselect
+if has("mac")
+  set clipboard=unnamed "unnamed ",unnamedplus,autoselect
+else 
+  set clipboard=unnamedplus
+endif
 set undofile
 set undoreload=10000
 set undodir=~/.vim/tmp/undo/

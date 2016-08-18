@@ -1,3 +1,33 @@
+.header-bar.default-decoration {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.header-bar.default-decoration .button.titlebutton {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.ssd .titlebar {
+    border-width: 0;
+    box-shadow: none;
+}
+
+/* @binding-set gtk-adr-text-entry */
+/* { */
+/*   bind "<alt>left" { "move-cursor" (words, -1, 0) }; */
+/*   bind "<shift><alt>left" { "move-cursor" (words, -1, 1) }; */
+/*   bind "<alt>right" { "move-cursor" (words, 1, 0) }; */
+/*   bind "<shift><alt>right" { "move-cursor" (words, 1, 1) }; */
+
+/*   bind "<super>left" { "move-cursor" (paragraph-ends, -1, 0) }; */
+/*   bind "<shift><super>left" { "move-cursor" (paragraph-ends, -1, 1) }; */
+/*   bind "<super>right" { "move-cursor" (paragraph-ends, 1, 0) }; */
+/*   bind "<shift><super>right" { "move-cursor" (paragraph-ends, 1, 1) }; */
+
+/*   bind "<alt>backspace" { "delete-from-cursor" (whitespace, 1) }; */
+/* } */
+
 @binding-set mac-text-move
 {
   bind "<alt>Right"           { "move-cursor" (words, 1, 0) };
@@ -71,24 +101,31 @@
   bind "<super>a" { "select-all" () };
 }
 
-GtkTextView
-{
+GtkTextView {
   gtk-key-bindings: mac-text-move, mac-text-delete, mac-copy-paste, mac-select-all-text-view;
 }
 
-GtkLabel
+text_view
 {
+  -gtk-key-bindings: mac-text-move, mac-text-delete, mac-copy-paste, mac-select-all-text-view;
+}
+
+GtkLabel {
   gtk-key-bindings: mac-text-move, mac-text-emacs, mac-select-all-label;
 }
 
-GtkEntry
+label
 {
+  -gtk-key-bindings: mac-text-move, mac-text-emacs, mac-select-all-label;
+}
+
+GtkEntry {
   gtk-key-bindings: mac-text-move, mac-text-emacs, mac-text-delete, mac-copy-paste, mac-select-all-entry;
 }
 
-GtkFileChooserDefaultClass
+entry
 {
-  gtk-key-bindings: mac-file-chooser;
+  -gtk-key-bindings: mac-text-move, mac-text-emacs, mac-text-delete, mac-copy-paste, mac-select-all-entry;
 }
 
 GtkFileChooser
@@ -96,9 +133,29 @@ GtkFileChooser
   gtk-key-bindings: mac-file-chooser;
 }
 
-GtkFileChooserDefault
+GtkFileChooserNative
 {
   gtk-key-bindings: mac-file-chooser;
+}
+
+GtkFileChooserDialog
+{
+  gtk-key-bindings: mac-file-chooser;
+}
+
+file_chooser
+{
+  -gtk-key-bindings: mac-file-chooser;
+}
+
+file_chooser_native
+{
+  -gtk-key-bindings: mac-file-chooser;
+}
+
+file_chooser_dialog
+{
+  -gtk-key-bindings: mac-file-chooser;
 }
 
 GtkTreeView
@@ -106,7 +163,17 @@ GtkTreeView
   gtk-key-bindings: mac-tree-view;
 }
 
+tree_view
+{
+  -gtk-key-bindings: mac-tree-view;
+}
+
 GtkIconView
 {
   gtk-key-bindings: mac-icon-view;
+}
+
+icon_view
+{
+  -gtk-key-bindings: mac-icon-view;
 }

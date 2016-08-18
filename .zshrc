@@ -939,6 +939,9 @@ alias irb='pry'
 alias ri='ri -Tf ansi'
 alias tu='top -o cpu'
 alias tm='top -o vsize'
+if [[ "$OSTYPE" = linux* ]]; then
+  alias tmux='tmux -2'
+fi
 
 # Show history
 alias history='fc -l 1'

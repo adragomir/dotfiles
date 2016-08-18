@@ -59,3 +59,5 @@
 [profiles]
   [[default]]
     background_image = None
+    font = Inconsolata-g Medium 13
+    use_system_font = False

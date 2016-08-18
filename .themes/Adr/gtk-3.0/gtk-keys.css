@@ -1,23 +1,158 @@
-@binding-set gtk-adr-text-entry {
-  bind "<alt>Left" { "move-cursor" (words, -1, 0) };
-  bind "<shift><alt>Left" { "move-cursor" (words, -1, 1) };
-  bind "<alt>Right" { "move-cursor" (words, 1, 0) };
-  bind "<shift><alt>Right" { "move-cursor" (words, 1, 1) };
+.header-bar.default-decoration {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.header-bar.default-decoration .button.titlebutton {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.ssd .titlebar {
+    border-width: 0;
+    box-shadow: none;
+}
+
+/* @binding-set gtk-adr-text-entry */
+/* { */
+/*   bind "<alt>left" { "move-cursor" (words, -1, 0) }; */
+/*   bind "<shift><alt>left" { "move-cursor" (words, -1, 1) }; */
+/*   bind "<alt>right" { "move-cursor" (words, 1, 0) }; */
+/*   bind "<shift><alt>right" { "move-cursor" (words, 1, 1) }; */
+
+/*   bind "<super>left" { "move-cursor" (paragraph-ends, -1, 0) }; */
+/*   bind "<shift><super>left" { "move-cursor" (paragraph-ends, -1, 1) }; */
+/*   bind "<super>right" { "move-cursor" (paragraph-ends, 1, 0) }; */
+/*   bind "<shift><super>right" { "move-cursor" (paragraph-ends, 1, 1) }; */
+
+/*   bind "<alt>backspace" { "delete-from-cursor" (whitespace, 1) }; */
+/* } */
+
+@binding-set mac-text-move
+{
+  bind "<alt>Right"           { "move-cursor" (words, 1, 0) };
+  bind "<alt>Left"            { "move-cursor" (words, -1, 0) };
+  bind "<shift><alt>Right"    { "move-cursor" (words, 1, 1) };
+  bind "<shift><alt>Left"     { "move-cursor" (words, -1, 1) };
+}
+
+@binding-set mac-text-emacs
+{
   bind "<ctrl>a" { "move-cursor" (paragraph-ends, -1, 0) };
-  bind "<super>Left" { "move-cursor" (paragraph-ends, -1, 0) };
   bind "<shift><ctrl>a" { "move-cursor" (paragraph-ends, -1, 1) };
-  bind "<shift><super>Left" { "move-cursor" (paragraph-ends, -1, 1) };
   bind "<ctrl>e" { "move-cursor" (paragraph-ends, 1, 0) };
-  bind "<super>Right" { "move-cursor" (paragraph-ends, 1, 0) };
   bind "<shift><ctrl>e" { "move-cursor" (paragraph-ends, 1, 1) };
-  bind "<shift><super>Right" { "move-cursor" (paragraph-ends, 1, 1) };
-  bind "<super>c" { "copy-clipboard" () };
+}
+
+@binding-set mac-text-delete
+{
+  bind "<super>Delete" { "delete-from-cursor" (word-ends, 1) };
+  bind "<super>BackSpace" { "delete-from-cursor" (word-ends, -1) };
+}
+
+@binding-set mac-copy-paste
+{
   bind "<super>x" { "cut-clipboard" () };
   bind "<super>v" { "paste-clipboard" () };
-  bind "<alt>BackSpace" { "delete-from-cursor" (word-ends, -1) };
+  bind "<super>c" { "copy-clipboard" () };
 }
 
-entry {
-  -gtk-key-bindings: gtk-adr-text-entry;
+@binding-set mac-select-all-label
+{
+  bind "<super>a" {
+    "move-cursor" (paragraph-ends, -1, 0)
+    "move-cursor" (paragraph-ends, 1, 1)
+  };
 }
 
+@binding-set mac-select-all-text-view
+{
+  bind "<super>a" {
+    "select-all" (1)
+  };
+}
+
+@binding-set mac-select-all-entry
+{
+  bind "<super>a" {
+    "move-cursor" (buffer-ends, -1, 0)
+    "move-cursor" (buffer-ends, 1, 1)
+  };
+}
+
+@binding-set mac-file-chooser
+{
+  bind "<super>v" { "location-popup-on-paste" () };
+  bind "<super><shift>G" { "location-popup" () };
+  bind "<super><shift>H" { "home-folder" () };
+  bind "<super>Up" { "up-folder" () };
+}
+
+@binding-set mac-tree-view
+{
+  bind "<super>a" { "select-all" () };
+  bind "<shift><super>a" { "unselect-all" () };
+  bind "<super>f" { "start-interactive-search" () };
+  bind "<super>F" { "start-interactive-search" () };
+}
+
+@binding-set mac-icon-view
+{
+  bind "<super>a" { "select-all" () };
+}
+
+GtkTextView {
+  gtk-key-bindings: mac-text-move, mac-text-delete, mac-copy-paste, mac-select-all-text-view;
+}
+
+text_view
+{
+  -gtk-key-bindings: mac-text-move, mac-text-delete, mac-copy-paste, mac-select-all-text-view;
+}
+
+GtkLabel {
+  gtk-key-bindings: mac-text-move, mac-text-emacs, mac-select-all-label;
+}
+
+label
+{
+}
+
+GtkEntry {
+  gtk-key-bindings: mac-text-move, mac-text-emacs, mac-text-delete, mac-copy-paste, mac-select-all-entry;
+}
+
+entry
+{
+  -gtk-key-bindings: mac-text-move, mac-text-emacs, mac-text-delete, mac-copy-paste, mac-select-all-entry;
+}
+
+GtkFileChooser
+{
+  -gtk-key-bindings: mac-file-chooser;
+}
+
+file_chooser
+{
+  -gtk-key-bindings: mac-file-chooser;
+}
+
+GtkTreeView
+{
+  -gtk-key-bindings: mac-tree-view;
+}
+
+tree_view
+{
+  -gtk-key-bindings: mac-tree-view;
+}
+
+GtkIconView
+{
+  -gtk-key-bindings: mac-icon-view;
+}
+
+icon_view
+{
+  -gtk-key-bindings: mac-icon-view;
+}
