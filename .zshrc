@@ -669,6 +669,7 @@ export OS=`uname | tr "[:upper:]" "[:lower:]"`
 # ls
 export LSCOLORS="gxfxcxdxbxegedabagacad"
 export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
+export QUOTING_STYLE=literal
 
 # grep
 if [[ "$OSTYPE" = darwin* ]]; then
@@ -785,7 +786,7 @@ if [[ "$OSTYPE" = darwin* ]]; then
   export JAVA_HOME=$(readlink /usr/local/opt/jenv/versions/`cat /usr/local/opt/jenv/version`)
   #export JAVA_HOME="$(/usr/libexec/java_home -v 1.6.0_43-b01-447)"
 else
-  export JAVA_HOME=/usr/lib/jvm/java-6-sun/
+  export JAVA_HOME=/usr/lib/jvm/java-8-jdk
 fi
 
 # scala
@@ -823,7 +824,10 @@ export SAASBASE_DATAROOT=/var
 
 if [[ "$OSTYPE" = darwin* ]]; then
   export VIMRUNTIME=$HOME/Applications/MacVim.app/Contents/Resources/vim/runtime/
-fi  
+fi
+if [[ "$OSTYPE" = linux* ]]; then
+  export VIMRUNTIME=/usr/share/vim/vim80
+fi
 
 # go
 
@@ -872,6 +876,10 @@ export ESP8266_SDK_BASE=/usr/local/Cellar/xtensa-lx106-elf/esp_iot_sdk
 export ESP8266_RTOS_SDK_BASE=/usr/local/Cellar/xtensa-lx106-elf/esp_iot_rtos_sdk
 #}}}
 
+
+if [[ $OS = "linux" ]]; then
+  export rvm_ignore_gemrc_issues=1
+fi
 [[ -f $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
 
 # path {{{
@@ -1036,3 +1044,5 @@ test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_in
 
 # The next line enables shell command completion for gcloud.
 [ -f "${HOME}/work/tools/google-cloud-sdk/completion.zsh.inc" ] && source "${HOME}/work/tools/google-cloud-sdk/completion.zsh.inc"
+
+[ -f /home/adr/.nix-profile/etc/profile.d/nix.sh ] && . /home/adr/.nix-profile/etc/profile.d/nix.sh

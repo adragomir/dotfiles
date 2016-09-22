@@ -1,5 +1,8 @@
 [global_config]
+  inactive_color_offset = 1.0
   suppress_multiple_term_dialog = True
+  title_hide_sizetext = True
+  window_state = maximise
 [keybindings]
   close_term = <Super>w
   close_window = None
@@ -59,5 +62,11 @@
 [profiles]
   [[default]]
     background_image = None
-    font = Inconsolata-g Medium 13
+    font = Inconsolata-g Medium 11
+    login_shell = True
+    scrollback_infinite = True
+    use_system_font = False
+  [[large]]
+    background_image = None
+    font = Inconsolata-g Medium 14
     use_system_font = False

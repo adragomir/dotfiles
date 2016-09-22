@@ -38,6 +38,7 @@ set sidescrolloff=4           " minchars to show around cursor
 " set keymodel=startsel         ",stopsel
 set display+=lastline
 set autoread                  " read outside modified files
+set autowrite
 set encoding=UTF-8            " file encoding
 set modeline
 set modelines=3
@@ -68,6 +69,7 @@ set showbreak=…
 set fillchars=diff:⣿,vert:\|
 set noshowcmd                   " show number of selected chars/lines in status
 "set showmatch                 " briefly jump to matching brace
+set noshowmatch
 "set matchtime=1               " show matching brace time (1/10 seconds)
 set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o%)
 set undolevels=10000

@@ -1,9 +1,18 @@
+ctrl-apostrophe Terminator ctrl-Y
 shift-super-bracketleft google-chrome ctrl-Page_Up
 shift-super-bracketright google-chrome ctrl-Page_Down
 super-F google-chrome ctrl-F
 super-W google-chrome ctrl-W
 super-L google-chrome ctrl-L
 super-T google-chrome ctrl-T
+super-C google-chrome ctrl-C
+super-V google-chrome ctrl-V
+super-X google-chrome ctrl-X
+super-A google-chrome ctrl-A
+super-Z google-chrome ctrl-Z
+super-R google-chrome ctrl-R
+super-Left google-chrome alt-Left
+super-Right google-chrome alt-Right
 shift-super-bracketleft Firefox ctrl-Page_Up
 shift-super-bracketright Firefox ctrl-Page_Down
 super-1 Firefox alt-1
@@ -22,6 +31,7 @@ super-T Firefox ctrl-T
 super-W Firefox ctrl-W
 super-C Firefox ctrl-C
 super-V Firefox ctrl-V
+super-R Firefox ctrl-R
 super-bracketleft Firefox alt-Left
 super-bracketright Firefox alt-Right
 super-Left Firefox alt-Left
@@ -73,6 +83,11 @@ super-P Code ctrl-P
 super-C Code ctrl-C
 super-V Code ctrl-V
 super-X Code ctrl-X
+super-F code ctrl-F
+super-P code ctrl-P
+super-C code ctrl-C
+super-V code ctrl-V
+super-X code ctrl-X
 super-C Slack ctrl-C
 super-V Slack ctrl-V
 super-X Slack ctrl-X
@@ -84,3 +99,4 @@ super-2 Slack ctrl-2
 super-3 Slack ctrl-3
 super-4 Slack ctrl-4
 super-5 Slack ctrl-5
+super-BackSpace Slack ctrl-BackSpace
