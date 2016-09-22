@@ -20,7 +20,11 @@ bin/svnup.yaml
 .irssi/*.log
 bin/binary/*
 .zsh/cache
-.tmux/resurrect
+.tmux/resurrect/*
 .config/ranger/*.pyo
 .config/ranger/history
+.config/ranger/bookmarks
+.config/gtk-3.0/bookmarks
+.config/fontconfig*
+.tmux/plugins*
 .vim/bundle

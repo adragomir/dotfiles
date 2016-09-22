@@ -72,6 +72,7 @@ setopt TRANSIENT_RPROMPT
 setopt RM_STAR_SILENT
 setopt C_BASES
 unsetopt FLOW_CONTROL
+unsetopt flowcontrol
 setopt PRINT_EIGHT_BIT
 setopt NO_CORRECT
 setopt NO_CORRECT_ALL
@@ -673,9 +674,9 @@ export QUOTING_STYLE=literal
 
 # grep
 if [[ "$OSTYPE" = darwin* ]]; then
-  export GREP_OPTIONS='--color=auto'
-  export GREP_COLOR='1;32'
-  export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
+export GREP_OPTIONS='--color=auto'
+export GREP_COLOR='1;32'
+export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
 fi
 
 # scons
@@ -823,8 +824,8 @@ export SAASBASE_ANALYTICS_HOME=$HOME/work/s/saasbase/analytics
 export SAASBASE_DATAROOT=/var
 
 if [[ "$OSTYPE" = darwin* ]]; then
-  export VIMRUNTIME=$HOME/Applications/MacVim.app/Contents/Resources/vim/runtime/
-fi
+  export VIMRUNTIME=/usr/local/opt/vim/share/vim/vim80/
+fi  
 if [[ "$OSTYPE" = linux* ]]; then
   export VIMRUNTIME=/usr/share/vim/vim80
 fi
