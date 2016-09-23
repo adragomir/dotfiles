@@ -61,10 +61,8 @@ set nojoinspaces
 "set cursorline
 set laststatus=2              " always show status line
 
-if has('patch-7.4.338')
-  set breakindent
-  set breakindentopt=sbr
-endif
+set breakindent
+set breakindentopt=sbr
 set showbreak=…
 set fillchars=diff:⣿,vert:\|
 set noshowcmd                   " show number of selected chars/lines in status
@@ -138,7 +136,6 @@ set nofoldenable
 set autoindent
 "set nocindent
 set lazyredraw
-set smartindent
 " don't delete past the end of line
 set selection=old
 set copyindent
@@ -183,8 +180,6 @@ let g:sh_noisk=1
 let g:is_bash=1
 " }}}
 
-" pathogen {{{
-
 " disabled plugins {{{
 " manpageview {{{
 let g:loaded_manpageview = 1
@@ -197,10 +192,6 @@ let g:loaded_vimball=1
 let g:loaded_netrwPlugin = 1
 " }}}
 
-"let g:pathogen_disabled = ['command-t', 'ios', 'gundo', 'vim-rails', 'scriptease', 'vim-expand-region']
-"call pathogen#infect() 
-"call pathogen#helptags()
-
 " vim-plug
 let g:plug_url_format='https://github.com/%s.git'
 source $HOME/.vim/autoload/plug.vim
@@ -208,8 +199,6 @@ source $HOME/.vim/autoload/plug.vim
 call plug#begin('~/.vim/bundle')
 " languages
 Plug 'Rip-Rip/clang_complete', { 'dir': '~/.vim/bundle/clang_complete' }
-" Plug 'Valloric/YouCompleteMe', { 'dir': '~/.vim/bundle/clang_complete' }
-Plug 'tpope/vim-fireplace', { 'dir': '~/.vim/bundle/fireplace' }
 Plug 'fatih/vim-go', { 'dir': '~/.vim/bundle/vim-go' }
 Plug 'benmills/vim-golang-alternate', { 'dir': '~/.vim/bundle/golang-alternate', 'do': 'patch -p1 < ~/.vim/patches/golang-alternate.patch' }
 Plug 'othree/html5.vim', { 'dir': '~/.vim/bundle/html5' }
@@ -220,64 +209,44 @@ Plug 'derekwyatt/vim-scala', { 'dir': '~/.vim/bundle/scala' }
 Plug 'wting/rust.vim', { 'dir': '~/.vim/bundle/rust' }
 Plug 'sirtaj/vim-openscad', { 'dir': '~/.vim/bundle/openscad' }
 Plug 'ajf/puppet-vim', { 'dir': '~/.vim/bundle/puppet-vim' }
-Plug 'davidhalter/jedi-vim', { 'dir': '~/.vim/bundle/jedi-vim' }
 Plug 'klen/python-mode', { 'dir': '~/.vim/bundle/python-mode', 'for': 'python' }
-Plug 'kien/rainbow_parentheses.vim', { 'dir': '~/.vim/bundle/rainbow_parentheses' }
 Plug 'pearofducks/ansible-vim', { 'dir': '~/.vim/bundle/ansible-vim' }
-Plug 'kchmck/vim-coffee-script', { 'dir': '~/.vim/bundle/vim-coffee-script' }
 Plug 'ebfe/vim-racer', { 'dir': '~/.vim/bundle/vim-racer' }
-Plug 'tpope/vim-rails', { 'dir': '~/.vim/bundle/vim-rails' }
 Plug 'vim-ruby/vim-ruby', { 'dir': '~/.vim/bundle/vim-ruby' }
-"Plug 'sudar/vim-arduino-syntax', { 'dir': '~/.vim/bundle/vim-arduino-syntax' }
 Plug 'stephpy/vim-yaml', { 'dir': '~/.vim/bundle/vim-yaml' }
-Plug 'guns/vim-clojure-static', { 'dir': '~/.vim/bundle/vimclojure-static' }
-Plug 'guns/vim-sexp', { 'dir': '~/.vim/bundle/vim-sexp', 'for': ['clojure', 'lisp', 'scheme']}
-Plug 'tpope/vim-sexp-mappings-for-regular-people', { 'dir': '~/.vim/bundle/vim-sexp-mappings-for-regular-people', 'for': ['clojure', 'lisp', 'scheme'] }
 Plug 'rhysd/vim-clang-format', { 'dir': '~/.vim/bundle/vim-clang-format' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'dir': '~/.vim/bundle/vim-jinja2-syntax' }
 Plug 'eagletmt/ghcmod-vim', { 'dir': '~/.vim/bundle/ghcmod-vim' }
 Plug 'eagletmt/neco-ghc', { 'dir': '~/.vim/bundle/neco-ghc' }
 Plug 'neovimhaskell/haskell-vim', { 'dir': '~/.vim/bundle/haskell-vim' }
 Plug 'lukerandall/haskellmode-vim', { 'dir': '~/.vim/bundle/haskellmode-vim' }
-Plug 'enomsg/vim-haskellConcealPlus', { 'dir': '~/.vim/bundle/vim-haskellConcealPlus' }
 Plug 'elmcast/elm-vim', { 'dir': '~/.vim/bundle/elm-vim' }
-Plug 'elixir-lang/vim-elixir', { 'dir': '~/.vim/bundle/vim-elixir'}
-Plug 'megaannum/vimside', { 'dir': '~/.vim/bundle/vimside' }
-" Haxe
 Plug 'jdonaldson/vaxe', { 'dir': '~/.vim/bundle/vaxe' }
+Plug 'jansedivy/jai.vim', {'dir': '~/.vim/bundle/jai' }
 " tools
 Plug 'tpope/vim-fugitive', { 'dir': '~/.vim/bundle/fugitive' }
 Plug 'ctrlpvim/ctrlp.vim', { 'dir': '~/.vim/bundle/ctrlp' }
 Plug 'rking/ag.vim', { 'dir': '~/.vim/bundle/ag'}
-Plug 'tpope/vim-tbone', { 'dir': '~/.vim/bundle/tbone' }
 Plug 'lyuts/vim-rtags', { 'dir': '~/.vim/bundle/vim-rtags' }
+Plug 'scrooloose/syntastic', { 'dir': '~/.vim/bundle/syntastic', 'do': 'git am ~/.vim/patches/syntastic.patch' }
 " vim
 Plug 'vim-scripts/a.vim', { 'dir': '~/.vim/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
-"Plug 'tpope/vim-rsi', { 'dir': '~/.vim/bundle/rsi' }
-Plug 'tpope/vim-abolish', { 'dir': '~/.vim/bundle/abolish' }
-Plug 'tpope/vim-classpath', { 'dir': '~/.vim/bundle/classpath' }
 Plug 'tpope/vim-commentary', { 'dir': '~/.vim/bundle/commentary' }
 Plug 'tpope/vim-dispatch', { 'dir': '~/.vim/bundle/dispatch' }
 Plug 'tpope/vim-endwise', { 'dir': '~/.vim/bundle/endwise' }
 Plug 'vim-scripts/DetectIndent', { 'dir': '~/.vim/bundle/detectindent' }
 Plug 'edsono/vim-matchit', { 'dir': '~/.vim/bundle/matchit' }
 Plug 'tpope/vim-obsession', { 'dir': '~/.vim/bundle/obsession' }
-Plug 'thinca/vim-quickrun', { 'dir': '~/.vim/bundle/quickrun' }
 Plug 'tpope/vim-repeat', { 'dir': '~/.vim/bundle/repeat' }
 Plug 'mtth/scratch.vim', { 'dir': '~/.vim/bundle/scratch' }
 Plug 'ervandew/supertab', { 'dir': '~/.vim/bundle/supertab' }
 Plug 'tpope/vim-surround', { 'dir': '~/.vim/bundle/surround' }
-Plug 'scrooloose/syntastic', { 'dir': '~/.vim/bundle/syntastic', 'do': 'git am ~/.vim/patches/syntastic.patch' }
 Plug 'godlygeek/tabular', { 'dir': '~/.vim/bundle/tabular' }
 Plug 'kana/vim-textobj-user', { 'dir': '~/.vim/bundle/textobj-user' }
 Plug 'wellle/targets.vim', { 'dir': '~/.vim/bundle/targets.vim' }
-Plug 'tpope/vim-unimpaired', { 'dir': '~/.vim/bundle/unimpaired' }
-Plug 'terryma/vim-expand-region', { 'dir': '~/.vim/bundle/vim-expand-region' }
 Plug 'Shougo/vimproc', { 'dir': '~/.vim/bundle/vimproc', 'do': 'make' }
 Plug 't9md/vim-choosewin', { 'dir': '~/.vim/bundle/vim-choosewin' }
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'dir': '~/.vim/bundle/vim-tmux-focus-events' }
-Plug 'mhinz/vim-sayonara', { 'dir': '~/.vim/bundle/vim-sayonara' }
-Plug 'jansedivy/jai.vim', {'dir': '~/.vim/bundle/jai' }
 Plug 'rbgrouleff/bclose.vim', {'dir': '~/.vim/bundle/bclose' }
 
 call plug#end()
@@ -300,7 +269,6 @@ colorscheme monochrome
 " gui settings {{{
 if has("gui_running")
   set mouse=a
-  " backspace and cursor keys wrap to previous/next line
   set backspace=indent,eol,start
   set whichwrap+=<,>,[,]
 
@@ -709,17 +677,13 @@ noremap <down> gj
 nnoremap D d$
 nnoremap * *<c-o>
 
-" remap: Kill window instead of man page
-nnoremap K :q<cr>
+nnoremap K <nop>
 " remap: mistake, move visual
 vnoremap J j
 vnoremap K k
 " remap: mistake, hit u
 vnoremap u <nop>
-" nnoremap <BS> "_x
 nnoremap <Del> "_x
-" vnoremap <BS> "_x
-" vnoremap <Del> "_x
 
 " Keep search matches in the middle of the window.
 nnoremap n nzzzv
@@ -733,19 +697,10 @@ nnoremap <c-o> <c-o>zz
 " Heresy
 inoremap <c-a> <esc>I
 inoremap <c-e> <esc>A
+
 " emacs bindings, like the shell
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
-
-" whole hog
-" map <up> <nop>
-" map <down> <nop>
-" map <left> <nop>
-" map <right> <nop>
-" imap <up> <nop>
-" imap <down> <nop>
-" imap <left> <nop>
-" imap <right> <nop>
 
 " ag word
 nnoremap <silent> <leader>/ :Ag<cr>
@@ -768,8 +723,6 @@ function! MapCR()
 endfunction
 call MapCR()
 
-
-
 nnoremap <m-Down> :cnext<cr>zvzz
 nnoremap <m-Up> :cprevious<cr>zvzz
 
@@ -788,10 +741,6 @@ map <leader>. `.
 map <leader>] `]
 map <leader>> `>
 map <leader>` `^
-
-nnoremap - $
-xnoremap - $
-onoremap - $
 
 " vaporize delete without overwriting the default register
 nnoremap vd "_d
@@ -812,14 +761,12 @@ map <silent> <F6> :CtrlP /Users/adr/Documents/personal/notes/<CR>
 imap <silent> <F6> <C-O>:CtrlP /Users/adr/Documents/personal/notes/<CR>
 
 imap <c-c> <Esc>
+
 " quicker window switching
 nnoremap <C-h> <c-w>h
 nnoremap <C-j> <c-w>j
 nnoremap <C-k> <c-w>k
 nnoremap <C-l> <c-w>l
-
-" Thank you vi
-"nnoremap Y y$
 
 " disable middle mouse pasting
 map  <MiddleMouse>  <Nop>
@@ -841,16 +788,6 @@ noremap <Space> m`
 nmap <MapLocalLeader>h :AT<CR>
 map <Leader>s :call ToggleScratch()<CR>
 
-" make word back / forward to be cooloer
-"noremap W b
-"noremap b W
-
-" Disable recording
-" nmap q <nop>
-" vmap q <nop>
-
-set pastetoggle=<f1>
-
 " terminal
 map <leader>1 1gt
 map <leader>2 2gt
@@ -871,10 +808,6 @@ noremap <leader>t <Esc>:tabnew<Cr>
 
 map <leader>r :w\|:silent !reload-chrome<cr>
 
-" noremap p "0p
-" noremap P "0P
-" vnoremap p "0p
-" vnoremap P "0P
 noremap c "_c
 noremap cc "_cc
 noremap C "_C
@@ -893,45 +826,14 @@ noremap ]] <nop>
 noremap ][ <nop>
 noremap [[ <nop>
 noremap [] <nop>
-
 " }}}
 
 " abbreviations {{{
 " }}}
 
 " plugin settings {{{
-
 " ag plugin settings {{{
 let g:ag_prg =  "ag --vimgrep -f -t"
-" }}}
-
-" java plugin settings {{{
-let java_mark_braces_in_parens_as_errors=0
-let java_highlight_all=1
-let java_highlight_debug=1
-let java_ignore_javadoc=1
-let java_highlight_java_lang_ids=1
-let java_highlight_functions="style"
-" }}}
-
-" sparkup {{{
-let g:sparkupExecuteMapping = '<c-e>'
-let g:sparkupNextMapping = '<c-s>'
-" }}}
-
-" expand-region {{{
-" let g:expand_region_text_objects = {
-"       \ 'iw'  :1,
-"       \ 'iW'  :1,
-"       \ 'i"'  :1,
-"       \ 'i''' :1,
-"       \ 'i]'  :1,
-"       \ 'ib'  :1,
-"       \ 'iB'  :1,
-"       \ 'il'  :0,
-"       \ 'ip'  :1,
-"       \ 'ie'  :0,
-"       \ }
 " }}}
 
 " match paren settings {{{
@@ -1004,16 +906,6 @@ let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
 let g:ctrlp_max_files = 0
 " }}}
 
-" jedi {{{
-let g:jedi#use_tabs_not_buffers = 0
-let g:jedi#show_call_signatures = 0
-let g:jedi#completions_enabled = 1
-let g:jedi#auto_initialization = 1
-let g:jedi#auto_vim_configuration = 0
-let g:jedi#goto_definitions_command = "<leader>d"
-let g:jedi#completions_command = "<C-x><C-o>"
-" }}}
-
 " textobjectify settings {{{
 " let g:loaded_textobjectify = 1
 let g:textobjectify_onthefly = 0
@@ -1062,16 +954,6 @@ let g:rubycomplete_rails = 1
 let g:rails_debug = 1
 " }}}
 
-" omni cpp complete {{{
-let OmniCpp_GlobalScopeSearch = 1
-let OmniCpp_NamespaceSearch = 2
-let OmniCpp_DisplayMode = 1
-let OmniCpp_ShowScopeInAbbr = 1
-let OmniCpp_ShowPrototypeInAbbr = 1
-let OmniCpp_ShowAccess = 1
-let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
-" }}}
-
 " choosewin {{{
 let g:choosewin_overlay_enable = 1
 let g:choosewin_statusline_replace = 0
@@ -1109,25 +991,6 @@ endif
 " clang format {{{
 let g:clang_format#command = "/usr/local/bin/clang-format-3.6"
 let g:clang_format#detect_style_file = 1
-" }}}
-
-" vimside {{{
-
-" }}}
-
-" clojure {{{
-let g:slimv_loaded = 1
-"let vimclojure#SplitPos = "right"
-let vimclojure#FuzzyIndent=1
-let vimclojure#HighlightBuiltins=1
-let vimclojure#HighlightContrib=1
-let vimclojure#DynamicHighlighting=1
-let vimclojure#ParenRainbow=1
-let vimclojure#WantNailgun = 1
-let vimclojure#NailgunClient = expand("$HOME") . "/bin/darwin/ng"
-let vimclojure#NailgunPort = "2113"
-let vimclojure#ParenRainbow = 1
-let g:paredit_mode = 0
 " }}}
 
 " haskell {{{
@@ -1188,8 +1051,6 @@ let g:syntastic_mode_map = { 'mode': 'passive',
                            \ 'passive_filetypes': ['puppet', 'java', 'scala', 'clojure', 'html'] }
 "let g:syntastic_javascript_checkers = ['jshint']
 " }}}
-
-
 " }}}
 
 " abbreviations {{{
