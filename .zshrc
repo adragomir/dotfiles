@@ -604,6 +604,7 @@ prompt_pure_string_length() {
 
 prompt_pure_precmd() {
   # shows the full path in the title
+  repeat $COLUMNS printf '-'
   print -Pn '\e]0;%~\a'
 
   # git info
