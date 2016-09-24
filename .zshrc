@@ -604,7 +604,7 @@ prompt_pure_string_length() {
 
 prompt_pure_precmd() {
   # shows the full path in the title
-  repeat $COLUMNS printf '-'
+  #repeat $COLUMNS printf '-'
   print -Pn '\e]0;%~\a'
 
   # git info
@@ -737,7 +737,7 @@ export LC_ADDRESS="en_US.utf8"
 export LC_TELEPHONE="en_US.utf8"
 export LC_MEASUREMENT="en_US.utf8"
 export LC_IDENTIFICATION="en_US.utf8"
-#export LC_ALL=""
+export LC_ALL="en_US.UTF-8"
 
 # perl
 export VERSIONER_PERL_PREFER_32_BIT=yes
@@ -1039,7 +1039,7 @@ export READELF=/usr/local/Cellar/netbsd-cross-compiler/HEAD/bin/x86_64--netbsd-r
 
 eval "$(direnv hook zsh)"
 
-test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
+[[ $OS == "Darwin" ]] && test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
 
 # The next line updates PATH for the Google Cloud SDK.
 [ -f "${HOME}/work/tools/google-cloud-sdk/path.zsh.inc" ] && source "${HOME}/work/tools/google-cloud-sdk/path.zsh.inc"

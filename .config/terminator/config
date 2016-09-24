@@ -62,7 +62,7 @@
 [profiles]
   [[default]]
     background_image = None
-    font = Inconsolata-g Medium 11
+    font = Inconsolata-g Medium 13
     login_shell = True
     scrollback_infinite = True
     use_system_font = False
