@@ -130,6 +130,9 @@ set switchbuf=useopen
 if executable("ag")
   set grepprg=ag\ --nogroup\ --nocolor
 endif
+if executable("rg")
+  set grepprg=rg\ --no-ignore\ -H\ --no-heading\ --color\ never
+endif
 set grepformat=%f:%l:%m
 " settings: tabs and indentin
 set nofoldenable
@@ -223,6 +226,7 @@ Plug 'lukerandall/haskellmode-vim', { 'dir': '~/.vim/bundle/haskellmode-vim' }
 Plug 'elmcast/elm-vim', { 'dir': '~/.vim/bundle/elm-vim' }
 Plug 'jdonaldson/vaxe', { 'dir': '~/.vim/bundle/vaxe' }
 Plug 'jansedivy/jai.vim', {'dir': '~/.vim/bundle/jai' }
+Plug 'vim-erlang/vim-erlang-omnicomplete', {'dir': '~/.vim/bundle/vim-erlang-omnicomplete' }
 " tools
 Plug 'tpope/vim-fugitive', { 'dir': '~/.vim/bundle/fugitive' }
 Plug 'ctrlpvim/ctrlp.vim', { 'dir': '~/.vim/bundle/ctrlp' }
@@ -242,9 +246,20 @@ Plug 'mtth/scratch.vim', { 'dir': '~/.vim/bundle/scratch' }
 Plug 'ervandew/supertab', { 'dir': '~/.vim/bundle/supertab' }
 Plug 'tpope/vim-surround', { 'dir': '~/.vim/bundle/surround' }
 Plug 'godlygeek/tabular', { 'dir': '~/.vim/bundle/tabular' }
-Plug 'kana/vim-textobj-user', { 'dir': '~/.vim/bundle/textobj-user' }
-Plug 'wellle/targets.vim', { 'dir': '~/.vim/bundle/targets.vim' }
 Plug 'Shougo/vimproc', { 'dir': '~/.vim/bundle/vimproc', 'do': 'make' }
+Plug 'kana/vim-textobj-user', { 'dir': '~/.vim/bundle/textobj-user' }
+Plug 'Julian/vim-textobj-brace', {'dir': '~/.vim/bundle/vim-textobj-brace' }
+Plug 'glts/vim-textobj-comment', {'dir': '~/.vim/bundle/vim-textobj-comment' }
+Plug 'rhysd/vim-textobj-continuous-line', {'dir': '~/.vim/bundle/vim-textobj-continuous-line' }
+Plug 'kana/vim-textobj-function', {'dir': '~/.vim/bundle/vim-textobj-function' }
+Plug 'kana/vim-textobj-indent', {'dir': '~/.vim/bundle/vim-textobj-indent' }
+Plug 'saaguero/vim-textobj-pastedtext', {'dir': '~/.vim/bundle/vim-textobj-pastedtext' }
+Plug 'beloglazov/vim-textobj-quotes', {'dir': '~/.vim/bundle/vim-textobj-quotes' }
+Plug 'Julian/vim-textobj-variable-segment', {'dir': '~/.vim/bundle/vim-textobj-variable-segment' }
+Plug 'gilligan/vim-textobj-haskell', {'dir': '~/.vim/bundle/vim-textobj-haskell' }
+Plug 'bps/vim-textobj-python', {'dir': '~/.vim/bundle/vim-textobj-python' }
+Plug 'nelstrom/vim-textobj-rubyblock', {'dir': '~/.vim/bundle/vim-textobj-rubyblock' }
+Plug 'Chun-Yang/vim-textobj-chunk', {'dir': '~/.vim/bundle/vim-textobj-chunk' }
 Plug 't9md/vim-choosewin', { 'dir': '~/.vim/bundle/vim-choosewin' }
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'dir': '~/.vim/bundle/vim-tmux-focus-events' }
 Plug 'rbgrouleff/bclose.vim', {'dir': '~/.vim/bundle/bclose' }
@@ -833,7 +848,8 @@ noremap [] <nop>
 
 " plugin settings {{{
 " ag plugin settings {{{
-let g:ag_prg =  "ag --vimgrep -f -t"
+"let g:ag_prg = "ag --vimgrep -f -t"
+let g:ag_prg = "rg --vimgrep -L -a"
 " }}}
 
 " match paren settings {{{
@@ -904,29 +920,6 @@ let g:ctrlp_cache_dir = "$HOME/.vim/tmp"
 let g:ctrlp_switch_buffer = 2
 let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
 let g:ctrlp_max_files = 0
-" }}}
-
-" textobjectify settings {{{
-" let g:loaded_textobjectify = 1
-let g:textobjectify_onthefly = 0
-let g:textobjectify = {
-            \'(': {'left': '(', 'right': ')', 'same': 0, 'seek': 1, 'line': 0},
-            \')': {'left': '(', 'right': ')', 'same': 0, 'seek': 2, 'line': 0},
-            \'{': {'left': '{', 'right': '}', 'same': 0, 'seek': 1, 'line': 0},
-            \'}': {'left': '{', 'right': '}', 'same': 0, 'seek': 2, 'line': 0},
-            \'[': {'left': '\[', 'right': '\]', 'same': 0, 'seek': 1, 'line': 0},
-            \']': {'left': '\[', 'right': '\]', 'same': 0, 'seek': 2, 'line': 0},
-            \'<': {'left': '<', 'right': '>', 'same': 0, 'seek': 1, 'line': 0},
-            \'>': {'left': '<', 'right': '>', 'same': 0, 'seek': 2, 'line': 0},
-            \'"': {'left': '"', 'right': '"', 'same': 1, 'seek': 1, 'line': 0},
-            \"'": {'left': "'", 'right': "'", 'same': 1, 'seek': 1, 'line': 0},
-            \'`': {'left': '`', 'right': '`', 'same': 1, 'seek': 1, 'line': 0},
-            \' ': {'left': ' ', 'right': ' ', 'same': 1, 'seek': 0, 'line': 0},
-            \'V': {'left': '^\s*\(if\|for\|function\|try\|while\)\>',
-                \'right': '^\s*end', 'same': 0, 'seek': 1, 'line': 1},
-            \"\<cr>": {'left': '\%^', 'right': '\%$', 'same': 0, 'seek': 0,
-            \'line': 0},
-            \}
 " }}}
 
 " go settings {{{
@@ -1011,6 +1004,16 @@ let g:FactorRoot="$HOME/temp/source/other/factor"
 
 " tabular {{{
 let g:no_default_tabular_maps=1
+" }}}
+
+
+" textobj-user {{{
+call textobj#user#plugin('chunk', {
+    \ '-' : {
+    \      'select-a' : 'ab', '*select-a-function*' : 'textobj#chunk#select_a',
+    \      'select-i' : 'ib', '*select-i-function*' : 'textobj#chunk#select_i',
+    \   },
+    \ })
 " }}}
 
 " netrw {{{
