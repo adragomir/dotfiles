@@ -15,7 +15,7 @@ for s in `$TMUX list-sessions -F '#{session_name}'` ; do
     for p in `$TMUX list-panes -F '#{pane_index}=#{pane_pid}' -t "$w"` ; do
       pane_index="${p%%=*}"
       first_pid="${p##*=}"
-      res=$($PSTREE -p $first_pid | egrep "MacOS\/[V]im" >/dev/null ; echo $?)
+      res=$($PSTREE -p $first_pid | egrep "vi" >/dev/null ; echo $?)
       if [ "$res" -eq "0" ]; then
         window_pane="${w}.${pane_index}"
         [[ $debug == 1  ]] && echo "$TMUX send-keys -t $window_pane Escape ":e $file" Enter" >> ~/lg

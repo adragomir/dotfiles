@@ -88,7 +88,7 @@ set iskeyword=@,48-57,128-167,224-235,_
 set showtabline=2
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
-set completeopt=menu,menuone "sjl: set completeopt=longest,menuone,preview
+set completeopt=menu "sjl: set completeopt=longest,menuone,preview
 if !has('nvim')
   set ttyfast
 endif
@@ -896,15 +896,6 @@ let g:SuperTabDefaultCompletionTypeDiscovery = [
 let g:SuperTabContextDefaultCompletionType = "<c-n>"
 " let g:SuperTabDefaultCompletionType = '<c-n>'
 " }}}
-
-" targets.vim {{{ 
-let g:targets_nlNL = '    '
-let g:targets_pairs = '()b {}b []b <>b'
-let g:targets_quotes = '" '' `'
-let g:targets_separators = ', . ; : + - = ~ _ / |'
-let g:targets_argTrigger = ','
-let g:targets_argOpening = '[([]'
-let g:targets_argClosing = '[])]'
 
 " }}}
 
