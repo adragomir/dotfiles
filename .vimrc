@@ -85,7 +85,7 @@ set winaltkeys=no
 set writeany
 set iskeyword=@,48-57,128-167,224-235,_
 "set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮,trail:.
-set showtabline=2
+set showtabline=0
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
 set completeopt=menu "sjl: set completeopt=longest,menuone,preview
@@ -650,6 +650,21 @@ endfunction
 
 command! K call Kwbd(1)
 
+function! SaveMap(key)
+  return maparg(a:key, 'n', 0, 1)
+endfunction
+
+function! RestoreMap(map)
+  if !empty(a:map)
+    let l:tmp = ""
+    let l:tmp .= a:map.noremap ? 'nnoremap' : 'nmap'
+    let l:tmp .= join(map(['buffer', 'expr', 'nowait', 'silent'], 'a:map[v:val] ? "<" . v:val . ">": ""'))
+    let l:tmp .= a:map.lhs . ' '
+    let l:tmp .= substitute(a:map.rhs, '<SID>', '<SNR>' . a:map.sid . '_', 'g')
+    execute l:tmp
+  endif
+endfunction
+
 " }}}
 
 " settings after functions {{{ 
@@ -658,6 +673,8 @@ set tabline=%!MyTabLine()
 " }}}
 
 " key mappings {{{
+
+let g:save_cr_map = {}
 
 " home and end
 if $TERM =~ '^screen-256color'
@@ -733,10 +750,7 @@ nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
 vnoremap <leader>G :w !gist -p -t %:e \| pbcopy<cr>
 
 " GRB: clear the search buffer when hitting return
-function! MapCR()
-  nnoremap <cr> :nohlsearch<cr>
-endfunction
-call MapCR()
+nnoremap <cr> :nohlsearch<cr>
 
 nnoremap <m-Down> :cnext<cr>zvzz
 nnoremap <m-Up> :cprevious<cr>zvzz
@@ -833,14 +847,14 @@ nnoremap <silent><F3> :MaximizerToggle<CR>
 vnoremap <silent><F3> :MaximizerToggle<CR>gv
 inoremap <silent><F3> <C-o>:MaximizerToggle<CR>
 
-noremap ( <nop>
-noremap ) <nop>
-noremap { <nop>
-noremap } <nop>
-noremap ]] <nop>
-noremap ][ <nop>
-noremap [[ <nop>
-noremap [] <nop>
+" noremap ( <nop>
+" noremap ) <nop>
+" noremap { <nop>
+" noremap } <nop>
+" noremap ]] <nop>
+" noremap ][ <nop>
+" noremap [[ <nop>
+" noremap [] <nop>
 " }}}
 
 " abbreviations {{{
@@ -1092,19 +1106,21 @@ augroup all_buffers
       \     execute 'normal! g`"zvzz' |
       \ endif
 
-  autocmd! CmdwinEnter * :unmap <cr>
-  autocmd! CmdwinLeave * :call MapCR()
+  autocmd! CmdwinEnter * 
+    \ let g:save_cr_map = SaveMap('<cr>') |
+    \ execute ':silent! :unmap <cr>'
+  autocmd! CmdwinLeave *
+    \ execute ':call RestoreMap(g:save_cr_map)'
   autocmd! WinEnter,BufWinEnter *
     \ if &ft == "qf" |
+    \     let g:save_cr_map = SaveMap('<cr>') |
     \     execute ':silent! unmap <cr>' |
     \ else |
-    \     execute ':silent! call MapCR()' |
+    \     execute ':silent! call RestoreMap(g:save_cr_map)' |
     \ endif
   autocmd! WinLeave * 
     \ if &ft == "qf" |
-    \     execute ':silent! unmap <cr>' |
-    \ else |
-    \     execute ':silent! call MapCR()' |
+    \     execute ':call RestoreMap(g:save_cr_map)' |
     \ endif
 augroup END
 
