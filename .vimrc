@@ -933,12 +933,14 @@ let g:go_play_open_browser = 0
 let g:go_fmt_fail_silently = 1
 let g:go_fmt_autosave = 0
 let g:go_disable_autoinstall = 1
-let g:go_gocode_bin=expand("~/.gocode/bin/gocode")
-let g:go_goimports_bin=expand("~/.gocode/bin/goimports")
-let g:go_godef_bin=expand("~/.gocode/bin/godef")
-let g:go_oracle_bin=expand("~/.gocode/bin/oracle")
-let g:go_golint_bin=expand("~/.gocode/bin/golint")
-let g:go_errcheck_bin=expand("~/.gocode/bin/errcheck")
+let g:go_def_mode = 'guru'
+let g:go_def_mapping_enabled = 1
+let g:go_bin_path = expand("~/.gocode/bin")
+" let g:go_gocode_bin=expand("~/.gocode/bin/gocode")
+" let g:go_goimports_bin=expand("~/.gocode/bin/goimports")
+" let g:go_godef_bin=expand("~/.gocode/bin/godef")
+" let g:go_golint_bin=expand("~/.gocode/bin/golint")
+" let g:go_errcheck_bin=expand("~/.gocode/bin/errcheck")
 " }}}
 
 " ruby settings {{{
