@@ -138,7 +138,8 @@
 
 [merge] 
   summary = true
-  tool = opendiff
+  #tool = opendiff
+  #tool = araxis
 
 [core]
   legacyheaders = false

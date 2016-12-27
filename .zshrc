@@ -853,21 +853,18 @@ aws_env() {
   fi
 }
 
-export EC2_CERT_PAIR=pass
-aws_env $EC2_CERT_PAIR
-
-# ec2-api-tools
-export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/libexec"
-# ec2-ami-tools
-export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/libexec/"
-# aws-iam-tools
-export AWS_IAM_HOME="/usr/local/Library/LinkedKegs/aws-iam-tools"
-# aws-cfn-tools
-export AWS_CLOUDFORMATION_HOME="/usr/local/Library/LinkedKegs/aws-cfn-tools"
-# elb-tools
-export AWS_ELB_HOME="/usr/local/Library/LinkedKegs/elb-tools"
-# auto scaling
-export AWS_AUTO_SCALING_HOME="/usr/local/Library/LinkedKegs/auto-scaling"
+# # ec2-api-tools
+# export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/libexec"
+# # ec2-ami-tools
+# export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/libexec/"
+# # aws-iam-tools
+# export AWS_IAM_HOME="/usr/local/Library/LinkedKegs/aws-iam-tools"
+# # aws-cfn-tools
+# export AWS_CLOUDFORMATION_HOME="/usr/local/Library/LinkedKegs/aws-cfn-tools"
+# # elb-tools
+# export AWS_ELB_HOME="/usr/local/Library/LinkedKegs/elb-tools"
+# # auto scaling
+# export AWS_AUTO_SCALING_HOME="/usr/local/Library/LinkedKegs/auto-scaling"
 
 # }}}
 
@@ -923,6 +920,8 @@ $MANPATH
 # }}}
 
 # aliases {{{
+alias youtube720-dl="youtube-dl -f 'bestvideo[height<=720]+bestaudio/best[height<=720]'"
+alias youtube480-dl="youtube-dl -f 'bestvideo[height<=480]+bestaudio/best[height<=480]'"
 alias luarocks="luarocks --tree=${HOME}/.luarocks"
 alias luajitrocks="luajitrocks --tree=${HOME}/.luajitrocks"
 
@@ -1047,4 +1046,5 @@ eval "$(direnv hook zsh)"
 # The next line enables shell command completion for gcloud.
 [ -f "${HOME}/work/tools/google-cloud-sdk/completion.zsh.inc" ] && source "${HOME}/work/tools/google-cloud-sdk/completion.zsh.inc"
 
-[ -f /home/adr/.nix-profile/etc/profile.d/nix.sh ] && . /home/adr/.nix-profile/etc/profile.d/nix.sh
+[ -f $HOME/.nix-profile/etc/profile.d/nix.sh ] && . $HOME/.nix-profile/etc/profile.d/nix.sh
+[ -f $HOME/.zshrc_secrets ] && . $HOME/.zshrc_secrets

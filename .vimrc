@@ -239,7 +239,7 @@ Plug 'tpope/vim-commentary', { 'dir': '~/.vim/bundle/commentary' }
 Plug 'tpope/vim-dispatch', { 'dir': '~/.vim/bundle/dispatch' }
 Plug 'tpope/vim-endwise', { 'dir': '~/.vim/bundle/endwise' }
 Plug 'vim-scripts/DetectIndent', { 'dir': '~/.vim/bundle/detectindent' }
-Plug 'edsono/vim-matchit', { 'dir': '~/.vim/bundle/matchit' }
+Plug 'isa/vim-matchit', { 'dir': '~/.vim/bundle/matchit' }
 Plug 'tpope/vim-obsession', { 'dir': '~/.vim/bundle/obsession' }
 Plug 'tpope/vim-repeat', { 'dir': '~/.vim/bundle/repeat' }
 Plug 'mtth/scratch.vim', { 'dir': '~/.vim/bundle/scratch' }
@@ -884,9 +884,11 @@ let g:pymode_rope_enable_autoimport = 0
 let g:pymode_rope_auto_project = 0
 let g:pymode_rope_lookup_project = 0
 let g:pymode_lint = 0
-let python_highlight_all = 1
+let python_highlight_all = 0
 let g:pymode_rope_guess_project = 0
 let g:pymode_rope_vim_completion = 0
+let g:pymode_doc_bind = ''
+let g:pymode_rope_goto_definition_bind = "<C-]>"
 " }}}
 
 " taglist settings {{{
