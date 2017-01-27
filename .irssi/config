@@ -77,7 +77,7 @@ chatnets = {
     nick = "adragomir";
     username = "adragomir";
     realname = "Andrei Dragomir";
-    autosendcmd = "/msg nickserv identify ***REMOVED***; wait 2000";
+    autosendcmd = "/msg nickserv identify REMOVED; wait 2000";
   };
   worknet = { type = "IRC"; };
   bitlbee = {
