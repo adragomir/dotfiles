@@ -64,10 +64,6 @@ for arg in "${args[@]}"; do
             command=out
             args=(${args[@]/$arg})
             ;;
-        "exec"|"run")
-            command="exec"
-            args=(${args[@]/$arg})
-            ;;
     esac
 done
 
@@ -119,14 +115,6 @@ case "$command" in
             unset GOENV_OLD_GOPATH GOENV_OLD_GOBIN GOENV_NAME
             hash gocode 2>/dev/null && gocode set lib-path "$GOPATH"
             [[ $verbose == "1" ]] && echo ">> Reverted to system GOPATH."
-        fi
-    ;;
-    "exec")
-        if [ ! -z "$exec_prefix" ];
-        then
-            eval "$exec_prefix ${args[@]}"
-        else
-            GOPATH=$gp eval "${args[@]}"
         fi
     ;;
 esac
