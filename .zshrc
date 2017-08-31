@@ -28,35 +28,6 @@ autoload allopt
 autoload -U zcalc
 # }}}
 
-# 256 colors sykora {{{
-#! /bin/zsh
-# A script to make using 256 colors in zsh less painful.
-# P.C. Shyamshankar <sykora@lucentbeing.com>
-# Copied from http://github.com/sykora/etc/blob/master/zsh/functions/spectrum/
-typeset -Ag FX FG BG
-
-FX=(
-  reset     "%{[00m%}"
-  bold      "%{[01m%}" no-bold      "%{[22m%}"
-  italic    "%{[03m%}" no-italic    "%{[23m%}"
-  underline "%{[04m%}" no-underline "%{[24m%}"
-  blink     "%{[05m%}" no-blink     "%{[25m%}"
-  reverse   "%{[07m%}" no-reverse   "%{[27m%}"
-)
-
-for color in {000..255}; do
-  FG[$color]="%{[38;5;${color}m%}"
-  BG[$color]="%{[48;5;${color}m%}"
-done
-
-# Show all 256 colors with color number
-function spectrum_ls() {
-  for code in {000..255}; do
-    print -P -- "$code: %F{$code}Test%f"
-  done
-}
-# }}}
-
 # settings {{{
 
 # general
@@ -118,10 +89,6 @@ setopt LONG_LIST_JOBS
 
 # {{{ completions 
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-# zstyle ':completion:*' matcher-list '' \
-#   'm:{a-z\-}={A-Z\_}' \
-#   'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
-#   'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}'zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' users $USER
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' squeeze-slashes true
@@ -328,23 +295,6 @@ zle -N self-insert url-quote-magic
 # }}}
 
 # functions {{{
-
-tree() {
-  find . | sed -e 's/[^\/]*\//|--/g' -e 's/-- |/    |/g' | $PAGER
-}
-
-title() {
-  if [[ $TERM == "screen" ]]; then
-    # Use these two for GNU Screen:
-    print -nR $'\033k'$1$'\033'\\\
-
-    print -nR $'\033]0;'$2$'\a'
-  elif [[ ($TERM =~ "^xterm") ]] || [[ ($TERM == "rxvt") ]]; then
-    # Use this one instead for XTerms:
-    print -nR $'\033]0;'$*$'\a'
-  fi
-}
-
 bases() {
   # Determine base of the number
   for i      # ==> in [list] missing...
@@ -382,39 +332,8 @@ bases() {
     done
 }
 
-up() {
-  local op=print
-  [[ -t 1 ]] && op=cd
-  case "$1" in
-    '') up 1;;
-    -*|+*) $op ~$1;;
-    <->) $op $(printf '../%.0s' {1..$1});;
-    *) local -a seg; seg=(${(s:/:)PWD%/*})
-       local n=${(j:/:)seg[1,(I)$1*]}
-       if [[ -n $n ]]; then
-         $op /$n
-       else
-         print -u2 up: could not find prefix $1 in $PWD
-         return 1
-       fi
-  esac
-}
-
 zman() {
   PAGER="less -g -s '+/^       "$1"'" man zshall
-}
-
-zsh_stats() {
-  history | awk '{print $2}' | sort | uniq -c | sort -rn | head
-}
-
-function up() {
-    local DIR=$PWD
-    local TARGET=$1
-    while [ ! -e $DIR/$TARGET -a $DIR != "/" ]; do
-        DIR=$(dirname $DIR)
-    done
-    test $DIR != "/" && echo $DIR/$TARGET
 }
 
 function allopen() {
@@ -423,51 +342,6 @@ function allopen() {
   else
     gnome-open > /dev/null 2>&1 $*
   fi
-}
-
-function addsshkey() {
-  if [ -z $2 ];then
-    echo "Usage: $0 /path/to/key username@host"
-    exit 1
-  fi
-
-  KEY=$1
-  shift
-
-  if [ ! -f $KEY ];then
-    echo "private key not found at $KEY"
-    echo "please create it with \"ssh-keygen -t dsa\""
-    exit
-  fi
-
-  echo "Putting your key ($KEY) on $1... "
-  ssh -q $* "umask 0077; mkdir -p ~/.ssh ; echo "`cat $KEY`" >> ~/.ssh/authorized_keys"
-  echo "done!"
-}
-
-l() {
-  local p=$argv[-1]
-  [[ -d $p ]] && { argv[-1]=(); } || p='.'
-  find $p ! -type d | sed 's:^./::' | egrep "${@:-.}"
-}
-
-lr() {
-  zparseopts -D -E S=S t=t r=r h=h U=U l=l F=F d=d
-  local sort="sort -t/ -k2"                                # by name (default)
-  local numfmt="cat"
-  local long='s:[^/]* /::; s:^\./\(.\):\1:;'               # strip detail
-  local classify=''
-  [[ -n $F ]] && classify='/^d/s:$:/:; /^-[^ ]*x/s:$:*:;'  # dir/ binary*
-  [[ -n $l ]] && long='s: /\./\(.\): \1:; s: /\(.\): \1:;' # show detail
-  [[ -n $S ]] && sort="sort -n -k5"                        # by size
-  [[ -n $r ]] && sort+=" -r"                               # reverse
-  [[ -n $t ]] && sort="sort -k6" && { [[ -n $r ]] || sort+=" -r" } # by date
-  [[ -n $U ]] && sort=cat                                  # no sort, live output
-  [[ -n $h ]] && numfmt="numfmt --field=5 --to=iec --padding=6"  # human fmt
-  [[ -n $d ]] && set -- "$@" -prune                        # don't enter dirs
-  find "$@" -printf "%M %2n %u %g %9s %TY-%Tm-%Td %TH:%TM /%p -> %l\n" |
-    $=sort | $=numfmt |
-    sed '/^[^l]/s/ -> $//; '$classify' '$long
 }
 
 function autoenv_chpwd_hook() {
@@ -482,17 +356,6 @@ function autoenv_chpwd_hook() {
   fi
 }
 add-zsh-hook chpwd autoenv_chpwd_hook
-
-function getwanip() {
-  wget -q -O- www.showmyip.com/xml | xml2 | grep '/ip_address/ip=' | cut -d= -f2
-  curl -s http://checkip.dyndns.org | awk '{print $6}' | awk ' BEGIN { FS = "<" } { print $1 } '
-}
-
-function iphone_transcode() {
-  INFILE="$1"
-  OUTFILE="$2"
-  ffmpeg -i "$INFILE" -strict experimental -f mp4 -vcodec mpeg4 -acodec aac  -maxrate 1000 -b 700 -qmin 3 -qmax 5 -bufsize 4096 -g 300 -ab 65535 -s 480x320 -aspect 4:3 "$OUTFILE"
-}
 
 function javap_method() {
   class=${1%#*}
@@ -520,56 +383,9 @@ extract () {
     echo "'$1' is not a valid file!"
   fi
 }
-
 # }}}
 
 # prompt settings {{{
-
-# Load the theme
-# PROMPT=$'$(prompt_exit_code $?)$(prompt_user_host)$(prompt_job_counts)$(prompt_folder)$(prompt_repo_status)\
-# $(prompt_actual)'
-# PROMPT2=$'%_$(prompt_actual)'
-
-prompt_job_counts() {
-  local running=$(( $(jobs -r | wc -l) ))
-  local stopped=$(( $(jobs -s | wc -l) ))
-  local n_screen=$(screen -ls 2> /dev/null | grep -c Detach)
-  local n_tmux=$(tmux list-sessions 2> /dev/null | grep -cv attached)
-  local detached=$(( $n_screen + $n_tmux ))
-  local m_detached="d"
-  local m_stop="z"
-  local m_run="&"
-  local ret=""
-
-  if [[ $detached != "0" ]] ; then
-    ret="${ret}${DETACHED_JOB_COLOR}${detached}${m_detached}${FX[reset]}"
-  fi
-
-  if [[ $running != "0" ]] ; then
-    if [[ $ret != "" ]] ; then ret="${ret}/"; fi
-    ret="${ret}${RUNNING_JOB_COLOR}${running}${m_run}${FX[reset]}"
-  fi
-
-  if [[ $stopped != "0" ]] ; then
-    if [[ $ret != "" ]] ; then ret="${ret}/"; fi
-    ret="${ret}${STOPPED_JOB_COLOR}${stopped}${m_stop}${FX[reset]}"
-  fi
-  echo $ret
-}
-
-prompt_pure_human_time() {
-  local tmp=$1
-  local days=$(( tmp / 60 / 60 / 24 ))
-  local hours=$(( tmp / 60 / 60 % 24 ))
-  local minutes=$(( tmp / 60 % 60 ))
-  local seconds=$(( tmp % 60 ))
-  (( $days > 0 )) && echo -n "${days}d "
-  (( $hours > 0 )) && echo -n "${hours}h "
-  (( $minutes > 0 )) && echo -n "${minutes}m "
-  echo "${seconds}s"
-}
-
-# fastest possible way to check if repo is dirty
 prompt_pure_git_dirty() {
   # check if we're in a git repo
   command git rev-parse --is-inside-work-tree &>/dev/null || return
@@ -580,26 +396,11 @@ prompt_pure_git_dirty() {
   (($? == 0)) && echo '*'
 }
 
-# displays the exec time of the last command if set threshold was exceeded
-prompt_pure_cmd_exec_time() {
-  local stop=$EPOCHSECONDS
-  local start=${cmd_timestamp:-$stop}
-  integer elapsed=$stop-$start
-  (($elapsed > ${PURE_CMD_MAX_EXEC_TIME:=5})) && prompt_pure_human_time $elapsed
-}
-
 prompt_pure_preexec() {
-  cmd_timestamp=$EPOCHSECONDS
-
   # shows the current dir and executed command in the title when a process is active
   print -Pn "\e]0;"
   echo -nE "$PWD:t: $2"
   print -Pn "\a"
-}
-
-# string length ignoring ansi escapes
-prompt_pure_string_length() {
-  echo ${#${(S%%)1//(\%([KF1]|)\{*\}|\%[Bbkf])}}
 }
 
 prompt_pure_precmd() {
@@ -610,30 +411,9 @@ prompt_pure_precmd() {
   # git info
   vcs_info
 
-  local prompt_pure_preprompt="\n%F{blue}%~%F{242}$vcs_info_msg_0_`prompt_pure_git_dirty` $prompt_pure_username%f %F{yellow}`prompt_pure_cmd_exec_time`%f"
+  local prompt_pure_preprompt="\n%F{blue}%~%F{242}$vcs_info_msg_0_`prompt_pure_git_dirty` $prompt_pure_username%f"
   print -P $prompt_pure_preprompt
-
-  # check async if there is anything to pull
-  (( ${PURE_GIT_PULL:-1} )) && {
-    # check if we're in a git repo
-    command git rev-parse --is-inside-work-tree &>/dev/null &&
-    # make sure working tree is not $HOME
-    [[ "$(command git rev-parse --show-toplevel)" != "$HOME" ]] &&
-    # check check if there is anything to pull
-    command git fetch &>/dev/null &&
-    # check if there is an upstream configured for this branch
-    command git rev-parse --abbrev-ref @'{u}' &>/dev/null && {
-      local arrows=''
-      (( $(command git rev-list --right-only --count HEAD...@'{u}' 2>/dev/null) > 0 )) && arrows='⇣'
-      (( $(command git rev-list --left-only --count HEAD...@'{u}' 2>/dev/null) > 0 )) && arrows+='⇡'
-      print -Pn "\e7\e[A\e[1G\e[`prompt_pure_string_length $prompt_pure_preprompt`C%F{cyan}${arrows}%f\e8"
-    }
-  } &!
-
-  # reset value since `preexec` isn't always triggered
-  unset cmd_timestamp
 }
-
 
 prompt_pure_setup() {
   # prevent percentage showing up
@@ -642,7 +422,6 @@ prompt_pure_setup() {
 
   prompt_opts=(cr subst percent)
 
-  zmodload zsh/datetime
   autoload -Uz add-zsh-hook
   autoload -Uz vcs_info
 
@@ -655,9 +434,6 @@ prompt_pure_setup() {
   zstyle ':vcs_info:git*' formats ' %b %6.6i'
   zstyle ':vcs_info:git*' actionformats ' %b %6.6i|%a'
 
-  # show username@host if logged in through SSH
-  [[ "$SSH_CONNECTION" != '' ]] && prompt_pure_username='%n@%m '
-
   # prompt turns red if the previous command didn't exit with 0
   PROMPT='%(?.%F{magenta}.%F{red})❯%f '
 }
@@ -669,42 +445,22 @@ prompt_pure_setup "$@"
 # program settings & paths {{{
 export OS=`uname | tr "[:upper:]" "[:lower:]"`
 # ls
-export LSCOLORS="gxfxcxdxbxegedabagacad"
-export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
-export QUOTING_STYLE=literal
-
+#
 # grep
 if [[ "$OSTYPE" = darwin* ]]; then
-export GREP_OPTIONS='--color=auto'
-export GREP_COLOR='1;32'
-export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
+  export GREP_OPTIONS='--color=auto'
+  export GREP_COLOR='1;32'
+  export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
 fi
 
-# scons
-export SCONS_LIB_DIR="/Library/Python/2.6/site-packages/scons-1.2.0-py2.6.egg/scons-1.2.0"
-export COPY_EXTENDED_ATTRIBUTES_DISABLE=true
-
 # python
-#export PYTHONPATH="/usr/local/lib/python2.7/site-packages:$PYTHONPATH"
-#export PYTHONPATH=$PYTHONPATH:$HOME/.python
 export PYTHONSTARTUP=$HOME/.pythonstartup
 
-#ant
-export ANT_HOME=$HOME/work/tools/apache-ant-1.8.2
-export ANT_OPTS="-Xms256m -Xmx512m -XX:MaxPermSize=512m -XX:PermSize=256m"
-
-# jrebel
-export JREBEL_PATH=$HOME/work/tools/jrebel/jrebel.jar
-
 # maven
-#export M2=$HOME/work/apache-maven-3.0.3/bin/
-#export M2_HOME=$HOME/work/apache-maven-3.0.3/
 export MAVEN_REPO=$HOME/.m2/repository
 export MAVEN_OPTS="-Djava.awt.headless=true"
 export JAVA_TOOL_OPTIONS='-Djava.awt.headless=true'
 export MVN_OPTS="-Djava.awt.headless=true"
-
-#export LESS='-fXemPm?f%f .?lbLine %lb?L of %L..:$' # Set options for less command
 export LESS="-rX"
 export PAGER=less
 
@@ -715,8 +471,6 @@ else
   export EDITOR=/usr/bin/vim
   export GIT_EDITOR=/usr/bin/vim
 fi
-
-export GIST_URL='git.corp.adobe.com/api/v3'
 
 export VISUAL='vim'
 export INPUTRC=~/.inputrc
@@ -751,35 +505,8 @@ then
   export PERL5LIB="$HOME/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:$HOME/.perl5/lib/perl5";
 fi
 
-# ice
-export ICE_HOME=/usr/local/Ice
-
-export DISPLAY=:0.0
-
-# hla
-export hlalib=/usr/hla/hlalib
-export hlainc=/usr/hla/include
-
 # colors in terminal
 export CLICOLOR=1
-
-# p4
-export P4CONFIG=.p4conf
-
-# html tidy
-export HTML_TIDY=$HOME/.tidyconf
-
-# ansible
-export ANSIBLE_HOSTS=~/.ansible/hosts
-
-export MONO_GAC_PREFIX=/usr/local
-
-# haxe
-if [[ "$OSTYPE" = darwin* ]]; then
-    export HAXE_LIBRARY_PATH="$(/usr/local/bin/brew --prefix)/share/haxe/std"
-    export HAXE_STD_PATH="$(/usr/local/bin/brew --prefix)/lib/haxe/std"
-fi
-#export NEKOPATH=/usr/local/neko
 
 # java
 if [[ "$OSTYPE" = darwin* ]]; then
@@ -794,36 +521,6 @@ fi
 # scala
 export SCALA_HOME=/usr/local/opt/scala
 
-# luatex
-#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c/
-#export LUAINPUTS='{/usr/local/texlive/texmf-local/tex/context/base,\
-#  /usr/local/texlive/texmf-local/scripts/context/lua,$HOME/texmf/scripts/context/lua}'
-#export TEXMF='{\
-#$HOME/.texlive2008/texmf-config,\
-#$HOME/.texlive2008/texmf-var,\
-#$HOME/texmf,\
-#/usr/local/texlive/2008/texmf-config,\
-#/usr/local/texlive/2008/texmf-var,\
-#/usr/local/texlive/2008/texmf,\
-#/usr/local/texlive/texmf-local,\
-#/usr/local/texlive/2008/texmf-dist,\
-#/usr/local/texlive/2008/texmf.gwtex\
-#}'
-export TEXMFCACHE=/tmp
-#export TEXMFCNF=/usr/local/texlive/2008/texmf/web2c
-
-export SAASBASE_HOME=$HOME/work/s
-# source $HOME/work/s/services/use-hadoop-2
-# export HBASE_HOME=$HOME/work/s/hbase
-# export ZOOKEEPER_HOME=$HOME/work/s/zookeeper
-export STORM_HOME=$HOME/work/s/storm
-export KAFKA_HOME=$HOME/work/s/kafka
-
-# saasbase
-export SAASBASE_DB_HOME=$HOME/work/s/db/db
-export SAASBASE_ANALYTICS_HOME=$HOME/work/s/saasbase/analytics
-export SAASBASE_DATAROOT=/var
-
 if [[ "$OSTYPE" = darwin* ]]; then
   export VIMRUNTIME=/usr/local/opt/vim/share/vim/vim80/
 fi  
@@ -832,41 +529,8 @@ if [[ "$OSTYPE" = linux* ]]; then
 fi
 
 # go
-
-if [ "" = "${ALREADY_GLIDING}" ]; then
-  export GOPATH=$HOME/.gocode
-  export GO15VENDOREXPERIMENT=1
-fi
-# {{{ amazon
-
-# credentials
-aws_env() {
-  cert_pair=$1
-  if [ -d $HOME/.ec2/$cert_pair ]; then
-    export AWS_CREDENTIAL_FILE=$HOME/.ec2/$cert_pair/.aws-credentials
-    export AWS_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | grep AWSAccessKeyId | sed 's/^.*=//')
-    export AWS_ACCESS_KEY=$AWS_ACCESS_KEY_ID
-    export AWS_SECRET_ACCESS_KEY="$(cat $AWS_CREDENTIAL_FILE | grep AWSSecretKey | sed 's/^.*=//')"
-    export AWS_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
-    export AWS_USER="$(cat $AWS_CREDENTIAL_FILE | grep AWSUser | sed 's/^.*=//')"
-    export AWS_CONFIG_FILE=$HOME/.ec2/$cert_pair/.awscli
-  fi
-}
-
-# # ec2-api-tools
-# export EC2_HOME="/usr/local/Library/LinkedKegs/ec2-api-tools/libexec"
-# # ec2-ami-tools
-# export EC2_AMITOOL_HOME="/usr/local/Library/LinkedKegs/ec2-ami-tools/libexec/"
-# # aws-iam-tools
-# export AWS_IAM_HOME="/usr/local/Library/LinkedKegs/aws-iam-tools"
-# # aws-cfn-tools
-# export AWS_CLOUDFORMATION_HOME="/usr/local/Library/LinkedKegs/aws-cfn-tools"
-# # elb-tools
-# export AWS_ELB_HOME="/usr/local/Library/LinkedKegs/elb-tools"
-# # auto scaling
-# export AWS_AUTO_SCALING_HOME="/usr/local/Library/LinkedKegs/auto-scaling"
-
-# }}}
+export GOPATH=$HOME/.gocode
+export GO15VENDOREXPERIMENT=1
 
 # esp8266 {{{
 export XTENSA_TOOL_ROOT=/usr/local/Cellar/xtensa-lx106-elf
@@ -883,6 +547,8 @@ fi
 
 # path {{{
 export PATH=\
+/usr/local/opt/python/libexec/bin:\
+$HOME/.rvm/bin:\
 /usr/local/bin:\
 /usr/local/sbin:\
 /usr/local/share/npm/bin:\
@@ -895,7 +561,6 @@ $HOME/temp/source/other/factor:\
 $HOME/work/tools/nasm:\
 $HOME/temp/source/other/rock/bin:\
 $HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64:\
-$HOME/.rvm/bin:\
 $HOME/.perl5/bin:\
 $GOPATH/bin:\
 /usr/local/openresty/nginx/sbin:\
@@ -904,13 +569,6 @@ $PATH
 
 # }}}
 #
-# plan 9 {{{
-
-# * Add these to your profile environment.
-export PLAN9=/usr/local/Cellar/plan9/HEAD
-#export PATH=${PATH}:${PLAN9}/bin
-# }}}
-
 # man path {{{
 export MANPATH=\
 /usr/local/man:\
@@ -922,6 +580,7 @@ $MANPATH
 # aliases {{{
 alias youtube720-dl="youtube-dl -f 'bestvideo[height<=720]+bestaudio/best[height<=720]'"
 alias youtube480-dl="youtube-dl -f 'bestvideo[height<=480]+bestaudio/best[height<=480]'"
+alias youtube360-dl="youtube-dl -f 'bestvideo[height<=360]+bestaudio/best[height<=360]'"
 alias luarocks="luarocks --tree=${HOME}/.luarocks"
 alias luajitrocks="luajitrocks --tree=${HOME}/.luajitrocks"
 
@@ -959,32 +618,14 @@ alias dtrace-providers="sudo dtrace -l | perl -pe 's/^.*?\S+\s+(\S+?)([0-9]|\s).
 #}}}
 
 # plugins {{{
-# zsh-reload.plugin.zsh
-function reload() {
-  local cache="$ZSH/cache"
-  autoload -U compinit zrecompile
-  compinit -d "$cache/zcomp-$HOST"
-
-  for f in ~/.zshrc "$cache/zcomp-$HOST"; do
-    zrecompile -p $f && command rm -f $f.zwc.old
-  done
-
-  source ~/.zshrc
-}
-# }}}
-
 # final settings {{{
 [[ -s $HOME/.tmuxinator/scripts/tmuxinator ]] && source $HOME/.tmuxinator/scripts/tmuxinator
-
 source $ZSH/golang.plugin.zsh
 source $ZSH/url-tools.plugin.zsh
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
 
-
 # }}}
-#vim:foldmethod=marker
-#[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export LUA_PATH="\
 /usr/local/opt/lua/share/lua/5.2/?.lua;\
@@ -1024,27 +665,22 @@ alias luarocks='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/luaro
 alias luajit='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajit'
 alias luajitrocks='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajitrocks --tree=${HOME}/.luajitrocks'
 
-export LIBGUESTFS_PATH=/usr/local/share/libguestfs-appliance
-# export PATH="$HOME/.gobrew/bin:$PATH"
-# eval "$(gobrew init -)"
 export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
-
-# unikernel
-export PATH=/usr/local/Cellar/netbsd-cross-compiler/HEAD/bin:$PATH
-export READELF=/usr/local/Cellar/netbsd-cross-compiler/HEAD/bin/x86_64--netbsd-readelf
-
-# OPAM configuration
-. ${HOME}/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
 
 eval "$(direnv hook zsh)"
 
 [[ $OS == "Darwin" ]] && test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
 
-# The next line updates PATH for the Google Cloud SDK.
-[ -f "${HOME}/work/tools/google-cloud-sdk/path.zsh.inc" ] && source "${HOME}/work/tools/google-cloud-sdk/path.zsh.inc"
-
-# The next line enables shell command completion for gcloud.
-[ -f "${HOME}/work/tools/google-cloud-sdk/completion.zsh.inc" ] && source "${HOME}/work/tools/google-cloud-sdk/completion.zsh.inc"
-
 [ -f $HOME/.nix-profile/etc/profile.d/nix.sh ] && . $HOME/.nix-profile/etc/profile.d/nix.sh
 [ -f $HOME/.zshrc_secrets ] && . $HOME/.zshrc_secrets
+[ -f /usr/local/bin/virtualenvwrapper.sh ] && . /usr/local/bin/virtualenvwrapper.sh
+
+eval "$(vg eval --shell zsh)"
+
+export NVM_DIR="$HOME/.nvm"
+. "/usr/local/opt/nvm/nvm.sh"
+
+source /usr/local/opt/chruby/share/chruby/chruby.sh
+RUBIES+=(~/.rvm/rubies/*)
+source /usr/local/share/gem_home/gem_home.sh
+
