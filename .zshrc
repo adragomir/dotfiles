@@ -332,10 +332,6 @@ bases() {
     done
 }
 
-zman() {
-  PAGER="less -g -s '+/^       "$1"'" man zshall
-}
-
 function allopen() {
   if [[ "$OSTYPE" = darwin* ]]; then
     open $1
@@ -669,11 +665,10 @@ export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
 
 eval "$(direnv hook zsh)"
 
-[[ $OS == "Darwin" ]] && test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
+#[[ $OS == "Darwin" ]] && test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
 
-[ -f $HOME/.nix-profile/etc/profile.d/nix.sh ] && . $HOME/.nix-profile/etc/profile.d/nix.sh
+#[ -f $HOME/.nix-profile/etc/profile.d/nix.sh ] && . $HOME/.nix-profile/etc/profile.d/nix.sh
 [ -f $HOME/.zshrc_secrets ] && . $HOME/.zshrc_secrets
-[ -f /usr/local/bin/virtualenvwrapper.sh ] && . /usr/local/bin/virtualenvwrapper.sh
 
 eval "$(vg eval --shell zsh)"
 
