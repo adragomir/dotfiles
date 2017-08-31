@@ -19,7 +19,8 @@ def find_frameworks_and_roles(endpoint, framework_name):
         if f["name"] == framework_name and (f["active"] == True or (f["active"] == False and f["unregistered_time"] == 0.0)):
             print "  Found framework with id {} and role {}".format(f["id"], f["role"])
             active_framework_ids.append(f["id"])
-            active_framework_roles.add(f["role"])
+            if f["role"] != "*":
+                active_framework_roles.add(f["role"])
     return active_framework_ids, active_framework_roles
 
 def unreserve(endpoint, framework_roles, principal=None, secret=None):
@@ -31,10 +32,11 @@ def unreserve(endpoint, framework_roles, principal=None, secret=None):
         reserved_resources = slave["reserved_resources_full"]
         for role, resources in reserved_resources.iteritems():
             if role in framework_roles or (len(framework_roles) > 0 and list(framework_roles)[0] == "*"):
+                persistent_disk_resources = list([r for r in resources if r.has_key("disk") and r['disk'].has_key('persistence')])
                 disk_resources = list([r for r in resources if r.has_key("disk")])
                 other_resources = list([r for r in resources if not r.has_key("disk")])
                 print "Destroy volumes for slave {} and role {}".format(slave['id'], role)
-                dv = requests.post(endpoint + "/master/destroy-volumes", data={"slaveId": slave["id"], "volumes": json.dumps(disk_resources)}, auth=auth)
+                dv = requests.post(endpoint + "/master/destroy-volumes", data={"slaveId": slave["id"], "volumes": json.dumps(persistent_disk_resources)}, auth=auth)
                 print "   ... status: {}".format(dv.status_code)
 
                 print "Unreserve disk resources for slave {} and role {}".format(slave['id'], role)
