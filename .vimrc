@@ -34,8 +34,6 @@ set relativenumber
 set whichwrap=<,>,h,l,b,s,~,[,]
 set shortmess=aTI             " supress some file messages
 set sidescrolloff=4           " minchars to show around cursor
-" set selectmode=mouse,key      " select model
-" set keymodel=startsel         ",stopsel
 set display+=lastline
 set autoread                  " read outside modified files
 set autowrite
@@ -58,7 +56,6 @@ set hlsearch                  " highlight last search
 set incsearch                 " show matches while searching
 set gdefault
 set nojoinspaces
-"set cursorline
 set laststatus=2              " always show status line
 
 set breakindent
@@ -66,9 +63,7 @@ set breakindentopt=sbr
 set showbreak=…
 set fillchars=diff:⣿,vert:\|
 set noshowcmd                   " show number of selected chars/lines in status
-"set showmatch                 " briefly jump to matching brace
 set noshowmatch
-"set matchtime=1               " show matching brace time (1/10 seconds)
 set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o%)
 set undolevels=10000
 set numberwidth=5
@@ -84,7 +79,6 @@ set t_vb=
 set winaltkeys=no
 set writeany
 set iskeyword=@,48-57,128-167,224-235,_
-"set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮,trail:.
 set showtabline=0
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
@@ -112,7 +106,6 @@ set backupdir=~/.vim/tmp/backup/ " store backups under ~/.vim/backup
 set directory=~/.vim/tmp/swap/ " keep swp files under ~/.vim/swap
 set backup
 " settings: windows and buffers
-"set noequalalways
 set shell=bash
 set shellcmdflag=-lc
 " 	When off a buffer is unloaded when it is |abandon|ed.
@@ -136,12 +129,10 @@ set grepformat=%f:%l:%m
 " settings: tabs and indentin
 set nofoldenable
 set autoindent
-"set nocindent
 set lazyredraw
 " don't delete past the end of line
 set selection=old
 set copyindent
-"set indentexpr=
 set expandtab
 set tabstop=2
 set shiftwidth=2
@@ -264,8 +255,6 @@ Plug 'tmux-plugins/vim-tmux-focus-events', { 'dir': '~/.vim/bundle/vim-tmux-focu
 Plug 'rbgrouleff/bclose.vim', {'dir': '~/.vim/bundle/bclose' }
 call plug#end()
 " }}}
-
-" disable plugins in runtime
 
 " mapleader {{{
 let mapleader = ","
@@ -1014,7 +1003,7 @@ augroup END
 
 " }}}
 
-" hosts {{{
+" host specific customizations {{{
 let hostfile=$HOME . '.vim/hosts/' . hostname() . ".vim"
 if filereadable(hostfile)
     exe 'source ' . hostfile
