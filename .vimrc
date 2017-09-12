@@ -338,12 +338,6 @@ function! s:VSetSearch()
   let @@ = temp
 endfunction
 
-function! OnTabLeave()
-  if UselessBuffer('%')
-    bwipeout
-  endif
-endfunction
-
 function! UselessBuffer(...)
   let l:bufname = a:0 == 1 ? a:1 : '%'
 
@@ -402,42 +396,6 @@ function! EndKey()
 endfunction
 
 " Visual mode functions
-function! MyTabLine()
-  let s = ""
-  for i in range(tabpagenr('$'))
-    " select the highlighting
-    if i + 1 == tabpagenr()
-      let s .= '%#TabLineSel#'
-    else
-      let s .= '%#TabLine#'
-    endif
-
-    " set the tab page number (for mouse clicks)
-    let s .= '%' . (i + 1) . 'T'
-
-    " the label is made by MyTabLabel()
-    let s .= ' %{MyTabLabel(' . (i + 1) . ')} '
-  endfor
-
-  " after the last tab fill with TabLineFill and reset tab page nr
-  let s .= '%#TabLineFill#%T'
-
-  " right-align the label to close the current tab page
-  if tabpagenr('$') > 1
-    let s .= '%=%#TabLine#%999Xclose'
-  endif
-
-  return s
-endfunction
-
-function! MyTabLabel(n)
-  let buflist = tabpagebuflist(a:n)
-  let winnr = tabpagewinnr(a:n)
-  let guifname = bufname(buflist[winnr - 1])
-  let guifname = substitute(guifname, '^\(.*\)/\([^/]*\)$', '\2', '')
-  return '[' . string(a:n) . ']' . guifname
-endfunction
-
 function! ToggleScratch()
   if expand('%') == g:ScratchBufferName
     quit
@@ -518,10 +476,6 @@ function! RestoreMap(map)
   endif
 endfunction
 
-" }}}
-
-" settings after functions {{{ 
-set tabline=%!MyTabLine()
 " }}}
 
 " key mappings {{{
@@ -908,9 +862,6 @@ augroup all_buffers
   au BufNewFile,BufRead *.pde set filetype=cpp
   " remove all buffers on exit so we don't have them as hidden on reopen
   au VimLeavePre * execute 'silent! 1,' . bufnr('$') . 'bwipeout!'
-
-  " remove empty or otherwise dead buffers when moving away from them
-  au TabLeave    * call OnTabLeave()
 
   " move to last position on file
   au BufReadPost *
