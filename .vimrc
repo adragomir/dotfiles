@@ -113,7 +113,6 @@ set directory=~/.vim/tmp/swap/ " keep swp files under ~/.vim/swap
 set backup
 " settings: windows and buffers
 "set noequalalways
-set guiheadroom=0
 set shell=bash
 set shellcmdflag=-lc
 " 	When off a buffer is unloaded when it is |abandon|ed.
@@ -263,9 +262,7 @@ Plug 'Chun-Yang/vim-textobj-chunk', {'dir': '~/.vim/bundle/vim-textobj-chunk' }
 Plug 't9md/vim-choosewin', { 'dir': '~/.vim/bundle/vim-choosewin' }
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'dir': '~/.vim/bundle/vim-tmux-focus-events' }
 Plug 'rbgrouleff/bclose.vim', {'dir': '~/.vim/bundle/bclose' }
-
 call plug#end()
-
 " }}}
 
 " disable plugins in runtime
@@ -281,32 +278,13 @@ set background=dark
 colorscheme monochrome
 " }}}
 
-" gui settings {{{
-if has("gui_running")
-  set mouse=a
-  set backspace=indent,eol,start
-  set whichwrap+=<,>,[,]
-
-  if has("macunix")
-    " mac
-    set guifont=Inconsolata:h14
-    set antialias
-    set fuoptions=maxvert,maxhorz
-  else
-    " normal linuxes, gui mode
-  endif
-else
-  set mouse=a
-  set backspace=indent,eol,start
-endif
-" }}}
-
 " syntax highlighting {{{
 syntax enable
 syntax on
 filetype on
 filetype indent on
 filetype plugin on
+" highlight fixes
 highlight WHITE_ON_BLACK ctermfg=white
 hi NonText cterm=NONE ctermfg=NONE
 hi SignColor guibg=red
@@ -324,11 +302,9 @@ endfunction
 
 function! DashSearch(term, keyword) "{{{
   let keyword = a:keyword
-
   if !empty(keyword)
     let keyword = keyword . ':'
   endif
-
   silent execute '!open dash://' . shellescape(keyword . a:term)
   redraw!
 endfunction
@@ -388,32 +364,6 @@ function! UselessBuffer(...)
   return 0
 endfunction
 
-function! Tabnew()
-  if (!UselessBuffer('%'))
-    tabnew
-  endif
-endfunction
-
-function! SwapUp()
-  if ( line( '.' ) > 1 )
-    let cur_col = virtcol(".")
-    if ( line( '.' ) == line( '$' ) )
-      normal ddP
-    else
-      normal ddkP
-    endif
-    execute "normal " . cur_col . "|"
-  endif
-endfunction
-
-function! SwapDown()
-  if ( line( '.' ) < line( '$' ) )
-    let cur_col = virtcol(".")
-    normal ddp
-    execute "normal " . cur_col . "|"
-  endif
-endfunction
-
 function! MoveCursor(move, mode)
 	if (a:move == 'h')
 		if (a:mode == '0')
@@ -463,33 +413,6 @@ function! EndKey()
 endfunction
 
 " Visual mode functions
-function! GuiTabLabel()
-	let label = v:lnum
-	let bufnrlist = tabpagebuflist(v:lnum)
-
-	" Add '+' if one of the buffers in the tab page is modified
-	for bufnr in bufnrlist
-        if getbufvar(bufnr, "&modified")
-            let label .= '+'
-            break
-        endif
-	endfor
-
-	" Append the number of windows in the tab page if more than one
-	let wincount = tabpagewinnr(v:lnum, '$')
-	if wincount > 1
-		let label .= wincount
-	endif
-	if label != ''
-		let label .= ' '
-	endif
-
-	let guifname = bufname(bufnrlist[tabpagewinnr(v:lnum) - 1])"MyTabLabel(bufnrlist[tabpagewinnr(v:lnum) - 1]) "
-  let guifname = substitute(guifname, '^\(.*\)/\([^/]*\)$', '\2', '')
-	" Append the buffer name
-	return label . guifname
-endfunction
-
 function! MyTabLine()
   let s = ""
   for i in range(tabpagenr('$'))
@@ -591,65 +514,6 @@ function! MapSearch(rhs_pattern, bang)
     endif
 endfunction
 
-function! Kwbd(kwbdStage)
-  if(a:kwbdStage == 1)
-    if(!buflisted(winbufnr(0)))
-      bd!
-      return
-    endif
-    let s:kwbdBufNum = bufnr("%")
-    let s:kwbdWinNum = winnr()
-    windo call Kwbd(2)
-    execute s:kwbdWinNum . 'wincmd w'
-    let s:buflistedLeft = 0
-    let s:bufFinalJump = 0
-    let l:nBufs = bufnr("$")
-    let l:i = 1
-    while(l:i <= l:nBufs)
-      if(l:i != s:kwbdBufNum)
-        if(buflisted(l:i))
-          let s:buflistedLeft = s:buflistedLeft + 1
-        else
-          if(bufexists(l:i) && !strlen(bufname(l:i)) && !s:bufFinalJump)
-            let s:bufFinalJump = l:i
-          endif
-        endif
-      endif
-      let l:i = l:i + 1
-    endwhile
-    if(!s:buflistedLeft)
-      if(s:bufFinalJump)
-        windo if(buflisted(winbufnr(0))) | execute "b! " . s:bufFinalJump | endif
-      else
-        enew
-        let l:newBuf = bufnr("%")
-        windo if(buflisted(winbufnr(0))) | execute "b! " . l:newBuf | endif
-      endif
-      execute s:kwbdWinNum . 'wincmd w'
-    endif
-    if(buflisted(s:kwbdBufNum) || s:kwbdBufNum == bufnr("%"))
-      execute "bd! " . s:kwbdBufNum
-    endif
-    if(!s:buflistedLeft)
-      set buflisted
-      set bufhidden=delete
-      set buftype=
-      setlocal noswapfile
-    endif
-  else
-    if(bufnr("%") == s:kwbdBufNum)
-      let prevbufvar = bufnr("#")
-      if(prevbufvar > 0 && buflisted(prevbufvar) && prevbufvar != s:kwbdBufNum)
-        b #
-      else
-        bn
-      endif
-    endif
-  endif
-endfunction
-
-command! K call Kwbd(1)
-
 function! SaveMap(key)
   return maparg(a:key, 'n', 0, 1)
 endfunction
@@ -668,12 +532,10 @@ endfunction
 " }}}
 
 " settings after functions {{{ 
-set guitablabel=%{GuiTabLabel()}
 set tabline=%!MyTabLine()
 " }}}
 
 " key mappings {{{
-
 let g:save_cr_map = {}
 
 " home and end
@@ -818,23 +680,6 @@ nmap <MapLocalLeader>h :AT<CR>
 map <Leader>s :call ToggleScratch()<CR>
 
 " terminal
-map <leader>1 1gt
-map <leader>2 2gt
-map <leader>3 3gt
-map <leader>4 4gt
-map <leader>5 5gt
-map <leader>6 6gt
-map <leader>7 7gt
-map <leader>8 8gt
-map <leader>9 9gt
-map <leader>0 10gt
-
-noremap <leader>h <Esc>:tabprev<Cr>
-noremap <leader>l <Esc>:tabnext<Cr>
-noremap <leader>n <Esc>:tabnew<Cr>
-noremap <leader>d <Esc>:tabclose<Cr>
-noremap <leader>t <Esc>:tabnew<Cr>
-
 map <leader>r :w\|:silent !reload-chrome<cr>
 
 noremap c "_c
@@ -842,19 +687,6 @@ noremap cc "_cc
 noremap C "_C
 
 nmap -  <Plug>(choosewin)
-
-nnoremap <silent><F3> :MaximizerToggle<CR>
-vnoremap <silent><F3> :MaximizerToggle<CR>gv
-inoremap <silent><F3> <C-o>:MaximizerToggle<CR>
-
-" noremap ( <nop>
-" noremap ) <nop>
-" noremap { <nop>
-" noremap } <nop>
-" noremap ]] <nop>
-" noremap ][ <nop>
-" noremap [[ <nop>
-" noremap [] <nop>
 " }}}
 
 " abbreviations {{{
@@ -1034,15 +866,7 @@ let g:gist_clip_command = 'pbcopy'
 let g:gist_open_browser_after_post = 1
 " }}}
 
-" molokai theme {{{
-let g:molokai_original = 0
-" }}}
-
 let g:vim_json_syntax_conceal = 0
-
-" ack {{{
-let g:ackprg="ack -H --nocolor --nogroup --noenv --column"
-" }}}
 
 " rust racer {{{
 let g:racer_cmd = $HOME . "/bin/darwin/racer"
@@ -1068,6 +892,7 @@ let g:syntastic_mode_map = { 'mode': 'passive',
 " abbreviations {{{
 nnoremap <F7> "=strftime("(%Y-%m-%d %H:%M)")<CR>P
 " }}}
+
 " commands {{{
 command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
 command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
@@ -1085,9 +910,7 @@ command! -bang WQ wq<bang>
 " }}}
 
 " auto commands {{{
-
 augroup all_buffers
-
   au!
   " Has to be an autocommand because repeat.vim eats the mapping otherwise :(
   " au VimEnter * :nnoremap U <c-r>
@@ -1110,19 +933,19 @@ augroup all_buffers
       \     execute 'normal! g`"zvzz' |
       \ endif
 
-  autocmd! CmdwinEnter * 
+  au! CmdwinEnter * 
     \ let g:save_cr_map = SaveMap('<cr>') |
     \ execute ':silent! :unmap <cr>'
-  autocmd! CmdwinLeave *
+  au! CmdwinLeave *
     \ execute ':call RestoreMap(g:save_cr_map)'
-  autocmd! WinEnter,BufWinEnter *
+  au! WinEnter,BufWinEnter *
     \ if &ft == "qf" |
     \     let g:save_cr_map = SaveMap('<cr>') |
     \     execute ':silent! unmap <cr>' |
     \ else |
     \     execute ':silent! call RestoreMap(g:save_cr_map)' |
     \ endif
-  autocmd! WinLeave * 
+  au! WinLeave * 
     \ if &ft == "qf" |
     \     execute ':call RestoreMap(g:save_cr_map)' |
     \ endif
