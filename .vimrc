@@ -588,19 +588,11 @@ vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
 nnoremap <silent> Q <nop>
 
+" ctrlp buffers and notes
 map <silent> <F5> :CtrlPBuffer<CR>
 imap <silent> <F5> <C-O>:CtrlPBuffer<CR>
-
 map <silent> <F6> :CtrlP /Users/adr/Documents/personal/notes/<CR>
 imap <silent> <F6> <C-O>:CtrlP /Users/adr/Documents/personal/notes/<CR>
-
-imap <c-c> <Esc>
-
-" quicker window switching
-nnoremap <C-h> <c-w>h
-nnoremap <C-j> <c-w>j
-nnoremap <C-k> <c-w>k
-nnoremap <C-l> <c-w>l
 
 " disable middle mouse pasting
 map  <MiddleMouse>  <Nop>
@@ -931,15 +923,8 @@ augroup completions
   au FileType ruby,eruby set omnifunc=rubycomplete#Complete
 augroup END
 
-augroup comments
-  au FileType actionscript setlocal commentstring=//\ %s
-augroup end
-
 augroup mappings
   au!
-  au FileType markdown nnoremap <buffer> <localleader>1 yypVr=
-  au FileType markdown nnoremap <buffer> <localleader>2 yypVr-
-  au FileType markdown nnoremap <buffer> <localleader>3 I### <ESC>
   au FileType clojure let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
   au FileType go let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
   au FileType go nmap <Leader>i <Plug>(go-import)
