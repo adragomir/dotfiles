@@ -679,3 +679,4 @@ source /usr/local/opt/chruby/share/chruby/chruby.sh
 RUBIES+=(~/.rvm/rubies/*)
 source /usr/local/share/gem_home/gem_home.sh
 
+[[ -s "/Users/adr/.gvm/scripts/gvm" ]] && source "/Users/adr/.gvm/scripts/gvm"
