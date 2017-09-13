@@ -142,6 +142,8 @@ set suffixes+=.lo,.o,.moc,.la,.closure,.loT
 set suffixes+=.bak,~,.o,.h,.info,.swp,.obj
 set suffixes+=class,.6
 let g:did_install_default_menus = 1
+set mouse=a
+set backspace=indent,eol,start
 " }}}
 
 " wildmenu settings {{{
