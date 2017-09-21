@@ -63,7 +63,7 @@ set breakindentopt=sbr
 set showbreak=…
 set fillchars=diff:⣿,vert:\|
 set noshowcmd                   " show number of selected chars/lines in status
-set noshowmatch
+set showmatch
 set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o%)
 set undolevels=10000
 set numberwidth=5
@@ -78,7 +78,7 @@ set tildeop
 set t_vb=
 set winaltkeys=no
 set writeany
-set iskeyword=@,48-57,128-167,224-235,_
+set iskeyword=@,-,48-57,128-167,224-235,_
 set showtabline=0
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
@@ -596,6 +596,12 @@ imap <silent> <F5> <C-O>:CtrlPBuffer<CR>
 map <silent> <F6> :CtrlP /Users/adr/Documents/personal/notes/<CR>
 imap <silent> <F6> <C-O>:CtrlP /Users/adr/Documents/personal/notes/<CR>
 
+" quicker window switching
+nnoremap <C-h> <c-w>h
+nnoremap <C-j> <c-w>j
+nnoremap <C-k> <c-w>k
+nnoremap <C-l> <c-w>l
+
 " disable middle mouse pasting
 map  <MiddleMouse>  <Nop>
 map  <2-MiddleMouse>  <Nop>
@@ -904,7 +910,6 @@ augroup settings
   au FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
   au FileType go set noexpandtab ts=4 sw=4 sts=4
   au FileType sh set iskeyword=35,36,45,46,48-57,64,65-90,97-122,_
-  au BufRead,BufNewFile gopack.config setfiletype toml
 augroup END
 
 augroup endwiseadr
