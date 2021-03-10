@@ -150,7 +150,9 @@
 	excludesfile = /Users/adr/.gitignore_global
 	editor = vim --noplugin
 	quotepath = false
-	pager = /usr/local/bin/less -+F -+X -R -K
+	pager = less -+F -+X -R -K
+	autocrlf = true
+	filemode = false
 
 [apply]
 	whitespace = nowarn
