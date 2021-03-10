@@ -4,7 +4,7 @@ NST=$(git stash list | wc -l)
 git stash save
 NNST=$(git stash list | wc -l)
 
-export CURRENT=$(git symbolic-ref HEAD | gsed -e "s#refs/heads/##")
+export CURRENT=$(git symbolic-ref HEAD | sed -e "s#refs/heads/##")
 echo "Synchronising with origin/$CURRENT..."
 
 git fetch -p origin

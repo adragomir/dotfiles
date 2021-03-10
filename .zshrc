@@ -673,7 +673,11 @@ fi
 export SCALA_HOME=/usr/local/opt/scala
 
 # go
-export GOPATH=$HOME/.gocode
+if [[ "$OSTYPE" = linux* ]]; then
+  export GOPATH=$HOME/.golinux
+else
+  export GOPATH=$HOME/.gocode
+fi
 export GO15VENDOREXPERIMENT=1
 export GO111MODULE=on
 

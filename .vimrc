@@ -144,10 +144,6 @@ else
 endif
 set undofile
 set undoreload=10000
-set undodir=~/.vim/tmp/undo/
-set backupdir=~/.vim/tmp/backup/ " store backups under ~/.vim/backup
-set directory=~/.vim/tmp/swap/ " keep swp files under ~/.vim/swap
-set backup
 " settings: windows and buffers
 set shell=bash
 set shellcmdflag=-lc
