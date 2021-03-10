@@ -1,0 +1,1 @@
+bin/darwin/haskell-language-server filter=lfs diff=lfs merge=lfs -text

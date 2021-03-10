@@ -1,3 +1,9 @@
+bazel-bin
+bazel-out
+bazel-cosmos
+bazel-testlogs
+bazel-genfiles
+bazel-*
 target
 jdiff
 jdiff-cloudera

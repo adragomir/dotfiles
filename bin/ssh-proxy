@@ -10,17 +10,38 @@ usage() {
 
 if (( $# == 0 )); then
   echo "No params, checking statuses ..."
-  pgrep -l -f "ssh.*C2qTnNf.*"
+  pgrep -l -f "$regex"
 elif (( $# == 1 )); then
   usage
   exit 1
 else
   local_port=$1
   host=$2
-  current=$(pgrep -f "ssh.*C2qTnNf.*$local_port" | xargs)
+fi
+
+flavor=an
+if [[ "$flavor" == "normal" ]]; then
+  regex="ssh.*C2qTnNf.*${local_port}.*${host}"
+  command="ssh -C2qTnNf -D ${local_port} ${host}"
+elif [[ "$flavor" == "an"  ]]; then
+  regex="ssh ${USER}@ops1.or1.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa_202001 -D ${local_port} -A"
+  command="ssh ${USER}@ops1.or1.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa_202001 -D ${local_port} -A"
+fi
+
+echo $regex
+echo $command
+
+if (( $# == 0 )); then
+  echo "No params, checking statuses ..."
+  pgrep -l -f "$regex"
+elif (( $# == 1 )); then
+  usage
+  exit 1
+else
+  current=$(pgrep -f "$regex" | xargs)
   if [[ ! -z $current ]]; then
     echo "Found current ssh proxy for local=$local_port, host=$host, killing..."
   fi
   echo $current | xargs kill -9
-  ssh -C2qTnNf -D $local_port $host
+  eval $command
 fi

@@ -1,0 +1,16 @@
+PUPPET_ROOT=$HOME/work/ops/fitbit-puppet
+
+TMPDIR=$(mktemp -d)
+#trap "rm -rf $TMPDIR" EXIT
+CERT=$PUPPET_ROOT/modules/fitbit_identity/files/tls/$1/certificate.pem
+ENCKEY=$PUPPET_ROOT/modules/fitbit_identity/files/tls/$1/key.pem
+DECKEY=$TMPDIR/key
+decrypt_hiera $ENCKEY > $DECKEY
+CACERT=$PUPPET_ROOT/modules/fitbit_identity/files/tls/$1/certificate.pem
+CACHAIN=$PUPPET_ROOT/modules/fitbit_identity/files/tls/$1/ca-bundle.pem
+
+cp $CERT .
+cp $DECKEY ./key.pem
+cp $CACHAIN .
+
+cat $CACERT $CACHAIN > ./cachain.pem

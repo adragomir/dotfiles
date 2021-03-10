@@ -22,7 +22,7 @@ zmodload zsh/regex
 # autoload {{{
 autoload add-zsh-hook
 autoload -U colors && colors  # Enables colours
-autoload -U compinit && compinit -d "$ZSH/cache/zcompdump-$HOST"
+autoload -U compinit && compinit -u -d "$ZSH/cache/zcompdump-$HOST"
 autoload -U url-quote-magic
 autoload allopt
 autoload -U zcalc
@@ -52,7 +52,7 @@ setopt CLOBBER
 
 # completion
 unsetopt MENU_COMPLETE   # do not autoselect the first completion entry
-unsetopt AUTO_MENU         # show completion menu on succesive tab press
+setopt AUTO_MENU         # show completion menu on succesive tab press
 setopt COMPLETE_IN_WORD
 setopt ALWAYS_TO_END
 setopt NOMATCH
@@ -83,6 +83,7 @@ setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_IGNORE_SPACE
 setopt APPEND_HISTORY
 setopt LONG_LIST_JOBS
+setopt -o sharehistory
 # }}}
 
 # }}}
@@ -184,21 +185,12 @@ _completeme() {
 }
 zle -N _completeme
 
-_selecta() {
-  zle -I
-  result=$( pt -l --nocolor -g . | selecta )
-  RBUFFER="$result "
-  CURSOR+=$#RBUFFER
-}
-zle -N _selecta
-bindkey "\C-t" _selecta
-
 function insert-selecta-path-in-command-line() {
     local selected_path
     # Print a newline or we'll clobber the old prompt.
     echo
     # Find the path; abort if the user doesn't select anything.
-    selected_path=$(find * -type f | selecta) || return
+    selected_path=$(find * -type f | fzy) || return
     # Append the selection to the current command buffer.
     eval 'LBUFFER="$LBUFFER$selected_path"'
     # Redraw the prompt since Selecta has drawn several new lines of text.
@@ -207,7 +199,8 @@ function insert-selecta-path-in-command-line() {
 # Create the zle widget
 zle -N insert-selecta-path-in-command-line
 # Bind the key to the newly created widget
-bindkey "^S" "insert-selecta-path-in-command-line"
+bindkey -r "^T"
+bindkey "^T" "insert-selecta-path-in-command-line"
 
 autoload -Uz narrow-to-region
 
@@ -217,7 +210,7 @@ function _selecta-select-history() {
     # Print a newline or we'll clobber the old prompt.
     echo
     # Find the path; abort if the user doesn't select anything.
-    BUFFER=$( fc -lnr 1 | hs --filter-only ) || return
+    BUFFER=$( fc -lnr 1 | fzy ) || return
     # BUFFER=$( fc -lnr 1 | select -x ) || return
     CURSOR=$#BUFFER
     # Append the selection to the current command buffer.
@@ -226,7 +219,8 @@ function _selecta-select-history() {
     zle reset-prompt
 }
 zle -N _selecta-select-history
-bindkey '^r' _selecta-select-history
+bindkey -r "^R"
+bindkey "^R" _selecta-select-history
 
 function _hs-select-instance() {
     local selected_instance
@@ -242,7 +236,7 @@ bindkey '^q' _hs-select-instance
 bindkey -e
 bindkey '\ew' kill-region
 bindkey -M isearch "^r" history-incremental-pattern-search-backward
-bindkey "^s" history-incremental-pattern-search-forward
+#bindkey "^s" history-incremental-pattern-search-forward
 bindkey "^[[5~" up-line-or-history
 bindkey "^[[6~" down-line-or-history
 
@@ -267,6 +261,9 @@ bindkey "\e3C" forward-word
 bindkey '^[5C' forward-word
 bindkey '^[[5C' forward-word
 bindkey '^[[3~' delete-char
+#bindkey '\e\eOD' backward-word
+#bindkey '\e\eOC' forward-word
+
 
 _physical_up_line()   { zle backward-char -n $COLUMNS }
 _physical_down_line() { zle forward-char  -n $COLUMNS }
@@ -359,6 +356,17 @@ function javap_method() {
   javap -classpath `cat .run-classpath` -c $class | sed -n -e "/$method(/,/^$/p"
 }
 
+function peek() {
+  tmux split-window -p 33 "$EDITOR" "$@" || exit;
+}
+
+function tm_cleanup() {
+  sudo chown -R adragomi:staff ${1}
+  sudo xattr -c -r ${1}
+  sudo chmod -RN ${1}
+  sudo chmod u+w ${1}
+}
+
 extract () {
   if [ -f $1 ] ; then
     case $1 in
@@ -382,33 +390,156 @@ extract () {
 # }}}
 
 # prompt settings {{{
-prompt_pure_git_dirty() {
-  # check if we're in a git repo
-  command git rev-parse --is-inside-work-tree &>/dev/null || return
-  # check if it's dirty
-  [[ "$PURE_GIT_UNTRACKED_DIRTY" == 0 ]] && local umode="-uno" || local umode="-unormal"
-  test -n "$(git status --porcelain --ignore-submodules ${umode})"
 
-  (($? == 0)) && echo '*'
-}
+prompt_pure_preprompt_render() {
+	setopt localoptions noshwordsplit
+	local git_color=242
 
-prompt_pure_preexec() {
-  # shows the current dir and executed command in the title when a process is active
-  print -Pn "\e]0;"
-  echo -nE "$PWD:t: $2"
-  print -Pn "\a"
+	# Initialize the preprompt array.
+	local -a preprompt_parts
+
+	# Set the path.
+	preprompt_parts+=('%F{blue}%~%f')
+
+	# Add git branch and dirty status info.
+	typeset -gA prompt_pure_vcs_info
+	if [[ -n $prompt_pure_vcs_info[branch] ]]; then
+		preprompt_parts+=("%F{$git_color}"'${prompt_pure_vcs_info[branch]}%f')
+	fi
+
+	# Username and machine, if applicable.
+	[[ -n $prompt_pure_username ]] && preprompt_parts+=('$prompt_pure_username')
+
+	local cleaned_ps1=$PROMPT
+	local -H MATCH
+	if [[ $PROMPT = *$prompt_newline* ]]; then
+		# When the prompt contains newlines, we keep everything before the first
+		# and after the last newline, leaving us with everything except the
+		# preprompt. This is needed because some software prefixes the prompt
+		# (e.g. virtualenv).
+		cleaned_ps1=${PROMPT%%${prompt_newline}*}${PROMPT##*${prompt_newline}}
+	fi
+
+	# Construct the new prompt with a clean preprompt.
+	local -ah ps1
+	ps1=(
+		$prompt_newline           # Initial newline, for spaciousness.
+		${(j. .)preprompt_parts}  # Join parts, space separated.
+		$prompt_newline           # Separate preprompt and prompt.
+		$cleaned_ps1
+	)
+
+	PROMPT="${(j..)ps1}"
+
+	# Expand the prompt for future comparision.
+	local expanded_prompt
+	expanded_prompt="${(S%%)PROMPT}"
+
+	if [[ $1 != precmd ]] && [[ $prompt_pure_last_prompt != $expanded_prompt ]]; then
+		# Redraw the prompt.
+		zle && zle .reset-prompt
+	fi
+
+	typeset -g prompt_pure_last_prompt=$expanded_prompt
 }
 
 prompt_pure_precmd() {
-  # shows the full path in the title
-  #repeat $COLUMNS printf '-'
-  print -Pn '\e]0;%~\a'
+	# preform async git dirty check and fetch
+	prompt_pure_async_tasks
 
-  # git info
-  vcs_info
+	# store name of virtualenv in psvar if activated
+	psvar[12]=
+	[[ -n $VIRTUAL_ENV ]] && psvar[12]="${VIRTUAL_ENV:t}"
 
-  local prompt_pure_preprompt="\n%F{blue}%~%F{242}$vcs_info_msg_0_`prompt_pure_git_dirty` $prompt_pure_username%f"
-  print -P $prompt_pure_preprompt
+	# print the preprompt
+	prompt_pure_preprompt_render "precmd"
+}
+
+prompt_pure_async_vcs_info() {
+	setopt localoptions noshwordsplit
+	builtin cd -q $1 2>/dev/null
+
+	# configure vcs_info inside async task, this frees up vcs_info
+	# to be used or configured as the user pleases.
+	zstyle ':vcs_info:*' enable git
+	zstyle ':vcs_info:*' use-simple true
+	zstyle ':vcs_info:git*:*' get-revision true
+
+	# only export two msg variables from vcs_info
+	zstyle ':vcs_info:*' max-exports 2
+	# export branch (%b) and git toplevel (%R)
+	zstyle ':vcs_info:git*' formats '%b %6.6i' '%R'
+	zstyle ':vcs_info:git*' actionformats '%b %6.6i|%a' '%R'
+
+	vcs_info
+
+	local -A info
+	info[top]=$vcs_info_msg_1_
+	info[branch]=$vcs_info_msg_0_
+
+	print -r - ${(@kvq)info}
+}
+
+prompt_pure_async_tasks() {
+	setopt localoptions noshwordsplit
+
+	# initialize async worker
+	((!${prompt_pure_async_init:-0})) && {
+		async_start_worker "prompt_pure" -u -n
+		async_register_callback "prompt_pure" prompt_pure_async_callback
+		typeset -g prompt_pure_async_init=1
+	}
+
+	typeset -gA prompt_pure_vcs_info
+
+	local -H MATCH
+	if ! [[ $PWD = ${prompt_pure_vcs_info[pwd]}* ]]; then
+		# stop any running async jobs
+		async_flush_jobs "prompt_pure"
+
+		# reset git preprompt variables, switching working tree
+		prompt_pure_vcs_info[branch]=
+		prompt_pure_vcs_info[top]=
+	fi
+	unset MATCH
+
+	async_job "prompt_pure" prompt_pure_async_vcs_info $PWD
+
+	# # only perform tasks inside git working tree
+	[[ -n $prompt_pure_vcs_info[top] ]] || return
+}
+
+prompt_pure_async_callback() {
+	setopt localoptions noshwordsplit
+	local job=$1 code=$2 output=$3 exec_time=$4
+
+	case $job in
+		prompt_pure_async_vcs_info)
+			local -A info
+			typeset -gA prompt_pure_vcs_info
+
+			# parse output (z) and unquote as array (Q@)
+			info=("${(Q@)${(z)output}}")
+			local -H MATCH
+			# check if git toplevel has changed
+			if [[ $info[top] = $prompt_pure_vcs_info[top] ]]; then
+				# if stored pwd is part of $PWD, $PWD is shorter and likelier
+				# to be toplevel, so we update pwd
+				if [[ $prompt_pure_vcs_info[pwd] = ${PWD}* ]]; then
+					prompt_pure_vcs_info[pwd]=$PWD
+				fi
+			else
+				# store $PWD to detect if we (maybe) left the git path
+				prompt_pure_vcs_info[pwd]=$PWD
+			fi
+			unset MATCH
+
+			# always update branch and toplevel
+			prompt_pure_vcs_info[branch]=$info[branch]
+			prompt_pure_vcs_info[top]=$info[top]
+			prompt_pure_preprompt_render
+			;;
+	esac
 }
 
 prompt_pure_setup() {
@@ -416,19 +547,32 @@ prompt_pure_setup() {
   # if output doesn't end with a newline
   export PROMPT_EOL_MARK=''
 
-  prompt_opts=(cr subst percent)
+	# disallow python virtualenvs from updating the prompt
+  export VIRTUAL_ENV_DISABLE_PROMPT=1
 
-  autoload -Uz add-zsh-hook
-  autoload -Uz vcs_info
+  prompt_opts=(subst percent)
+
+	# borrowed from promptinit, sets the prompt options in case pure was not
+	# initialized via promptinit.
+	setopt noprompt{bang,cr,percent,subst} "prompt${^prompt_opts[@]}"
+
+	if [[ -z $prompt_newline ]]; then
+		# This variable needs to be set, usually set by promptinit.
+		typeset -g prompt_newline=$'\n%{\r%}'
+  fi
+
+	zmodload zsh/datetime
+	zmodload zsh/zle
+	zmodload zsh/parameter
+
+	autoload -Uz add-zsh-hook
+	autoload -Uz vcs_info
+  autoload -Uz async && async
 
   add-zsh-hook precmd prompt_pure_precmd
-  add-zsh-hook preexec prompt_pure_preexec
 
-  zstyle ':vcs_info:*' enable git
-  #zstyle ':vcs_info:*' check-for-changes true
-  zstyle ':vcs_info:git*:*' get-revision true
-  zstyle ':vcs_info:git*' formats ' %b %6.6i'
-  zstyle ':vcs_info:git*' actionformats ' %b %6.6i|%a'
+	# if a virtualenv is activated, display it in grey
+  PROMPT='%(12V.%F{242}%12v%f .)'
 
   # prompt turns red if the previous command didn't exit with 0
   PROMPT='%(?.%F{magenta}.%F{red})❯%f '
@@ -454,21 +598,21 @@ export PYTHONSTARTUP=$HOME/.pythonstartup
 
 # maven
 export MAVEN_REPO=$HOME/.m2/repository
-export MAVEN_OPTS="-Djava.awt.headless=true"
-export JAVA_TOOL_OPTIONS='-Djava.awt.headless=true'
-export MVN_OPTS="-Djava.awt.headless=true"
+#export MAVEN_OPTS="-Djava.awt.headless=true"
+#export JAVA_TOOL_OPTIONS='-Djava.awt.headless=true'
+#export MVN_OPTS="-Djava.awt.headless=true"
 export LESS="-rX"
 export PAGER=less
 
 if [[ "$OSTYPE" = darwin* ]]; then
-  export EDITOR=/usr/local/bin/vim
-  export GIT_EDITOR=/usr/local/bin/vim
+  export EDITOR=/usr/local/bin/nvim
+  export GIT_EDITOR=/usr/local/bin/nvim
+  export VISUAL='/usr/local/bin/nvim'
 else
   export EDITOR=/usr/bin/vim
   export GIT_EDITOR=/usr/bin/vim
 fi
 
-export VISUAL='vim'
 export INPUTRC=~/.inputrc
 
 # locale
@@ -506,10 +650,13 @@ export CLICOLOR=1
 
 # java
 if [[ "$OSTYPE" = darwin* ]]; then
-  export JENV_ROOT=/usr/local/opt/jenv
-  if which jenv > /dev/null; then eval "$(jenv init -)"; fi
-  export JAVA_HOME=$(readlink /usr/local/opt/jenv/versions/`cat /usr/local/opt/jenv/version`)
-  #export JAVA_HOME="$(/usr/libexec/java_home -v 1.6.0_43-b01-447)"
+  export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home
+  if [[ -f /usr/local/opt/jenv ]]; then
+    export JENV_ROOT=/usr/local/opt/jenv
+    if which jenv > /dev/null; then eval "$(jenv init -)"; fi
+    export JAVA_HOME=$(readlink /usr/local/opt/jenv/versions/`cat /usr/local/opt/jenv/version`)
+    #export JAVA_HOME="$(/usr/libexec/java_home -v 1.6.0_43-b01-447)"
+  fi
 else
   export JAVA_HOME=/usr/lib/jvm/java-8-jdk
 fi
@@ -517,16 +664,10 @@ fi
 # scala
 export SCALA_HOME=/usr/local/opt/scala
 
-if [[ "$OSTYPE" = darwin* ]]; then
-  export VIMRUNTIME=/usr/local/opt/vim/share/vim/vim80/
-fi  
-if [[ "$OSTYPE" = linux* ]]; then
-  export VIMRUNTIME=/usr/share/vim/vim80
-fi
-
 # go
 export GOPATH=$HOME/.gocode
 export GO15VENDOREXPERIMENT=1
+export GO111MODULE=on
 
 # esp8266 {{{
 export XTENSA_TOOL_ROOT=/usr/local/Cellar/xtensa-lx106-elf
@@ -536,20 +677,18 @@ export ESP8266_RTOS_SDK_BASE=/usr/local/Cellar/xtensa-lx106-elf/esp_iot_rtos_sdk
 #}}}
 
 
-if [[ $OS = "linux" ]]; then
-  export rvm_ignore_gemrc_issues=1
-fi
-[[ -f $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
 
 # path {{{
 export PATH=\
-/usr/local/opt/python/libexec/bin:\
+$HOME/bin:\
+$HOME/bin/$OS:\
+$HOME/.rvm/gems/ruby-2.6.3/bin:\
+/usr/local/opt/python@2/libexec/bin:\
 $HOME/.rvm/bin:\
+$HOME/.cargo/bin:\
 /usr/local/bin:\
 /usr/local/sbin:\
 /usr/local/share/npm/bin:\
-$HOME/bin:\
-$HOME/bin/$OS:\
 $SAASBASE_HOME/services:\
 $HOME/.cabal/bin:\
 $HOME/temp/source/other/sshuttle:\
@@ -561,6 +700,7 @@ $HOME/.perl5/bin:\
 $GOPATH/bin:\
 /usr/local/openresty/nginx/sbin:\
 /usr/local/openresty/luajit/bin:\
+$HOME/.platformio/penv/bin:\
 $PATH
 
 # }}}
@@ -574,12 +714,18 @@ $MANPATH
 # }}}
 
 # aliases {{{
-alias youtube720-dl="youtube-dl -f 'bestvideo[height<=720]+bestaudio/best[height<=720]'"
-alias youtube480-dl="youtube-dl -f 'bestvideo[height<=480]+bestaudio/best[height<=480]'"
-alias youtube360-dl="youtube-dl -f 'bestvideo[height<=360]+bestaudio/best[height<=360]'"
-alias luarocks="luarocks --tree=${HOME}/.luarocks"
-alias luajitrocks="luajitrocks --tree=${HOME}/.luajitrocks"
-
+alias or1="ssh ${USER}@ops1.or1.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa -A"
+alias lon5="ssh ${USER}@ops1.lon5.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa -A"
+alias sin2="ssh ${USER}@ops1.sin2.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa -A"
+alias sbx="ssh ${USER}@ops1.sbx1.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa -A"
+alias ut1="ssh ${USER}@ops1.ut1.omniture.com -i ~/.ssh/id_rsa -A"
+alias youtube720-dl="youtube-dl -q -f 'bestvideo[height<=720]+bestaudio/best[height<=720]'"
+alias youtube480-dl="youtube-dl -q -f 'bestvideo[height<=480]+bestaudio/best[height<=480]'"
+alias youtube360-dl="youtube-dl -q -f 'bestvideo[height<=360]+bestaudio/best[height<=360]'"
+# alias luarocks="luarocks --tree=${HOME}/.luarocks"
+# alias luajitrocks="luajitrocks --tree=${HOME}/.luajitrocks"
+alias decrypt_hiera="openssl smime -decrypt -aes256 -binary -inform der -inkey /Users/adragomi/.ssh/hiera_private.key -in"
+alias fcurl="curl -xprodproxy-000-lxc.prod.dal09.fitbit.com:3128 --proxy-negotiate -u :  "
 # builtin commands
 
 # make top default to ordering by CPU usage:
@@ -623,61 +769,106 @@ source $ZSH/url-tools.plugin.zsh
 
 # }}}
 
-export LUA_PATH="\
-/usr/local/opt/lua/share/lua/5.2/?.lua;\
-/usr/local/opt/lua/share/lua/5.2/?/init.lua;\
-${HOME}/.luarocks/share/lua/5.2/?.lua;\
-${HOME}/.luarocks/share/lua/5.2/?/init.lua;\
-./?.lua;\
-./?/init.lua\
-"
+# export LUA_PATH="\
+# /usr/local/opt/lua/share/lua/5.2/?.lua;\
+# /usr/local/opt/lua/share/lua/5.2/?/init.lua;\
+# ${HOME}/.luarocks/share/lua/5.2/?.lua;\
+# ${HOME}/.luarocks/share/lua/5.2/?/init.lua;\
+# ./?.lua;\
+# ./?/init.lua\
+# "
 
-export LUA_CPATH="\
-/usr/local/opt/lua/lib/lua/5.2/?.so;\
-${HOME}/.luarocks/lib/lua/5.2/?.so;\
-/usr/local/opt/lua/lib/lua/5.2/loadall.so;\
-./?.so\
-"
+# export LUA_CPATH="\
+# /usr/local/opt/lua/lib/lua/5.2/?.so;\
+# ${HOME}/.luarocks/lib/lua/5.2/?.so;\
+# /usr/local/opt/lua/lib/lua/5.2/loadall.so;\
+# ./?.so\
+# "
 
-export LUAJIT_PATH="\
-/usr/local/opt/luajit/share/luajit-2.1.0-beta1/?.lua;\
-/usr/local/opt/luajit/share/lua/5.1/?.lua;\
-/usr/local/opt/luajit/share/lua/5.1/?/init.lua;\
-${HOME}/.luajitrocks/share/lua/5.1/?.lua;\
-${HOME}/.luajitrocks/share/lua/5.1/?/init.lua;\
-./?.lua;\
-./?/init.lua\
-"
+# export LUAJIT_PATH="\
+# /usr/local/opt/luajit/share/luajit-2.1.0-beta1/?.lua;\
+# /usr/local/opt/luajit/share/lua/5.1/?.lua;\
+# /usr/local/opt/luajit/share/lua/5.1/?/init.lua;\
+# ${HOME}/.luajitrocks/share/lua/5.1/?.lua;\
+# ${HOME}/.luajitrocks/share/lua/5.1/?/init.lua;\
+# ./?.lua;\
+# ./?/init.lua\
+# "
 
-export LUAJIT_CPATH="\
-/usr/local/opt/luajit/lib/lua/5.1/?.so;\
-${HOME}/.luajitrocks/lib/lua/5.1/?.so;\
-/usr/local/opt/luajit/lib/lua/5.1/loadall.so;\
-./?.so\
-"
+# export LUAJIT_CPATH="\
+# /usr/local/opt/luajit/lib/lua/5.1/?.so;\
+# ${HOME}/.luajitrocks/lib/lua/5.1/?.so;\
+# /usr/local/opt/luajit/lib/lua/5.1/loadall.so;\
+# ./?.so\
+# "
 
-alias lua='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/lua'
-alias luarocks='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/luarocks --tree=${HOME}/.luarocks'
-alias luajit='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajit'
-alias luajitrocks='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajitrocks --tree=${HOME}/.luajitrocks'
+# alias lua='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/lua'
+# alias luarocks='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/luarocks --tree=${HOME}/.luarocks'
+# alias luajit='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajit'
+# alias luajitrocks='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajitrocks --tree=${HOME}/.luajitrocks'
 
-export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
+if [[ "$OSTYPE" = darwin* ]]; then
+  export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
+fi
 
 eval "$(direnv hook zsh)"
 
 #[[ $OS == "Darwin" ]] && test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
 
-#[ -f $HOME/.nix-profile/etc/profile.d/nix.sh ] && . $HOME/.nix-profile/etc/profile.d/nix.sh
 [ -f $HOME/.zshrc_secrets ] && . $HOME/.zshrc_secrets
 
-eval "$(vg eval --shell zsh)"
+command -v vg >/dev/null 2>&1 && eval "$(vg eval --shell zsh)"
 
 export NVM_DIR="$HOME/.nvm"
-. "/usr/local/opt/nvm/nvm.sh"
 
-source /usr/local/opt/chruby/share/chruby/chruby.sh
-RUBIES+=(~/.rvm/rubies/*)
-source /usr/local/share/gem_home/gem_home.sh
+if [[ "$OSTYPE" = darwin* ]]; then
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+fi
 
-#disable gvm
-#[[ -s "/Users/adr/.gvm/scripts/gvm" ]] && source "/Users/adr/.gvm/scripts/gvm"
+if [[ "$OSTYPE" = linux* ]]; then
+  [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh" ] && . "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+fi
+
+
+[[ -d ~/.rvm/rubies ]] && RUBIES+=(~/.rvm/rubies/*)
+
+export PATH=$HOME/.local/bin:$PATH
+
+
+if [[ $OS = "linux" ]]; then
+  export rvm_ignore_gemrc_issues=1
+  export rvm_silence_path_mismatch_check_flag=1
+fi
+[[ -f $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/adragomi/work/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/adragomi/work/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/adragomi/work/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/adragomi/work/google-cloud-sdk/completion.zsh.inc'; fi
+
+export PATH=/Users/adragomi/.local/bin/luna-studio:$PATH
+export PATH="/Users/adragomi/.deno/bin:$PATH"
+
+ulimit -n 10240 12288
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+export KLAM_BROWSER="Google Chrome"
+
+# opam configuration
+test -r /Users/adragomi/.opam/opam-init/init.zsh && . /Users/adragomi/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+
+if [[ "$OSTYPE" = darwin* ]]; then
+  source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+  export KUBECONFIG=$(find $HOME/.kube -maxdepth 1 -type f -and ! -name "kubectx" | gtr '\n' ':')
+fi
+
+if [[ "$OSTYPE" = linux* ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"

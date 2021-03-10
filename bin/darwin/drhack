@@ -1,0 +1,34 @@
+#!/usr/bin/osascript
+
+activate application "Finder"
+
+--tell application "Finder"
+--	activate
+--	reveal POSIX file "/Users/adragomir/Dropbox/personal/technical_books/make/Model.Engineers.Workshop/mew001.pdf"
+--end tell
+
+tell application "System Events"
+	tell process "Finder"
+		delay 0.5 -- may need to adjust this number
+		if window 1 of application "Finder" exists then
+			--repeat with n from 1 to 9
+			--tell application "Finder"
+			--	activate
+			--	reveal POSIX file "/Users/adragomir/Dropbox/personal/technical_books/make/Model.Engineers.Workshop/mew00" & n & ".pdf"
+			--end tell
+			
+			tell menu button 1 of group 5 of toolbar 1 of window 1
+				click
+				delay 0.5
+				click menu item "Copy Dropbox Link" of menu 1
+			end tell
+			delay 0.3
+			do shell script ("echo " & (the clipboard) & " >> ~/Desktop/test.txt")
+			--end repeat
+		else
+			tell application "Finder"
+				activate
+			end tell
+		end if
+	end tell
+end tell

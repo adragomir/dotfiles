@@ -1,62 +1,154 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
-push_only=0
-master_branch=master
-while getopts ":pb:" opt; do
-  case $opt in
-    p)
-      push_only=1
-      ;;
-    b)
-      master_branch=$OPTARG
-      ;;
-  esac
-done
+require 'open3'
 
-branch_name="$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)"
-IFS=$'\r\n'
-commits=($(git rev-list --reverse "${master_branch}..${branch_name}"))
+Commit = Struct.new(:id, :message, :branch) do
+  def is_marker?(commit)
+    issue = message[/^\[([A-Z0-9]*\-(?:X*|[0-9]*))\] /, 1]
+    if commit != nil
+      other_issue = commit.message[/^\[([A-Z0-9]*\-[0-9]*)\] /, 1]
+      return issue != nil && issue != other_issue
+    else
+      return issue != nil
+    end
+  end
 
-#base=$(git rev-parse master)
-base=$master_branch
+  def branch()
+    data = /^\[([A-Z0-9]*\-(X+|[0-9]+))\] /.match(message)
+    data[0]
+  end
+end
+PR = Struct.new(:base, :marker, :head)
 
-commits_len=${#commits[@]}
+def commits_range(commits, pr)
+  range = []
+  in_range = false
+  commits.each_with_index{|c, i|
+    if commits[i].id == pr.marker.id
+      in_range = true
+    end
+    if in_range
+      range.push(c)
+    end
+    if commits[i].id == pr.head.id
+      in_range = false
+    end
+  }
+  range
+end
 
-last_issue=""
-commit_issue=""
-commit_message=""
-for (( i=0; i<=$(( $commits_len -1 )); i++ ))
-do
-  commit_msg=$(git log -1 --pretty=format:%s "${commits[$i]}")
-  issue_name=`expr "$commit_msg" : '^\[\([A-Z0-9\-]*\)\]'`
-  if [[ "${issue_name}" != "" ]]; then
-    if [[ $commit_issue != "" ]]; then
-      # we have something to push
-      branch_name=$commit_issue
-      if [[ "$branch_name" =~ ^[A-Z]*$ ]]; then
-        branch_name="$branch_name-$(echo -n "$commit_message" | sha1sum | cut -f1 -d" " | cut -c1-8)"
-      fi
-      echo " git push -f origin ${last_commit}:refs/heads/$branch_name"
-      if [[ $push_only == 0  ]]; then
-        echo " hub pull-request -f -m \"${commit_message}\" -b $base -h $branch_name"
-      fi
-      base=$branch_name
-    fi
-    commit_issue="${issue_name}"
-    commit_message="${commit_msg}"
-  fi
-  last_commit="${commits[$i]}"
-done
+def compute_branch(pr, current_branch)
+  data = /^\[([A-Z0-9]*\-[0-9]*)\]/.match(pr.marker.message)
+  if data == nil
+    return current_branch#/^([A-Z]*)/.match(pr.marker.message)[0]
+  else
+    return data[1]
+  end
+end
 
-if [[ $commit_issue != "" ]]; then
-  # we have something to push
-  branch_name=$commit_issue
-  if [[ "$branch_name" =~ ^[A-Z]*$ ]]; then
-    branch_name="$branch_name-$(echo -n "$commit_message" | sha1sum | cut -f1 -d" " | cut -c1-8)"
-  fi
-  echo " git push -f origin ${last_commit}:refs/heads/$branch_name"
-  if [[ $push_only == 0  ]]; then
-    echo " hub pull-request -f -m \"${commit_message}\" -b $base -h $branch_name"
-  fi
-fi
+def find_extents(commits, all_commits)
+  def find_commit_range_head(commits, range_start_index, range_start)
+    found_index = range_start_index
+    commits[range_start_index + 1..commits.length - 1].each_with_index { |c, index|
+      if c.is_marker?(range_start)
+        found_index = range_start_index + 1 + index - 1
+        break
+      end
+    }
+    return found_index
+  end
 
+  extents = []
+  base = "master"
+  i = 0
+  saved = nil
+  while i < [1, (commits.length-1)].max do
+    if commits[i].is_marker?(saved) or all_commits
+      saved = commits[i]
+      head_index = find_commit_range_head(commits, i, saved)
+      extents.push(PR.new(base, saved, commits[head_index]))
+      base = commits[head_index]
+      i = head_index + 1
+    else
+      i = i+1
+    end
+  end
+  extents
+end
+
+require "optparse"
+options = {
+  :master_branch => "master", 
+  :push_only => false, 
+  :all_commits => false, 
+  :split => false
+}
+OptionParser.new do |opts|
+  opts.banner = "Usage:  [options]"
+
+  opts.on("-a", "--all-commits", "") do
+    options[:all_commits] = true
+  end
+  opts.on("-p", "--push-only", "") do
+    options[:push_only] = true
+  end
+  opts.on("-b BRANCH", "--branch=BRANCH", "") do |v|
+    options[:master_branch] = v
+  end
+end.parse!
+
+current_branch = %x(git rev-parse --symbolic-full-name --abbrev-ref HEAD).strip
+root_dir = %x(git rev-parse --show-toplevel).strip()
+
+commits = %x{git rev-list --reverse "#{options[:master_branch]}..#{current_branch}"}.split("\n").map { |c|
+  Commit.new(c, %x(git log -1 --pretty=format:%s "#{c}").strip)
+}
+# cleanup commits
+commits = commits.reverse.drop_while { |c| c.message =~ /^IGNORED /i }.reverse
+
+flavor = "adobe"
+base_name = "master"
+extents = find_extents(commits, options[:all_commits])
+puts extents
+
+if !options[:split]
+  extents.each do |extent|
+    branch_name = compute_branch(extent, current_branch)
+    puts " git push -f origin #{extent.head.id}:refs/heads/#{branch_name}"
+    if !options[:push_only]
+      if flavor == "adobe"
+        puts " hub pull-request -f -m \"#{extent.marker.message}\" -b #{base_name} -h #{branch_name}"
+      else
+        users = []
+        commits_range(commits, extent).each { |c|
+          stdout, stderr, status = Open3.capture3("find-owners -m #{c.id}")
+          users << stdout.strip().split(" ")
+        }
+        puts " stash pull-request origin/#{branch_name} origin/#{base_name} -T \"#{extent.marker.message}\" #{users.flatten.uniq.join(" ")}"
+      end
+      base_name = branch_name
+    end
+  end
+else
+  extents.each do |extent|
+    puts %{ git stash
+ git branch -D #{extent.marker.branch}
+ git checkout -b #{extent.marker.branch} master
+ git cherry-pick #{extent.marker.id}^..#{extent.head.id}
+ git push -f origin #{extent.marker.branch}:#{extent.marker.branch}
+}
+    pr_command = ""
+    users = []
+    commits_range(commits, extent).each { |c|
+      stdout, stderr, status = Open3.capture3("find-owners -m #{c.id}")
+      users << stdout.strip().split(" ")
+    }
+    puts " stash pull-request origin/#{extent.marker.branch} origin/master -T \"#{extent.marker.message}\" #{users.flatten.uniq.join(" ")}"
+
+    puts %{ git checkout #{current_branch}
+ git stash pop
+# ----
+}
+  end
+
+end

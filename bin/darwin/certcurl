@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/usr/local/opt/curl-openssl/bin/curl --cert /Users/adragomir/.vault-agent/keystore.pem --key /Users/adragomir/.vault-agent/keystore.pem --cacert /Users/adragomir/.vault-agent/keystore.pem --capath /Users/adragomir/.vault-agent/cabundle.pem "$@"

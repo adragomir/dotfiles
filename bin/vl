@@ -1,0 +1,5 @@
+#!/bin/bash
+vault login -method ldap username=adragomi password=$(security find-generic-password -s adragomi-adobe -w)
+token=$(vault token create -role=dx_dpocortex_admin_role -ttl=24h -format json | jq -r '.auth.client_token')
+vault login -method token ${token}
+

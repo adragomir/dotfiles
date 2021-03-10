@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+pkg=$1
+version=$2
+
+brew unlink "$pkg"
+(
+  pushd "$(brew --prefix)/opt"
+  rm -f "$pkg"
+  ln -s "../Cellar/$pkg/$version" "$pkg"
+)
+brew link "$pkg"

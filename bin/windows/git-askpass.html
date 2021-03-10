@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Git Askpass Helper for Windows – Askpass</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <style>
+  /*!
+  The MIT License (MIT)
+  
+  Copyright (c) Nicolas Gallagher and Jonathan Neal
+  
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+  
+  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+  
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  */
+  
+  html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background-color:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px dotted}b,strong{font-weight:bold}dfn{font-style:italic}h1{font-size:2em;margin:0.67em 0}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-0.5em}sub{bottom:-0.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em 40px}hr{-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace, monospace;font-size:1em}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}button[disabled],html input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type="checkbox"],input[type="radio"]{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding:0}input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{height:auto}input[type="search"]{-webkit-appearance:textfield;-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box}input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px solid #c0c0c0;margin:0 2px;padding:0.35em 0.625em 0.75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:bold}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}/*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */@media print{*,*:before,*:after{background:transparent !important;color:#000 !important;-webkit-box-shadow:none !important;box-shadow:none !important;text-shadow:none !important}a,a:visited{text-decoration:underline}a[href]:after{content:" (" attr(href) ")"}abbr[title]:after{content:" (" attr(title) ")"}a[href^="#"]:after,a[href^="javascript:"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}p,h2,h3{orphans:3;widows:3}h2,h3{page-break-after:avoid}.navbar{display:none}.btn>.caret,.dropup>.btn>.caret{border-top-color:#000 !important}.label{border:1px solid #000}.table{border-collapse:collapse !important}.table td,.table th{background-color:#fff !important}.table-bordered th,.table-bordered td{border:1px solid #ddd !important}}*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}*:before,*:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}html{font-size:10px;-webkit-tap-highlight-color:rgba(0,0,0,0)}body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff}input,button,select,textarea{font-family:inherit;font-size:inherit;line-height:inherit}a{color:#337ab7;text-decoration:none}a:hover,a:focus{color:#23527c;text-decoration:underline}a:focus{outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}figure{margin:0}img{vertical-align:middle}.img-responsive{display:block;max-width:100%;height:auto}.img-rounded{border-radius:6px}.img-thumbnail{padding:4px;line-height:1.42857143;background-color:#fff;border:1px solid #ddd;border-radius:4px;-webkit-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out;transition:all .2s ease-in-out;display:inline-block;max-width:100%;height:auto}.img-circle{border-radius:50%}hr{margin-top:20px;margin-bottom:20px;border:0;border-top:1px solid #eee}.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);border:0}.sr-only-focusable:active,.sr-only-focusable:focus{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}[role="button"]{cursor:pointer}h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{font-family:inherit;font-weight:500;line-height:1.1;color:inherit}h1 small,h2 small,h3 small,h4 small,h5 small,h6 small,.h1 small,.h2 small,.h3 small,.h4 small,.h5 small,.h6 small,h1 .small,h2 .small,h3 .small,h4 .small,h5 .small,h6 .small,.h1 .small,.h2 .small,.h3 .small,.h4 .small,.h5 .small,.h6 .small{font-weight:normal;line-height:1;color:#777}h1,.h1,h2,.h2,h3,.h3{margin-top:20px;margin-bottom:10px}h1 small,.h1 small,h2 small,.h2 small,h3 small,.h3 small,h1 .small,.h1 .small,h2 .small,.h2 .small,h3 .small,.h3 .small{font-size:65%}h4,.h4,h5,.h5,h6,.h6{margin-top:10px;margin-bottom:10px}h4 small,.h4 small,h5 small,.h5 small,h6 small,.h6 small,h4 .small,.h4 .small,h5 .small,.h5 .small,h6 .small,.h6 .small{font-size:75%}h1,.h1{font-size:36px}h2,.h2{font-size:30px}h3,.h3{font-size:24px}h4,.h4{font-size:18px}h5,.h5{font-size:14px}h6,.h6{font-size:12px}p{margin:0 0 10px}.lead{margin-bottom:20px;font-size:16px;font-weight:300;line-height:1.4}@media (min-width:768px){.lead{font-size:21px}}small,.small{font-size:85%}mark,.mark{background-color:#fcf8e3;padding:.2em}.text-left{text-align:left}.text-right{text-align:right}.text-center{text-align:center}.text-justify{text-align:justify}.text-nowrap{white-space:nowrap}.text-lowercase{text-transform:lowercase}.text-uppercase{text-transform:uppercase}.text-capitalize{text-transform:capitalize}.text-muted{color:#777}.text-primary{color:#337ab7}a.text-primary:hover,a.text-primary:focus{color:#286090}.text-success{color:#3c763d}a.text-success:hover,a.text-success:focus{color:#2b542c}.text-info{color:#31708f}a.text-info:hover,a.text-info:focus{color:#245269}.text-warning{color:#8a6d3b}a.text-warning:hover,a.text-warning:focus{color:#66512c}.text-danger{color:#a94442}a.text-danger:hover,a.text-danger:focus{color:#843534}.bg-primary{color:#fff;background-color:#337ab7}a.bg-primary:hover,a.bg-primary:focus{background-color:#286090}.bg-success{background-color:#dff0d8}a.bg-success:hover,a.bg-success:focus{background-color:#c1e2b3}.bg-info{background-color:#d9edf7}a.bg-info:hover,a.bg-info:focus{background-color:#afd9ee}.bg-warning{background-color:#fcf8e3}a.bg-warning:hover,a.bg-warning:focus{background-color:#f7ecb5}.bg-danger{background-color:#f2dede}a.bg-danger:hover,a.bg-danger:focus{background-color:#e4b9b9}.page-header{padding-bottom:9px;margin:40px 0 20px;border-bottom:1px solid #eee}ul,ol{margin-top:0;margin-bottom:10px}ul ul,ol ul,ul ol,ol ol{margin-bottom:0}.list-unstyled{padding-left:0;list-style:none}.list-inline{padding-left:0;list-style:none;margin-left:-5px}.list-inline>li{display:inline-block;padding-left:5px;padding-right:5px}dl{margin-top:0;margin-bottom:20px}dt,dd{line-height:1.42857143}dt{font-weight:bold}dd{margin-left:0}@media (min-width:768px){.dl-horizontal dt{float:left;width:160px;clear:left;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dl-horizontal dd{margin-left:180px}}abbr[title],abbr[data-original-title]{cursor:help;border-bottom:1px dotted #777}.initialism{font-size:90%;text-transform:uppercase}blockquote{padding:10px 20px;margin:0 0 20px;font-size:17.5px;border-left:5px solid #eee}blockquote p:last-child,blockquote ul:last-child,blockquote ol:last-child{margin-bottom:0}blockquote footer,blockquote small,blockquote .small{display:block;font-size:80%;line-height:1.42857143;color:#777}blockquote footer:before,blockquote small:before,blockquote .small:before{content:'\2014 \00A0'}.blockquote-reverse,blockquote.pull-right{padding-right:15px;padding-left:0;border-right:5px solid #eee;border-left:0;text-align:right}.blockquote-reverse footer:before,blockquote.pull-right footer:before,.blockquote-reverse small:before,blockquote.pull-right small:before,.blockquote-reverse .small:before,blockquote.pull-right .small:before{content:''}.blockquote-reverse footer:after,blockquote.pull-right footer:after,.blockquote-reverse small:after,blockquote.pull-right small:after,.blockquote-reverse .small:after,blockquote.pull-right .small:after{content:'\00A0 \2014'}address{margin-bottom:20px;font-style:normal;line-height:1.42857143}code,kbd,pre,samp{font-family:Menlo,Monaco,Consolas,"Courier New",monospace}code{padding:2px 4px;font-size:90%;color:#c7254e;background-color:#f9f2f4;border-radius:4px}kbd{padding:2px 4px;font-size:90%;color:#fff;background-color:#333;border-radius:3px;-webkit-box-shadow:inset 0 -1px 0 rgba(0,0,0,0.25);box-shadow:inset 0 -1px 0 rgba(0,0,0,0.25)}kbd kbd{padding:0;font-size:100%;font-weight:bold;-webkit-box-shadow:none;box-shadow:none}pre{display:block;padding:9.5px;margin:0 0 10px;font-size:13px;line-height:1.42857143;word-break:break-all;word-wrap:break-word;color:#333;background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px}pre code{padding:0;font-size:inherit;color:inherit;white-space:pre-wrap;background-color:transparent;border-radius:0}.pre-scrollable{max-height:340px;overflow-y:scroll}table{background-color:transparent}caption{padding-top:8px;padding-bottom:8px;color:#777;text-align:left}th{text-align:left}.table{width:100%;max-width:100%;margin-bottom:20px}.table>thead>tr>th,.table>tbody>tr>th,.table>tfoot>tr>th,.table>thead>tr>td,.table>tbody>tr>td,.table>tfoot>tr>td{padding:8px;line-height:1.42857143;vertical-align:top;border-top:1px solid #ddd}.table>thead>tr>th{vertical-align:bottom;border-bottom:2px solid #ddd}.table>caption+thead>tr:first-child>th,.table>colgroup+thead>tr:first-child>th,.table>thead:first-child>tr:first-child>th,.table>caption+thead>tr:first-child>td,.table>colgroup+thead>tr:first-child>td,.table>thead:first-child>tr:first-child>td{border-top:0}.table>tbody+tbody{border-top:2px solid #ddd}.table .table{background-color:#fff}.table-condensed>thead>tr>th,.table-condensed>tbody>tr>th,.table-condensed>tfoot>tr>th,.table-condensed>thead>tr>td,.table-condensed>tbody>tr>td,.table-condensed>tfoot>tr>td{padding:5px}.table-bordered{border:1px solid #ddd}.table-bordered>thead>tr>th,.table-bordered>tbody>tr>th,.table-bordered>tfoot>tr>th,.table-bordered>thead>tr>td,.table-bordered>tbody>tr>td,.table-bordered>tfoot>tr>td{border:1px solid #ddd}.table-bordered>thead>tr>th,.table-bordered>thead>tr>td{border-bottom-width:2px}.table-striped>tbody>tr:nth-of-type(odd){background-color:#f9f9f9}.table-hover>tbody>tr:hover{background-color:#f5f5f5}table col[class*="col-"]{position:static;float:none;display:table-column}table td[class*="col-"],table th[class*="col-"]{position:static;float:none;display:table-cell}.table>thead>tr>td.active,.table>tbody>tr>td.active,.table>tfoot>tr>td.active,.table>thead>tr>th.active,.table>tbody>tr>th.active,.table>tfoot>tr>th.active,.table>thead>tr.active>td,.table>tbody>tr.active>td,.table>tfoot>tr.active>td,.table>thead>tr.active>th,.table>tbody>tr.active>th,.table>tfoot>tr.active>th{background-color:#f5f5f5}.table-hover>tbody>tr>td.active:hover,.table-hover>tbody>tr>th.active:hover,.table-hover>tbody>tr.active:hover>td,.table-hover>tbody>tr:hover>.active,.table-hover>tbody>tr.active:hover>th{background-color:#e8e8e8}.table>thead>tr>td.success,.table>tbody>tr>td.success,.table>tfoot>tr>td.success,.table>thead>tr>th.success,.table>tbody>tr>th.success,.table>tfoot>tr>th.success,.table>thead>tr.success>td,.table>tbody>tr.success>td,.table>tfoot>tr.success>td,.table>thead>tr.success>th,.table>tbody>tr.success>th,.table>tfoot>tr.success>th{background-color:#dff0d8}.table-hover>tbody>tr>td.success:hover,.table-hover>tbody>tr>th.success:hover,.table-hover>tbody>tr.success:hover>td,.table-hover>tbody>tr:hover>.success,.table-hover>tbody>tr.success:hover>th{background-color:#d0e9c6}.table>thead>tr>td.info,.table>tbody>tr>td.info,.table>tfoot>tr>td.info,.table>thead>tr>th.info,.table>tbody>tr>th.info,.table>tfoot>tr>th.info,.table>thead>tr.info>td,.table>tbody>tr.info>td,.table>tfoot>tr.info>td,.table>thead>tr.info>th,.table>tbody>tr.info>th,.table>tfoot>tr.info>th{background-color:#d9edf7}.table-hover>tbody>tr>td.info:hover,.table-hover>tbody>tr>th.info:hover,.table-hover>tbody>tr.info:hover>td,.table-hover>tbody>tr:hover>.info,.table-hover>tbody>tr.info:hover>th{background-color:#c4e3f3}.table>thead>tr>td.warning,.table>tbody>tr>td.warning,.table>tfoot>tr>td.warning,.table>thead>tr>th.warning,.table>tbody>tr>th.warning,.table>tfoot>tr>th.warning,.table>thead>tr.warning>td,.table>tbody>tr.warning>td,.table>tfoot>tr.warning>td,.table>thead>tr.warning>th,.table>tbody>tr.warning>th,.table>tfoot>tr.warning>th{background-color:#fcf8e3}.table-hover>tbody>tr>td.warning:hover,.table-hover>tbody>tr>th.warning:hover,.table-hover>tbody>tr.warning:hover>td,.table-hover>tbody>tr:hover>.warning,.table-hover>tbody>tr.warning:hover>th{background-color:#faf2cc}.table>thead>tr>td.danger,.table>tbody>tr>td.danger,.table>tfoot>tr>td.danger,.table>thead>tr>th.danger,.table>tbody>tr>th.danger,.table>tfoot>tr>th.danger,.table>thead>tr.danger>td,.table>tbody>tr.danger>td,.table>tfoot>tr.danger>td,.table>thead>tr.danger>th,.table>tbody>tr.danger>th,.table>tfoot>tr.danger>th{background-color:#f2dede}.table-hover>tbody>tr>td.danger:hover,.table-hover>tbody>tr>th.danger:hover,.table-hover>tbody>tr.danger:hover>td,.table-hover>tbody>tr:hover>.danger,.table-hover>tbody>tr.danger:hover>th{background-color:#ebcccc}.table-responsive{overflow-x:auto;min-height:0.01%}@media screen and (max-width:767px){.table-responsive{width:100%;margin-bottom:15px;overflow-y:hidden;-ms-overflow-style:-ms-autohiding-scrollbar;border:1px solid #ddd}.table-responsive>.table{margin-bottom:0}.table-responsive>.table>thead>tr>th,.table-responsive>.table>tbody>tr>th,.table-responsive>.table>tfoot>tr>th,.table-responsive>.table>thead>tr>td,.table-responsive>.table>tbody>tr>td,.table-responsive>.table>tfoot>tr>td{white-space:nowrap}.table-responsive>.table-bordered{border:0}.table-responsive>.table-bordered>thead>tr>th:first-child,.table-responsive>.table-bordered>tbody>tr>th:first-child,.table-responsive>.table-bordered>tfoot>tr>th:first-child,.table-responsive>.table-bordered>thead>tr>td:first-child,.table-responsive>.table-bordered>tbody>tr>td:first-child,.table-responsive>.table-bordered>tfoot>tr>td:first-child{border-left:0}.table-responsive>.table-bordered>thead>tr>th:last-child,.table-responsive>.table-bordered>tbody>tr>th:last-child,.table-responsive>.table-bordered>tfoot>tr>th:last-child,.table-responsive>.table-bordered>thead>tr>td:last-child,.table-responsive>.table-bordered>tbody>tr>td:last-child,.table-responsive>.table-bordered>tfoot>tr>td:last-child{border-right:0}.table-responsive>.table-bordered>tbody>tr:last-child>th,.table-responsive>.table-bordered>tfoot>tr:last-child>th,.table-responsive>.table-bordered>tbody>tr:last-child>td,.table-responsive>.table-bordered>tfoot>tr:last-child>td{border-bottom:0}}.clearfix:before,.clearfix:after,.dl-horizontal dd:before,.dl-horizontal dd:after{content:" ";display:table}.clearfix:after,.dl-horizontal dd:after{clear:both}.center-block{display:block;margin-left:auto;margin-right:auto}.pull-right{float:right !important}.pull-left{float:left !important}.hide{display:none !important}.show{display:block !important}.invisible{visibility:hidden}.text-hide{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0}.hidden{display:none !important}.affix{position:fixed}
+  
+  body { margin: 20px; }
+  </style>
+</head>
+<body>
+<h1 id="git-askpass-for-windows">Git Askpass for Windows</h1>
+<p><a href="https://github.com/Microsoft/Git-Credential-Manager-for-Windows">Git Askpass for Windows</a> (Askpass) provides secure Git credential storage for Windows. Askpass provides multi-factor authentication support for <a href="https://dev.azure.com/">Azure DevOps</a>, <a href="https://www.visualstudio.com/en-us/products/tfs-overview-vs.aspx">Team Foundation Server</a>, and <a href="https://github.com/">GitHub</a>.</p>
+<h2 id="usage">Usage</h2>
+<p>After installation and configuration, Git will use the Git Askpass and you will only need to interact with any authentication dialogs asking for credentials. The Askpass stays invisible as much as possible, so ideally you’ll forget that you’re depending on Askpass at all.</p>
+<pre class="shell"><code>git askpass</code></pre>
+<p>For Git to use Askpass correctly, the <code>GIT_ASKPASS</code> environment variable needs contain the full path to the <code>git-askpass.exe</code> executable (example: <code>setx GIT_ASKPASS &quot;C:\Program Files\Git\mingw64\libexec\git-core\git-askpass.exe&quot;</code>). SSH can also be configured to use Askpass in the same manner using the <code>SSH_ASKPASS</code> environment variable; however, SSH currently will not use Askpass if it detects a TTY console (ala the ability to just ask on the console).</p>
+<h1 id="configuration-options">Configuration Options</h1>
+<p><a href="CredentialManager.md">Git Credential Manager</a> and <a href="Askpass.md">Git Askpass</a> work out of the box for most users. Configuration options are available to customize or tweak behavior(s).</p>
+<p>The Git Credential Manager for Windows [GCM] can be configured using Git’s configuration files, and follows all of the same rules Git does when consuming the files. Global configuration settings override system configuration settings, and local configuration settings override global settings; and because the configuration details exist within Git’s configuration files you can use Git’s <code>git config</code> utility to set, unset, and alter the setting values.</p>
+<p>The GCM honors several levels of settings, in addition to the standard local &gt; global &gt; system tiering Git uses. Since the GCM is HTTPS based, it’ll also honor URL specific settings. Regardless, all of the GCM’s configuration settings begin with the term <code>credential</code>. Additionally, the GCM respects GCM specific <a href="Environment.md">environment variables</a> as well.</p>
+<p>Regardless, the GCM will only be used by Git if the GCM is installed and the key/value pair <code>credential.helper manager</code> is present in Git’s configuration.</p>
+<p>For example:</p>
+<blockquote>
+<p><code>credential.microsoft.visualstudio.com.namespace</code> is more specific than <code>credential.visualstudio.com.namespace</code>, which is more specific than <code>credential.namespace</code>.</p>
+</blockquote>
+<p>In the examples above, the <code>credential.namespace</code> setting would affect any remote repository; the <code>credential.visualstudio.com.namespace</code> would affect any remote repository in the domain, and/or any subdomain (including <code>www.</code>) of, ‘visualstudio.com’; where as the the <code>credential.microsoft.visualstudio.com.namespace</code> setting would only be applied to remote repositories hosted at ‘microsoft.visualstudio.com’.</p>
+<p>For the complete list of settings the GCM understands, see the list below.</p>
+<h2 id="configuration-setting-names">Configuration Setting Names</h2>
+<h3 id="authority">authority</h3>
+<p>Defines the type of authentication to be used.</p>
+<p>Supports <code>Auto</code>, <code>Basic</code>, <code>AAD</code>, <code>MSA</code>, <code>GitHub</code>, <code>Bitbucket</code>, <code>Integrated</code>, and <code>NTLM</code>.</p>
+<p>Use <code>AAD</code> or <code>MSA</code> if the host is ‘visualstudio.com’ Azure Domain or Live Account authentication, relatively.</p>
+<p>Use <code>GitHub</code> if the host is ‘github.com’.</p>
+<p>Use <code>BitBucket</code> or <code>Atlassian</code> if the host is ‘bitbucket.org’.</p>
+<p>Use <code>Integrated</code> or <code>NTLM</code> if the host is a Team Foundation, or other NTLM authentication based, server.</p>
+<p>Defaults to <code>Auto</code>.</p>
+<pre class="shell"><code>git config --global credential.microsoft.visualstudio.com.authority AAD</code></pre>
+<p>See <a href="Environment.md#gcm_authority">GCM_AUTHORITY</a></p>
+<h3 id="httpproxy">httpProxy</h3>
+<p>Causes the proxy value to be considered when evaluating credential target information. A proxy setting should established if use of a proxy is required to interact with Git remotes.</p>
+<p>The value should the URL of the proxy server.</p>
+<p>Defaults to not using a proxy server.</p>
+<pre class="shell"><code>git config --global credential.github.com.httpProxy https://myproxy:8080</code></pre>
+<p>See <a href="Environment.md#http_proxy--https_proxy">HTTP_PROXY</a></p>
+<h3 id="interactive">interactive</h3>
+<p>Specifies if user can be prompted for credentials or not.</p>
+<p>Supports <code>Auto</code>, <code>Always</code>, or <code>Never</code>. Defaults to <code>Auto</code>.</p>
+<pre class="shell"><code>git config --global credential.microsoft.visualstudio.com.interactive never</code></pre>
+<p>See <a href="Environment.md#gcm_interactive">GCM_INTERACTIVE</a></p>
+<h3 id="modalprompt">modalPrompt</h3>
+<p>Forces authentication to use a modal dialog instead of asking for credentials at the command prompt.</p>
+<p>Supports <code>true</code> or <code>false</code>. Defaults to <code>true</code>.</p>
+<pre class="shell"><code>git config --global credential.modalPrompt true</code></pre>
+<p>See <a href="Environment.md#gcm_modal_prompt">GCM_MODAL_PROMPT</a></p>
+<h3 id="namespace">namespace</h3>
+<p>Sets the namespace for stored credentials.</p>
+<p>By default the GCM uses the ‘git’ namespace for all stored credentials, setting this configuration value allows for control of the namespace used globally, or per host.</p>
+<p>Supports any ASCII, alpha-numeric only value. Defaults to <code>git</code>.</p>
+<pre class="shell"><code>git config --global credential.namespace name</code></pre>
+<p>See <a href="Environment.md#gcm_namespace">GCM_NAMESPACE</a></p>
+<h3 id="preserve">preserve</h3>
+<p>Prevents the deletion of credentials even when they are reported as invalid by Git. Can lead to lockout situations once credentials expire and until those credentials are manually removed.</p>
+<p>Supports <code>true</code> or <code>false</code>. Defaults to <code>false</code>.</p>
+<pre class="shell"><code>git config --global credential.visualstudio.com.preserve true</code></pre>
+<p>See <a href="Environment.md#gcm_preserve">GCM_PRESERVE</a></p>
+<h3 id="httptimeout">httpTimeout</h3>
+<p>Sets the maximum time, in milliseconds, for a network request to wait before timing out. This allows changing the default for slow connections.</p>
+<p>Supports an integer value. Defaults to 90,000 milliseconds.</p>
+<pre class="shell"><code>git config --global credential.visualstudio.com.httpTimeout 100000</code></pre>
+<p>See <a href="Environment.md#gcm_http_timeout">GCM_HTTP_TIMEOUT</a></p>
+<h3 id="tokenduration">tokenDuration</h3>
+<p>Sets a duration, in hours, limit for the validity of Personal Access Tokens requested from Azure DevOps.</p>
+<p>If the value is greater than the maximum duration set for the account, the account value supersedes. The value cannot be less than a one hour (1).</p>
+<p>Defaults to the account token duration. Honored when authority is set to <code>AAD</code> or <code>MSA</code>.</p>
+<pre class="shell"><code>git config --global credential.visualstudio.com.tokenDuration 24</code></pre>
+<p>See <a href="Environment.md#gcm_token_duration">GCM_TOKEN_DURATION</a></p>
+<h3 id="usehttppath">useHttpPath</h3>
+<p>Instructs Git to supply the path portion of the remote URL to credential helpers. When path is supplied, the GCM will use the host-name + path as the key when reading and/or writing credentials.</p>
+<p><em>Note:</em> This option changes the behavior of Git.</p>
+<p>Supports <code>true</code> or <code>false</code>. Defaults to <code>false</code>.</p>
+<pre class="shell"><code>git config --global credential.bitbucket.com.useHttpPath true</code></pre>
+<h3 id="username">username</h3>
+<p>Instructs Git to provide user-info to credential helpers. When user-info is supplied, the GCM will use the user-info + host-name as the key when reading and/or writing credentials. See <a href="https://tools.ietf.org/html/rfc3986#section-3.2.1">RFC: URI Syntax, User Information</a> for more details.</p>
+<p><em>Note:</em> This option changes the behavior of Git.</p>
+<p>Supports any URI legal user-info. Defaults to not providing user-info.</p>
+<pre class="shell"><code>git config --global credential.microsoft.visualstudio.com.username johndoe</code></pre>
+<h3 id="validate">validate</h3>
+<p>Causes validation of credentials before supplying them to Git. Invalid credentials get a refresh attempt before failing. Incurs minor network operation overhead.</p>
+<p>Supports <code>true</code> or <code>false</code>. Defaults to <code>true</code>. Ignored when authority is set to <code>Basic</code>.</p>
+<pre class="shell"><code>git config --global credential.microsoft.visualstudio.com.validate false</code></pre>
+<p>See <a href="Environment.md#gcm_validate">GCM_VALIDATE</a></p>
+<h3 id="vstsscope">vstsScope</h3>
+<p>Overrides GCM default scope request when generating a Personal Access Token from Azure DevOps. The supported format is one or more <a href="https://docs.microsoft.com/en-us/vsts/integrate/get-started/authentication/oauth#scopes">scope values</a> separated by whitespace, commas, semi-colons, or pipe <code>'|'</code> characters.</p>
+<p>Defaults to <code>vso.code_write|vso.packaging</code>; Honored when host is ‘dev.azure.com’.</p>
+<pre class="shell"><code>git config --global credential.microsoft.visualstudio.com.vstsScope vso.code_write|vso.packaging_write|vso.test_write</code></pre>
+<p>See <a href="Environment.md#gcm_vsts_scope">GCM_VSTS_SCOPE</a></p>
+<h3 id="writelog">writeLog</h3>
+<p>Enables trace logging of all activities. Logs are written to the local <code>.git/</code> folder at the root of the repository.</p>
+<p><strong>Note:</strong> This setting will not override the <code>GCM_TRACE</code> environment variable.</p>
+<p>Supports <code>true</code> or <code>false</code>. Defaults to <code>false</code>.</p>
+<pre class="shell"><code>git config --global credential.writeLog true</code></pre>
+<p>See <a href="Environment.md#gcm_writelog">GCM_WRITELOG</a></p>
+<h2 id="sample-configuration">Sample Configuration</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode ini"><code class="sourceCode ini"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">[credential &quot;microsoft.visualstudio.com&quot;]</span></a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="dt">    authority </span><span class="ot">=</span><span class="st"> AAD</span></a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="dt">    interactive </span><span class="ot">=</span><span class="st"> never</span></a>
+<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="dt">    preserve </span><span class="ot">=</span><span class="st"> </span><span class="kw">true</span></a>
+<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="dt">    tokenDuration </span><span class="ot">=</span><span class="st"> </span><span class="dv">24</span></a>
+<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="dt">    validate </span><span class="ot">=</span><span class="st"> </span><span class="kw">false</span></a>
+<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="kw">[credential &quot;visualstudio.com&quot;]</span></a>
+<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="dt">    authority </span><span class="ot">=</span><span class="st"> MSA</span></a>
+<a class="sourceLine" id="cb15-9" data-line-number="9"><span class="kw">[credential]</span></a>
+<a class="sourceLine" id="cb15-10" data-line-number="10"><span class="dt">    helper </span><span class="ot">=</span><span class="st"> manager</span></a>
+<a class="sourceLine" id="cb15-11" data-line-number="11"><span class="dt">    writelog </span><span class="ot">=</span><span class="st"> </span><span class="kw">true</span></a></code></pre></div>
+<h1 id="faq">FAQ</h1>
+<p>If you have an issue using GCM or Askpass, please review the following FAQ and check our <a href="https://github.com/Microsoft/Git-Credential-Manager-for-Windows/issues">issue history</a> or our <a href="https://twitter.com/microsoftgit">Twitter feed</a> before opening up an item on our issues page on GitHub.</p>
+<h2 id="q-why-am-always-prompted-for-my-username-and-password">Q: Why am always prompted for my username and password?</h2>
+<p>Most likely, your environment is not configured correctly. You can verify that your environment is configured correctly by running <code>git config --list</code> and looking for <code>credential.helper=manager</code>. If you do not see the line, then you know that Git does not know about the Git Credential Manager. You can configure Git to use the Credential Manager by running <code>git config credential.helper manager</code>.</p>
+<h2 id="q-why-does-my-gui-freeze-when-i-push-pull-or-fetch">Q: Why does my GUI freeze when I push, pull, or fetch?</h2>
+<p>Most likely reason is that your GUI “shells out” to git.exe to perform Git operations. When it does so, it cannot respond to the command line prompts for username and password like a real user can. To avoid being asked for your credentials on the command line, and instead be asked via a modal dialog you’ll need to <a href="Configuration.md#modalprompt">configure the Git Credential Manager</a>.</p>
+<ol type="1">
+<li>Decide if you want this to be a global setting (all of your repositories) or a local setting (just one repository).</li>
+<li>Start your favorite shell (CMD, PowerShell, bash, etc.).</li>
+<li>Update your settings, so that Git Credential Manager knows to display a dialog and not prompt at the command line:
+<ul>
+<li>If you’ve decided this is a global setting run <code>git config --global credential.modalprompt true</code>.</li>
+<li>If you’ve decided this a per repository setting, <code>cd</code> to your repo and in that repo run <code>git config credential.modalprompt true</code>.</li>
+</ul></li>
+</ol>
+<h2 id="q-why-am-i-not-seeing-my-ssh-keys-being-saved">Q: Why am I not seeing my SSH keys being saved?</h2>
+<p>The Git Credential Manager supports caching of SSH key password through <a href="Askpass.md">git-askpass</a>. Unfortunately, OpenSSH will only interact with an askpass helper if there no TTY detected (no console available). This mean, in general and for the vast majority of users, the GCM does not help with SSH passwords or certificates.</p>
+<p>Fortunately, the <a href="https://github.com/dahlbyk/posh-git">Posh-Git</a> support automatic startup of ‘ssh-agent.exe’ which does assist with SSH certificate password caching.</p>
+<h2 id="q-is-there-a-nuget-package-available">Q: Is there a NuGet Package available?</h2>
+<p>Yes there is: <a href="https://www.nuget.org/packages/Microsoft.Alm.Authentication" class="uri">https://www.nuget.org/packages/Microsoft.Alm.Authentication</a>. It supports the core authentication library and the VSTS specific components. If you’re looking to extend the GCM, or need a way to authenticate with VSTS but cannot leverage the GCM directly, then it is likely what you’re after.</p>
+<h2 id="q-why-doesnt-git-credential-manager-work-on-windows-xp-mac-os-or-linux">Q: Why doesn’t Git Credential Manager work on Windows XP, Mac OS, or Linux?</h2>
+<p>The Git Credential Manager does not work on Windows XP, Max OS, or Linux because we had to scope our work and we decided to support the same operating systems that Visual Studio support. Why Visual Studio? Well, because it is our favorite IDE and in order to support <a href="https://www.visualstudio.com/en-us/products/visual-studio-team-services-vs.aspx">Azure DevOps</a> we had to use the <a href="https://github.com/AzureAD">Azure Directory Authentication Libraries</a> which only have multi-factor interactive logon support in their .NET libraries. Using .NET means using Visual Studio (which we love anyways) and using Visual Studio means Windows 7 or newer.</p>
+<h2 id="q-will-there-ever-be-support-for-windows-xp-mac-os-or-linux">Q: Will there ever be support for Windows XP, Mac OS, or Linux?</h2>
+<p>We can safely say that we have no interest in supporting Windows XP. Even <a href="https://windows.microsoft.com/en-us/windows/end-support-help">Microsoft has ended support for Windows XP</a>. Support for Mac OS and Linux are handled by <a href="https://github.com/Microsoft/Git-Credential-Manager-for-Mac-and-Linux">Microsoft Git Credential Manager for Mac and Linux</a>.</p>
+<h2 id="q-why-is-my-distributionversion-of-git-not-supported-why-is-git-for-windows-favored">Q: Why is my distribution/version of Git not supported? Why is Git for Windows favored?</h2>
+<p>The Credential Manager deployment helpers (<code>install.cmd</code> and <code>GCMW-{version}.exe</code>) are focused on support for <a href="https://github.com/git-for-windows">Git for Windows</a> because Git for Windows conforms to the expected/normal behavior of software on Windows. It is easy to detect, has predictable installation location, etc. This makes supporting it easier and more reliable.</p>
+<p>That said, so long as your favorite version of Git supports Git’s git-credential flow, it is supported by the Git Credential Manager for Windows. Setup will have to be manual, and if you find a way to script it we would love to have you contribute that to our project.</p>
+<ol type="1">
+<li>Copy the contents of the <code>gcm-&lt;version&gt;.zip</code> to your Git’s /bin folder. This varies per distribution, but it is likely next to other git tools like <code>git-status.exe</code>.</li>
+<li>Update your Git configuration by running <code>git config --global credential.helper manager</code>.</li>
+</ol>
+<h2 id="q-i-thought-microsoft-was-maintaining-this-why-does-the-gcm-not-work-as-expected-with-tfs">Q: I thought Microsoft was maintaining this, why does the GCM not work as expected with TFS?</h2>
+<p>Team Foundation Server, when deployed on a corporate Active Directory, uses the <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa378747(v=vs.85).aspx">Microsoft Kerberos</a> protocol for authentication. Git hasn’t traditionally be able to “speak” the Kerberos protocol. However, starting with <a href="https://github.com/git-for-windows/git/releases/tag/v2.14.0.windows.1">v1.14.0</a> Git for Windows supports Microsoft <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa380123(v=vs.85).aspx">Secure Channel</a>. To enable Secure Channel support run <code>git config --global http.sslBackend=schannel</code> or selecting the ‘Native Windows Secure Channel library’ option during installation of Git for Windows. Secure Channel provides better integration with Windows’ networking and certificate management; enabling easier use of proxies and alternate authentication mechanisms previously unavailable to Git for Windows users.</p>
+<p>Git needs to be convinced to “forward” credentials by supplying a blank credential set (username and password). The GCM will attempt to detect the Team Foundation Server via the HTTP headers returned when an unauthenticated request is handled by the server. If the server is configured to allow NTLM as a supported authentication protocol, the GCM will detect the setting and instruct Git to use NTLM instead of basic authentication.</p>
+<p>Alternatively, you can configure the GCM to assume a host supports NTLM without checking. To do so, update your Git configuration by running <code>git config --global credential.{my-tfs}.authority NTLM</code>, where <code>{my-tfs}</code> can be replaced by the host name of your TFS server; the port number is not required for GCM configuration but you will want it for the Git remote.</p>
+<p><em>Note:</em> Previous versions of the GCM suggested using <code>git credential.{url}.integrated true</code>; while this configuration option continues to work, it has been deprecated in favor of specifying the correct authority.</p>
+<p>Once updated, the new configuration tells the GCM to only negotiate via NTLM with the host and forward Windows credentials. Most likely, this is <strong>not</strong> what you want. Therefore, it strongly suggested that you restrict the configuration setting to the URL of your TFS Git host.</p>
+<h2 id="q-why-doesnt-sourcetree-use-the-credentials-in-the-gcm">Q: Why doesn’t SourceTree use the credentials in the GCM?</h2>
+<p>You need to configure SourceTree to use the version of Git installed for the entire system. By default, SourceTree uses a local copy of portable Git.</p>
+<p>To fix this go to ‘Tools &gt; Options &gt; Git’ and click the ‘Use System Git’ button. This works in v1.8.3.0 of SourceTree.</p>
+<h2 id="q-why-is-git-not-using-the-gcm-in-some-of-my-repositories-but-instead-using-ssh-authentication">Q: Why is Git not using the GCM in some of my repositories (but instead using SSH authentication)?</h2>
+<p>Check that you are using the HTTP(S) URL instead of the SSH URL for your repository. You can do this by running <code>git remote show origin</code>. The Fetch URL and Push URL should start with <code>https://</code> or <code>http://</code>. If this is not the case, look for the HTTP(S) URL in the web interface of Azure DevOps, TFS, GitHub or Bitbucket, and then run <code>git remote set-url origin &lt;url&gt;</code>, where <code>&lt;url&gt;</code> is the HTTP(S) URL.</p>
+<h2 id="q-why-is-git.exe-failing-to-authenticate-after-linkingunlinking-your-azure-devops-account-from-azure-active-directory">Q: Why is git.exe failing to authenticate after linking/unlinking your Azure DevOps account from Azure Active Directory?</h2>
+<p>When the tenant backing the Azure DevOps account changes like when you <a href="https://docs.microsoft.com/en-us/vsts/accounts/connect-account-to-aad">Connect VSTS account to Azure Active Directory (Azure AD)</a>, the tenant cache needs to be cleared if you’re using a GCM version prior to v1.15.0. Clearing the tenant cache is as easy as deleting the <em>%LocalAppData%.cache</em> file on each machine returning a login error like below. The GCM will automatically recreate and populate the cache file as needed on subsequent login attempts.</p>
+<p>Example:</p>
+<pre class="text"><code>Error: cannot spawn askpass: No such file or directory
+Error encountered while pushing to the remote repository: Git failed with a fatal error.
+could not read Username for ‘https://******.********.***’: terminal prompts disabled</code></pre>
+<h2 id="q-why-doesnt-the-gcm-work-with-servicepointmanager">Q: Why doesn’t the GCM work with ServicePointManager?</h2>
+<p>When you have <code>git config http.proxy</code> or <code>HTTPS_PROXY</code> configured to use <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.servicepointmanager?view=netframework-4.7.1"><code>ServicePointManager</code></a> proxy, and the URL doesn’t begin with <code>http://</code> the GCM will be unable to negotiate with the proxy. This is due the way the .NET Framework <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.webproxy?view=netframework-4.7.1"><code>WebProxy</code></a> and <code>ServicePointManager</code> interact. You can read “<a href="https://blogs.msdn.microsoft.com/jpsanders/2007/04/25/the-servicepointmanager-does-not-support-proxies-of-https-scheme-net-1-1-sp1/">ServicePointManager does not support proxies of https scheme</a>” for additional information about this issue.</p>
+<p>The work around is to use a proxy URL which starts with <code>http://</code>, or discontinue use of <code>ServicePointManager</code>.</p>
+<h1 id="build-agents-and-automation">Build Agents and Automation</h1>
+<p>Build agents, and other automation, often require specialized setup and configuration. While there is detailed documentation on <a href="Configuration.md">GCM configuration options</a>, below are common recommendations for settings agents often require to operate.</p>
+<p><em>Note:</em> SSH is often a better choice for automated system because requiring interactivity is a non-default option, and SSH is known to be secure and reliable.</p>
+<h2 id="recommendations-for-azure-devops-build-services">Recommendations for Azure DevOps Build Services</h2>
+<p>The majority of build definitions will work with a single repository, or at least a set of repositories which all have the same authentication requirements. In this case, it is generally better to rely on <a href="https://docs.microsoft.com/en-us/vsts/build-release/concepts/definitions/build/variables?tabs=batch">Azure DevOps Build Variables</a>; specifically the <code>$(System.AccessToken)</code> build process OAuth token. To enable scripts to use the build process OAuth token, go to the <code>Options</code> tab of the build definition and select <code>Allow Scripts to Access OAuth Token</code>. For more information, read <a href="https://docs.microsoft.com/en-us/vsts/build-release/actions/scripts/powershell#oauth">Azure DevOps: Use the OAuth token to access the REST API</a>.</p>
+<h2 id="recommendations-for-other-build-services">Recommendations for Other Build Services</h2>
+<p>Build agents cannot manage modal dialogs, therefore we recommended the following configuration.</p>
+<pre class="shell"><code>git config --global credential.interactive never</code></pre>
+<p>Build agents often need to minimize the amount of network traffic they generate.</p>
+<p>To avoid Microsoft Account vs. Azure Active Directory look-up against an Azure DevOps account use…</p>
+<p>… for Azure Directory backed authentication:</p>
+<pre class="shell"><code>git config --global credential.authority Azure</code></pre>
+<p>… for Microsoft Account backed authentication:</p>
+<pre class="shell"><code>git config --global credential.authority Microsoft</code></pre>
+<p>… to restrict the lifetime of VSTS personal access tokens:</p>
+<pre class="shell"><code>git config --global credential.tokenDuration 1</code></pre>
+<p>If your agents rely on an on premise instance of Team Foundation Server and <a href="https://msdn.microsoft.com/en-us/library/ee253152(v=bts.10).aspx">Windows Domain Authentication</a>, use:</p>
+<pre class="shell"><code>git config --global credential.authority NTLM</code></pre>
+<p>To avoid unnecessary service account credential validation, when relying on Microsoft Account or Azure Active Directory use:</p>
+<pre class="shell"><code>git config --global credential.validate false</code></pre>
+<h1 id="development-and-debugging">Development and Debugging</h1>
+<p>Developing for GCM and/or Askpass requires Visual Studio 2017 or newer, any version (including the free <a href="https://www.visualstudio.com/products/visual-studio-community-vs">Community Edition</a>).</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>The easiest way to get started is to:</p>
+<ol type="1">
+<li>Install Visual Studio.</li>
+<li><a href="https://github.com/Microsoft/Git-Credential-Manager-for-Windows.git">Clone the repository</a>.</li>
+<li>Open the solution file (GitCredentialManager.sln) using Visual Studio.</li>
+<li>Right-click the solution node in Solution Explorer and choose ‘Restore NuGet Packages’. This will download and setup all of the dependencies.</li>
+<li>Right-click the ‘Cli-CredentialHelper’ project in Solution Explorer and select ‘Properties’.</li>
+<li>In the ‘Properties’ window, select the ‘Debug’ tab from the left side.</li>
+<li>In the ‘Properties: Debug’ window, add the word “get” to the ‘Command line arguments:’ text box.</li>
+<li>Close the “Properties” window.</li>
+<li>Hit &lt;F5&gt;, or ‘Debug’ &gt;&gt; ‘Start Debugging’ from the top menu of Visual Studio.</li>
+</ol>
+<h3 id="debugging-code">Debugging Code</h3>
+<p>Once the GCM starts you’ll be presented with an <em>unsatisfying</em> console window. This is because the GCM expects to be launched by Git, not directly. However, it is easy to play the role of Git. The GCM expects Git to supply at least two pieces of information: the protocol being use and the host name for which the current operation is happening.</p>
+<p>An example of faking Git request for GitHub credentials:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode ini"><code class="sourceCode ini"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="dt">protocol</span><span class="ot">=</span><span class="st">https</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="dt">host</span><span class="ot">=</span><span class="st">github.com</span></a></code></pre></div>
+<p>Notice the <strong>blank last line</strong>. That empty line is how Git and the GCM notify the other side that they’re done sending data. Until an empty line is sent to the GCM, it’ll keep attempting to read from standard input.</p>
+<p>Once the blank line is fed to the GCM it’ll “do its thing”. Ideally, you can watch it work, so that you can learn how it works and then improve it. To do so, place a break point in the <code>Main</code> method of the ‘Program.cs’ file. Doing so will allow you to “break in” when the execution pointer reaches your break point. You’ll notice that the GCM doesn’t read from standard input immediately; instead it does some setup work to determine what it expected of it and then only reads from standard input if it is expected to.</p>
+<p>In the case of “<code>git credential-manager get</code>”, the <code>Main</code> method will call the <code>Program.Get</code> method, which in turn will allocate a new <code>OperationArguments</code> object and initialize it with the process’ standard input pipe. This is when standard input will be consumed by the GCM.</p>
+<h3 id="notable-code">Notable Code</h3>
+<ul>
+<li><code>Program.LoadOperationArguments</code> method is where the GCM scans, parses, and consumes environmental and configuration setting values.</li>
+<li><code>Program.QueryCredentials</code> method is where the “action” happens.</li>
+<li><code>OperationArguments</code> class is where the GCM consumes standard input and keeps internal state.</li>
+</ul>
+<h2 id="installer">Installer</h2>
+<p>Changes to the installer (<code>GCMW-{version}.exe</code>) requires <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup Compiler 5.5.9</a> or later to compile. Additionally, the <a href="https://mitrichsoftware.wordpress.com/inno-setup-tools/inno-download-plugin/">IDP plugin for Inno Setup</a> is also required.</p>
+<p>The setup compiler pulls content from the “Deploy/” folder, therefore a completed Debug or Release build needs to have been completed prior to running the setup compiler. Content in the “Deploy/” folder will be used in the setup compilation.</p>
+<h2 id="microsoft.alm.authentication-nuget-package">Microsoft.Alm.Authentication NuGet Package</h2>
+<p>The <a href="https://www.nuget.org/packages/Microsoft.Alm.Authentication/">Microsoft.Alm.Authentication</a> NuGet package is automatically created when the Microsoft.Alm.Authentication project is built. The generated “.nupkg” files can be found in the “Debug/” or “Release/” (depending on your build target) under “Microsoft.Alm.Authentication/bin/”. Both the binary and symbol packages are automatically created.</p>
+<p>Updates to the NuGet package stream are reserved for officially built binaries.</p>
+<h2 id="signing">Signing</h2>
+<p>Only Microsoft can sign binaries with the Microsoft certificate. Therefore, while anyone can build and use their own binaries from the GCM source code, only officially releases binaries will be signed by Microsoft.</p>
+<h2 id="documents">Documents</h2>
+<p>The documentation is formatted using <a href="https://daringfireball.net/projects/markdown/syntax">markdown</a> and generated using <a href="http://pandoc.org/">Pandoc</a>.</p>
+<h2 id="logging">Logging</h2>
+<p>To enable logging, use the following:</p>
+<pre class="shell"><code>git config --global credential.writelog true</code></pre>
+<p>Log files will be written to the repository’s local <code>.git/</code> folder.</p>
+<p>Additionally, the GCM outputs <em>GIT_TRACE</em> compatible logging. To use the <em>GIT_TRACE</em> mechanism you can either:</p>
+<ol type="1">
+<li>Open a Command Prompt.</li>
+<li>Run <code>SET GCM_TRACE=1</code>; this will cause the GCM to log directly to the console.</li>
+<li>If you’d like Git to interleave its traces as well run <code>SET GIT_TRACE=1</code>; now Git will log directly to the console.</li>
+</ol>
+<p><em>Or</em></p>
+<ol type="1">
+<li>Open a Command Prompt.</li>
+<li>Run <code>setx GCM_TRACE %UserProfile%\git.log</code>; this will cause the GCM to log to a file located at “%UserProfile%.log”.</li>
+<li>Close and re-open any console windows, and restart any application which need to make use of the new environment variable.</li>
+<li>If you’d like Git to interleave its traces as well run <code>setx GIT_TRACE %UserProfile%\git.log</code>; now Git will log to the file located at “%UserProfile%.log”.</li>
+<li>To remove the environment variable, run <code>setx GCM_TRACE &quot;&quot;</code> or <code>GIT_TRACE &quot;&quot;</code>.</li>
+</ol>
+<p><strong>Note:</strong> The path for logging is arbitrary and both GCM and Git will create/append the file, however neither Git nor the GCM will create any folders; therefore it is up to the user to specify a folder that exists. Additionally, if the specified path contains spaces, be sure to wrap the path in double-quote characters (<em>example:</em> “%UserProfile%git.log”). Finally, inaccessible paths could cause either Git or the GCM to fail unexpectedly, therefor avoid specifying paths which the user’s account does not have access to; for example paths like “%ProgramFiles%.log” are not recommended because only elevated processes can write to “%ProgramFiles%”.</p>
+<p>Debug build of the GCM will perform extended logging to the console, which is convenient for debugging purposes bug too noisy for day-to-day usage.</p>
+<h2 id="contribute">Contribute</h2>
+<p>There are many ways to contribute.</p>
+<ul>
+<li><a href="https://github.com/Microsoft/Git-Credential-Manager-for-Windows/issues">Submit bugs</a> and help us verify fixes as they are checked in.</li>
+<li>Review <a href="https://github.com/Microsoft/Git-Credential-Manager-for-Windows/pulls">code changes</a>.</li>
+<li>Contribute bug fixes and features.</li>
+</ul>
+<h3 id="code-contributions">Code Contributions</h3>
+<p>For code contributions, you will need to complete a Contributor License Agreement (CLA). Briefly, this agreement testifies that you grant us permission to use the submitted change according to the terms of the project’s license, and that the work being submitted is under the appropriate copyright.</p>
+<p>Please submit a Contributor License Agreement (CLA) before submitting a pull request. You may visit <a href="https://cla.microsoft.com" class="uri">https://cla.microsoft.com</a> to sign digitally. Alternatively, download the agreement <a href="https://cla.microsoft.com/cladoc/microsoft-contribution-license-agreement.pdf">Microsoft Contribution License Agreement.pdf</a>, sign, scan, and email it back to <a href="mailto:cla@microsoft.com">cla@microsoft.com</a>. Be sure to include your GitHub user name along with the agreement. Once we have received the signed CLA, we’ll review the request.</p>
+<h3 id="code-of-conduct">Code of Conduct</h3>
+<p>This project has adopted the <a href="https://opensource.microsoft.com/codeofconduct/">Microsoft Open Source Code of Conduct</a>. For more information see the <a href="https://opensource.microsoft.com/codeofconduct/faq/">Code of Conduct FAQ</a> or contact <a href="mailto:opencode@microsoft.com">opencode@microsoft.com</a> with any additional questions or comments.</p>
+<h2 id="license">License</h2>
+<p>This project uses the <a href="https://github.com/Microsoft/Git-Credential-Manager-for-Windows/blob/master/LICENSE.txt">MIT License</a>.</p>
+</body>
+</html>

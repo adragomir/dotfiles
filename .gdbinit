@@ -3996,3 +3996,4 @@ end
 #
 #   Version 2
 #     Radix bugfix by elaine
+set startup-with-shell off

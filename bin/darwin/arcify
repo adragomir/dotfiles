@@ -1,0 +1,8 @@
+#!/bin/bash
+dir=$(realpath "${1:-.}")
+
+while IFS= read -r -d '' -u 9
+do
+    out=${REPLY%.gcode}.aw.gcode
+    $HOME/bin/ArcWelder -g "${REPLY}" "${out}"
+done 9< <( find $dir -type f -iname "*.gcode" -and -not -iname "*.aw.gcode" -exec printf '%s\0' {} + )

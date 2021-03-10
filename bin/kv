@@ -1,0 +1,13 @@
+#!/bin/bash
+KENV=${1:-dev}
+CACHE_AWS=${2:-$HOME/work/analytics-techops/cache-aws}
+
+[[ ! -d "${CACHE_AWS}/compiled" ]] && { 
+  pushd $CACHE_AWS
+  ./ops.sh kapitan compile
+  popd
+}
+
+pushd $CACHE_AWS
+SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-make.sh validate-config kubeconfig
+SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-install-kubeconfig.sh

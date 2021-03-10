@@ -72,3 +72,5 @@ hi vimHiCTerm ctermfg=252 ctermbg=16 cterm=NONE term=NONE
 hi vimHiCTermFgBg ctermfg=252 ctermbg=16 cterm=NONE term=NONE
 hi vimSynType ctermfg=252 ctermbg=16 cterm=NONE term=NONE
 hi vimCommentTitle ctermfg=243 ctermbg=16 cterm=NONE term=NONE
+hi SpellRare cterm=underline
+hi SpellBad cterm=underline

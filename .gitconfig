@@ -31,7 +31,7 @@
 [alias]
   news = log -p @{1}..
   st = status
-  snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
+  change-commits = "!f() { VAR=$1; OLD=$2; NEW=$3; shift 3; git filter-branch --env-filter \"if [[ \\\"$`echo $VAR`\\\" = '$OLD' ]]; then export $VAR='$NEW'; fi\" $@; }; f "  snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
   snapshots = !git stash list --grep snapshot
   cleanup = !git remote prune origin && git gc && git clean -df && git stash clear
   recent-branches = !git for-each-ref --count=15 --sort=-committerdate refs/heads/ --format='%(refname:short)'
@@ -75,13 +75,14 @@
   ra = !git r --all
   w = !git branch -a && git log --branches --oneline --graph --decorate --simplify-by-decoration --since='2 months ago'
   log1 = log --pretty=oneline --abbrev-commit --decorate
+	llog = log --graph --pretty=format:'%C(yellow)%h%Creset %C(bold blue)%an%Creset -%C(bold cyan)%d%Creset %s %C(green)(%cr)%Creset' --abbrev-commit --date=relative
+	lg = log --pretty=format:'%C(yellow)%h %C(green)%ar %C(bold blue)%an%Creset\n%s' --abbrev-commit --date=relative	
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
   file-blame = !git ls-files | xargs -n1 -i{} git log -1 --pretty=format:\"%ci {}\" -- {}
-  pr = ! export CURRENT=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT
+  pr = ! export CURRENT=$(git symbolic-ref HEAD | gsed -e "s#refs/heads/##")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT
   last = rev-list -n 1 HEAD -- "$1"
   restore = ! FILE=$1 && git checkout $(git rev-list -n 1 HEAD -- "$FILE")^ -- "$FILE"
   rc = rebase --continue            # continue rebase
-  mt = mergetool                    # fire up the merge tool
   prb = "!rebase() { \
          LOCAL_BRANCH=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && \
          echo $LOCAL_BRANCH && \
@@ -107,6 +108,8 @@
   rbi = ! export LOCAL_BRANCH=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && echo $LOCAL_BRANCH && export REMOTE_BRANCH=$(git config branch.${LOCAL_BRANCH}.merge | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && REMOTE_NAME=$(git config branch.${LOCAL_BRANCH}.remote) && git rebase -i $REMOTE_NAME/$REMOTE_BRANCH
   rb = "!fn() { git stash && git rebase -i HEAD~$1 && git stash pop; }; fn"
   cos = "!fn() { git stash && git co $1 && git stash pop; }; fn"
+	create-pull-request = !sh -c 'stash pull-request $0 $@'
+	webui = !/Users/adragomir/.git-webui/release/libexec/git-core/git-webui
 
 [format]
   pretty = format:%C(blue)%ad%Creset %C(yellow)%h%C(green)%d%Creset %C(blue)%s %C(magenta) [%an]%Creset
@@ -125,6 +128,7 @@
   algorithm = patience
   ignoresubmodules = all
   mnemonicprefix = true
+  renameLimit = 4000
 
 [mergetool]
   prompt = false
@@ -146,6 +150,7 @@
 	excludesfile = /Users/adr/.gitignore_global
 	editor = vim --noplugin
 	quotepath = false
+	pager = /usr/local/bin/less -+F -+X -R -K
 
 [apply]
 	whitespace = nowarn
@@ -202,3 +207,27 @@
 	required = true
 	clean = git media clean %f
 	smudge = git media smudge %f
+[difftool "araxis"]
+  path = C:\\Program Files\\Araxis\\Araxis Merge\\compare.exe
+[mergetool "araxis"]
+  path = C:\\Program Files\\Araxis\\Araxis Merge\\compare.exe
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Users/adragomir/Applications/Development Tools/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[difftool "bcomp"]
+  trustExitCode = true
+  cmd = "/usr/local/bin/bcomp" \"$LOCAL\" \"$REMOTE\"
+[mergetool "bcomp"]
+  trustExitCode = true
+  cmd = "/usr/local/bin/bcomp" \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\"
+[commit]
+	template = /Users/adragomir/.stCommitMsg
+[cola]
+	spellcheck = false
+[webui]
+	autoupdate = true
+[credential]
+	helper = manager

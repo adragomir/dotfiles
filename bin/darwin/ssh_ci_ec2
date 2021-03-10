@@ -1,0 +1,2 @@
+#!/bin/bash
+ssh -i ~/.ssh/CIKeys.pem ubuntu@$( curl -s --negotiate -u none:none https://collins.site-ops.fitbit.com/asset/${1/i-/aws-} | perl -pe 's/.*"HOSTNAME":"([^"]+)".*/$1/')

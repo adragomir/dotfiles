@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+for i in $(gseq $2 $3); do
+  outfile=$(printf "%03d" $i)
+  echo curl --silent --output page${outfile}.jpg "${1}${i}.jpg"
+  curl --silent --output page${outfile}.jpg "${1}${i}.jpg"
+done
+convert *.jpg mew$4.pdf

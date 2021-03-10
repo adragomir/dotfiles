@@ -1,9 +1,0 @@
-#!/bin/bash
-
-export CURRENT=$(git symbolic-ref HEAD | sed -e "s?.*/\\([^/]*\\)?\\1?")
-if [ "x$CURRENT" == "xmaster" ]; then
-  echo "Can't force push master, please do git push -f origin master"
-  exit 1
-fi
-echo "Force pushing origin/$CURRENT"
-git push -f origin $CURRENT:$CURRENT

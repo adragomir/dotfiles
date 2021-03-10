@@ -27,4 +27,6 @@ bin/binary/*
 .config/gtk-3.0/bookmarks
 .config/fontconfig*
 .tmux/plugins*
+.tmux/resurrect
 .vim/bundle
+.metals

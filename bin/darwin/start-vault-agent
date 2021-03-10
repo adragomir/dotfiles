@@ -1,0 +1,3 @@
+#!/bin/bash
+
+FITBIT_VAULT_AGENT_TLS_ALT_NAMES=site-svc-simpl FITBIT_VAULT_AGENT_CACHE_PATH=/Users/adragomir/.vault-agent FITBIT_VAULT_AGENT_PK_FORMAT=pkcs8 bazel run //fitbit/experimental/vault/agent/cmd/agent:vault-agent -- start-openid --vault_role=simpl-runtime@fit-roles-devel.iam.gserviceaccount.com &>/dev/null &

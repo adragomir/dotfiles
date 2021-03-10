@@ -1,0 +1,263 @@
+#!/usr/bin/env python
+from __future__ import print_function
+
+import os
+import argparse
+import sys
+import getpass
+import logging
+import requests
+import json
+from requests.auth import HTTPBasicAuth
+import base64
+import urlparse
+import re
+import logging
+import keyring
+from bs4 import BeautifulSoup
+
+class OktaAPIAuth(object):
+
+    def __init__(self, okta_server, session, username, password, passcode, factor_type):
+        passcode_len = 6
+        self.okta_url = None
+        self.session = session
+        self.username = username
+        self.password = password
+        self.passcode = passcode
+        self.factor_type = factor_type
+        url_new = ('https', okta_server, '', '', '','')
+        self.okta_url = urlparse.urlunparse(url_new)
+        return
+
+    def okta_req(self, path, data):
+        url = '{base}/api/v1{path}'.format(base=self.okta_url, path=path)
+        resp = self.session.post(
+            url=url,
+            headers={
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            json=data,
+            auth=HTTPBasicAuth(self.username, self.password)
+        )
+        return resp.json()
+
+    def preauth(self):
+        path = '/authn'
+        data = {'username': self.username,
+                'password': self.password}
+        return self.okta_req(path, data)
+
+    def doauth(self, fid, state_token):
+        path = '/authn/factors/{fid}/verify'.format(fid=fid)
+        data = {'fid': fid,
+                'stateToken': state_token,
+                'passCode': self.passcode}
+        return self.okta_req(path, data)
+
+    def auth(self):
+        username = self.username
+        password = self.password
+        status = False
+        rv = False
+        invalid_username_or_password = username is None or username == '' or password is None or password == ''
+        if invalid_username_or_password:
+            return False
+        else:
+            try:
+                rv = self.preauth()
+                print(rv)
+            except Exception as s:
+                print('Error connecting to the Okta API: %s' % s)
+                return False
+
+            if 'errorCauses' in rv:
+                msg = rv['errorSummary']
+                print('User %s pre-authentication failed: %s' % (self.username, msg))
+                return False
+            if 'status' in rv:
+                status = rv['status']
+            if status == 'SUCCESS':
+                print('User %s authenticated without MFA' % self.username)
+                return rv['sessionToken']
+            if status == 'MFA_ENROLL' or status == 'MFA_ENROLL_ACTIVATE':
+                print('User %s needs to enroll first' % self.username)
+                return False
+            if status == 'MFA_REQUIRED' or status == 'MFA_CHALLENGE':
+                res = None
+                for factor in rv['_embedded']['factors']:
+                    if factor['factorType'] != self.factor_type:
+                        continue
+                    fid = factor['id']
+                    state_token = rv['stateToken']
+                    try:
+                        res = self.doauth(fid, state_token)
+                    except Exception as s:
+                        print('Unexpected error with the Okta API: %s' % s)
+                        return False
+
+                    if 'status' in res and res['status'] == 'SUCCESS':
+                        return res['sessionToken']
+
+                if 'errorCauses' in res:
+                    msg = res['errorCauses'][0]['errorSummary']
+                return False
+            return False
+            return
+
+class OktaSamlAuth(OktaAPIAuth):
+    def __init__(self, okta_url, application_type, application_id, session, username, password, passcode, factor_type='token:software:totp'):
+        self.application_type = application_type
+        self.application_id = application_id
+        OktaAPIAuth.__init__(self, okta_url, session, username, password, passcode, factor_type)
+
+    def saml(self, sessionToken):
+        url = '{base}/app/{app}/{appid}/sso/saml'.format(base=self.okta_url, app=self.application_type, appid=self.application_id)
+        resp = self.session.get(
+            url=url,
+            params={'sessionToken': sessionToken},
+            headers={
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:70.0) Gecko/20100101 Firefox/70.0",
+            },
+            #auth=HTTPBasicAuth(self.username, self.password)
+        )
+        print("------------------------")
+        print(resp.text)
+        print("------------------------")
+        if resp.status_code != 200:
+            raise Exception('Received error code from server: %s' % resp.status_code)
+        print("XXXXXXXXXXXXXXX")
+        matches = re.search(r"^.*var repostParams = (.*);$", resp.text, re.MULTILINE)
+        j = json.loads(matches.group(1))
+        print(j["fromURI"][0])
+        print(j["serviceToken"][0])
+
+        second_response = self.session.post(
+            "https://OR1010050116021.corp.adobe.com/IWA/",
+            data = {
+                "fromURI": j["fromURI"][0],
+                "serviceToken": j["serviceToken"][0]
+            },
+            #auth=HTTPBasicAuth(self.username, self.password)
+        )
+        print("+++++++++++++++++++++++++++")
+        print(second_response.text)
+        print("+++++++++++++++++++++++++++")
+        return resp.text.decode('utf8')
+
+    def assertion(self, saml):
+        assertion = ''
+        soup = BeautifulSoup(saml, 'html.parser')
+        for inputtag in soup.find_all('input'):
+            if inputtag.get('name') == 'SAMLResponse':
+                assertion = inputtag.get('value')
+        return base64.b64decode(assertion)
+
+    def auth(self):
+        token = super(OktaSamlAuth, self).auth()
+        print("token: " + token)
+        if not token:
+            return False
+        saml = self.saml(token)
+        return self.assertion(saml)
+
+def main(argv):
+    arg_parser = argparse.ArgumentParser(
+        prog=argv[0],
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="oktaauth",
+        epilog="")
+
+    arg_parser.add_argument(
+        '-s', '--server', type=str, help='Okta server', required=True)
+    arg_parser.add_argument(
+        '-u', '--username', type=str, help='Username', required=True)
+    arg_parser.add_argument(
+        '-c', '--oktacode', type=str, help='Okta Code', required=True)
+    arg_parser.add_argument(
+        '-t', '--apptype', type=str, help='Application type', required=True)
+    arg_parser.add_argument(
+        '-i', '--appid', type=str, help='Application id', required=True)
+    arg_parser.add_argument(
+        '-p', '--project', type=str, help='Project', required=True)
+    arg_parser.add_argument(
+        '-e', '--projectenv', type=str, help='Project env', required=True)
+    arg_parser.add_argument(
+        '-l', '--projectpolicy', type=str, help='Project policy', required=False, default='administrator_and_support')
+    arg_parser.add_argument(
+        '-b', '--openbrowser', action="store_true", help='Open up a browser page in the AWS Console', required=False, default=False)
+    arg_parser.add_argument(
+        '-f', '--factor', type=str, help='Open up a browser page in the AWS Console', required=False, default='token:software:totp')
+    arg_parser.add_argument(
+        '-v', '--verbose', action="store_true", help='Display debugging information', required=False, default=False)
+
+    config = arg_parser.parse_args(args=argv[1:])
+
+    password = keyring.get_password('adobeldap', config.username)
+    passcode = config.oktacode
+    session = requests.Session()
+    okta = OktaSamlAuth(
+        config.server,
+        config.apptype, config.appid, session,
+        config.username, password, passcode, config.factor
+    )
+
+    try:
+        tmp = okta.auth()
+        print("AAA" + tmp)
+        encoded_response = base64.b64encode(tmp)
+        print("AAA")
+        login_response = session.post(
+            "https://klam-sj.corp.adobe.com/simplesaml/module.php/saml/sp/saml2-acs.php/default-sp",
+            data={
+                "SAMLResponse": encoded_response,
+                "RelayState": "https://klam-sj.corp.adobe.com/aws/SSO_Auth.php?login"
+            }
+        )
+        print("------------------------")
+        print(login_response.text)
+        print("------------------------")
+        print("AAA")
+        creds_response = session.post(
+            "https://klam-sj.corp.adobe.com/aws/views/project/getMyCreds.php",
+            data={
+                "project_name": config.project,
+                "project_env": config.projectenv,
+                "my_policy": config.projectpolicy,
+                "projectDuration": "default",
+                "projectSshPolicy": "default",
+                "projectMfa": "000000"
+            }
+        )
+        print("AAA")
+        print("------------------------")
+        print(creds_response.text)
+        print("------------------------")
+        soup = BeautifulSoup(creds_response.text, 'html.parser')
+        print(soup)
+        aws_signin_link = soup.find(id="myCreds_getConsole")['href']
+
+        if config.openbrowser:
+            os.system("open \"" + aws_signin_link + "\"")
+        aws_access_key_id = soup.find("input", {"name": "AWS_ACCESS_KEY_ID"})['value']
+        aws_secret_access_key = soup.find("input", {"name": "AWS_SECRET_ACCESS_KEY"})['value']
+        aws_session_token = soup.find("input", {"name": "AWS_SESSION_TOKEN"})['value']
+        aws_security_token = soup.find("input", {"name": "AWS_SECURITY_TOKEN"})['value']
+        print("""\
+export AWS_ACCESS_KEY_ID={}
+export AWS_SECRET_ACCESS_KEY={}
+export AWS_SESSION_TOKEN={}
+export AWS_SECURITY_TOKEN={}
+""".format(aws_access_key_id, aws_secret_access_key, aws_session_token, aws_security_token))
+        return 0
+    except Exception as e:
+        print(repr(e))
+        print('Error authorising with okta: %s' % e)
+        return 1
+    finally:
+        del password
+        del passcode
+
+if __name__ == '__main__':
+    main(sys.argv)

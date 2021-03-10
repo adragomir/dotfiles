@@ -1,31 +1,33 @@
 #!/bin/bash
 
-debug=0
+debug=1
 
 if [[ $1 == /* ]]; then
   file=$(printf '%q' "$1")
 else
-  file=$(pwd)$(printf '%q' "$1")
+  file=$(pwd)/$(printf '%q' "$1")
 fi
-TMUX=/usr/local/bin/tmux
-PSTREE=/usr/local/bin/pstree
 
-for s in `$TMUX list-sessions -F '#{session_name}'` ; do
-  for w in `$TMUX list-windows -F '#{window_index}' -t "$s"` ; do
-    for p in `$TMUX list-panes -F '#{pane_index}=#{pane_pid}' -t "$w"` ; do
+[[ $debug == 1 ]] && echo "file: ${file}"
+
+uid=$(id -u)
+for s in `/usr/local/bin/tmux -S /private/tmp/tmux-${uid}/default list-sessions -F '#{session_name}'` ; do
+  for w in `/usr/local/bin/tmux -S /private/tmp/tmux-${uid}/default list-windows -F '#{window_index}' -t "$s"` ; do
+    for p in `/usr/local/bin/tmux -S /private/tmp/tmux-${uid}/default list-panes -F '#{pane_index}=#{pane_pid}' -t "$w"` ; do
       pane_index="${p%%=*}"
       first_pid="${p##*=}"
-      res=$($PSTREE -p $first_pid | egrep "vi" >/dev/null ; echo $?)
+      res=$(/usr/local/bin/pstree -p $first_pid | egrep "vi" >/dev/null ; echo $?)
       if [ "$res" -eq "0" ]; then
         window_pane="${w}.${pane_index}"
-        [[ $debug == 1  ]] && echo "$TMUX send-keys -t $window_pane Escape ":e $file" Enter" >> ~/lg
-        $TMUX send-keys -t "$window_pane" Escape ":e $file" Enter
+        [[ $debug == 1  ]] && echo "/usr/local/bin/tmux -S /private/tmp/tmux-${uid}/default send-keys -t $window_pane Escape ":e $file" Enter" >> ~/lg
+        /usr/local/bin/tmux -S /private/tmp/tmux-${uid}/default send-keys -t "$window_pane" Escape ":e $file" Enter
         break 3
       fi
     done
   done
 done
 
+if [[ 1 == 0 ]]; then
 /usr/bin/osascript <<'EOT'
 tell application "System Events" to tell process "iTerm2"
 	set frontmost to true
@@ -34,4 +36,15 @@ tell application "System Events" to tell process "iTerm2"
 	key code 18 -- 1
 end tell
 EOT
+fi
+
+if [[ 1 == 1 ]]; then
+/usr/bin/osascript <<'EOT'
+tell application "System Events" to tell process "Alacritty"
+	set frontmost to true
+	key code 0 using {control down} -- c-a
+	key code 18 -- 1
+end tell
+EOT
+fi
 
