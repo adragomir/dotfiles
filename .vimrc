@@ -835,17 +835,14 @@ lua << EOF
 
   lspconfig.zls.setup{
     on_attach = M.on_attach;
-    cmd = {vim.env.HOME .. "/bin/" .. vim.api.nvim_get_var('os_bin_path') .. "/zls"};
   }
 
   lspconfig.gopls.setup{
     on_attach = M.on_attach;
-    cmd = {vim.env.HOME .. "/bin/" .. vim.api.nvim_get_var('os_bin_path') .. "/gopls"};
     root_dir = util.root_pattern("go.mod");
   }
   lspconfig.rust_analyzer.setup{
     on_attach = M.on_attach;
-    cmd = {vim.env.HOME .. "/bin/" .. vim.api.nvim_get_var('os_bin_path') .. '/rust-analyzer'}
   }
   lspconfig.ccls.setup{
     on_attach = M.on_attach;
@@ -874,7 +871,7 @@ lua << EOF
   }
   lspconfig.pyls_ms.setup{
     on_attach = M.on_attach;
-    cmd = { "dotnet", "exec", vim.env.HOME .. "/.cache/nvim/lspconfig/pyls_ms/Microsoft.Python.languageServer.dll" };
+    cmd = { "dotnet", "exec", vim.fn.stdpath('data') .. "/lspconfig/pyls_ms/Microsoft.Python.languageServer.dll" };
   }
   lspconfig.jdtls.setup{
     on_attach = M.on_attach;
@@ -884,7 +881,7 @@ lua << EOF
     on_attach = M.on_attach;
   }
   lspconfig.sumneko_lua.setup{
-    cmd = { vim.env.HOME .. "/.cache/nvim/lspconfig/sumneko_lua/lua-language-server/bin/macOS/lua-language-server", "-E", vim.env.HOME .. "/.cache/nvim/lspconfig/sumneko_lua/lua-language-server/main.lua" };
+    cmd = { vim.fn.stdpath('data') .. "/lspconfig/sumneko_lua/lua-language-server/bin/macOS/lua-language-server", "-E", vim.env.HOME .. "/.cache/nvim/lspconfig/sumneko_lua/lua-language-server/main.lua" };
     on_attach = M.on_attach;
   }
    lspconfig.solargraph.setup{
