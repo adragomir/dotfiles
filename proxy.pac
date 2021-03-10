@@ -1,5 +1,5 @@
 function r(tmp) {
-    return function(hostOrUrl) {
+    return function(url, host) {
         var tests = []
         if (! tests instanceof Array) {
             tests = [tmp]
@@ -9,17 +9,18 @@ function r(tmp) {
         for (var i = 0; i < tests.length; i++) {
             var test = tests[i]
             if (test instanceof RegExp) {
-                if (test.test(hostOrUrl)) {
+                alert("Found regexp for testing: " + test + " and url " + url)
+                if (test.test(host)) {
                     return true;
                 }
             }
             if (typeof test == 'string') {
-                if (new RegExp('.*' + test + '.*').test(hostOrUrl)) {
+                if (new RegExp('.*' + test + '.*').test(host)) {
                     return true;
                 }
             }
             if (test instanceof Function) {
-                if (test(hostOrUrl)) {
+                if (test(url, host)) {
                     return true
                 }
             }
@@ -27,6 +28,16 @@ function r(tmp) {
         return false
     }
 };
+
+function checkProxy(nets) {
+  return function(url, host) {
+    for (var i = 0; i < nets.length; i++) {
+      if (isInNet(dnsResolve(host), nets[i][0], nets[i][1])) {
+        return true;
+      }
+    }
+  }
+}
 
 var FindProxyForURL = function(config) {
     return function(url, host) {
@@ -38,14 +49,15 @@ var FindProxyForURL = function(config) {
         for (var i = 0; i < config.length; i++) {
             proxy = config[i][0]
             tests = config[i][1]
-            if (r(tests)(host)) {
+            if (r(tests)(url, host)) {
+                alert("Returning proxy " + proxy + " for url " + url + ", " + host);
                 return proxy
             }
         }
         return "DIRECT";
     };
 }([
-//["SOCKS5 localhost:1235", [/^(172\.16\..*|10\.0\..*|10\.10\..*|ip-10-10.*|marathon-lb.*|.*\.mesos|.*\.l4lb\.thisdcos\.directory)$/]]
-["SOCKS5 localhost:9876", [/^(172\.16\..*|10\.0\..*|10\.10\..*|ip-10-10.*|marathon-lb.*|.*\.mesos|.*\.l4lb\.thisdcos\.directory)$/]]
+//["DIRECT, [//]], 
+//["SOCKS5", checkProxy("from", "mask")]]
 ])
 
