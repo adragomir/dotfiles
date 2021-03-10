@@ -662,15 +662,12 @@ else
 fi
 
 # jdtls
-
-
 if [[ "$OSTYPE" = darwin* ]]; then
   export JAR=$HOME/.local/share/nvim/lspconfig/jdtls/plugins/org.eclipse.equinox.launcher_1.6.0.v20200915-1508.jar
   export GRADLE_HOME=/usr/local/opt/gradle
   export JDTLS_CONFIG=$HOME/.local/share/nvim/lspconfig/jdtls/config_mac
   export WORKSPACE=$HOME/.cache/jdtls/workspace
 fi
-
 
 # scala
 export SCALA_HOME=/usr/local/opt/scala
