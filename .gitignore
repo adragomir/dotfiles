@@ -26,6 +26,7 @@ bin/binary/*
 .config/ranger/bookmarks
 .config/gtk-3.0/bookmarks
 .config/fontconfig*
+/.config/joplin-desktop
 .tmux/plugins*
 .tmux/resurrect
 .vim/bundle
