@@ -19,15 +19,18 @@ if has("nvim")
   elseif has("wsl")
     let g:os_bin_path = "linux"
     let g:python2_host_prog = '/usr/local/bin/python'
-    let g:python3_host_prog = '/usr/local/opt/python/bin/python3'
+    let g:python3_host_prog = '/home/linuxbrew/.linuxbrew/Cellar/python@3.9/3.9.2_1/bin/python3'
     let g:ruby_host_prog = 'rvm ruby-3.0.0 do neovim-ruby-host'
     let g:node_host_prog = '/home/linuxbrew/.linuxbrew/lib/node_modules/neovim/bin/cli.js'
   elseif has("win64")
     let g:os_bin_path = "windows"
-    let g:python2_host_prog = '/usr/local/bin/python'
-    let g:python3_host_prog = 'c:\Python39\python3.exe'
-    let g:ruby_host_prog = 'c:\tools\ruby30\ruby.exe'
-    let g:node_host_prog = 'c:\Program\ Files\node\node.exe'
+		let &shell = has('win64') ? 'powershell' : 'pwsh'
+		set shellquote= shellpipe=\| shellxquote=
+		set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
+		set shellredir=\|\ Out-File\ -Encoding\ UTF8
+    " let g:python3_host_prog = 'c:\Python39\python3.exe'
+    let g:ruby_host_prog = 'c:\tools\ruby30\bin\neovim-ruby-host.bat'
+    "let g:node_host_prog = 'C:\Users\adrag\AppData\Roaming\npm\neovim-node-host'
   endif
 endif
 
@@ -145,8 +148,10 @@ endif
 set undofile
 set undoreload=10000
 " settings: windows and buffers
-set shell=bash
-set shellcmdflag=-lc
+if has("wsl") || has("mac")
+  set shell=bash
+  set shellcmdflag=-lc
+endif
 " 	When off a buffer is unloaded when it is |abandon|ed.
 set hidden
 set splitbelow                " split windows below current one
@@ -876,11 +881,51 @@ lua << EOF
   lspconfig.tsserver.setup{
     on_attach = M.on_attach;
   }
-  lspconfig.sumneko_lua.setup{
-    cmd = { vim.fn.stdpath('data') .. "/lspconfig/sumneko_lua/lua-language-server/bin/macOS/lua-language-server", "-E", vim.env.HOME .. "/.cache/nvim/lspconfig/sumneko_lua/lua-language-server/main.lua" };
+
+  local system_name
+  if vim.fn.has("mac") == 1 then
+    system_name = "macOS"
+  elseif vim.fn.has("unix") == 1 then
+    system_name = "Linux"
+  elseif vim.fn.has('win32') == 1 then
+    system_name = "Windows"
+  else
+    print("Unsupported system for sumneko")
+  end
+  local sumneko_root_path = vim.fn.stdpath('data')..'/lspconfig/lua-language-server'
+  local sumneko_binary = sumneko_root_path.."/bin/"..system_name.."/lua-language-server"
+  lspconfig.sumneko_lua.setup {
+    cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"};
     on_attach = M.on_attach;
+    settings = {
+      Lua = {
+        runtime = {
+          -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+          version = 'LuaJIT',
+          -- Setup your lua path
+          path = vim.split(package.path, ';'),
+        },
+        diagnostics = {
+          -- Get the language server to recognize the `vim` global
+          globals = {'vim'},
+        },
+        workspace = {
+          -- Make the server aware of Neovim runtime files
+          library = {
+            [vim.fn.expand('$VIMRUNTIME/lua')] = true,
+            [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
+          },
+        },
+      },
+    },
   }
-   lspconfig.solargraph.setup{
+
+--  lspconfig.sumneko_lua.setup{
+--    cmd = { vim.fn.stdpath('data') .. "/lspconfig/sumneko_lua/lua-language-server/bin/macOS/lua-language-server", "-E", vim.env.HOME .. "/.cache/nvim/lspconfig/sumneko_lua/lua-language-server/main.lua" };
+--    on_attach = M.on_attach;
+--  }
+
+  lspconfig.solargraph.setup{
     on_attach = M.on_attach;
   }
   lspconfig.terraformls.setup{
