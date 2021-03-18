@@ -4,7 +4,11 @@ NST=$(git stash list | wc -l)
 git stash save
 NNST=$(git stash list | wc -l)
 
-export CURRENT=$(git symbolic-ref HEAD | sed -e "s#refs/heads/##")
+if [[ "$OSTYPE" = darwin* ]]; then
+  export CURRENT=$(git symbolic-ref HEAD | gsed -e "s#refs/heads/##")
+elif [[ "$OSTYPE" = linux* ]]; then
+  export CURRENT=$(git symbolic-ref HEAD | sed -e "s#refs/heads/##")
+fi
 echo "Synchronising with origin/$CURRENT..."
 
 git fetch -p origin

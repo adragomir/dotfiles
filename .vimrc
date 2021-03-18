@@ -1,14 +1,4 @@
 "vim:foldmethod=marker
-" set PATH correctly {{{
-if has("macunix") && has("gui_running") " && system('ps xw | grep -c "[V]im -MMNo"') > 0
-  " Get the value of $PATH from a login shell.
-  if $SHELL =~ '/\(sh\|csh\|bash\|tcsh\|zsh\)$'
-    let s:path = system("echo echo VIMPATH'${PATH}' | $SHELL -l")
-    let $PATH = matchstr(s:path, 'VIMPATH\zs.\{-}\ze\n')
-  endif
-endif
-"}}}
-
 if has("nvim")
   if has("mac")
     let g:os_bin_path = "darwin"
@@ -46,7 +36,6 @@ endif
 " general settings {{{
 set nocompatible              " use VI incompatible features
 filetype off
-let no_buffers_menu=1
 set noautochdir
 set history=10000             " number of history items
 set conceallevel=0
@@ -103,13 +92,6 @@ set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})
 set undolevels=10000
 set numberwidth=5
 set pumheight=0
-if !has('nvim')
-  if has('windows')
-    set viminfo=h,'10000,\"1000,n$HOME/.vim/tmp/.viminfo
-  else
-    set viminfo=h,'10000,\"1000,n$HOME/.vim/tmp/.viminfo
-  endif
-endif
 set scrolljump=10
 set virtualedit+=block
 set novisualbell
@@ -129,17 +111,12 @@ set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
 set completeopt=menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
 if !has('nvim')
   set ttyfast
-endif
-if !has('nvim')
   set ttymouse=xterm
 endif
 set timeout
 set ttimeout
 set timeoutlen=1000
 set ttimeoutlen=0
-if !has('nvim')
-  set guipty
-endif
 if has("mac")
   set clipboard=unnamed "unnamed ",unnamedplus,autoselect
 else 
@@ -273,6 +250,7 @@ Plug 'ziglang/zig.vim'
 Plug 'fedorenchik/fasm.vim'
 Plug 'google/vim-jsonnet', {'dir': stdpath('data') . '/bundle/jsonnet', 'for': 'jsonnet' }
 Plug 'edwinb/idris2-vim' 
+Plug 'tomlion/vim-solidity'
 "Plug 'google/ijaas', {'dir': stdpath('data') . '/bundle/ijaas', 'rtp': 'vim' }
 
 " completion
@@ -359,54 +337,6 @@ autocmd BufEnter * :syntax sync fromstart
 "}}}
 
 " my functions {{{
-function! DashUnderCursor()
-  let term = expand('<cword>')
-  let mft = &ft
-  call DashSearch(term, mft)
-endfunction
-
-function! DashSearch(term, keyword) "{{{
-  let keyword = a:keyword
-  if !empty(keyword)
-    let keyword = keyword . ':'
-  endif
-  silent execute '!open dash://' . shellescape(keyword . a:term)
-  redraw!
-endfunction
-
-function! GetBufferList()
-  redir =>buflist
-  silent! ls
-  redir END
-  return buflist
-endfunction
-
-function! BufferIsOpen(bufname)
-  let buflist = GetBufferList()
-  for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
-    if bufwinnr(bufnum) != -1
-      return 1
-    endif
-  endfor
-  return 0
-endfunction
-
-function! ToggleQuickfix()
-  if BufferIsOpen("Quickfix List")
-    cclose
-  else
-    call OpenQuickfix()
-  endif
-endfunction
-
-function! OpenQuickfix()
-  cgetfile tmp/quickfix
-  topleft cwindow
-  if &ft == "qf"
-      cc
-  endif
-endfunction
-
 function! s:VSetSearch()
   let temp = @@
   norm! gvy
@@ -525,39 +455,6 @@ function! ToggleSideEffects()
 endfunction
 nnoremap ,, :call ToggleSideEffects()<CR>
 
-function! MapSearch(rhs_pattern, bang)
-    let mode = ( a:0 >= 1 ? a:1 : '' )
-    let more = &more
-    setl nomore
-    redir => maps
-	exe "silent ".mode."map"
-    redir end
-    let &l:more = more
-    let list = split(maps, "\n")
-    let rhs_list  = ( a:bang == "" ? map(copy(list), 'matchstr(v:val, ''.\s\+\S\+\s\+\zs.*'')') :
-		\ map(copy(list), 'matchstr(v:val, ''.\s\+\zs\S\+\s\+.*'')') )
-    let i = 0
-    let i_list = []
-    for rhs in rhs_list
-	if rhs =~ a:rhs_pattern
-	    call add(i_list, i)
-	endif
-	let i+=1
-    endfor
-
-    let found_maps = []
-    for i in i_list
-	call add(found_maps, list[i])
-    endfor
-    if len(found_maps) > 0
-	echo join(found_maps, "\n")
-    else
-	echohl WarningMsg
-	echo "No such map"
-	echohl Normal
-    endif
-endfunction
-
 function! SaveMap(key)
   return maparg(a:key, 'n', 0, 1)
 endfunction
@@ -572,35 +469,6 @@ function! RestoreMap(map)
     execute l:tmp
   endif
 endfunction
-
-function! FzyCommand(choice_command, vim_command) abort
-  let l:callback = {
-              \ 'window_id': win_getid(),
-              \ 'filename': tempname(),
-              \  'vim_command':  a:vim_command
-              \ }
-
-  function! l:callback.on_exit(job_id, data, event) abort
-    bdelete!
-    call win_gotoid(self.window_id)
-    if filereadable(self.filename)
-      try
-        let l:selected_filename = readfile(self.filename)[0]
-        exec self.vim_command . l:selected_filename
-      catch /E684/
-      endtry
-    endif
-    call delete(self.filename)
-  endfunction
-
-  botright 10 new
-  let l:term_command = a:choice_command . ' | fzy > ' .  l:callback.filename
-  silent call termopen(l:term_command, l:callback)
-  setlocal nonumber norelativenumber
-  startinsert
-endfunction
-
-nnoremap <leader>e :call FzyCommand('rg . --files --color=never --glob ""', ":e ")<cr>
 
 function! SynStack ()
     for i1 in synstack(line("."), col("."))
@@ -713,7 +581,6 @@ nnoremap <m-Up> :cprevious<cr>zvzz
 nnoremap <c-\> <c-w>v<c-]>zvzz
 
 " quickfix
-nnoremap <leader>q :call ToggleQuickfix()<cr>
 nnoremap <leader>Q :cc<cr>
 
 " remap: always go to character, with ' and `
@@ -1071,13 +938,6 @@ require'lsp_extensions'.setup{
 EOF
 " }}}
 
-" tadaa {{{
-let g:vimade = {}
-let g:vimade.fadelevel = 0.4
-let g:vimade.enablesigns = 1
-" }}}
-
-
 " completion-nvim {{{
 let g:completion_enable_auto_popup = 1
 let g:completion_enable_auto_hover = 1
@@ -1125,15 +985,6 @@ let g:pymode_doc_bind = ''
 let g:pymode_rope_goto_definition_bind = "<C-]>"
 " }}}
 
-
-" taglist settings {{{
-let Tlist_Ctags_Cmd = "/usr/local/bin/ctags"
-let Tlist_Compact_Format = 1
-let Tlist_File_Fold_Auto_Close = 1
-let Tlist_Use_Right_Window = 1
-let Tlist_Exit_OnlyWindow = 1
-let Tlist_WinWidth = 0 
-" }}}
 
 " supertab settings {{{
 " let g:SuperTabCrMapping = 0
@@ -1205,7 +1056,7 @@ let MRU_File = $HOME . '/.vim/tmp/.vim_mru_files'
 " }}}
 
 " javascript {{{
-let javaScript_fold=1
+let javaScript_fold=0
 " }}}
 
 " factor {{{
@@ -1236,11 +1087,6 @@ let g:gist_open_browser_after_post = 1
 " }}}
 
 let g:vim_json_syntax_conceal = 0
-
-" echodoc {{{
-let g:echodoc#enable_at_startup = 1
-let g:echodoc#type = 'signature'"
-" }}}
 
 let g:terraform_align = 1
 let g:terraform_fmt_on_save = 1
