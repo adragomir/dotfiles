@@ -142,7 +142,7 @@
 
 [merge] 
   summary = true
-  #tool = opendiff
+  tool = opendiff
   #tool = araxis
 
 [core]
@@ -151,7 +151,7 @@
 	editor = vim --noplugin
 	quotepath = false
 	pager = less -+F -+X -R -K
-	autocrlf = true
+	autocrlf = input
 	filemode = false
 
 [apply]
