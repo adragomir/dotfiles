@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+import subprocess
+import os
+import sys
+import argparse
+
+def listgits(cwd, level, remote_search_str, results):
+    level += 1
+    dirs = list(filter(lambda d:os.path.isdir(os.path.join(cwd, d)), os.listdir(cwd)))
+    if len(dirs)==0:
+        return
+    root = cwd
+    for dir in dirs:
+        os.chdir(os.path.join(cwd, dir))
+        if os.path.isdir('./.git'):
+            git = ['git', 'remote', '-v']
+            proc = subprocess.Popen(git, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout_str, _ = proc.communicate()
+            stdout = stdout_str.decode("utf-8").split('\n')
+            if len(stdout[0]) == 0:
+                os.chdir(root)
+                continue
+
+            fulldir = os.path.join(root, dir)
+            fetch_remotes = [l for l in stdout if l.endswith("(fetch)")]
+            if len(fetch_remotes) > 0:
+                remotes = [pieces.split('\t')[1][:-8] for pieces in fetch_remotes if remote_search_str in pieces]
+                if len(remotes) > 0:
+                    results.append((fulldir, "\t".join(remotes)))
+        else:
+            listgits(os.path.join(cwd, dir), level, remote_search_str, results)
+        os.chdir(root)
+
+def main():
+    results = []
+    dir = os.path.abspath(sys.argv[1])
+    cwd = os.getcwd()
+    remoteSearch = ""
+    if len(sys.argv) > 2:
+        remoteSearch = sys.argv[2]
+    listgits(dir, 0, remoteSearch, results)
+    for (dir, remotes) in results:
+        print("\t".join([os.path.relpath(dir, cwd), remotes]))
+
+if __name__ == "__main__":
+      main()

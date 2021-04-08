@@ -5,7 +5,7 @@ if has("nvim")
     let g:python2_host_prog = '/usr/local/bin/python'
     let g:python3_host_prog = '/usr/local/opt/python/bin/python3'
     let g:ruby_host_prog = 'rvm ruby-2.6.3 do neovim-ruby-host'
-    let g:node_host_prog = $HOME . '/.nvm/versions/node/v10.19.0/lib/node_modules/neovim/bin/cli.js'
+    let g:node_host_prog = $HOME . '/.nvm/versions/node/v14.16.0/lib/node_modules/neovim/bin/cli.js'
   elseif has("wsl")
     let g:os_bin_path = "linux"
     let g:python2_host_prog = '/usr/local/bin/python'
@@ -114,7 +114,7 @@ set inccommand=nosplit
 set showtabline=0
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
-set completeopt=menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
+set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
 if !has('nvim')
   set ttyfast
   set ttymouse=xterm
@@ -285,7 +285,8 @@ Plug 'tpope/vim-surround', { 'dir': stdpath('data') . '/bundle/surround' }
 
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
 Plug 'mtth/scratch.vim', { 'dir': stdpath('data') . '/bundle/scratch' }
-Plug 'ervandew/supertab', { 'dir': stdpath('data') . '/bundle/supertab' }
+"Plug 'ervandew/supertab', { 'dir': stdpath('data') . '/bundle/supertab' }
+Plug 'ackyshake/VimCompletesMe', { 'dir': stdpath('data') . '/bundle/VimCompletesMe' }
 Plug 'godlygeek/tabular', { 'dir': stdpath('data') . '/bundle/tabular' }
 Plug 'Shougo/vimproc', { 'dir': stdpath('data') . '/bundle/vimproc', 'do': 'make' }
 
@@ -698,13 +699,13 @@ lua << EOF
   local lspconfig = require'lspconfig'
   local configs = require'lspconfig/configs'
   local util = require'lspconfig/util'
-  local metals   = require'metals'
-  local setup    = require'metals.setup' 
+  -- local metals   = require'metals'
+  -- local setup    = require'metals.setup' 
   local M = {}
 
   M.on_attach = function()
     require'completion'.on_attach();
-    setup.auto_commands()
+    --setup.auto_commands()
   end
 
   lspconfig.zls.setup{
@@ -743,9 +744,8 @@ lua << EOF
   lspconfig.intelephense.setup{
     on_attach = M.on_attach;
   }
-  lspconfig.pyls_ms.setup{
+  lspconfig.pyright.setup{
     on_attach = M.on_attach;
-    cmd = { "dotnet", "exec", vim.fn.stdpath('data') .. "/lspconfig/pyls_ms/Microsoft.Python.languageServer.dll" };
   }
   lspconfig.jdtls.setup{
     on_attach = M.on_attach;
@@ -765,7 +765,7 @@ lua << EOF
   else
     print("Unsupported system for sumneko")
   end
-  local sumneko_root_path = vim.fn.stdpath('data')..'/lspconfig/lua-language-server'
+  local sumneko_root_path = vim.fn.stdpath('data')..'/lspconfig/sumneko_lua/lua-language-server'
   local sumneko_binary = sumneko_root_path.."/bin/"..system_name.."/lua-language-server"
   lspconfig.sumneko_lua.setup {
     cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"};
@@ -804,30 +804,30 @@ lua << EOF
   lspconfig.terraformls.setup{
     on_attach = M.on_attach;
   }
-  lspconfig.metals.setup{
-    on_attach    = M.on_attach;
-    root_dir     = util.root_pattern("pom.xml", "build.sbt", "build.sc", ".git");
-    init_options = {
-      statusBarProvider            = "on";
-      inputBoxProvider             = true;
-      quickPickProvider            = true;
-      executeClientCommandProvider = true;
-      didFocusProvider             = true;
-      decorationProvider           = true;
-    };
-
-    on_init = setup.on_init;
-
-    handlers = {
-      ["textDocument/hover"]          = metals['textDocument/hover'];
-      ["metals/status"]               = metals['metals/status'];
-      ["metals/inputBox"]             = metals['metals/inputBox'];
-      ["metals/quickPick"]            = metals['metals/quickPick'];
-      ["metals/executeClientCommand"] = metals["metals/executeClientCommand"];
-      ["metals/publishDecorations"]   = metals["metals/publishDecorations"];
-      ["metals/didFocusTextDocument"] = metals["metals/didFocusTextDocument"];
-    };
-  }
+--  lspconfig.metals.setup{
+--    on_attach    = M.on_attach;
+--    root_dir     = util.root_pattern("pom.xml", "build.sbt", "build.sc", ".git");
+--    init_options = {
+--      statusBarProvider            = "on";
+--      inputBoxProvider             = true;
+--      quickPickProvider            = true;
+--      executeClientCommandProvider = true;
+--      didFocusProvider             = true;
+--      decorationProvider           = true;
+--    };
+--
+--    on_init = setup.on_init;
+--
+--    handlers = {
+--      ["textDocument/hover"]          = metals['textDocument/hover'];
+--      ["metals/status"]               = metals['metals/status'];
+--      ["metals/inputBox"]             = metals['metals/inputBox'];
+--      ["metals/quickPick"]            = metals['metals/quickPick'];
+--      ["metals/executeClientCommand"] = metals["metals/executeClientCommand"];
+--      ["metals/publishDecorations"]   = metals["metals/publishDecorations"];
+--      ["metals/didFocusTextDocument"] = metals["metals/didFocusTextDocument"];
+--    };
+--  }
 
   lspconfig.ocamllsp.setup{
     on_attach    = M.on_attach;
@@ -915,7 +915,7 @@ nmap <leader>7 <cmd>lua require('telescope.builtin.lsp').workspace_symbols()<cr>
 " treesitter {
 lua <<EOF
   local force = false
-  if vim.fn.has("win64") and vim.fn.getenv("MSYSTEM") == "MSYS"
+  if vim.fn.has("win64") and vim.fn.getenv("MSYSTEM") == "MSYS" then
     force = true
   end
   
@@ -998,20 +998,7 @@ let g:pymode_rope_goto_definition_bind = "<C-]>"
 " }}}
 
 
-" supertab settings {{{
-" let g:SuperTabCrMapping = 0
-" let g:SuperTabMappingForward = '<c-space>'
-" let g:SuperTabMappingBackward = '<s-c-space>'
-let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabDefaultCompletionTypeDiscovery = [
-      \ "&completefunc:<c-x><c-u>",
-      \ "&omnifunc:<c-x><c-o>",
-      \ ]
-let g:SuperTabContextDefaultCompletionType = "<c-n>"
-" let g:SuperTabDefaultCompletionType = '<c-n>'
-" }}}
-
-" }}}
+let b:vcm_tab_complete='omni'
 
 
 " go settings {{{
@@ -1263,7 +1250,8 @@ augroup completions
   autocmd FileType haskell setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd FileType php setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd FileType java setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType scala setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  "autocmd FileType scala,sbt setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  autocmd FileType scala,sbt lua require('metals').initialize_or_attach({})
   autocmd FileType rust setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd FileType javascript setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd FileType typescript setlocal omnifunc=v:lua.vim.lsp.omnifunc
