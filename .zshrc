@@ -89,35 +89,37 @@ setopt -o sharehistory
 # }}}
 
 # {{{ completions 
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-zstyle ':completion:*' users $USER
-zstyle ':completion:*' list-colors ''
-zstyle ':completion:*' squeeze-slashes true
-zstyle ':completion:*:*:*:*:*' menu select
-zstyle ':completion:*' squeeze-slashes true
-zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
-zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
-zstyle ':completion:*:*:*:*:processes*'    force-list always
-zstyle ':completion:*:functions' ignored-patterns '_*'
-zstyle ':completion:*:*:kill:*' menu yes select
-zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
-zstyle ':completion:*:*:kill:*:processes'  sort false
-zstyle ':completion:*:*:kill:*:processes'  command 'ps -u "$USER"'
-zstyle ':completion:*:*:killall:*:processes' command 'ps --forest -A -o pid,user,cmd'
-zstyle ':completion:*:processes-names'     command "ps axho cmd= | sed 's:\([^ ]*\).*:\1:;s:\(/[^ ]*/\)::;/^\[/d'"
-zstyle ':completion:*:processes' command 'ps -au$USER -o pid,time,cmd|grep -v "ps -au$USER -o pid,time,cmd"'
-zstyle ':completion:*:matches' group yes
-zstyle ':completion:*:options' description yes
-zstyle ':completion:*:options' auto-description '%d'
-zstyle ':completion:*:descriptions' format $'\e[01;33m-- %d --\e[0m'
-zstyle ':completion:*:messages' format $'\e[01;35m-- %d --\e[0m'
-zstyle ':completion:*:warnings' format $'\e[01;31m-- no matches found --\e[0m'
-zstyle ':completion:*:manuals' separate-sections true
-zstyle ':completion:*:manuals.*' insert-sections   true
-zstyle ':completion:*:man:*' menu yes select
-zstyle ':completion:*:rm:*' ignore-line yes
-zstyle ':completion:*:cp:*' ignore-line yes
-zstyle ':completion:*:mv:*' ignore-line yes
+if [[ "$OSTYPE" = darwin* ]]; then
+  zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+  zstyle ':completion:*' users $USER
+  zstyle ':completion:*' list-colors ''
+  zstyle ':completion:*' squeeze-slashes true
+  zstyle ':completion:*:*:*:*:*' menu select
+  zstyle ':completion:*' squeeze-slashes true
+  zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
+  zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
+  zstyle ':completion:*:*:*:*:processes*'    force-list always
+  zstyle ':completion:*:functions' ignored-patterns '_*'
+  zstyle ':completion:*:*:kill:*' menu yes select
+  zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
+  zstyle ':completion:*:*:kill:*:processes'  sort false
+  zstyle ':completion:*:*:kill:*:processes'  command 'ps -u "$USER"'
+  zstyle ':completion:*:*:killall:*:processes' command 'ps --forest -A -o pid,user,cmd'
+  zstyle ':completion:*:processes-names'     command "ps axho cmd= | sed 's:\([^ ]*\).*:\1:;s:\(/[^ ]*/\)::;/^\[/d'"
+  zstyle ':completion:*:processes' command 'ps -au$USER -o pid,time,cmd|grep -v "ps -au$USER -o pid,time,cmd"'
+  zstyle ':completion:*:matches' group yes
+  zstyle ':completion:*:options' description yes
+  zstyle ':completion:*:options' auto-description '%d'
+  zstyle ':completion:*:descriptions' format $'\e[01;33m-- %d --\e[0m'
+  zstyle ':completion:*:messages' format $'\e[01;35m-- %d --\e[0m'
+  zstyle ':completion:*:warnings' format $'\e[01;31m-- no matches found --\e[0m'
+  zstyle ':completion:*:manuals' separate-sections true
+  zstyle ':completion:*:manuals.*' insert-sections   true
+  zstyle ':completion:*:man:*' menu yes select
+  zstyle ':completion:*:rm:*' ignore-line yes
+  zstyle ':completion:*:cp:*' ignore-line yes
+  zstyle ':completion:*:mv:*' ignore-line yes
+fi
 
 compdef _gnu_generic slrnpull make df du mv cp makepkg
 
@@ -583,7 +585,6 @@ prompt_pure_setup "$@"
 # }}}
 
 # program settings & paths {{{
-export OS=`uname | tr "[:upper:]" "[:lower:]"`
 # ls
 #
 # grep
@@ -594,7 +595,11 @@ if [[ "$OSTYPE" = darwin* ]]; then
 fi
 
 # python
-export PYTHONSTARTUP=$HOME/.pythonstartup
+if [[ "$OSTYPE" = darwin* ]]; then
+  export PYTHONSTARTUP=$HOME/.pythonstartup
+elif [[ "$OSTYPE" = msys* ]]; then
+  export PYTHONHOME=/c/tools/msys64/mingw64
+fi
 
 # maven
 export MAVEN_REPO=$HOME/.m2/repository
@@ -637,7 +642,7 @@ export LC_ALL="en_US.UTF-8"
 export VERSIONER_PERL_PREFER_32_BIT=yes
 export PERL_BADLANG=0
 
-if [ $OS = "linux" ];
+if [[ $OSTYPE = linux* ]];
 then
   export PERL_LOCAL_LIB_ROOT=$HOME/.perl5
   export PERL_MB_OPT="--install_base $HOME/.perl5";
@@ -658,7 +663,7 @@ if [[ "$OSTYPE" = darwin* ]]; then
     #export JAVA_HOME="$(/usr/libexec/java_home -v 1.6.0_43-b01-447)"
   fi
 else
-  export JAVA_HOME=/usr/lib/jvm/java-8-jdk
+  export JAVA_HOME=/home/linuxbrew/.linuxbrew/opt/openjdk/libexec/                                                                                                                                    
 fi
 
 # jdtls
@@ -714,6 +719,11 @@ $GOPATH/bin:\
 /usr/local/openresty/luajit/bin:\
 $HOME/.platformio/penv/bin:\
 $PATH
+
+if [[ "$OSTYPE" = msys* ]]; then
+  export PATH=$PATH:/c/tools/neovim-msys/bin:/mingw64/bin:/usr/bin
+fi
+
 
 # }}}
 #
@@ -823,9 +833,11 @@ if [[ "$OSTYPE" = darwin* ]]; then
   export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
 fi
 
-eval "$(direnv hook zsh)"
+if [[ "$OSTYPE" = darwin* ]]; then
+  eval "$(direnv hook zsh)"
+fi
 
-#[[ $OS == "Darwin" ]] && test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
+#[[ $OSTYPE = darwin* ]] && test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
 
 [ -f $HOME/.zshrc_secrets ] && . $HOME/.zshrc_secrets
 
@@ -848,8 +860,12 @@ fi
 
 export PATH=$HOME/.local/bin:$PATH
 
+if [[ $OSTYPE = linux* ]]; then
+  export CARGO_HOME=$HOME/.cargo-linux
+  export RUSTUP_HOME=$HOME/.rustup-linux
+fi
 
-if [[ $OS = "linux" ]]; then
+if [[ $OSTYPE = linux* ]]; then
   export rvm_ignore_gemrc_issues=1
   export rvm_silence_path_mismatch_check_flag=1
 fi
@@ -861,10 +877,13 @@ if [ -f '/Users/adragomi/work/google-cloud-sdk/path.zsh.inc' ]; then source '/Us
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/adragomi/work/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/adragomi/work/google-cloud-sdk/completion.zsh.inc'; fi
 
-export PATH=/Users/adragomi/.local/bin/luna-studio:$PATH
+export PATH=$HOME/.local/bin/luna-studio:$PATH
 export PATH="/Users/adragomi/.deno/bin:$PATH"
 
-ulimit -n 10240 12288
+
+if [[ "$OSTYPE" = darwin* ]]; then
+  ulimit -n 10240 12288
+fi
 
 export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export KLAM_BROWSER="Google Chrome"

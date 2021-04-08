@@ -13,14 +13,20 @@ if has("nvim")
     let g:ruby_host_prog = 'rvm ruby-3.0.0 do neovim-ruby-host'
     let g:node_host_prog = '/home/linuxbrew/.linuxbrew/lib/node_modules/neovim/bin/cli.js'
   elseif has("win64")
-    let g:os_bin_path = "windows"
-		let &shell = has('win64') ? 'powershell' : 'pwsh'
-		set shellquote= shellpipe=\| shellxquote=
-		set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
-		set shellredir=\|\ Out-File\ -Encoding\ UTF8
-    " let g:python3_host_prog = 'c:\Python39\python3.exe'
-    let g:ruby_host_prog = 'c:\tools\ruby30\bin\neovim-ruby-host.bat'
-    "let g:node_host_prog = 'C:\Users\adrag\AppData\Roaming\npm\neovim-node-host'
+    if $MSYSTEM == "MSYS"
+      let g:os_bin_path = "windows"
+		  let &shell = "/usr/bin/zsh"
+		  echom "XXXXXXXXXXXXXXXXX"
+    else
+      let g:os_bin_path = "windows"
+		  let &shell = has('win64') ? 'powershell' : 'pwsh'
+		  set shellquote= shellpipe=\| shellxquote=
+		  set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
+		  set shellredir=\|\ Out-File\ -Encoding\ UTF8
+      " let g:python3_host_prog = 'c:\Python39\python3.exe'
+      let g:ruby_host_prog = 'c:\tools\ruby30\bin\neovim-ruby-host.bat'
+      "let g:node_host_prog = 'C:\Users\adrag\AppData\Roaming\npm\neovim-node-host'
+    endif
   endif
 endif
 
@@ -908,11 +914,17 @@ nmap <leader>7 <cmd>lua require('telescope.builtin.lsp').workspace_symbols()<cr>
 
 " treesitter {
 lua <<EOF
+  local force = false
+  if vim.fn.has("win64") and vim.fn.getenv("MSYSTEM") == "MSYS"
+    force = true
+  end
+  
   require'nvim-treesitter.configs'.setup {
     highlight = {
       enable = true, -- false will disable the whole extension
       disable = {},  -- list of language that will be disabled
     },
+    force_unix_shell = true, 
     incremental_selection = {
       enable = true, 
       keymaps = {
