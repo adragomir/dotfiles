@@ -16,7 +16,6 @@ if has("nvim")
     if $MSYSTEM == "MSYS"
       let g:os_bin_path = "windows"
 		  let &shell = "/usr/bin/zsh"
-		  echom "XXXXXXXXXXXXXXXXX"
     else
       let g:os_bin_path = "windows"
 		  let &shell = has('win64') ? 'powershell' : 'pwsh'
