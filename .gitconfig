@@ -142,7 +142,7 @@
 
 [merge] 
   summary = true
-  tool = opendiff
+  tool = smerge
   #tool = araxis
 
 [core]
@@ -218,6 +218,9 @@
 	path = 
 [mergetool "sourcetree"]
 	cmd = /Users/adragomir/Applications/Development Tools/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[mergetool "smerge"]
+	cmd = /Users/adragomi/bin/smerge mergetool \"$BASE\" \"$LOCAL\" \"$REMOTE\" -o \"$MERGED\"
 	trustExitCode = true
 [difftool "bcomp"]
   trustExitCode = true

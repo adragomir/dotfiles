@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+
+import os, sys, re, fileinput
+
+constRapidZgcode = '{} G0 Z{} (Changed from: "{}")'
+constRapidXYgcode = '{} G0 {} (Changed from: "{}")'
+constFeedZgcode = '{} G1 Z{} F{} (Changed from: "{}")'
+constFeedXYgcode = '{} G1 {} F{} (Changed from: "{}")'
+constFeedXYZgcode = '{} G1 {} Z{} F{} (Changed from: "{}")'
+constAddFeedGcode = " F{} (Feed rate added)"
+constMotionGcodeSet = {0,1,2,3,33,38,73,76,80,81,82,84,85,86,87,88,89}
+constEndMcodeSet = {5,9,30}
+constLineNumInc = 5
+
+regToolComment = re.compile(r"\(T[0-9]+\s")
+
+regBody = re.compile(r""
+  "(?P<N>N[0-9]+ *)?" # line number
+  "(?P<line>"         # line w/o number
+  "(T(?P<T>[0-9]+))?" # Tool
+  "(M(?P<M>[0-9]+))?" # M-code
+  ".+)",              # to end of line
+  re.IGNORECASE | re.DOTALL)
+
+
+regGcode = re.compile(r""
+    "(?P<N>N[0-9]+ *)?" # line number
+    "(G(?P<G>[0-9]+(\.[0-9]*)?)[^XYZF]*)?"
+    "(?P<XY>((X-?[0-9]+(\.[0-9]*)?)[^XYZF]*)?"
+    "((Y-?[0-9]+(\.[0-9]*)?)[^XYZF]*)?)"
+    "(Z(?P<Z>-?[0-9]+(\.[0-9]*)?)[^XYZF]*)?"
+    "(F(?P<F>-?[0-9]+(\.[0-9]*)?)[^XYZF]*)?",
+    re.IGNORECASE)
+# Parse the gcode. We expect a header like this:
+#
+# % <optional>
+# (<comments>) <0 or more lines>
+# (<Txx tool comment>) <optional>
+# <comments or G-code initialization, up to Txx>
+#
+# This header is stripped from all files after the first,
+# except the tool comment is put in a list at the top.
+# The header ends when we find the body, which starts with:
+#
+# Txx ...   (optionally preceded by line number Nxx)
+#
+# We copy all the body, looking for the tail. The start
+# of the tail is marked by one of these:
+# M30 - end program
+# M5 - stop spindle
+# M9 - stop coolant
+# The tail is stripped until the last operation is done.
+
+# % at start only
+if len(sys.argv) < 2:
+  input = sys.stdin
+else:
+  input = open(sys.argv[1])
+
+Gcode = None
+Zcur = None
+Zfeed = None
+fZfeedNotSet = True
+feedCur = 0
+fFirstG1 = False
+fLockSpeed = False
+
+for line_terminated in input:
+  line = line_terminated.rstrip('\n')
+  if len(line) == 0:
+    print("")
+    continue
+  if line[0] == "%":
+    print(line)
+    continue
+  if line[0] == "(" or line[0] == "O":
+    print(line)
+    continue
+
+  match = regGcode.match(line)
+  if match.end() != 0:
+    try:
+      match = match.groupdict()
+      GcodeTmp = match["G"]
+      if GcodeTmp != None:
+        GcodeTmp = int(float(GcodeTmp))
+        if GcodeTmp in constMotionGcodeSet:
+          Gcode = GcodeTmp
+          if Gcode != 1:
+            fFirstG1 = False
+
+      Ztmp = match["Z"]
+      if Ztmp != None:
+        Zlast = Zcur
+        Zcur = float(Ztmp)
+
+      feedTmp = match["F"]
+      if feedTmp != None:
+        feedCur = float(feedTmp)
+
+      XYcur = match["XY"].rstrip("\n ")
+
+      if (Zfeed == None or fZfeedNotSet) and (Gcode == 0 or Gcode == 1) and Ztmp != None and len(XYcur) == 0:
+        # Figure out Z feed
+        if (Zfeed != None):
+          fZfeedNotSet = False
+        Zfeed = Zcur
+        if Gcode != 0:
+          # Replace line with rapid move
+          line = constRapidZgcode.format(match["N"], Zcur, line[:-1])
+          fFirstG1 = True
+          Gcode = 0
+
+      if Gcode == 1 and not fLockSpeed:
+        if Ztmp != None:
+          if len(XYcur) == 0 and (Zcur >= Zlast or Zcur >= Zfeed or feedCur == 0):
+            # Upward move, above feed height, or anomalous feed rate.
+            # Replace with rapid move
+            line = constRapidZgcode.format(match["N"], Zcur, line[:-1])
+            fFirstG1 = True
+            Gcode = 0
+
+        elif Zcur >= Zfeed:
+          # No Z move, at/above feed height
+          line = constRapidXYgcode.format(match["N"], XYcur, line[:-1])
+          fFirstG1 = True
+          Gcode = 0
+
+      elif fFirstG1 and GcodeTmp == None:
+        # No G-code present, changing to G1
+        if Ztmp != None:
+          if len(XYcur) != 0:
+            # Not Z move only - back to G1
+            line = constFeedXYZgcode.format(match["N"], XYcur, Zcur, feedCur, line[:-1])
+            fFirstG1 = False
+            Gcode = 1
+          elif Zcur < Zfeed and Zcur <= Zlast:
+            # Not up nor above feed height - back to G1
+            line = constFeedZgcode.format(match["N"], Zcur, feedCur, line[:-1])
+            fFirstG1 = False
+            Gcode = 1
+          elif len(XYcur) != 0 and Zcur < Zfeed:
+            # No Z move, below feed height - back to G1
+            line = constFeedXYgcode.format(match["N"], XYcur, feedCur, line[:-1])
+            fFirstG1 = False
+            Gcode = 1
+
+      if (Gcode == 1 and fFirstG1):
+        if (feedTmp == None):
+          # Feed rate not present, add it
+          line = line[:-1] + constAddFeedGcode.format(feedCur)
+        fFirstG1 = False
+
+      if Zcur != None and Zfeed != None and Zcur > Zfeed and Gcode != None and \
+        Gcode != 0 and len(XYcur) != 0 and (Ztmp != None or Gcode != 1):
+        # We're above the feed height, but made a cutting move.
+        # Feed height is wrong, bring it up
+        Zfeed = Zcur + 0.001
+      print(line)
+    except:
+      fFastZ = False # Just skip changes
+      print("AAAAAAAAAAAAAAAAAAAAAA")
+    continue

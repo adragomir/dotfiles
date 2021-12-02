@@ -1,0 +1,49 @@
+#!/usr/bin/python
+#You may have to change some of these values to match display/dock/menubar sizes
+xscr=1920
+yscr=1080
+yd=5
+xd=80
+xstart=0
+ystart=44
+
+xmax=xscr-xd
+ymax=yscr-yd
+import subprocess,os
+output = subprocess.Popen(["wmctrl", "-l","-G"], stdout=subprocess.PIPE).communicate()[0].split("\n")
+class win():
+    def __init__(self, wid, desktop, x, y, w, h, name):
+        self.wid = wid
+        self.desktop = int(desktop)
+        self.x = int(x)
+        self.y = int(y)
+        self.w = int(w)
+        self.h = int(h)
+        self.name = name
+    def __str__(self):
+        return __repr__(self)
+    def __repr__(self):
+        return "%s (%s): (%d,%d) @ (%d,%d):%d"%(self.name,self.wid,self.w,self.h,self.x,self.y,self.desktop)
+wins=[]
+for i in output:
+    f = filter(None, i.split(" "))
+    print(f)
+    if(len(f) < 7):
+        continue
+    wins.append(win(f[0], f[1], f[2], f[3], f[4], f[5]," ".join(f[6:])))
+for i in wins:
+    print(repr(i))
+    if i.x<0 or i.x>xmax or i.y<0 or i.y>ymax:
+        w=min(i.w,xmax-40)
+        h=min(i.h,ymax)
+        x=0
+        y=0
+    elif (i.x+i.w)>xscr or (i.y+i.h)>yscr:
+        x=i.x-xstart
+        y=i.y-ystart
+        w=xscr-x-xstart
+        h=yscr-y-ystart
+    else:
+        continue
+    cmd="wmctrl -i -r %s -e 10,%d,%d,%d,%d"%(i.wid,x,y,w,h)
+    os.system(cmd)

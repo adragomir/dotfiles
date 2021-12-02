@@ -9,5 +9,5 @@ CACHE_AWS=${2:-$HOME/work/analytics-techops/cache-aws}
 }
 
 pushd $CACHE_AWS
-SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-make.sh validate-config kubeconfig
-SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-install-kubeconfig.sh
+AWS_PROFILE=KLAM-stage SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-make.sh validate-config kubeconfig
+AWS_PROFILE=KLAM-stage SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-install-kubeconfig.sh

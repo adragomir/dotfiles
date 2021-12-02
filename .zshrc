@@ -157,7 +157,6 @@ function preexec {
 # }}}
 
 # key bindings {{{
-
 eval "insert-cycledleft () { zle push-line; LBUFFER='pushd -q +1'; zle accept-line }"
 zle -N insert-cycledleft
 bindkey "\e[1;6D" insert-cycledleft
@@ -263,9 +262,6 @@ bindkey "\e3C" forward-word
 bindkey '^[5C' forward-word
 bindkey '^[[5C' forward-word
 bindkey '^[[3~' delete-char
-#bindkey '\e\eOD' backward-word
-#bindkey '\e\eOC' forward-word
-
 
 _physical_up_line()   { zle backward-char -n $COLUMNS }
 _physical_down_line() { zle forward-char  -n $COLUMNS }
@@ -273,14 +269,6 @@ zle -N physical-up-line _physical_up_line
 zle -N physical-down-line _physical_down_line
 bindkey "\e\e[A" physical-up-line
 bindkey "\e\e[B" physical-down-line
-
-# Move to where the arguments belong.
-after-first-word() {
-  zle beginning-of-line
-  zle forward-word
-}
-zle -N after-first-word
-bindkey "^X1" after-first-word
 
 foreground-vi() {
   fg %vi
@@ -294,43 +282,6 @@ zle -N self-insert url-quote-magic
 # }}}
 
 # functions {{{
-bases() {
-  # Determine base of the number
-  for i      # ==> in [list] missing...
-  do         # ==> so operates on command line arg(s).
-  case "$i" in
-    0b*)    ibase=2;;  # binary
-    0x*|[a-f]*|[A-F]*)  ibase=16;;  # hexadecimal
-    0*)      ibase=8;;  # octal
-    [1-9]*)    ibase=10;;  # decimal
-    *)
-    echo "illegal number $i - ignored"
-    continue;;
-  esac
-
-  # Remove prefix, convert hex digits to uppercase (bc needs this)
-  number=`echo "$i" | sed -e 's:^0[bBxX]::' | tr '[a-f]' '[A-F]'`
-  # ==> Uses ":" as sed separator, rather than "/".
-
-  # Convert number to decimal
-  dec=`echo "ibase=$ibase; $number" | bc`  # ==> 'bc' is calculator utility.
-  case "$dec" in
-    [0-9]*)  ;;       # number ok
-    *)    continue;;     # error: ignore
-  esac
-
-  # Print all conversions in one line.
-  # ==> 'here document' feeds command list to 'bc'.
-  echo `bc <<!
-      obase=16; "hex="; $dec
-      obase=10; "dec="; $dec
-      obase=8;  "oct="; $dec
-      obase=2;  "bin="; $dec
-!
-    ` | sed -e 's: :  :g'
-    done
-}
-
 function allopen() {
   if [[ "$OSTYPE" = darwin* ]]; then
     open $1
@@ -351,23 +302,6 @@ function autoenv_chpwd_hook() {
   fi
 }
 add-zsh-hook chpwd autoenv_chpwd_hook
-
-function javap_method() {
-  class=${1%#*}
-  method=${1#*\#}
-  javap -classpath `cat .run-classpath` -c $class | sed -n -e "/$method(/,/^$/p"
-}
-
-function peek() {
-  tmux split-window -p 33 "$EDITOR" "$@" || exit;
-}
-
-function tm_cleanup() {
-  sudo chown -R adragomi:staff ${1}
-  sudo xattr -c -r ${1}
-  sudo chmod -RN ${1}
-  sudo chmod u+w ${1}
-}
 
 extract () {
   if [ -f $1 ] ; then
@@ -392,7 +326,6 @@ extract () {
 # }}}
 
 # prompt settings {{{
-
 prompt_pure_preprompt_render() {
 	setopt localoptions noshwordsplit
 	local git_color=242
@@ -431,11 +364,11 @@ prompt_pure_preprompt_render() {
 		$cleaned_ps1
 	)
 
-	PROMPT="${(j..)ps1}"
+	PROMPT="${(j..)ps1}" #"
 
   # Expand the prompt for future comparision.
 	local expanded_prompt
-	expanded_prompt="${(S%%)PROMPT}"
+	expanded_prompt="${(S%%)PROMPT}" #"
 
 	if [[ $1 != precmd ]] && [[ $prompt_pure_last_prompt != $expanded_prompt ]]; then
 		# Redraw the prompt.
@@ -521,7 +454,7 @@ prompt_pure_async_callback() {
 			typeset -gA prompt_pure_vcs_info
 
 			# parse output (z) and unquote as array (Q@)
-			info=("${(Q@)${(z)output}}")
+			info=("${(Q@)${(z)output}}") #"
 			local -H MATCH
 			# check if git toplevel has changed
 			if [[ $info[top] = $prompt_pure_vcs_info[top] ]]; then
@@ -556,7 +489,7 @@ prompt_pure_setup() {
 
 	# borrowed from promptinit, sets the prompt options in case pure was not
 	# initialized via promptinit.
-	setopt noprompt{bang,cr,percent,subst} "prompt${^prompt_opts[@]}"
+	setopt noprompt{bang,cr,percent,subst} "prompt${^prompt_opts[@]}" #"
 
 	if [[ -z $prompt_newline ]]; then
 		# This variable needs to be set, usually set by promptinit.
@@ -582,45 +515,14 @@ prompt_pure_setup() {
 
 prompt_pure_setup "$@"
 
+source $ZSH/golang.plugin.zsh
+source $ZSH/url-tools.plugin.zsh
+source $ZSH/autoenv.plugin.zsh
+source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
 # }}}
 
 # program settings & paths {{{
-# ls
-#
-# grep
-if [[ "$OSTYPE" = darwin* ]]; then
-  export GREP_OPTIONS='--color=auto'
-  export GREP_COLOR='1;32'
-  export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
-fi
 
-# python
-if [[ "$OSTYPE" = darwin* ]]; then
-  export PYTHONSTARTUP=$HOME/.pythonstartup
-elif [[ "$OSTYPE" = msys* ]]; then
-  export PYTHONHOME=/c/tools/msys64/mingw64
-fi
-
-# maven
-export MAVEN_REPO=$HOME/.m2/repository
-#export MAVEN_OPTS="-Djava.awt.headless=true"
-#export JAVA_TOOL_OPTIONS='-Djava.awt.headless=true'
-#export MVN_OPTS="-Djava.awt.headless=true"
-export LESS="-rX"
-export PAGER=less
-
-if [[ "$OSTYPE" = darwin* ]]; then
-  export EDITOR=/usr/local/bin/nvim
-  export GIT_EDITOR=/usr/local/bin/nvim
-  export VISUAL='/usr/local/bin/nvim'
-else
-  export EDITOR=/usr/bin/vim
-  export GIT_EDITOR=/usr/bin/vim
-fi
-
-export INPUTRC=~/.inputrc
-
-# locale
 export LANG="en_US.UTF-8"
 export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
@@ -637,269 +539,92 @@ export LC_TELEPHONE="en_US.utf8"
 export LC_MEASUREMENT="en_US.utf8"
 export LC_IDENTIFICATION="en_US.utf8"
 export LC_ALL="en_US.UTF-8"
-
-# perl
 export VERSIONER_PERL_PREFER_32_BIT=yes
 export PERL_BADLANG=0
-
-if [[ $OSTYPE = linux* ]];
-then
-  export PERL_LOCAL_LIB_ROOT=$HOME/.perl5
-  export PERL_MB_OPT="--install_base $HOME/.perl5";
-  export PERL_MM_OPT="INSTALL_BASE=$HOME/.perl5";
-  export PERL5LIB="$HOME/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:$HOME/.perl5/lib/perl5";
-fi
-
-# colors in terminal
 export CLICOLOR=1
+export SSH_AUTH_SOCK=$HOME/.ssh/.ssh-agent.sock
+export LESS="-rX"
+export PAGER=less
+export GREP_OPTIONS='--color=auto'
+export GREP_COLOR='1;32'
+export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
+export EDITOR=/usr/local/bin/nvim
+export GIT_EDITOR=/usr/local/bin/nvim
+export VISUAL='/usr/local/bin/nvim'
+export INPUTRC=~/.inputrc
+export PERL_LOCAL_LIB_ROOT=$HOME/.perl5
+export PERL_MB_OPT="--install_base $HOME/.perl5";
+export PERL_MM_OPT="INSTALL_BASE=$HOME/.perl5";
+export PERL5LIB="$HOME/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:$HOME/.perl5/lib/perl5";
+export GOPATH=$HOME/.gocode
+export GO111MODULE=on
 
-# java
+export PATH=\
+$HOME/bin:\
+$HOME/bin/$OS:\
+$HOME/.local/bin:\
+$HOME/.cargo/bin:\
+$GOPATH/bin:\
+/usr/local/bin:\
+/usr/local/sbin:\
+$HOME/.platformio/penv/bin:\
+$PATH
+
+[[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"
+alias tmux='tmux -2'
+alias history='fc -l 1'
+alias k="kubectl"
+alias zigup="zigup --install-dir $HOME/.zig --path-link $HOME/bin/darwin/zig"
+
 if [[ "$OSTYPE" = darwin* ]]; then
+  export OS=darwin
   export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home
-  if [[ -f /usr/local/opt/jenv ]]; then
-    export JENV_ROOT=/usr/local/opt/jenv
-    if which jenv > /dev/null; then eval "$(jenv init -)"; fi
-    export JAVA_HOME=$(readlink /usr/local/opt/jenv/versions/`cat /usr/local/opt/jenv/version`)
-    #export JAVA_HOME="$(/usr/libexec/java_home -v 1.6.0_43-b01-447)"
-  fi
-else
-  export JAVA_HOME=/home/linuxbrew/.linuxbrew/opt/openjdk/libexec/                                                                                                                                    
-fi
-
-# jdtls
-if [[ "$OSTYPE" = darwin* ]]; then
   export JAR=$HOME/.local/share/nvim/lspconfig/jdtls/plugins/org.eclipse.equinox.launcher_1.6.0.v20200915-1508.jar
   export GRADLE_HOME=/usr/local/opt/gradle
   export JDTLS_CONFIG=$HOME/.local/share/nvim/lspconfig/jdtls/config_mac
   export WORKSPACE=$HOME/.cache/jdtls/workspace
+  export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
+  export HOMEBREW_NO_ENV_HINTS=1
 fi
-
-# scala
-export SCALA_HOME=/usr/local/opt/scala
-
-# go
-if [[ "$OSTYPE" = linux* ]]; then
-  export GOPATH=$HOME/.golinux
-else
-  export GOPATH=$HOME/.gocode
-fi
-export GO15VENDOREXPERIMENT=1
-export GO111MODULE=on
-
-# esp8266 {{{
-export XTENSA_TOOL_ROOT=/usr/local/Cellar/xtensa-lx106-elf
-export XTENSA_TOOL_BIN=/usr/local/Cellar/xtensa-lx106-elf/bin
-export ESP8266_SDK_BASE=/usr/local/Cellar/xtensa-lx106-elf/esp_iot_sdk
-export ESP8266_RTOS_SDK_BASE=/usr/local/Cellar/xtensa-lx106-elf/esp_iot_rtos_sdk
-#}}}
-
-
-
-# path {{{
-export PATH=\
-$HOME/bin:\
-$HOME/bin/$OS:\
-$HOME/.rvm/gems/ruby-2.6.3/bin:\
-/usr/local/opt/python@2/libexec/bin:\
-$HOME/.rvm/bin:\
-$HOME/.cargo/bin:\
-/usr/local/bin:\
-/usr/local/sbin:\
-/usr/local/share/npm/bin:\
-$SAASBASE_HOME/services:\
-$HOME/.cabal/bin:\
-$HOME/temp/source/other/sshuttle:\
-$HOME/temp/source/other/factor:\
-$HOME/work/tools/nasm:\
-$HOME/temp/source/other/rock/bin:\
-$HOME/Applications/emulator/n64/mupen64plus-1.99.4-osx/x86_64:\
-$HOME/.perl5/bin:\
-$GOPATH/bin:\
-/usr/local/openresty/nginx/sbin:\
-/usr/local/openresty/luajit/bin:\
-$HOME/.platformio/penv/bin:\
-$PATH
 
 if [[ "$OSTYPE" = msys* ]]; then
+  export PYTHONHOME=/c/tools/msys64/mingw64
   export PATH=$PATH:/c/tools/neovim-msys/bin:/mingw64/bin:/usr/bin
 fi
 
-
-# }}}
-#
-# man path {{{
-export MANPATH=\
-/usr/local/man:\
-$MANPATH
-# }}}
-
-# }}}
-
-# aliases {{{
-alias or1="ssh ${USER}@ops1.or1.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa -A"
-alias lon5="ssh ${USER}@ops1.lon5.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa -A"
-alias sin2="ssh ${USER}@ops1.sin2.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa -A"
-alias sbx="ssh ${USER}@ops1.sbx1.omniture.com@scb.dmz.or1.adobe.net -i ~/.ssh/id_rsa -A"
-alias ut1="ssh ${USER}@ops1.ut1.omniture.com -i ~/.ssh/id_rsa -A"
-alias youtube720-dl="youtube-dl -q -f 'bestvideo[height<=720]+bestaudio/best[height<=720]'"
-alias youtube480-dl="youtube-dl -q -f 'bestvideo[height<=480]+bestaudio/best[height<=480]'"
-alias youtube360-dl="youtube-dl -q -f 'bestvideo[height<=360]+bestaudio/best[height<=360]'"
-# alias luarocks="luarocks --tree=${HOME}/.luarocks"
-# alias luajitrocks="luajitrocks --tree=${HOME}/.luajitrocks"
-alias decrypt_hiera="openssl smime -decrypt -aes256 -binary -inform der -inkey /Users/adragomi/.ssh/hiera_private.key -in"
-alias fcurl="curl -xprodproxy-000-lxc.prod.dal09.fitbit.com:3128 --proxy-negotiate -u :  "
-# builtin commands
-
-# make top default to ordering by CPU usage:
-alias top='top -ocpu'
-# more lightweight version of top which doesn't use so much CPU itself:
-alias ttop='top -ocpu -R -F -s 2 -n30'
-
-# ls
-#alias l="ls -AGlFT"
-alias la='ls -A'
-alias lt="ls -AGlFTtr"
-alias lc="cl"
-alias mkdir='mkdir -p'
-alias finde='find -E'
-alias df='df -h'
-alias du='du -h -c'
-alias psa='ps auxwww'
-alias ping='ping -c 5'
-alias grep='grep --colour -a'
-alias irb='pry'
-alias ri='ri -Tf ansi'
-alias tu='top -o cpu'
-alias tm='top -o vsize'
-if [[ "$OSTYPE" = linux* ]]; then
-  alias tmux='tmux -2'
-fi
-
-# Show history
-alias history='fc -l 1'
-
-alias dtrace-providers="sudo dtrace -l | perl -pe 's/^.*?\S+\s+(\S+?)([0-9]|\s).*/\1/' | sort | uniq"
-#}}}
-
-# plugins {{{
-# final settings {{{
-[[ -s $HOME/.tmuxinator/scripts/tmuxinator ]] && source $HOME/.tmuxinator/scripts/tmuxinator
-source $ZSH/golang.plugin.zsh
-source $ZSH/url-tools.plugin.zsh
-
-[[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"  # secrets
-
-# }}}
-
-# export LUA_PATH="\
-# /usr/local/opt/lua/share/lua/5.2/?.lua;\
-# /usr/local/opt/lua/share/lua/5.2/?/init.lua;\
-# ${HOME}/.luarocks/share/lua/5.2/?.lua;\
-# ${HOME}/.luarocks/share/lua/5.2/?/init.lua;\
-# ./?.lua;\
-# ./?/init.lua\
-# "
-
-# export LUA_CPATH="\
-# /usr/local/opt/lua/lib/lua/5.2/?.so;\
-# ${HOME}/.luarocks/lib/lua/5.2/?.so;\
-# /usr/local/opt/lua/lib/lua/5.2/loadall.so;\
-# ./?.so\
-# "
-
-# export LUAJIT_PATH="\
-# /usr/local/opt/luajit/share/luajit-2.1.0-beta1/?.lua;\
-# /usr/local/opt/luajit/share/lua/5.1/?.lua;\
-# /usr/local/opt/luajit/share/lua/5.1/?/init.lua;\
-# ${HOME}/.luajitrocks/share/lua/5.1/?.lua;\
-# ${HOME}/.luajitrocks/share/lua/5.1/?/init.lua;\
-# ./?.lua;\
-# ./?/init.lua\
-# "
-
-# export LUAJIT_CPATH="\
-# /usr/local/opt/luajit/lib/lua/5.1/?.so;\
-# ${HOME}/.luajitrocks/lib/lua/5.1/?.so;\
-# /usr/local/opt/luajit/lib/lua/5.1/loadall.so;\
-# ./?.so\
-# "
-
-# alias lua='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/lua'
-# alias luarocks='LUA_PATH=${LUA_PATH} LUA_CPATH=${LUA_CPATH} /usr/local/bin/luarocks --tree=${HOME}/.luarocks'
-# alias luajit='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajit'
-# alias luajitrocks='LUA_PATH=${LUAJIT_PATH} LUA_CPATH=${LUAJIT_CPATH} /usr/local/bin/luajitrocks --tree=${HOME}/.luajitrocks'
-
-if [[ "$OSTYPE" = darwin* ]]; then
-  export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
-fi
-
-if [[ "$OSTYPE" = darwin* ]]; then
-  eval "$(direnv hook zsh)"
-fi
-
-#[[ $OSTYPE = darwin* ]] && test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
-
-[ -f $HOME/.zshrc_secrets ] && . $HOME/.zshrc_secrets
-
-command -v vg >/dev/null 2>&1 && eval "$(vg eval --shell zsh)"
-
-export NVM_DIR="$HOME/.nvm"
-
-if [[ "$OSTYPE" = darwin* ]]; then
-  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-fi
-
-if [[ "$OSTYPE" = linux* ]]; then
-  [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh" ] && . "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh"  # This loads nvm
-  [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-fi
-
-
-[[ -d ~/.rvm/rubies ]] && RUBIES+=(~/.rvm/rubies/*)
-
-export PATH=$HOME/.local/bin:$PATH
-
 if [[ $OSTYPE = linux* ]]; then
+  export OS=linux
+  export EDITOR=/usr/bin/vim
+  export GIT_EDITOR=/usr/bin/vim
+  export JAVA_HOME=/home/linuxbrew/.linuxbrew/opt/openjdk/libexec/
+  export GOPATH=$HOME/.golinux
   export CARGO_HOME=$HOME/.cargo-linux
   export RUSTUP_HOME=$HOME/.rustup-linux
+  export PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
 fi
 
-if [[ $OSTYPE = linux* ]]; then
-  export rvm_ignore_gemrc_issues=1
-  export rvm_silence_path_mismatch_check_flag=1
-fi
-[[ -f $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
+eval $(brew shellenv)
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/adragomi/work/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/adragomi/work/google-cloud-sdk/path.zsh.inc'; fi
+# nvm
+eval "$(fnm env)"
 
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/adragomi/work/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/adragomi/work/google-cloud-sdk/completion.zsh.inc'; fi
+# conda
+# !! Contents within this block are managed by 'conda init' !!
+export CONDA_PREFIX=/Users/adragomi/.conda
+conda() {
+  __conda_setup="$('/usr/local/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+  if [ $? -eq 0 ]; then
+      eval "$__conda_setup"
+  else
+      if [ -f "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
+          . "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh"
+      else
+          export PATH="/usr/local/Caskroom/miniconda/base/bin:$PATH"
+      fi
+  fi
+  unset __conda_setup
+}
+# <<< conda initialize <<<
 
-export PATH=$HOME/.local/bin/luna-studio:$PATH
-export PATH="/Users/adragomi/.deno/bin:$PATH"
+eval "$(frum init)"
 
-
-if [[ "$OSTYPE" = darwin* ]]; then
-  ulimit -n 10240 12288
-fi
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-export KLAM_BROWSER="Google Chrome"
-
-# opam configuration
-test -r /Users/adragomi/.opam/opam-init/init.zsh && . /Users/adragomi/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
-
-if [[ "$OSTYPE" = darwin* ]]; then
-  source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
-  export KUBECONFIG=$(find $HOME/.kube -maxdepth 1 -type f -and ! -name "kubectx" | gtr '\n' ':')
-fi
-
-if [[ "$OSTYPE" = linux* ]]; then
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"

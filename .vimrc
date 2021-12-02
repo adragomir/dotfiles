@@ -113,7 +113,8 @@ set inccommand=nosplit
 set showtabline=0
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
-set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
+"set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
+set completeopt=menu,menuone,noselect
 if !has('nvim')
   set ttyfast
   set ttymouse=xterm
@@ -145,9 +146,6 @@ set gcr=a:blinkon0
 set switchbuf=useopen
 " settings: line endings
 " settings: grep
-if executable("ag")
-  set grepprg=ag\ --nogroup\ --nocolor
-endif
 if executable("rg")
   set grepprg=rg\ --no-ignore\ -H\ --no-heading\ --color\ never
 endif
@@ -234,7 +232,6 @@ Plug 'fatih/vim-go', { 'dir': stdpath('data') . '/bundle/vim-go', 'for': 'go' }
 if has('nvim')
   Plug 'jodosha/vim-godebug', { 'dir': stdpath('data') . '/bundle/vim-godebug', 'for': 'go' }
 end
-"Plug 'othree/html5.vim', { 'dir': stdpath('data') . '/bundle/html5', 'for': 'html' }
 Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
 Plug 'gabrielelana/vim-markdown', { 'dir': stdpath('data') . '/bundle/markdown', 'for': ['md', 'markdown']}
 Plug 'rust-lang/rust.vim', { 'dir': stdpath('data') . '/bundle/rust', 'for': 'rust' }
@@ -244,26 +241,41 @@ Plug 'pearofducks/ansible-vim', { 'dir': stdpath('data') . '/bundle/ansible-vim'
 Plug 'vim-ruby/vim-ruby', { 'dir': stdpath('data') . '/bundle/vim-ruby', 'for': 'ruby' }
 Plug 'stephpy/vim-yaml', { 'dir': stdpath('data') . '/bundle/vim-yaml', 'for': 'yaml' }
 Plug 'rhysd/vim-clang-format', { 'dir': stdpath('data') . '/bundle/vim-clang-format' }
-"Plug 'Glench/Vim-Jinja2-Syntax', { 'dir': stdpath('data') . '/bundle/vim-jinja2-syntax' }
-Plug 'neovimhaskell/haskell-vim', { 'dir': stdpath('data') . '/bundle/haskell-vim', 'for': 'haskell' }
-Plug 'elmcast/elm-vim', { 'dir': stdpath('data') . '/bundle/elm-vim', 'for': 'elm' }
-Plug 'jdonaldson/vaxe', { 'dir': stdpath('data') . '/bundle/vaxe' }
-Plug 'jansedivy/jai.vim', {'dir': stdpath('data') . '/bundle/jai' }
 Plug 'hashivim/vim-terraform', {'dir': stdpath('data') . '/bundle/vim-terraform'}
 Plug 'leafgarland/typescript-vim', {'dir': stdpath('data') . '/bundle/typescript-vim' }
 Plug 'ziglang/zig.vim'
 Plug 'fedorenchik/fasm.vim'
-Plug 'google/vim-jsonnet', {'dir': stdpath('data') . '/bundle/jsonnet', 'for': 'jsonnet' }
-Plug 'edwinb/idris2-vim' 
-Plug 'tomlion/vim-solidity'
-"Plug 'google/ijaas', {'dir': stdpath('data') . '/bundle/ijaas', 'rtp': 'vim' }
+Plug 'urbit/hoon.vim'
+
+" Plug 'neovimhaskell/haskell-vim', { 'dir': stdpath('data') . '/bundle/haskell-vim', 'for': 'haskell' }
+" Plug 'jdonaldson/vaxe', { 'dir': stdpath('data') . '/bundle/vaxe' }
+" Plug 'jansedivy/jai.vim', {'dir': stdpath('data') . '/bundle/jai' }
+" Plug 'elmcast/elm-vim', { 'dir': stdpath('data') . '/bundle/elm-vim', 'for': 'elm' }
+" Plug 'google/vim-jsonnet', {'dir': stdpath('data') . '/bundle/jsonnet', 'for': 'jsonnet' }
+" Plug 'edwinb/idris2-vim' 
+" Plug 'tomlion/vim-solidity'
+
+lua << EOF
+vim.lsp.set_log_level("error")
+EOF
 
 " completion
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/lsp-status.nvim'
-Plug 'nvim-lua/completion-nvim'
 Plug 'scalameta/nvim-metals', {'branch': 'main'}
 Plug 'nvim-lua/lsp_extensions.nvim'
+Plug 'tami5/lspsaga.nvim', {'branch': 'nvim51'}
+Plug 'nvim-lua/popup.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-fzy-native.nvim'
+Plug 'ray-x/lsp_signature.nvim'
+
+" syntax
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'RRethy/nvim-treesitter-textsubjects'
+
+Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
 
 " tools
 Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
@@ -273,38 +285,17 @@ Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a', 'do': 'patch -
 " vim
 Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
 Plug 't9md/vim-choosewin', { 'dir': stdpath('data') . '/bundle/vim-choosewin' }
-Plug 'tmux-plugins/vim-tmux-focus-events', { 'dir': stdpath('data') . '/bundle/vim-tmux-focus-events' }
-
-Plug 'tpope/vim-commentary', { 'dir': stdpath('data') . '/bundle/commentary' }
-Plug 'tpope/vim-dispatch', { 'dir': stdpath('data') . '/bundle/dispatch' }
 Plug 'tpope/vim-endwise', { 'dir': stdpath('data') . '/bundle/endwise' }
-Plug 'tpope/vim-obsession', { 'dir': stdpath('data') . '/bundle/obsession' }
-Plug 'tpope/vim-repeat', { 'dir': stdpath('data') . '/bundle/repeat' }
-Plug 'tpope/vim-surround', { 'dir': stdpath('data') . '/bundle/surround' }
+Plug 'tpope/vim-commentary', { 'dir': stdpath('data') . '/bundle/commentary' }
+"Plug 'tpope/vim-surround', { 'dir': stdpath('data') . '/bundle/surround' }
+Plug 'blackcauldron7/surround.nvim'
 
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
-Plug 'mtth/scratch.vim', { 'dir': stdpath('data') . '/bundle/scratch' }
-"Plug 'ervandew/supertab', { 'dir': stdpath('data') . '/bundle/supertab' }
-Plug 'ackyshake/VimCompletesMe', { 'dir': stdpath('data') . '/bundle/VimCompletesMe' }
-Plug 'godlygeek/tabular', { 'dir': stdpath('data') . '/bundle/tabular' }
-Plug 'Shougo/vimproc', { 'dir': stdpath('data') . '/bundle/vimproc', 'do': 'make' }
+Plug 'rbgrouleff/bclose.vim', {'dir': stdpath('data') . '/bundle/bclose' }
 
-Plug 'kana/vim-textobj-user', { 'dir': stdpath('data') . '/bundle/textobj-user' }
-Plug 'kana/vim-textobj-function', {'dir': stdpath('data') . '/bundle/vim-textobj-function' }
-Plug 'Julian/vim-textobj-brace', {'dir': stdpath('data') . '/bundle/vim-textobj-brace' }
-Plug 'glts/vim-textobj-comment', {'dir': stdpath('data') . '/bundle/vim-textobj-comment' }
-Plug 'beloglazov/vim-textobj-quotes', {'dir': stdpath('data') . '/bundle/vim-textobj-quotes' }
+" textobj
 Plug 'rhysd/clever-f.vim'
 
-Plug 'rbgrouleff/bclose.vim', {'dir': stdpath('data') . '/bundle/bclose' }
-Plug 'jmcantrell/vim-virtualenv', {'dir': stdpath('data') . '/bundle/vim-virtualenv', 'for': 'python' }
-
-Plug 'nvim-lua/popup.nvim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-lua/telescope.nvim'
-Plug 'nvim-telescope/telescope.nvim'
-Plug 'nvim-telescope/telescope-fzy-native.nvim'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 call plug#end()
 " }}}
 
@@ -348,15 +339,6 @@ function! s:VSetSearch()
   norm! gvy
   let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
   let @@ = temp
-endfunction
-
-function! UselessBuffer(...)
-  let l:bufname = a:0 == 1 ? a:1 : '%'
-
-  if (getbufvar(l:bufname, '&mod') == 0 && index(['', '[No Name]', '[No File]'], bufname(l:bufname)) >= 0)
-    return 1
-  end
-  return 0
 endfunction
 
 function! MoveCursor(move, mode)
@@ -408,14 +390,6 @@ function! EndKey()
 endfunction
 
 " Visual mode functions
-function! ToggleScratch()
-  if expand('%') == g:ScratchBufferName
-    quit
-  else
-    Sscratch
-  endif
-endfunction
-
 function! s:VSetSearch()
   let temp = @@
   norm! gvy
@@ -441,23 +415,23 @@ endfunction
 xnoremap <silent> <expr> p ReplaceWithRegister()
 
 function! ToggleSideEffects()
-    if mapcheck("dd", "n") == ""
-        noremap dd "_dd
-        noremap D "_D
-        noremap d "_d
-        noremap X "_X
-        noremap x "_x
-        vnoremap p "_dP
-        echo 'side effects off'
-    else
-        unmap dd
-        unmap D
-        unmap d
-        unmap X
-        unmap x
-        vunmap p
-        echo 'side effects on'
-    endif
+  if mapcheck("dd", "n") == ""
+    noremap dd "_dd
+    noremap D "_D
+    noremap d "_d
+    noremap X "_X
+    noremap x "_x
+    vnoremap p "_dP
+    echo 'side effects off'
+  else
+    unmap dd
+    unmap D
+    unmap d
+    unmap X
+    unmap x
+    vunmap p
+    echo 'side effects on'
+  endif
 endfunction
 nnoremap ,, :call ToggleSideEffects()<CR>
 
@@ -495,12 +469,6 @@ if $TERM =~ '^screen-256color'
   set t_Co=256
   noremap <C-a> <Home>
   noremap <C-e> <End>
-  " nmap <Esc>OH <Home>
-  " imap <Esc>OH <Home>
-  " cmap <esc>OH <Home>
-  " nmap <Esc>OF <End>
-  " imap <Esc>OF <End>
-  " cmap <Esc>OF <End>
 endif
 
 " System clipboard interaction.
@@ -599,12 +567,6 @@ map <leader>> `>
 map <leader>` `^
 
 " vaporize delete without overwriting the default register
-" nnoremap vd "_d
-" xnoremap x  "_d
-" nnoremap vD "_D
-" noremap c "_c
-" noremap cc "_cc
-" noremap C "_C
 vnoremap p "_dP
 
 inoremap <C-u> <esc>mzgUiw`za
@@ -634,18 +596,16 @@ inoremap <S-Space> <Space>
 inoremap <C-Space> <C-o>m`
 inoremap <silent> <Home> <C-o>:call HomeKey()<CR>
 nnoremap <silent> <Home> :call HomeKey()<CR>
+
 noremap <Space> m`
 
 " switch cpp/h
 nmap <MapLocalLeader>h :AT<CR>
-map <Leader>s :call ToggleScratch()<CR>
 
 " terminal
 map <leader>r :w\|:silent !reload-chrome<cr>
 
 nmap -  <Plug>(choosewin)
-
-nnoremap <leader>cf :let @*=expand("%:p")<CR>
 
 " disable mistakes
 noremap <f1> <nop>
@@ -661,20 +621,93 @@ inoremap <f9> <nop>
 inoremap <f10> <nop>
 inoremap <f11> <nop>
 inoremap <f12> <nop>
-inoremap <S-f1> <S-nop>
-inoremap <S-f2> <S-nop>
-inoremap <S-f3> <S-nop>
-inoremap <S-f4> <S-nop>
-inoremap <S-f5> <S-nop>
-inoremap <S-f6> <S-nop>
-inoremap <S-f7> <S-nop>
-inoremap <S-f8> <S-nop>
-inoremap <S-f9> <S-nop>
-inoremap <S-f10> <S-nop>
-inoremap <S-f11> <S-nop>
-inoremap <S-f12> <S-nop>
-" }}}
+inoremap <f13> <nop>
+inoremap <f14> <nop>
+inoremap <f15> <nop>
+inoremap <f16> <nop>
+inoremap <f17> <nop>
+inoremap <f18> <nop>
+inoremap <f19> <nop>
+inoremap <f20> <nop>
+inoremap <f21> <nop>
+inoremap <f22> <nop>
+inoremap <f23> <nop>
+inoremap <f24> <nop>
+inoremap <S-F1> <nop>
+inoremap <S-F2> <nop>
+inoremap <S-F3> <nop>
+inoremap <S-F4> <nop>
+inoremap <S-F5> <nop>
+inoremap <S-F6> <nop>
+inoremap <S-F7> <nop>
+inoremap <S-F8> <nop>
+inoremap <S-F9> <nop>
+inoremap <S-F10> <nop>
+inoremap <S-F11> <nop>
+inoremap <S-F12> <Nop>
+inoremap <S-F13> <nop>
+inoremap <S-F14> <nop>
+inoremap <S-F15> <nop>
+inoremap <S-F16> <nop>
+inoremap <S-F17> <nop>
+inoremap <S-F18> <nop>
+inoremap <S-F19> <nop>
+inoremap <S-F20> <nop>
+inoremap <S-F21> <nop>
+inoremap <S-F22> <nop>
+inoremap <S-F23> <nop>
+inoremap <S-F24> <nop>
 
+cnoremap <F1> <nop>
+cnoremap <F2> <nop>
+cnoremap <F3> <nop>
+cnoremap <F4> <nop>
+cnoremap <F5> <nop>
+cnoremap <F6> <nop>
+cnoremap <F7> <nop>
+cnoremap <F8> <nop>
+cnoremap <F9> <nop>
+cnoremap <F10> <nop>
+cnoremap <F11> <nop>
+cnoremap <F12> <nop>
+cnoremap <F13> <nop>
+cnoremap <F14> <nop>
+cnoremap <F15> <nop>
+cnoremap <F16> <nop>
+cnoremap <F17> <nop>
+cnoremap <F18> <nop>
+cnoremap <F19> <nop>
+cnoremap <F20> <nop>
+cnoremap <F21> <nop>
+cnoremap <F22> <nop>
+cnoremap <F23> <nop>
+cnoremap <F24> <nop>
+cnoremap <S-F1> <nop>
+cnoremap <S-F2> <nop>
+cnoremap <S-F3> <nop>
+cnoremap <S-F4> <nop>
+cnoremap <S-F5> <nop>
+cnoremap <S-F6> <nop>
+cnoremap <S-F7> <nop>
+cnoremap <S-F8> <nop>
+cnoremap <S-F9> <nop>
+cnoremap <S-F10> <nop>
+cnoremap <S-F11> <nop>
+cnoremap <S-F12> <Nop>
+cnoremap <S-F13> <nop>
+cnoremap <S-F14> <nop>
+cnoremap <S-F15> <nop>
+cnoremap <S-F16> <nop>
+cnoremap <S-F17> <nop>
+cnoremap <S-F18> <nop>
+cnoremap <S-F19> <nop>
+cnoremap <S-F20> <nop>
+cnoremap <S-F21> <nop>
+cnoremap <S-F22> <nop>
+cnoremap <S-F23> <nop>
+cnoremap <S-F24> <nop>
+
+" }}}
 
 nnoremap <silent> gd          <cmd>lua vim.lsp.buf.definition()<CR>
 nnoremap <Leader>T            :lua require'lsp_extensions'.inlay_hints()<cr>
@@ -693,17 +726,99 @@ nnoremap <silent> <leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <silent> [c          :NextDiagnostic<CR>
 nnoremap <silent> ]c          :PrevDiagnostic<CR>
 nnoremap <silent> <space>d    :OpenDiagnostic<CR>
+lua <<EOF
+
+function hoon_def_search()
+  require 'telescope.builtin'.grep_string({search='\\+(\\+|\\$|\\*)  '.. vim.fn.expand('<cword>') .. '( |$)', use_regex=true})
+end
+
+EOF
+nnoremap <silent> <leader>d   <cmd>lua hoon_def_search()<CR>
+
+" LspSaga bindings
+nnoremap <silent> gh :Lspsaga lsp_finder<CR>
+nnoremap <silent><leader>ca :Lspsaga code_action<CR>
+nnoremap <silent>K :Lspsaga signature_help<CR>
+nnoremap <silent> gs :Lspsaga hover_doc<CR>
+nnoremap <silent> g<space> :Lspsaga preview_definition<CR>
+nnoremap <silent> <leader>cd :Lspsaga show_line_diagnostics<CR>
+nnoremap <silent> [e :Lspsaga diagnostic_jump_next<CR>
+nnoremap <silent> ]e :Lspsaga diagnostic_jump_prev<CR>
+
+let g:coq_settings = {
+	    \ 'auto_start': 'shut-up', 
+	    \ 'display.pum.fast_close': v:false,
+	    \ 'display.icons.mode': 'none', 
+	    \ 'clients.tags.enabled': v:false,  
+	    \ 'clients.snippets.enabled': v:false,
+	    \ 'clients.paths.enabled': v:false, 
+	    \ 'clients.tmux.enabled': v:false
+      \}
 
 lua << EOF
+require'nvim-treesitter.configs'.setup {
+    textsubjects = {
+        enable = true,
+        keymaps = {
+            ['.'] = 'textsubjects-smart',
+            [';'] = 'textsubjects-container-outer',
+        }
+    },
+}
+EOF
+
+lua << EOF
+require"surround".setup {
+  context_offset = 100,
+  load_autogroups = true,
+  mappings_style = "surround",
+  map_insert_mode = true,
+  quotes = {"'", '"'},
+  brackets = {"(", '{', '['},
+  pairs = {
+    nestable = {{"(", ")"}, {"[", "]"}, {"{", "}"}},
+    linear = {{"'", "'"}, {"`", "`"}, {'"', '"'}}
+  }
+}
+EOF
+
+lua << EOF
+  local saga = require 'lspsaga'
+  saga.init_lsp_saga()
+
+  -- Setup lspconfig.
+
   local lspconfig = require'lspconfig'
   local configs = require'lspconfig/configs'
   local util = require'lspconfig/util'
+
+  configs["hoon_language_server"] = {
+    default_config = {
+      cmd = { 'hoon-language-server'},
+      settings = {
+      },
+      filetypes = { 'hoon'},
+      root_dir = util.root_pattern("sys.kelvin"), 
+    },
+    docs = {
+      description = [[
+  https://github.com/urbit/hoon-language-server 
+  Hoon Language server
+  ]],
+    },
+  }
+
+  lspconfig.hoon_language_server.setup{
+    autostart = false, 
+  }
+  
+  local coq = require 'coq'
   -- local metals   = require'metals'
   -- local setup    = require'metals.setup' 
   local M = {}
 
   M.on_attach = function()
-    require'completion'.on_attach();
+    --require'completion'.on_attach();
     --setup.auto_commands()
   end
 
@@ -715,6 +830,20 @@ lua << EOF
     on_attach = M.on_attach;
     root_dir = util.root_pattern("go.mod");
   }
+
+  lspconfig.denols.setup{
+    on_attach = M.on_attach;
+    root_dir = util.root_pattern("deno.json");
+  }
+  lspconfig.haxe_language_server.setup{
+  }
+  lspconfig.leanls.setup{
+  }
+  lspconfig.solang.setup{
+  }
+  lspconfig.svls.setup{
+  }
+
   lspconfig.rust_analyzer.setup{
     on_attach = M.on_attach;
   }
@@ -789,16 +918,18 @@ lua << EOF
           },
         },
       },
-    },
+    };
   }
-
---  lspconfig.sumneko_lua.setup{
---    cmd = { vim.fn.stdpath('data') .. "/lspconfig/sumneko_lua/lua-language-server/bin/macOS/lua-language-server", "-E", vim.env.HOME .. "/.cache/nvim/lspconfig/sumneko_lua/lua-language-server/main.lua" };
---    on_attach = M.on_attach;
---  }
 
   lspconfig.solargraph.setup{
     on_attach = M.on_attach;
+    settings = {
+      solargraph = {
+        diagnostics = true;
+        formatting = true;
+        autoformat = true;
+      }
+    };
   }
   lspconfig.terraformls.setup{
     on_attach = M.on_attach;
@@ -828,15 +959,6 @@ lua << EOF
 --    };
 --  }
 
-  lspconfig.ocamllsp.setup{
-    on_attach    = M.on_attach;
-    root_dir = util.root_pattern(".merlin");
-  }
-
-  lspconfig.hls.setup{
-    on_attach    = M.on_attach;
-  }
-
   lspconfig.elmls.setup{
     on_attach    = M.on_attach;
   }
@@ -846,6 +968,45 @@ lua << EOF
   lspconfig.yamlls.setup{
     on_attach    = M.on_attach;
   }
+  if 1 then
+    lspconfig.zls.setup(coq.lsp_ensure_capabilities())
+    lspconfig.gopls.setup(coq.lsp_ensure_capabilities())
+    lspconfig.denols.setup(coq.lsp_ensure_capabilities())
+    lspconfig.haxe_language_server.setup(coq.lsp_ensure_capabilities())
+    lspconfig.leanls.setup(coq.lsp_ensure_capabilities())
+    lspconfig.solang.setup(coq.lsp_ensure_capabilities())
+    lspconfig.svls.setup(coq.lsp_ensure_capabilities())
+    lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities())
+    lspconfig.ccls.setup(coq.lsp_ensure_capabilities())
+    lspconfig.intelephense.setup(coq.lsp_ensure_capabilities())
+    lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
+    lspconfig.jdtls.setup(coq.lsp_ensure_capabilities())
+    lspconfig.tsserver.setup(coq.lsp_ensure_capabilities())
+    lspconfig.sumneko_lua.setup(coq.lsp_ensure_capabilities())
+    lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
+    lspconfig.terraformls.setup(coq.lsp_ensure_capabilities())
+    lspconfig.elmls.setup(coq.lsp_ensure_capabilities())
+    lspconfig.html.setup(coq.lsp_ensure_capabilities())
+    lspconfig.yamlls.setup(coq.lsp_ensure_capabilities())
+    lspconfig.hoon_language_server.setup(coq.lsp_ensure_capabilities())
+  end
+EOF
+
+lua <<EOF
+  require "lsp_signature".setup({
+    bind = true, 
+    doc_lines = 0, 
+    floating_window = true, 
+    floating_window_above_cur_line = true, 
+    fix_pos = false,
+    hint_enable = false, 
+    use_lspsaga = false, 
+    always_trigger = false, 
+    toggle_key = nil, 
+    handler_opts = {
+      border = "rounded"
+    }
+  })
 EOF
 
 " abbreviations {{{
@@ -870,34 +1031,20 @@ lua << EOF
         '--column',
         '--smart-case'
       },
-      prompt_position = "bottom",
-      prompt_prefix = ">",
+      -- prompt_prefix = ">",
+      -- selection_caret = ">", 
       selection_strategy = "reset",
       sorting_strategy = "descending",
       layout_strategy = "horizontal",
-      layout_defaults = {
-        -- TODO add builtin options.
-      },
-      --file_sorter =  require'telescope.sorters'.get_fuzzy_file,
+      layout_config = {
+        width = 0.75, 
+        prompt_position = "bottom",
+        preview_cutoff = 120,
+      }, 
       file_ignore_patterns = {},
-      --generic_sorter =  require'telescope.sorters'.get_generic_fuzzy_sorter,
-      shorten_path = true,
-      winblend = 0,
-      width = 0.75,
-      preview_cutoff = 120,
-      results_height = 1,
-      results_width = 0.8,
-      border = {},
-      borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰'},
-      color_devicons = false,
       use_less = true,
-      set_env = { ['COLORTERM'] = 'truecolor' }, -- default { }, currently unsupported for shells like cmd.exe / powershell.exe
-      --file_previewer = require'telescope.previewers'.vim_buffer_cat.new, -- For buffer previewer use `require'telescope.previewers'.vim_buffer_cat.new`
-      --grep_previewer = require'telescope.previewers'.vimgrep.new, -- For buffer previewer use `require'telescope.previewers'.vim_buffer_vimgrep.new`
-      --qflist_previewer = require'telescope.previewers'.qflist.new, -- For buffer previewer use `require'telescope.previewers'.vim_buffer_qflist.new`
-      file_previewer = require'telescope.previewers'.vim_buffer_cat.new, -- For buffer previewer use `require'telescope.previewers'.vim_buffer_cat.new`
-      grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new, -- For buffer previewer use `require'telescope.previewers'.vim_buffer_vimgrep.new`
-      qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new, -- For buffer previewer use `require'telescope.previewers'.vim_buffer_qflist.new`
+      grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
+      qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
     }
   }
   require('telescope').load_extension('fzy_native')
@@ -918,6 +1065,7 @@ lua <<EOF
     force = true
   end
   
+  require'nvim-treesitter.install'.compilers = { "gcc" }
   require'nvim-treesitter.configs'.setup {
     highlight = {
       enable = true, -- false will disable the whole extension
@@ -947,13 +1095,6 @@ require'lsp_extensions'.setup{
 	enabled = { "TypeHint", "ParameterHint", "ChainingHint" }
 }
 EOF
-" }}}
-
-" completion-nvim {{{
-let g:completion_enable_auto_popup = 1
-let g:completion_enable_auto_hover = 1
-let g:completion_enable_auto_signature = 1
-let g:completion_enable_auto_paren = 1
 " }}}
 
 " ag plugin settings {{{
@@ -996,10 +1137,6 @@ let g:pymode_doc_bind = ''
 let g:pymode_rope_goto_definition_bind = "<C-]>"
 " }}}
 
-
-let b:vcm_tab_complete='omni'
-
-
 " go settings {{{
 let g:godef_split = 0
 let g:go_play_open_browser = 0
@@ -1011,17 +1148,6 @@ let g:go_def_mode = 'gopls'
 let g:go_def_mapping_enabled = 0
 let g:go_bin_path = expand("~/.gocode/bin")
 let g:go_diagnostics_enabled = 0
-" }}}
-
-" ruby settings {{{
-let g:rubycomplete_debug = 1
-let g:rubycomplete_buffer_loading = 1
-let g:rubycomplete_classes_in_global = 1
-let g:rubycomplete_rails = 1
-" }}}
-
-" rails settings {{{
-let g:rails_debug = 1
 " }}}
 
 " choosewin {{{
@@ -1063,16 +1189,6 @@ let g:FactorRoot="$HOME/temp/source/other/factor"
 
 " tabular {{{
 let g:no_default_tabular_maps=1
-" }}}
-
-
-" textobj-user {{{
-call textobj#user#plugin('chunk', {
-  \ '-' : {
-  \      'select-a' : 'ab', '*select-a-function*' : 'textobj#chunk#select_a',
-  \      'select-i' : 'ib', '*select-i-function*' : 'textobj#chunk#select_i',
-  \   },
-  \ })
 " }}}
 
 " netrw {{{
@@ -1249,7 +1365,6 @@ augroup completions
   autocmd FileType haskell setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd FileType php setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd FileType java setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  "autocmd FileType scala,sbt setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd FileType scala,sbt lua require('metals').initialize_or_attach({})
   autocmd FileType rust setlocal omnifunc=v:lua.vim.lsp.omnifunc
   autocmd FileType javascript setlocal omnifunc=v:lua.vim.lsp.omnifunc

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if (( $# != 2 )); then
+  echo "Usage: src dest"
+fi
+
+src=$(realpath $1)
+dest=$(realpath $2)
+
+echo "$src > $dest"
+
+fswatch -o -v -r . | (while read; do
+  [[ -d $src/app ]] && cp -a $src/app/ $dest/app/
+  [[ -d $src/gen ]] && cp -a $src/gen/ $dest/gen/
+  [[ -d $src/lib ]] && cp -a $src/lib/ $dest/lib/
+  [[ -d $src/mar ]] && cp -a $src/mar/ $dest/mar/
+  [[ -d $src/sur ]] && cp -a $src/sur/ $dest/sur/
+  [[ -d $src/ted ]] && cp -a $src/ted/ $dest/ted/
+done)
+
+

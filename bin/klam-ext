@@ -20,7 +20,7 @@ set -e -o pipefail
 
 SELF=$(basename "$0")
 
-KLAM_EXT_VERSION="1.17.3"
+KLAM_EXT_VERSION="1.17.6"
 KLAM_BROWSER="${KLAM_BROWSER}"
 KLAM_URL="${KLAM_URL:-https://klam.corp.adobe.com}"
 KLAM_EXT_YML="$HOME/.klam-ext"
@@ -808,7 +808,7 @@ _klam-ext-get() {
       projectDuration:  (if \$H==\"1\" then \"default\" else (.duration//\"default\"|tostring) end),
       projectSshPolicy: (.ssh//1|tostring),
       projectMfa:       \"${TOKEN}\",
-    } | to_entries | map([.key,\"=\",.value]|add) | join(\"&\")
+    } | to_entries | map([.key,\"=\",(.value|@uri)]|add) | join(\"&\")
   ")"
 
   REPLY_ID="$(uuid)"
