@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+import sys, os, requests, urllib, json
+
+profile = sys.argv[1]
+
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser  # ver. < 3.0
+
+# instantiate
+config = ConfigParser()
+config.read(os.path.expanduser('~/.aws/credentials'))
+access_key = config.get(profile, "aws_access_key_id")
+secret_key = config.get(profile, "aws_secret_access_key")
+session_token = config.get(profile, "aws_session_token")
+
+session = json.dumps({
+  "sessionId": access_key,
+  "sessionKey": secret_key,
+  "sessionToken": session_token
+})
+
+baseUrl = "https://signin.aws.amazon.com/federation"
+r = requests.get(f"{baseUrl}?Action=getSigninToken&Session={urllib.parse.quote(session, safe='')}")
+sign_in_token = urllib.parse.quote(r.json()['SigninToken'], safe='')
+dest = urllib.parse.quote("https://console.aws.amazon.com", safe='')
+if len(sys.argv) > 2:
+    print(f"{baseUrl}?Action=login&Destination={dest}&SigninToken={sign_in_token}")
+else:
+    os.system(f'''open "{baseUrl}?Action=login&Destination={dest}&SigninToken={sign_in_token}"''')

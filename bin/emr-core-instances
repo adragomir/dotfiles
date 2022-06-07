@@ -1,0 +1,6 @@
+#!/bin/bash
+export AWS_PROFILE=KLAM-stage
+NAME=$1
+cluster_id=$(aws emr list-clusters | jq -r ".Clusters[] | select(.Name == \"hbase-$NAME\") | .Id")
+ig_id=$(aws emr describe-cluster --cluster-id ${cluster_id} | jq -r '.Cluster.InstanceGroups[] | select(.InstanceGroupType == "CORE") | .Id')
+aws emr list-instances --cluster-id ${cluster_id} | jq -r ".Instances[] | select(.InstanceGroupId == \"${ig_id}\") | .PrivateIpAddress"

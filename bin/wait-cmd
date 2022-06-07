@@ -1,0 +1,20 @@
+#!/bin/bash
+# executes a command ($1) until its output is equal to the target ($2)
+[[ $# = 3 ]] || { echo "Internal error calling wait-for" ; exit 99 ; }
+cmd=$1
+target=$2
+seconds=$3
+loop=1
+echo "Waiting for $cmd"
+while [[ $loop -le ${seconds} ]]; do
+    STATE=$(eval $cmd)
+    if [[ "${?}" == 0 ]]; then
+      if [[ "$STATE" == "$target" ]]; then
+          exit 0
+      fi
+    fi
+    sleep 5
+    printf "."
+    loop=$(( $loop + 1 ))
+done
+exit 1

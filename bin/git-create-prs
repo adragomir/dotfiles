@@ -1,39 +1,33 @@
-#!ruby
+#!/usr/bin/ruby
 
 require 'open3'
 
-Commit = Struct.new(:id, :message, :branch) do
+Commit = Struct.new(:id, :message) do
   def marker()
     tmp = message[/^\[(?<marker>[a-zA-Z0-9\-]*)\]/, 'marker']
     return tmp unless tmp.nil?
 
-    tmp = message[/^(?<marker>[A-Z0-9]+\-[0-9]+)/, 'marker']
+    tmp = message[/^(?<marker>[A-Z0-9]+-[0-9]+)/, 'marker']
     return tmp unless tmp.nil?
 
     nil
   end
 
   def branch()
-    data = /^\[([A-Z0-9]*\-(X+|[0-9]+))\] /.match(message)
+    data = /^\[([A-Z0-9]*-(X+|[0-9]+))\] /.match(message)
     data[0]
   end
 end
 PR = Struct.new(:base, :marker, :head)
 
-def commits_range(commits, pr)
+def commits_range(commits, pull_request)
   range = []
   in_range = false
-  commits.each_with_index{|c, i|
-    if commits[i].id == pr.marker.id
-      in_range = true
-    end
-    if in_range
-      range.push(c)
-    end
-    if commits[i].id == pr.head.id
-      in_range = false
-    end
-  }
+  commits.each_with_index do |c, i|
+    in_range = true if commits[i].id == pull_request.marker.id
+    range.push(c) if in_range
+    in_range = false if commits[i].id == pull_request.head.id
+  end
   range
 end
 
@@ -56,8 +50,8 @@ def find_extents(commits)
           # continue extent
           extent[:end_index] = i
         else
-          # end extent
-          extents.push([extent[:start_index], extent[:end_index]])
+          # end extent, and restart with next
+          extents.push(extent)
           extent = {
             start_index: i,
             end_index: i,
@@ -73,12 +67,12 @@ def find_extents(commits)
         }
       end
     else
-      if extent[:marker].nil?
+      if !extent[:marker].nil?
+        extent[:end_index] = i
       end
-      extent[:end_index] = i
     end
     if i == commits.length - 1
-      extents.push(extent.clone) unless !extent[:marker].nil?
+      extents.push(extent.clone) unless extent[:marker].nil?
     end
   end
   extents
@@ -86,46 +80,39 @@ end
 
 require 'optparse'
 options = {
-  master_branch: 'master',
   push_only: false,
-  all_commits: false,
   split: false
 }
 OptionParser.new do |opts|
   opts.banner = 'Usage:  [options]'
 
-  opts.on('-a', '--all-commits', '') do
-    options[:all_commits] = true
-  end
   opts.on('-p', '--push-only', '') do
     options[:push_only] = true
-  end
-  opts.on('-b BRANCH', '--branch=BRANCH', '') do |v|
-    options[:master_branch] = v
   end
 end.parse!
 
 current_branch = %x(git rev-parse --symbolic-full-name --abbrev-ref HEAD).strip
-root_dir = %x(git rev-parse --show-toplevel).strip()
 
-commits = %x{git rev-list --reverse "#{options[:master_branch]}..#{current_branch}"}.split("\n").map { |c|
+commits = %x{git rev-list --reverse "origin/#{current_branch}..#{current_branch}"}.split("\n").map { |c|
   Commit.new(c, %x(git log -1 --pretty=format:%s "#{c}").strip)
 }
-# cleanup commits
-commits = commits.reverse.drop_while { |c| c.message =~ /^IGNORED /i }.reverse
-extents = find_extents(commits, options[:all_commits])
+extents = find_extents(commits)
 
-extents.each do |extent|
-  puts %( git stash
-    git branch -D #{extent.marker}
-    git checkout -b #{extent.marker} master
-    git cherry-pick #{commits[extent.start_index].id}^..#{commits[extent.end_index].id}
-    git push -f origin #{extent.marker}:#{extent.marker}
-  )
-  puts " hub pull-request -f -m \"#{commits[extent.start_index].message}\" -b #{base_name} -h #{extent.marker}"
+extents.each_with_index do |extent, i|
+  if i == 0
+    base_name = current_branch
+  else
+    base_name = extents[i - 1][:marker]
+  end
 
-  puts %{ git checkout #{current_branch}
-    git stash pop
-    # ----
-  }
+  if !options[:push_only]
+    puts %(
+      git push -f origin #{commits[extent[:end_index]].id}:refs/heads/#{extent[:marker]}
+      hub pull-request -f -m \"#{commits[extent[:start_index]].message}\" -b #{base_name} -h #{extent[:marker]}
+    )
+  else
+    puts %(
+      git push -f origin #{commits[extent[:end_index]].id}:refs/heads/#{extent[:marker]}
+    )
+  end
 end

@@ -302,27 +302,6 @@ function autoenv_chpwd_hook() {
   fi
 }
 add-zsh-hook chpwd autoenv_chpwd_hook
-
-extract () {
-  if [ -f $1 ] ; then
-    case $1 in
-      *.tar.bz2) tar xvjf $1 ;;
-      *.tar.gz) tar xvzf $1 ;;
-      *.bz2) bunzip2 $1 ;;
-      *.rar) rar x $1 ;;
-      *.gz) gunzip $1 ;;
-      *.tar) tar xvf $1 ;;
-      *.tbz2) tar xvjf $1 ;;
-      *.tgz) tar xvzf $1 ;;
-      *.zip) unzip $1 ;;
-      *.Z) uncompress $1 ;;
-      *.7z) 7z x $1 ;;
-      *) echo "don't know how to extract '$1'..." ;;
-    esac
-  else
-    echo "'$1' is not a valid file!"
-  fi
-}
 # }}}
 
 # prompt settings {{{
@@ -518,10 +497,20 @@ prompt_pure_setup "$@"
 source $ZSH/golang.plugin.zsh
 source $ZSH/url-tools.plugin.zsh
 source $ZSH/autoenv.plugin.zsh
-source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+source <($HOME/bin/kubectl completion zsh)  # setup autocomplete in zsh into the current shell
 # }}}
 
 # program settings & paths {{{
+case $OSTYPE in 
+  darwin*)
+    export OS=darwin
+    ;;
+  linux*)
+    export OS=linux
+    ;;
+  msys*)
+    export OS=windows
+esac
 
 export LANG="en_US.UTF-8"
 export LANGUAGE="en_US.UTF-8"
@@ -560,6 +549,7 @@ export GOPATH=$HOME/.gocode
 export GO111MODULE=on
 
 export PATH=\
+/usr/local/opt/bison/bin:\
 $HOME/bin:\
 $HOME/bin/$OS:\
 $HOME/.local/bin:\
@@ -577,7 +567,6 @@ alias k="kubectl"
 alias zigup="zigup --install-dir $HOME/.zig --path-link $HOME/bin/darwin/zig"
 
 if [[ "$OSTYPE" = darwin* ]]; then
-  export OS=darwin
   export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home
   export JAR=$HOME/.local/share/nvim/lspconfig/jdtls/plugins/org.eclipse.equinox.launcher_1.6.0.v20200915-1508.jar
   export GRADLE_HOME=/usr/local/opt/gradle
@@ -593,7 +582,6 @@ if [[ "$OSTYPE" = msys* ]]; then
 fi
 
 if [[ $OSTYPE = linux* ]]; then
-  export OS=linux
   export EDITOR=/usr/bin/vim
   export GIT_EDITOR=/usr/bin/vim
   export JAVA_HOME=/home/linuxbrew/.linuxbrew/opt/openjdk/libexec/
@@ -628,3 +616,6 @@ conda() {
 
 eval "$(frum init)"
 
+
+[ -f ~/.resh/shellrc ] && source ~/.resh/shellrc # this line was added by RESH (Rich Enchanced Shell History)
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"

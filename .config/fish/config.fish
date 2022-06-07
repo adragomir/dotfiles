@@ -1,9 +1,10 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
+set -U fish_greeting ""
 set -Ux __fish_initialized 3100
 set -Ux fish_color_autosuggestion 555\x1ebrblack
 set -Ux fish_color_cancel \x2dr
-set -Ux fish_color_command 005fd7
+set -Ux fish_color_command white
 set -Ux fish_color_comment 990000
 set -Ux fish_color_cwd blue
 set -Ux fish_color_cwd_root red
@@ -29,6 +30,8 @@ set -Ux fish_pager_color_description B3A06D\x1eyellow
 set -Ux fish_pager_color_prefix normal\x1e\x2d\x2dbold\x1e\x2d\x2dunderline
 set -Ux fish_pager_color_progress brwhite\x1e\x2d\x2dbackground\x3dcyan
 
+set -g fish_term24bit 0
+
 function fish_prompt --description 'Informative prompt'
     #Save the return status of the previous command
     set -l last_pipestatus $pipestatus
@@ -39,8 +42,8 @@ function fish_prompt --description 'Informative prompt'
     set -l pipestatus_string (__fish_print_pipestatus "[" "]" "|" "$status_color" "$statusb_color" $last_pipestatus)
     set -g fish_prompt_pwd_dir_length 10
 
-    printf '%s %s%s %s%s%s \n%s❯%s ' (set_color blue) \
-        (set_color $fish_color_cwd) (prompt_pwd) $pipestatus_string \
+    printf '%s%s%s %s%s%s \n%s❯%s ' (set_color blue) \
+        (set_color $fish_color_cwd) (prompt_pwd) $pipestatus_string (fish_git_prompt) \
         (set_color normal) \
         (set_color red) (set_color normal)
 end
@@ -71,7 +74,6 @@ set -x CLICOLOR 1
 set -x SSH_AUTH_SOCK $HOME/.ssh/.ssh-agent.sock
 set -x LESS "-rX"
 set -x PAGER less
-set -x GREP_OPTIONS '--color auto'
 set -x GREP_COLOR '1;32'
 set -x GREP_COLORS "38;5;230:sl 38;5;240:cs 38;5;100:mt 38;5;161:fn 38;5;197:ln 38;5;212:bn 38;5;44:se 38;5;166"
 set -x EDITOR /usr/local/bin/nvim
@@ -84,6 +86,7 @@ set -x PERL_MM_OPT "INSTALL_BASE $HOME/.perl5";
 set -x PERL5LIB "$HOME/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:$HOME/.perl5/lib/perl5";
 set -x GOPATH $HOME/.gocode
 set -x GO111MODULE on
+set -x OS darwin
 
 set -x PATH \
 $HOME/bin:\
@@ -100,7 +103,6 @@ alias tmux='tmux -2'
 alias history='fc -l 1'
 alias k="kubectl"
 
-set -x OS darwin
 set -x JAVA_HOME "/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home"
 set -x JAR "$HOME/.local/share/nvim/lspconfig/jdtls/plugins/org.eclipse.equinox.launcher_1.6.0.v20200915-1508.jar"
 set -x GRADLE_HOME "/usr/local/opt/gradle"

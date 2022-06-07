@@ -1,244 +1,161 @@
 "vim:foldmethod=marker
-if has("nvim")
-  if has("mac")
-    let g:os_bin_path = "darwin"
-    let g:python2_host_prog = '/usr/local/bin/python'
-    let g:python3_host_prog = '/usr/local/opt/python/bin/python3'
-    let g:ruby_host_prog = 'rvm ruby-2.6.3 do neovim-ruby-host'
-    let g:node_host_prog = $HOME . '/.nvm/versions/node/v14.16.0/lib/node_modules/neovim/bin/cli.js'
-  elseif has("wsl")
-    let g:os_bin_path = "linux"
-    let g:python2_host_prog = '/usr/local/bin/python'
-    let g:python3_host_prog = '/home/linuxbrew/.linuxbrew/Cellar/python@3.9/3.9.2_1/bin/python3'
-    let g:ruby_host_prog = 'rvm ruby-3.0.0 do neovim-ruby-host'
-    let g:node_host_prog = '/home/linuxbrew/.linuxbrew/lib/node_modules/neovim/bin/cli.js'
-  elseif has("win64")
-    if $MSYSTEM == "MSYS"
-      let g:os_bin_path = "windows"
-		  let &shell = "/usr/bin/zsh"
-    else
-      let g:os_bin_path = "windows"
-		  let &shell = has('win64') ? 'powershell' : 'pwsh'
-		  set shellquote= shellpipe=\| shellxquote=
-		  set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
-		  set shellredir=\|\ Out-File\ -Encoding\ UTF8
-      " let g:python3_host_prog = 'c:\Python39\python3.exe'
-      let g:ruby_host_prog = 'c:\tools\ruby30\bin\neovim-ruby-host.bat'
-      "let g:node_host_prog = 'C:\Users\adrag\AppData\Roaming\npm\neovim-node-host'
-    endif
+if has("mac")
+  let g:os_bin_path = "darwin"
+  let g:python2_host_prog = '/usr/local/bin/python'
+  let g:python3_host_prog = '/usr/local/opt/python/bin/python3'
+  let g:ruby_host_prog = $HOME . '/.frum/versions/2.7.5/bin/neovim-ruby-host'
+  let g:node_host_prog = $HOME . '/.fnm/node-versions/v14.16.1/installation/lib/node_modules/neovim/bin/cli.js'
+elseif has("wsl")
+  let g:os_bin_path = "linux"
+  let g:python2_host_prog = '/usr/local/bin/python'
+  let g:python3_host_prog = '/home/linuxbrew/.linuxbrew/Cellar/python@3.9/3.9.2_1/bin/python3'
+  let g:ruby_host_prog = 'rvm ruby-3.0.0 do neovim-ruby-host'
+  let g:node_host_prog = '/home/linuxbrew/.linuxbrew/lib/node_modules/neovim/bin/cli.js'
+elseif has("win64")
+  if $MSYSTEM == "MSYS"
+    let g:os_bin_path = "windows"
+		let &shell = "/usr/bin/zsh"
+  else
+    let g:os_bin_path = "windows"
+		let &shell = has('win64') ? 'powershell' : 'pwsh'
+		set shellquote= shellpipe=\| shellxquote=
+		set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
+		set shellredir=\|\ Out-File\ -Encoding\ UTF8
+    " let g:python3_host_prog = 'c:\Python39\python3.exe'
+    let g:ruby_host_prog = 'c:\tools\ruby30\bin\neovim-ruby-host.bat'
+    "let g:node_host_prog = 'C:\Users\adrag\AppData\Roaming\npm\neovim-node-host'
   endif
 endif
 
-" settings {{{
+set guifont=Jetbrains\ Mono:h12
+if exists('g:neovide')
+  nnoremap <D-v> "+p
+endif
+let g:neovide_input_use_logo=v:true
+let g:neovide_cursor_animation_length=0.0
+let g:neovide_cursor_trail_length=0.0
+
+if has("gui_vimr")
+  set termguicolors
+  set background=dark
+  colorscheme monochrome2
+endif
+
 if &term =~ '^screen'
-  "tmux will send xterm-style keys when its xterm-keys option is on
   execute "set <xUp>=\e[1;*A"
   execute "set <xDown>=\e[1;*B"
   execute "set <xRight>=\e[1;*C"
   execute "set <xLeft>=\e[1;*D"
 endif
+" home and end
+let g:do_filetype_lua=1
+let g:did_load_filetypes = 0
 
-" general settings {{{
-set nocompatible              " use VI incompatible features
 filetype off
-set noautochdir
-set history=10000             " number of history items
-set conceallevel=0
+set mouse=a
+set history=10000 undolevels=10000
 set shiftround
-" backup settings
-set nobackup " do not keep backups after close
-set nowritebackup " do not keep a backup while working
-set noswapfile " don't keep swp files either
-set backupcopy=yes " keep attributes of original file
-set backupskip=/tmp/*,/private/tmp/*,$TMPDIR/*,$TMP/*,$TEMP/*
-" ui settings
-set ruler                     " show the cursor position all the time
-set scrolloff=3               " start scrolling before end
-set showcmd                   " show incomplete commands
-set number                    " show line numbers
-"set relativenumber
+set noswapfile
+set number
 set whichwrap=<,>,h,l,b,s,~,[,]
-set shortmess=aTIc             " supress some file messages
-set sidescrolloff=4           " minchars to show around cursor
-set display+=lastline
-set autoread                  " read outside modified files
-set autowrite
-set encoding=UTF-8            " file encoding
-set modeline
-set modelines=3
-set regexpengine=0
-set t_ti=
-set t_te=
-set foldmethod=manual
-set formatoptions=tcqjn1     " auto format -ro
-set colorcolumn=+1
-set guioptions=ci+Mgrbe       " NEVER EVER put ''a in here
-if has("nvim")
-  set guicursor=
-endif
-set synmaxcol=600
-set foldlevelstart=99
-" visual cues
-set ignorecase                " ignore case when searching
-set smartcase                 " ignore case when searching
-set hlsearch                  " highlight last search
-set incsearch                 " show matches while searching
-set gdefault
-set nojoinspaces
-set laststatus=2              " always show status line
-
-set breakindent
-set breakindentopt=sbr
-set showbreak=…
+set ignorecase smartcase gdefault
+set linebreak breakindent breakindentopt=sbr showbreak=…
 set fillchars=diff:⣿,vert:\|
-set noshowcmd                   " show number of selected chars/lines in status
-set showmatch
 set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o\|%B%)
-set undolevels=10000
-set numberwidth=5
-set pumheight=0
 set scrolljump=10
 set virtualedit+=block
-set novisualbell
-set noerrorbells
-set nostartofline
-set tildeop
-set vb t_vb=
-set t_ut=
-set winaltkeys=no
+set novisualbell noerrorbells
 set writeany
 set iskeyword=@,-,>,48-57,128-167,224-235,_
 set iskeyword-=.
-set inccommand=nosplit
 set showtabline=0
 set matchtime=3
 set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
-"set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
-set completeopt=menu,menuone,noselect
-if !has('nvim')
-  set ttyfast
-  set ttymouse=xterm
-endif
+set completeopt=menu,menuone,noselect "set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
 set timeout
 set ttimeout
-set timeoutlen=1000
 set ttimeoutlen=0
 if has("mac")
   set clipboard=unnamed "unnamed ",unnamedplus,autoselect
 else 
   set clipboard=unnamedplus
 endif
-set undofile
-set undoreload=10000
-" settings: windows and buffers
 if has("wsl") || has("mac")
   set shell=bash
   set shellcmdflag=-lc
 endif
-" 	When off a buffer is unloaded when it is |abandon|ed.
-set hidden
-set splitbelow                " split windows below current one
-set splitright
-set linebreak
-set dictionary=/usr/share/dict/words
-set noexrc " don't read dotfiles in folders
-set gcr=a:blinkon0
+set splitbelow splitright
 set switchbuf=useopen
-" settings: line endings
-" settings: grep
-if executable("rg")
-  set grepprg=rg\ --no-ignore\ -H\ --no-heading\ --color\ never
-endif
+set grepprg=rg\ --no-ignore\ -H\ --no-heading\ --color\ never
 set grepformat=%f:%l:%m
-" settings: tabs and indentin
 set nofoldenable
-set smartindent
-set autoindent
-set lazyredraw
-" don't delete past the end of line
-set selection=old
-set copyindent
-set preserveindent
-set expandtab
-set tabstop=2
-set shiftwidth=2
-set softtabstop=2
-set cmdheight=2
-let g:did_install_default_menus = 1
-set mouse=a
-set backspace=indent,eol,start
-" }}}
+set smartindent autoindent expandtab tabstop=2 shiftwidth=2 softtabstop=2
+set copyindent preserveindent
 
-" wildmenu settings {{{
-set wildmenu
 "set wildmode=list:longest,full
 set wildmode=longest,list
-set wildignore+=.svn,CVS,*/.git/*,.hg
-set wildignore+=*.aux,*.out,*.toc " latex files
-set wildignore+=*.o,*.d,*.obj,*.dylib,*.so,*.exe,*.manifest,*.a,*.mo,*.la " objects
-set wildignore+=*.class,*.jar
-set wildignore+=.classpath,.project,.settings
-set wildignore+=*.jpg,*.jpeg,*.png*,*.gif,*.tiff,*.xmp
-set wildignore+=*.sw?,*.bak
-set wildignore+=*.6,*.out
-set wildignore+=.DS_Store
-set wildignore+=*.pyc,*.class,*.luac
-set wildignore+=*.erbc,*.scssc
-set wildignore+=*.zip,*.tar,*.gz,*.rar
-set wildignore+=vendor/rails/**
-set wildignore+=vendor/cache/**
-set wildignore+=*.gem
-set wildignore+=log/**
-set wildignore+=tmp/**
-set wildignore+=*sass-cache*
-set wildignore+=target,target/classes,classes
-set wildignore+=.idea
-
-set suffixes+=.lo,.o,.moc,.la,.closure,.loT
-set suffixes+=.bak,~,.o,.h,.info,.swp,.obj
-set suffixes+=class,.6
-
+set suffixes+=.lo,.moc,.la,.closure,.loT
 let g:sh_noisk=1
 let g:is_bash=1
-" }}}
 
-" disabled plugins {{{
-" manpageview {{{
+let mapleader = ","
+let maplocalleader = ","
+
+set t_Co=256
+set background=dark
+colorscheme monochrome
+if exists('g:neovide')
+  colorscheme monochrome2
+endif
+
+" syntax enable
+" syntax on
+" filetype on
+" filetype indent on
+" filetype plugin on
+" highlight fixes
+highlight WHITE_ON_BLACK ctermfg=white
+hi NonText cterm=NONE ctermfg=NONE
+
+let g:loaded_tutor_mode_plugin = 1
+let g:loaded_man = 1
 let g:loaded_manpageview = 1
 let g:loaded_manpageviewPlugin = 1
-" }}}
 let g:loaded_getscriptPlugin = 1
 let g:loaded_getscript = 1
 let g:loaded_logiPat = 1
 let g:loaded_sql_completion = 1
 let g:loaded_sql_completion=1
+let g:loaded_remote_plugins = 1
 let g:loaded_gzip=1
+let loaded_gzip=1
+let g:loaded_shada_plugin = 1
 let g:loaded_vimballPlugin=1
 let g:loaded_netrwPlugin = 1
 let g:loaded_rrhelper=1
 let g:loaded_zipPlugin=1
 let g:loaded_tarPlugin=1
 let g:loaded_2html_plugin=1
-" }}}
+let g:loaded_matchparen = 1
+
+function! Cond(Cond, ...)
+  let opts = get(a:000, 0, {})
+  return a:Cond ? opts : extend(opts, { 'on': [], 'for': [] })
+endfunction
 
 " vim-plug
 let g:plug_url_format='https://github.com/%s.git'
-"source $HOME/.vim/autoload/plug.vim
-
 let g:plug_path = stdpath('data') . '/bundle'
 call plug#begin(g:plug_path)
 " languages
-Plug 'fatih/vim-go', { 'dir': stdpath('data') . '/bundle/vim-go', 'for': 'go' }
-if has('nvim')
-  Plug 'jodosha/vim-godebug', { 'dir': stdpath('data') . '/bundle/vim-godebug', 'for': 'go' }
-end
+if !exists('g:vscode')
+Plug 'mfussenegger/nvim-jdtls'
+Plug 'ray-x/go.nvim', {'dir': stdpath('data') . '/bundle/go.nvim'}
 Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
 Plug 'gabrielelana/vim-markdown', { 'dir': stdpath('data') . '/bundle/markdown', 'for': ['md', 'markdown']}
 Plug 'rust-lang/rust.vim', { 'dir': stdpath('data') . '/bundle/rust', 'for': 'rust' }
 Plug 'sirtaj/vim-openscad', { 'dir': stdpath('data') . '/bundle/openscad' }
-Plug 'python-mode/python-mode', { 'branch': 'develop', 'dir': stdpath('data') . '/bundle/python-mode', 'for': 'python' }
 Plug 'pearofducks/ansible-vim', { 'dir': stdpath('data') . '/bundle/ansible-vim' }
-Plug 'vim-ruby/vim-ruby', { 'dir': stdpath('data') . '/bundle/vim-ruby', 'for': 'ruby' }
 Plug 'stephpy/vim-yaml', { 'dir': stdpath('data') . '/bundle/vim-yaml', 'for': 'yaml' }
 Plug 'rhysd/vim-clang-format', { 'dir': stdpath('data') . '/bundle/vim-clang-format' }
 Plug 'hashivim/vim-terraform', {'dir': stdpath('data') . '/bundle/vim-terraform'}
@@ -246,7 +163,7 @@ Plug 'leafgarland/typescript-vim', {'dir': stdpath('data') . '/bundle/typescript
 Plug 'ziglang/zig.vim'
 Plug 'fedorenchik/fasm.vim'
 Plug 'urbit/hoon.vim'
-
+Plug 'simrat39/rust-tools.nvim'
 " Plug 'neovimhaskell/haskell-vim', { 'dir': stdpath('data') . '/bundle/haskell-vim', 'for': 'haskell' }
 " Plug 'jdonaldson/vaxe', { 'dir': stdpath('data') . '/bundle/vaxe' }
 " Plug 'jansedivy/jai.vim', {'dir': stdpath('data') . '/bundle/jai' }
@@ -255,85 +172,48 @@ Plug 'urbit/hoon.vim'
 " Plug 'edwinb/idris2-vim' 
 " Plug 'tomlion/vim-solidity'
 
-lua << EOF
+lua <<EOF
 vim.lsp.set_log_level("error")
 EOF
-
 " completion
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/lsp-status.nvim'
 Plug 'scalameta/nvim-metals', {'branch': 'main'}
 Plug 'nvim-lua/lsp_extensions.nvim'
-Plug 'tami5/lspsaga.nvim', {'branch': 'nvim51'}
+Plug 'tami5/lspsaga.nvim', {'branch': 'main'}
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzy-native.nvim'
+Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'ray-x/lsp_signature.nvim'
-
+" debugging
+Plug 'mfussenegger/nvim-dap'
+Plug 'leoluz/nvim-dap-go'
+Plug 'rcarriga/nvim-dap-ui'
 " syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'RRethy/nvim-treesitter-textsubjects'
-
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
-
 " tools
 Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
 Plug 'rking/ag.vim', { 'dir': stdpath('data') . '/bundle/ag'}
 Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
-
+Plug 'antoinemadec/FixCursorHold.nvim'
+let g:cursorhold_updatetime = 100
 " vim
+" Plug 'lukas-reineke/indent-blankline.nvim', { 'dir': stdpath('data') . '/bundle/indent-blankline.nvim' }
 Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
 Plug 't9md/vim-choosewin', { 'dir': stdpath('data') . '/bundle/vim-choosewin' }
 Plug 'tpope/vim-endwise', { 'dir': stdpath('data') . '/bundle/endwise' }
-Plug 'tpope/vim-commentary', { 'dir': stdpath('data') . '/bundle/commentary' }
-"Plug 'tpope/vim-surround', { 'dir': stdpath('data') . '/bundle/surround' }
-Plug 'blackcauldron7/surround.nvim'
-
+Plug 'echasnovski/mini.nvim'
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
-Plug 'rbgrouleff/bclose.vim', {'dir': stdpath('data') . '/bundle/bclose' }
-
 " textobj
 Plug 'rhysd/clever-f.vim'
-
+endif
 call plug#end()
-" }}}
 
-" mapleader {{{
-let mapleader = ","
-let maplocalleader = ","
-" }}}
-
-" look & feel {{{
-set t_Co=256
-set background=dark
-colorscheme monochrome
-" }}}
-
-" syntax highlighting {{{
-syntax enable
-syntax on
-filetype on
-filetype indent on
-filetype plugin on
-" highlight fixes
-highlight WHITE_ON_BLACK ctermfg=white
-hi NonText cterm=NONE ctermfg=NONE
-"hi SignColor guibg=red
-hi clear SpellBad                                                
-hi SpellBad cterm=underline                                      
-hi clear SpellRare                                               
-hi SpellRare cterm=underline                                     
-hi clear SpellCap                                                
-hi SpellCap cterm=underline                                      
-hi clear SpellLocal
-hi SpellLocal cterm=underline
-autocmd BufEnter * :syntax sync fromstart
-" }}}
-
-"}}}
-
-" my functions {{{
 function! s:VSetSearch()
   let temp = @@
   norm! gvy
@@ -450,31 +330,16 @@ function! RestoreMap(map)
   endif
 endfunction
 
-function! SynStack ()
-    for i1 in synstack(line("."), col("."))
-        let i2 = synIDtrans(i1)
-        let n1 = synIDattr(i1, "name")
-        let n2 = synIDattr(i2, "name")
-        echo n1 "->" n2
-    endfor
-endfunction
-map gm :call SynStack()<CR>
-" }}}
-
-" key mappings {{{
 let g:save_cr_map = {}
-
-" home and end
-if $TERM =~ '^screen-256color'
-  set t_Co=256
-  noremap <C-a> <Home>
-  noremap <C-e> <End>
-endif
 
 " System clipboard interaction.
 map <leader>y "*y
 
 " Don't move the cursor
+noremap <C-a> <Home>
+noremap <C-e> <End>
+
+silent! nunmap Y
 vnoremap y myy`y
 vnoremap Y myY`y
 
@@ -537,26 +402,17 @@ nnoremap ]] <nop>
 nnoremap [[ <nop>
 nnoremap [] <nop>
 nnoremap ][ <nop>
-
 " ag word
 nnoremap <silent> <leader>/ :Ag<cr>
 vnoremap <silent> <leader>/ :AgVisual<cr>
-
-" command:  clean whitespace
-nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<cr>
-
 " GRB: clear the search buffer when hitting return
 nnoremap <cr> :nohlsearch<cr>
-
 nnoremap <m-Down> :cnext<cr>zvzz
 nnoremap <m-Up> :cprevious<cr>zvzz
-
 " Use c-\ to do c-] but open it in a new split.
 nnoremap <c-\> <c-w>v<c-]>zvzz
-
 " quickfix
 nnoremap <leader>Q :cc<cr>
-
 " remap: always go to character, with ' and `
 nnoremap ' `
 xnoremap ' `
@@ -565,23 +421,17 @@ map <leader>. `.
 map <leader>] `]
 map <leader>> `>
 map <leader>` `^
-
 " vaporize delete without overwriting the default register
 vnoremap p "_dP
-
 inoremap <C-u> <esc>mzgUiw`za
-
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
-
 nnoremap <silent> Q <nop>
-
 " quicker window switching
 nnoremap <C-h> <c-w>h
 nnoremap <C-j> <c-w>j
 nnoremap <C-k> <c-w>k
 nnoremap <C-l> <c-w>l
-
 " disable middle mouse pasting
 map  <MiddleMouse>  <Nop>
 map  <2-MiddleMouse>  <Nop>
@@ -591,133 +441,37 @@ imap  <MiddleMouse>  <Nop>
 imap  <2-MiddleMouse>  <Nop>
 imap  <3-MiddleMouse>  <Nop>
 imap  <4-MiddleMouse>  <Nop>
-
 inoremap <S-Space> <Space>
 inoremap <C-Space> <C-o>m`
 inoremap <silent> <Home> <C-o>:call HomeKey()<CR>
 nnoremap <silent> <Home> :call HomeKey()<CR>
-
 noremap <Space> m`
-
 " switch cpp/h
 nmap <MapLocalLeader>h :AT<CR>
-
 " terminal
-map <leader>r :w\|:silent !reload-chrome<cr>
-
-nmap -  <Plug>(choosewin)
+nmap - <Plug>(choosewin)
 
 " disable mistakes
-noremap <f1> <nop>
-inoremap <f1> <nop>
-inoremap <f2> <nop>
-inoremap <f3> <nop>
-inoremap <f4> <nop>
-inoremap <f5> <nop>
-inoremap <f6> <nop>
-inoremap <f7> <nop>
-inoremap <f8> <nop>
-inoremap <f9> <nop>
-inoremap <f10> <nop>
-inoremap <f11> <nop>
-inoremap <f12> <nop>
-inoremap <f13> <nop>
-inoremap <f14> <nop>
-inoremap <f15> <nop>
-inoremap <f16> <nop>
-inoremap <f17> <nop>
-inoremap <f18> <nop>
-inoremap <f19> <nop>
-inoremap <f20> <nop>
-inoremap <f21> <nop>
-inoremap <f22> <nop>
-inoremap <f23> <nop>
-inoremap <f24> <nop>
-inoremap <S-F1> <nop>
-inoremap <S-F2> <nop>
-inoremap <S-F3> <nop>
-inoremap <S-F4> <nop>
-inoremap <S-F5> <nop>
-inoremap <S-F6> <nop>
-inoremap <S-F7> <nop>
-inoremap <S-F8> <nop>
-inoremap <S-F9> <nop>
-inoremap <S-F10> <nop>
-inoremap <S-F11> <nop>
-inoremap <S-F12> <Nop>
-inoremap <S-F13> <nop>
-inoremap <S-F14> <nop>
-inoremap <S-F15> <nop>
-inoremap <S-F16> <nop>
-inoremap <S-F17> <nop>
-inoremap <S-F18> <nop>
-inoremap <S-F19> <nop>
-inoremap <S-F20> <nop>
-inoremap <S-F21> <nop>
-inoremap <S-F22> <nop>
-inoremap <S-F23> <nop>
-inoremap <S-F24> <nop>
+lua <<EOF
+vim.api.nvim_set_keymap("", "<F1>", "<nop>", {noremap = true})
+for i=1,24 do
+  for j, t in ipairs({"i", "c"}) do
+    vim.api.nvim_set_keymap(t, "<F" .. i .. ">", "<nop>", {noremap = true})
+    vim.api.nvim_set_keymap(t, "<S-F" .. i .. ">", "<nop>", {noremap = true})
+  end
+end
+EOF
 
-cnoremap <F1> <nop>
-cnoremap <F2> <nop>
-cnoremap <F3> <nop>
-cnoremap <F4> <nop>
-cnoremap <F5> <nop>
-cnoremap <F6> <nop>
-cnoremap <F7> <nop>
-cnoremap <F8> <nop>
-cnoremap <F9> <nop>
-cnoremap <F10> <nop>
-cnoremap <F11> <nop>
-cnoremap <F12> <nop>
-cnoremap <F13> <nop>
-cnoremap <F14> <nop>
-cnoremap <F15> <nop>
-cnoremap <F16> <nop>
-cnoremap <F17> <nop>
-cnoremap <F18> <nop>
-cnoremap <F19> <nop>
-cnoremap <F20> <nop>
-cnoremap <F21> <nop>
-cnoremap <F22> <nop>
-cnoremap <F23> <nop>
-cnoremap <F24> <nop>
-cnoremap <S-F1> <nop>
-cnoremap <S-F2> <nop>
-cnoremap <S-F3> <nop>
-cnoremap <S-F4> <nop>
-cnoremap <S-F5> <nop>
-cnoremap <S-F6> <nop>
-cnoremap <S-F7> <nop>
-cnoremap <S-F8> <nop>
-cnoremap <S-F9> <nop>
-cnoremap <S-F10> <nop>
-cnoremap <S-F11> <nop>
-cnoremap <S-F12> <Nop>
-cnoremap <S-F13> <nop>
-cnoremap <S-F14> <nop>
-cnoremap <S-F15> <nop>
-cnoremap <S-F16> <nop>
-cnoremap <S-F17> <nop>
-cnoremap <S-F18> <nop>
-cnoremap <S-F19> <nop>
-cnoremap <S-F20> <nop>
-cnoremap <S-F21> <nop>
-cnoremap <S-F22> <nop>
-cnoremap <S-F23> <nop>
-cnoremap <S-F24> <nop>
-
-" }}}
-
+if !exists('g:vscode')
 nnoremap <silent> gd          <cmd>lua vim.lsp.buf.definition()<CR>
 nnoremap <Leader>T            :lua require'lsp_extensions'.inlay_hints()<cr>
 nnoremap <silent> K           <cmd>lua vim.lsp.buf.signature_help()<CR>
-nnoremap <silent> gi          <cmd>lua vim.lsp.buf.implementation()<CR>
-"nnoremap <silent> gr          <cmd>lua vim.lsp.buf.references()<CR>
+" nnoremap <silent> gi          <cmd>lua vim.lsp.buf.implementation()<CR>
+" nnoremap <silent> gr          <cmd>lua vim.lsp.buf.references()<CR>
 nnoremap <silent> gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
 " <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{}<CR> 
 " <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR> 
-"nnoremap <silent> gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
+" nnoremap <silent> gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
 nnoremap <silent> gsd         <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
 nnoremap <silent> gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
 nnoremap <silent> <leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
@@ -726,12 +480,11 @@ nnoremap <silent> <leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <silent> [c          :NextDiagnostic<CR>
 nnoremap <silent> ]c          :PrevDiagnostic<CR>
 nnoremap <silent> <space>d    :OpenDiagnostic<CR>
-lua <<EOF
 
+lua <<EOF
 function hoon_def_search()
   require 'telescope.builtin'.grep_string({search='\\+(\\+|\\$|\\*)  '.. vim.fn.expand('<cword>') .. '( |$)', use_regex=true})
 end
-
 EOF
 nnoremap <silent> <leader>d   <cmd>lua hoon_def_search()<CR>
 
@@ -751,67 +504,62 @@ let g:coq_settings = {
 	    \ 'display.icons.mode': 'none', 
 	    \ 'clients.tags.enabled': v:false,  
 	    \ 'clients.snippets.enabled': v:false,
+	    \ 'clients.snippets.warn': {},
 	    \ 'clients.paths.enabled': v:false, 
 	    \ 'clients.tmux.enabled': v:false
       \}
 
-lua << EOF
-require'nvim-treesitter.configs'.setup {
-    textsubjects = {
-        enable = true,
-        keymaps = {
-            ['.'] = 'textsubjects-smart',
-            [';'] = 'textsubjects-container-outer',
-        }
-    },
-}
-EOF
-
-lua << EOF
-require"surround".setup {
-  context_offset = 100,
-  load_autogroups = true,
-  mappings_style = "surround",
-  map_insert_mode = true,
-  quotes = {"'", '"'},
-  brackets = {"(", '{', '['},
-  pairs = {
-    nestable = {{"(", ")"}, {"[", "]"}, {"{", "}"}},
-    linear = {{"'", "'"}, {"`", "`"}, {'"', '"'}}
+lua <<EOF
+  require'nvim-treesitter.configs'.setup {
+      textsubjects = {
+          enable = true,
+          keymaps = {
+              ['.'] = 'textsubjects-smart',
+              [';'] = 'textsubjects-container-outer',
+          }
+      },
   }
-}
-EOF
+  require('dap-go').setup()
 
-lua << EOF
+  require('mini.comment').setup()
+  require('mini.surround').setup( {
+    -- Add custom surroundings to be used on top of builtin ones. For more
+    -- information with examples, see `:h MiniSurround.config`.
+    custom_surroundings = nil,
+
+    -- Duration (in ms) of highlight when calling `MiniSurround.highlight()`
+    highlight_duration = 500,
+
+    -- Module mappings. Use `''` (empty string) to disable one.
+    mappings = {
+      add = 'ys', -- Add surrounding in Normal and Visual modes
+      delete = 'ds', -- Delete surrounding
+      find = '', -- Find surrounding (to the right)
+      find_left = '', -- Find surrounding (to the left)
+      highlight = '', -- Highlight surrounding
+      replace = 'cs', -- Replace surrounding
+      update_n_lines = '', -- Update `n_lines`
+    },
+
+    -- Number of lines within which surrounding is searched
+    n_lines = 20,
+
+    -- How to search for surrounding (first inside current line, then inside
+    -- neighborhood). One of 'cover', 'cover_or_next', 'cover_or_prev',
+    -- 'cover_or_nearest'. For more details, see `:h MiniSurround.config`.
+    search_method = 'cover',
+  })
+  require('mini.bufremove').setup()
+
   local saga = require 'lspsaga'
   saga.init_lsp_saga()
 
   -- Setup lspconfig.
 
   local lspconfig = require'lspconfig'
-  local configs = require'lspconfig/configs'
+  local configs = require'lspconfig.configs'
   local util = require'lspconfig/util'
 
-  configs["hoon_language_server"] = {
-    default_config = {
-      cmd = { 'hoon-language-server'},
-      settings = {
-      },
-      filetypes = { 'hoon'},
-      root_dir = util.root_pattern("sys.kelvin"), 
-    },
-    docs = {
-      description = [[
-  https://github.com/urbit/hoon-language-server 
-  Hoon Language server
-  ]],
-    },
-  }
-
-  lspconfig.hoon_language_server.setup{
-    autostart = false, 
-  }
-  
   local coq = require 'coq'
   -- local metals   = require'metals'
   -- local setup    = require'metals.setup' 
@@ -822,7 +570,13 @@ lua << EOF
     --setup.auto_commands()
   end
 
+  lspconfig.pasls.setup{}
+  lspconfig.prosemd_lsp.setup{}
+  lspconfig.racket_langserver.setup{}
   lspconfig.zls.setup{
+    flags = {
+      debounce_text_changes = 250, 
+    };
     on_attach = M.on_attach;
   }
 
@@ -866,15 +620,30 @@ lua << EOF
       }
     };
   }
+  lspconfig.clojure_lsp.setup{
+  }
   --lspconfig.clangd.setup{
   --  cmd = {"/usr/local/opt/llvm/bin/clangd", "--index-background"}
   --}
   lspconfig.intelephense.setup{
     on_attach = M.on_attach;
   }
-  lspconfig.pyright.setup{
+  -- lspconfig.pyright.setup{
+  --   on_attach = M.on_attach;
+  -- }
+  lspconfig.svls.setup{}
+  lspconfig.pylsp.setup{
     on_attach = M.on_attach;
+    on_init = function(client)
+      client.config.settings = {
+        pylsp = {
+
+        }
+      }
+      client.notify('workspace/didChangeConfiguration')
+    end, 
   }
+
   lspconfig.jdtls.setup{
     on_attach = M.on_attach;
     root_dir = util.root_pattern("pom.xml", "build.xml");
@@ -921,13 +690,14 @@ lua << EOF
     };
   }
 
+  lspconfig.sourcekit.setup{}
   lspconfig.solargraph.setup{
     on_attach = M.on_attach;
     settings = {
       solargraph = {
-        diagnostics = true;
+        diagnostics = false;
         formatting = true;
-        autoformat = true;
+        autoformat = false;
       }
     };
   }
@@ -968,6 +738,9 @@ lua << EOF
   lspconfig.yamlls.setup{
     on_attach    = M.on_attach;
   }
+  lspconfig.hoon_ls.setup{
+    on_attach    = M.on_attach;
+  }
   if 1 then
     lspconfig.zls.setup(coq.lsp_ensure_capabilities())
     lspconfig.gopls.setup(coq.lsp_ensure_capabilities())
@@ -988,11 +761,8 @@ lua << EOF
     lspconfig.elmls.setup(coq.lsp_ensure_capabilities())
     lspconfig.html.setup(coq.lsp_ensure_capabilities())
     lspconfig.yamlls.setup(coq.lsp_ensure_capabilities())
-    lspconfig.hoon_language_server.setup(coq.lsp_ensure_capabilities())
   end
-EOF
 
-lua <<EOF
   require "lsp_signature".setup({
     bind = true, 
     doc_lines = 0, 
@@ -1007,13 +777,7 @@ lua <<EOF
       border = "rounded"
     }
   })
-EOF
 
-" abbreviations {{{
-" }}}
-
-" telescope {{{
-lua << EOF
   require('telescope').setup{
     extensions = {
       fzy_native = {
@@ -1056,15 +820,8 @@ nmap <leader>5 <cmd>lua require('telescope.builtin').buffers()<cr>
 nmap <leader>6 <cmd>lua require('telescope.builtin').find_files({cwd= $HOME . '/Dropbox/personal/notes/'})<cr> 
 nmap <F12> <cmd>lua require('telescope.builtin.lsp').document_symbols()<cr>
 nmap <leader>7 <cmd>lua require('telescope.builtin.lsp').workspace_symbols()<cr> 
-" }}}
 
-" treesitter {
 lua <<EOF
-  local force = false
-  if vim.fn.has("win64") and vim.fn.getenv("MSYSTEM") == "MSYS" then
-    force = true
-  end
-  
   require'nvim-treesitter.install'.compilers = { "gcc" }
   require'nvim-treesitter.configs'.setup {
     highlight = {
@@ -1082,62 +839,18 @@ lua <<EOF
       }
     }
   }
-EOF
-" }}}
 
-" lsp_extensions {{{
-lua <<EOF
-require'lsp_extensions'.setup{
-	highlight = "Comment",
-	prefix = " > ",
-	aligned = false,
-	only_current_line = false, 
-	enabled = { "TypeHint", "ParameterHint", "ChainingHint" }
-}
+  require'lsp_extensions'.setup{
+	  highlight = "Comment",
+	  prefix = " > ",
+	  aligned = false,
+	  only_current_line = false, 
+	  enabled = { "TypeHint", "ParameterHint", "ChainingHint" }
+  }
 EOF
-" }}}
+endif
 
-" ag plugin settings {{{
 let g:ag_prg = "rg --vimgrep -L 2>/dev/null"
-" }}}
-
-" match paren settings {{{
-let g:loaded_matchparen = 1
-let g:matchparen_timeout = 10
-let g:matchparen_insert_timeout = 10
-" }}}
-
-
-" jsonnet settings {{{
-let g:jsonnet_fmt_on_save = 0
-let g:jsonnet_fmt_options = '-n 2 --max-blank-lines 0 --no-pad-arrays --no-pad-objects'
-" }}}
-
-" markdown {{{
-let g:markdown_enable_spell_checking = 0
-" }}}
-
-" python syntax settings {{{
-let g:pymode_syntax = 0
-let g:pymode_folding = 0
-let g:pymode_indent = 0
-let g:pymode_warning = 0
-let g:pymode_motion = 0
-let g:pymode_syntax_all = 1
-let g:pymode_syntax_indent_errors = g:pymode_syntax_all
-let g:pymode_rope = 0
-let g:pymode_rope_enable_autoimport = 0
-let g:pymode_rope_auto_project = 0
-let g:pymode_rope_lookup_project = 0
-let g:pymode_lint = 0
-let python_highlight_all = 0
-let g:pymode_rope_guess_project = 0
-let g:pymode_rope_vim_completion = 0
-let g:pymode_doc_bind = ''
-let g:pymode_rope_goto_definition_bind = "<C-]>"
-" }}}
-
-" go settings {{{
 let g:godef_split = 0
 let g:go_play_open_browser = 0
 let g:go_fmt_fail_silently = 0
@@ -1148,97 +861,43 @@ let g:go_def_mode = 'gopls'
 let g:go_def_mapping_enabled = 0
 let g:go_bin_path = expand("~/.gocode/bin")
 let g:go_diagnostics_enabled = 0
-" }}}
-
-" choosewin {{{
 let g:choosewin_overlay_enable = 1
 let g:choosewin_statusline_replace = 0
 let g:choosewin_tabline_replace = 0
 let g:choosewin_blink_on_land = 0
 let g:choosewin_label = "1234567890"
 let g:choosewin_tablabel = "ABCDEFGHIJKLMNOPQRTUVWYZ"
-
 let g:choosewin_overlay_clear_multibyte = 1
-" }}}
-
-" tex {{{
-let g:tex_ignore_makefile = 1
-let g:tex_flavor = "/usr/texbin/pdftex"
-" }}}
-
-" clang format {{{
-let g:clang_format#command = "/usr/local/bin/clang-format-3.6"
+let g:clang_format#command = "/usr/local/bin/clang-format"
 let g:clang_format#detect_style_file = 1
-" }}}
-
-" haskell {{{
-let g:necoghc_enable_detailed_browse = 1
-" }}}
-
-" mru {{{
-let MRU_File = $HOME . '/.vim/tmp/.vim_mru_files'
-" }}}
-
-" javascript {{{
 let javaScript_fold=0
-" }}}
-
-" factor {{{
-let g:FactorRoot="$HOME/temp/source/other/factor"
-" }}}
-
-" tabular {{{
-let g:no_default_tabular_maps=1
-" }}}
-
-" netrw {{{
-let g:netrw_browsex_viewer="open"
-" }}}
-
-" gist {{{
-let g:gist_clip_command = 'pbcopy'
-let g:gist_open_browser_after_post = 1
-" }}}
-
 let g:vim_json_syntax_conceal = 0
-
 let g:terraform_align = 1
 let g:terraform_fmt_on_save = 1
 
-" }}}
-
-" abbreviations {{{
-nnoremap <F7> "=strftime("(%Y-%m-%d %H:%M)")<CR>P
-" }}}
-
-" commands {{{
 command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
 command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
 
 " typos
 command! -bang E e<bang>
 command! -bang Q q<bang>
-" command! -bang W w<bang>
 command! -bang QA qa<bang>
 command! -bang Qa qa<bang>
 command! -bang Wa wa<bang>
 command! -bang WA wa<bang>
 command! -bang Wq wq<bang>
 command! -bang WQ wq<bang>
-" }}}
 
-autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
-
-hi default hi_MarkInsertStop ctermbg=137 cterm=undercurl,bold
-hi default hi_MarkChange ctermbg=160 cterm=undercurl,bold
-hi default hi_MarkBeforeJump ctermbg=184 cterm=undercurl,bold
-
+hi default hi_MarkInsertStop ctermbg=128 ctermfg=white cterm=bold
+hi default hi_MarkChange ctermbg=160 ctermfg=231
+hi default hi_MarkBeforeJump ctermbg=23 ctermfg=white cterm=undercurl,bold
 lua <<EOF
 local jump_ns = vim.api.nvim_create_namespace("jump_ns")
 local change_ns = vim.api.nvim_create_namespace("change_ns")
 local insert_ns = vim.api.nvim_create_namespace("insert_ns")
 
 function mark_on_move()
+  local bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_clear_namespace(bufnr, jump_ns, 0, -1)
   local pos = vim.api.nvim_buf_get_mark(bufnr, '`')
   local pos1 = {pos[1] - 1, pos[2]}
@@ -1251,9 +910,8 @@ function mark_on_move()
   vim.highlight.range(bufnr, jump_ns, "hi_MarkBeforeJump", pos1, pos2, "c", true)
 end
 
-function mark_on_change_or_insert()
+function mark_on_changed()
   local bufnr = vim.api.nvim_get_current_buf()
-
   vim.api.nvim_buf_clear_namespace(bufnr, change_ns, 0, -1)
   local pos = vim.api.nvim_buf_get_mark(bufnr, '.')
   local pos1 = {pos[1] - 1, pos[2]}
@@ -1264,7 +922,10 @@ function mark_on_change_or_insert()
     pos1[2] = pos1[2] - 1
   end
   vim.highlight.range(bufnr, change_ns, "hi_MarkChange", pos1, pos2, "c", true)
+end
 
+function mark_on_insert_stop()
+  local bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_clear_namespace(bufnr, insert_ns, 0, -1)
   local pos = vim.api.nvim_buf_get_mark(bufnr, '^')
   local pos1 = {pos[1] - 1, pos[2]}
@@ -1281,30 +942,17 @@ EOF
 
 augroup marks
   autocmd!
-  "autocmd TextYankPost * silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=-1}
   autocmd CursorMoved * silent! lua mark_on_move()
-  autocmd BufModifiedSet,TextChangedP,TextChangedI,InsertLeave * silent! lua mark_on_change_or_insert()
+  autocmd BufModifiedSet,TextChangedP,TextChangedI,TextChanged * silent! lua mark_on_changed()
+  autocmd InsertLeave * silent! lua mark_on_insert_stop()
 augroup END
 
-" auto commands {{{
 augroup all_buffers
   au!
-
+  autocmd BufNewFile,BufRead *.Jenkinsfile set filetype=groovy
   autocmd BufNewFile,BufRead *.ino set filetype=cpp
   autocmd BufNewFile,BufRead *.pde set filetype=cpp
-  " remove all buffers on exit so we don't have them as hidden on reopen
   autocmd VimLeavePre * execute 'silent! 1,' . bufnr('$') . 'bwipeout!'
-
-  " move to last position on file
-  autocmd BufReadPost *
-    \ if line("'\"") > 0 && line("'\"") <= line("$") |
-    \   exe "normal g`\"" |
-    \ endif
-  autocmd BufReadPost *
-      \ if line("'\"") > 0 && line("'\"") <= line("$") |
-      \     execute 'normal! g`"zvzz' |
-      \ endif
-
   autocmd! CmdwinEnter * 
     \ let g:save_cr_map = SaveMap('<cr>') |
     \ execute ':silent! :unmap <cr>'
@@ -1323,7 +971,6 @@ augroup all_buffers
     \ endif
 augroup END
 
-" indentations
 augroup settings
   au!
   autocmd FileType python setlocal et ts=4 sw=4 tw=120
@@ -1332,30 +979,17 @@ augroup settings
   autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 et
   autocmd FileType c set ts=4 sw=4 sts=4 commentstring=//\ %s
   autocmd FileType cpp set ts=4 sw=4 sts=4 commentstring=//\ %s
-  "autocmd FileType fasm set ts=4 sts=4 sw=4 commentstring=; %s
   autocmd FileType openscad set ts=4 sw=4 sts=4 commentstring=//\ %s
   autocmd FileType css set expandtab ts=4 sw=4 sts=4
   autocmd FileType scss set expandtab ts=4 sw=4 sts=4
   autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=1000
-  autocmd BufRead *.mkd  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
-  autocmd BufRead *.markdown  setlocal ai formatoptions=tcroqn2 comments=n:&gt;
-  autocmd BufRead gopack.config  set comments=n:#
   autocmd FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
   autocmd FileType go set noexpandtab ts=4 sw=4 sts=4
   autocmd FileType sh set iskeyword=35,36,45,46,48-57,64,65-90,97-122,_
 augroup END
 
-augroup endwiseadr
-  au!
-  autocmd FileType go
-    \ let b:endwise_addition = '}' |
-    \ let b:endwise_words = 'func,for,switch,if,else,range,select' |
-    \ let b:endwise_pattern = '^\s*\zs\%(func\|for\|switch\|if\|else\|range\|select\)\>\%(.*\)$' |
-    \ let b:endwise_syngroups = 'goConditional,goRepeat,goType,goDeclaration'
-augroup END
-
 " completions
-
+if !exists('g:vscode')
 augroup completions
   au!
   autocmd FileType c setlocal omnifunc=v:lua.vim.lsp.omnifunc
@@ -1373,17 +1007,14 @@ augroup completions
   autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
   autocmd CursorHold,CursorHoldI *.rs :lua require'lsp_extensions'.inlay_hints{ only_current_line = true }
 augroup END
+endif
 
 augroup mappings
   au!
 augroup END
 
-" }}}
-
-" host specific customizations {{{
 let hostfile=$HOME . '.vim/hosts/' . hostname() . ".vim"
 if filereadable(hostfile)
   exe 'source ' . hostfile
 endif
-" }}}
 
