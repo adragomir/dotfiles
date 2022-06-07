@@ -1,0 +1,32 @@
+AllCops:
+  NewCops: enable
+Layout/LineLength:
+  Enabled: false
+Style/NegatedIf: 
+  Enabled: false
+Style/NumericPredicate: 
+  Enabled: false
+Style/BlockDelimiters: 
+  Enabled: false
+Style/CommandLiteral: 
+  Enabled: false
+Style/ConditionalAssignment: 
+  Enabled: false
+Style/IfUnlessModifier: 
+  Enabled: false
+Metrics: 
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: false
+Style/DefWithParentheses:
+  Enabled: false
+Style/SoleNestedConditional:
+  Enabled: false
+Style/MethodCallWithoutArgsParentheses:
+  Enabled: false
+Style/PercentLiteralDelimiters:
+  Enabled: false
+Style/NegatedIfElseCondition:
+  Enabled: false
+Style/IfInsideElse:
+  Enabled: false
