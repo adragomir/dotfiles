@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# get app image for Ubuntu
+![[ $(type -P "nvim") ]] && {
+  sudo apt update
+  sudo apt install snapd
+  sudo snap install nvim --classic
+}
+
+curl -fsSL -o ~/.vimrc https://raw.githubusercontent.com/adragomir/dotfiles/master/.vimrc
