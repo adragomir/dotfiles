@@ -1,0 +1,4 @@
+[flake8]
+ignore = D203,F541,F621
+exclude = .git,__pycache__,docs/source/conf.py,old,build,dist
+max-complexity = 100

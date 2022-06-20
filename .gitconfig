@@ -108,7 +108,6 @@
   rbi = ! export LOCAL_BRANCH=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && echo $LOCAL_BRANCH && export REMOTE_BRANCH=$(git config branch.${LOCAL_BRANCH}.merge | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && REMOTE_NAME=$(git config branch.${LOCAL_BRANCH}.remote) && git rebase -i $REMOTE_NAME/$REMOTE_BRANCH
   rb = "!fn() { git stash && git rebase -i HEAD~$1 && git stash pop; }; fn"
   cos = "!fn() { git stash && git co $1 && git stash pop; }; fn"
-	create-pull-request = !sh -c 'stash pull-request $0 $@'
 	webui = !/Users/adragomir/.git-webui/release/libexec/git-core/git-webui
 
 [format]
@@ -144,6 +143,7 @@
   summary = true
   tool = smerge
   #tool = araxis
+  #tool = opendiff
 
 [core]
   legacyheaders = false

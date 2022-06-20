@@ -2,7 +2,7 @@
 if has("mac")
   let g:os_bin_path = "darwin"
   let g:python2_host_prog = '/usr/local/bin/python'
-  let g:python3_host_prog = '/usr/local/opt/python/bin/python3'
+  let g:python3_host_prog = '/usr/local/opt/python@3.10/bin/python3'
   let g:ruby_host_prog = $HOME . '/.frum/versions/2.7.5/bin/neovim-ruby-host'
   let g:node_host_prog = $HOME . '/.fnm/node-versions/v14.16.1/installation/lib/node_modules/neovim/bin/cli.js'
 elseif has("wsl")
@@ -14,32 +14,18 @@ elseif has("wsl")
 elseif has("win64")
   if $MSYSTEM == "MSYS"
     let g:os_bin_path = "windows"
-		let &shell = "/usr/bin/zsh"
+    let &shell = "/usr/bin/zsh"
   else
     let g:os_bin_path = "windows"
-		let &shell = has('win64') ? 'powershell' : 'pwsh'
-		set shellquote= shellpipe=\| shellxquote=
-		set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
-		set shellredir=\|\ Out-File\ -Encoding\ UTF8
-    " let g:python3_host_prog = 'c:\Python39\python3.exe'
+    let &shell = has('win64') ? 'powershell' : 'pwsh'
+    set shellquote= shellpipe=\| shellxquote=
+    set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
+    set shellredir=\|\ Out-File\ -Encoding\ UTF8
     let g:ruby_host_prog = 'c:\tools\ruby30\bin\neovim-ruby-host.bat'
-    "let g:node_host_prog = 'C:\Users\adrag\AppData\Roaming\npm\neovim-node-host'
   endif
 endif
 
 set guifont=Jetbrains\ Mono:h12
-if exists('g:neovide')
-  nnoremap <D-v> "+p
-endif
-let g:neovide_input_use_logo=v:true
-let g:neovide_cursor_animation_length=0.0
-let g:neovide_cursor_trail_length=0.0
-
-if has("gui_vimr")
-  set termguicolors
-  set background=dark
-  colorscheme monochrome2
-endif
 
 if &term =~ '^screen'
   execute "set <xUp>=\e[1;*A"
@@ -47,101 +33,83 @@ if &term =~ '^screen'
   execute "set <xRight>=\e[1;*C"
   execute "set <xLeft>=\e[1;*D"
 endif
-" home and end
 let g:do_filetype_lua=1
-let g:did_load_filetypes = 0
+let g:did_load_filetypes=0
 
-filetype off
+filetype on
+syntax on
+set shm+=I
 set mouse=a
-set history=10000 undolevels=10000
-set shiftround
-set noswapfile
-set number
-set whichwrap=<,>,h,l,b,s,~,[,]
-set ignorecase smartcase gdefault
-set linebreak breakindent breakindentopt=sbr showbreak=…
-set fillchars=diff:⣿,vert:\|
-set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o\|%B%)
-set scrolljump=10
-set virtualedit+=block
-set novisualbell noerrorbells
-set writeany
-set iskeyword=@,-,>,48-57,128-167,224-235,_
-set iskeyword-=.
+set sr
+set noswf
+set nu
+set ww=<,>,h,l,b,s,~,[,]
+set ic scs gd
+set lbr bri briopt=sbr sbr=…
+set stl=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o\|%B%)
+set ve+=block
+set novb noeb
+set wa
+set isk=@,-,>,48-57,128-167,224-235,_
+set isk-=.
 set showtabline=0
 set matchtime=3
-set complete=.,w,b,u,t,i,d	" completion by Ctrl-N
+set complete=.,w,b,u,t,i,d
 set completeopt=menu,menuone,noselect "set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
-set timeout
-set ttimeout
+set to ttm=0
 set ttimeoutlen=0
 if has("mac")
-  set clipboard=unnamed "unnamed ",unnamedplus,autoselect
+  set cb=unnamed "unnamed,unnamedplus,autoselect
 else 
-  set clipboard=unnamedplus
+  set cb=unnamedplus
 endif
 if has("wsl") || has("mac")
   set shell=bash
   set shellcmdflag=-lc
 endif
-set splitbelow splitright
-set switchbuf=useopen
+set sb spr
+set swb=useopen
 set grepprg=rg\ --no-ignore\ -H\ --no-heading\ --color\ never
 set grepformat=%f:%l:%m
 set nofoldenable
-set smartindent autoindent expandtab tabstop=2 shiftwidth=2 softtabstop=2
-set copyindent preserveindent
+set si ci pi ai et ts=2 sw=2 sts=2
 
 "set wildmode=list:longest,full
 set wildmode=longest,list
 set suffixes+=.lo,.moc,.la,.closure,.loT
-let g:sh_noisk=1
 let g:is_bash=1
 
 let mapleader = ","
 let maplocalleader = ","
-
+set guicursor=a:blinkon0
 set t_Co=256
 set background=dark
 colorscheme monochrome
-if exists('g:neovide')
-  colorscheme monochrome2
-endif
 
-" syntax enable
-" syntax on
-" filetype on
-" filetype indent on
-" filetype plugin on
-" highlight fixes
-highlight WHITE_ON_BLACK ctermfg=white
-hi NonText cterm=NONE ctermfg=NONE
-
+syntax enable
+syntax on
+filetype on
+filetype indent on
+filetype plugin on
+set nospell
 let g:loaded_tutor_mode_plugin = 1
 let g:loaded_man = 1
 let g:loaded_manpageview = 1
 let g:loaded_manpageviewPlugin = 1
-let g:loaded_getscriptPlugin = 1
-let g:loaded_getscript = 1
-let g:loaded_logiPat = 1
-let g:loaded_sql_completion = 1
 let g:loaded_sql_completion=1
 let g:loaded_remote_plugins = 1
 let g:loaded_gzip=1
-let loaded_gzip=1
+let g:loaded_spellfile_plugin=1
 let g:loaded_shada_plugin = 1
 let g:loaded_vimballPlugin=1
 let g:loaded_netrwPlugin = 1
-let g:loaded_rrhelper=1
+let g:loaded_netrwFileHandlers = 1
 let g:loaded_zipPlugin=1
+let g:loaded_zip=1
 let g:loaded_tarPlugin=1
 let g:loaded_2html_plugin=1
 let g:loaded_matchparen = 1
-
-function! Cond(Cond, ...)
-  let opts = get(a:000, 0, {})
-  return a:Cond ? opts : extend(opts, { 'on': [], 'for': [] })
-endfunction
+let g:loaded_xmlformat = 1
 
 " vim-plug
 let g:plug_url_format='https://github.com/%s.git'
@@ -150,16 +118,16 @@ call plug#begin(g:plug_path)
 " languages
 if !exists('g:vscode')
 Plug 'mfussenegger/nvim-jdtls'
-Plug 'ray-x/go.nvim', {'dir': stdpath('data') . '/bundle/go.nvim'}
+Plug 'ray-x/go.nvim'
 Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
 Plug 'gabrielelana/vim-markdown', { 'dir': stdpath('data') . '/bundle/markdown', 'for': ['md', 'markdown']}
 Plug 'rust-lang/rust.vim', { 'dir': stdpath('data') . '/bundle/rust', 'for': 'rust' }
 Plug 'sirtaj/vim-openscad', { 'dir': stdpath('data') . '/bundle/openscad' }
-Plug 'pearofducks/ansible-vim', { 'dir': stdpath('data') . '/bundle/ansible-vim' }
-Plug 'stephpy/vim-yaml', { 'dir': stdpath('data') . '/bundle/vim-yaml', 'for': 'yaml' }
-Plug 'rhysd/vim-clang-format', { 'dir': stdpath('data') . '/bundle/vim-clang-format' }
-Plug 'hashivim/vim-terraform', {'dir': stdpath('data') . '/bundle/vim-terraform'}
-Plug 'leafgarland/typescript-vim', {'dir': stdpath('data') . '/bundle/typescript-vim' }
+Plug 'pearofducks/ansible-vim'
+Plug 'stephpy/vim-yaml', { 'for': 'yaml' }
+Plug 'rhysd/vim-clang-format'
+Plug 'hashivim/vim-terraform'
+Plug 'leafgarland/typescript-vim'
 Plug 'ziglang/zig.vim'
 Plug 'fedorenchik/fasm.vim'
 Plug 'urbit/hoon.vim'
@@ -175,7 +143,7 @@ Plug 'simrat39/rust-tools.nvim'
 lua <<EOF
 vim.lsp.set_log_level("error")
 EOF
-" completion
+
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/lsp-status.nvim'
 Plug 'scalameta/nvim-metals', {'branch': 'main'}
@@ -187,97 +155,153 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzy-native.nvim'
 Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'ray-x/lsp_signature.nvim'
-" debugging
+
 Plug 'mfussenegger/nvim-dap'
+Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'leoluz/nvim-dap-go'
 Plug 'rcarriga/nvim-dap-ui'
-" syntax
+
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'RRethy/nvim-treesitter-textsubjects'
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
-" tools
+
 Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
-Plug 'rking/ag.vim', { 'dir': stdpath('data') . '/bundle/ag'}
+"Plug 'rking/ag.vim', { 'dir': stdpath('data') . '/bundle/ag'}
+Plug 'duane9/nvim-rg'
 Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
 Plug 'antoinemadec/FixCursorHold.nvim'
 let g:cursorhold_updatetime = 100
-" vim
+
 " Plug 'lukas-reineke/indent-blankline.nvim', { 'dir': stdpath('data') . '/bundle/indent-blankline.nvim' }
 Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
-Plug 't9md/vim-choosewin', { 'dir': stdpath('data') . '/bundle/vim-choosewin' }
+Plug 't9md/vim-choosewin'
 Plug 'tpope/vim-endwise', { 'dir': stdpath('data') . '/bundle/endwise' }
 Plug 'echasnovski/mini.nvim'
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
-" textobj
-Plug 'rhysd/clever-f.vim'
+
 endif
 call plug#end()
 
-function! s:VSetSearch()
-  let temp = @@
-  norm! gvy
-  let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
-  let @@ = temp
-endfunction
+function! SyntaxAttr()
+  let synid = ""
+  let guifg = ""
+  let guibg = ""
+  let gui   = ""
 
-function! MoveCursor(move, mode)
-	if (a:move == 'h')
-		if (a:mode == '0')
-			normal 0
-		elseif (a:mode =~ '^\^')
-			if (a:mode == '^g')
-				normal g^
-			elseif (a:mode == '^n')
-				normal ^
-			endif
-		endif
-	elseif (a:move == 'e')
-		if (a:mode =~ '^\$')
-			if (a:mode == '$g')
-				normal g$
-			elseif (a:mode == '$n')
-				normal $
-			endif
-		endif
-	endif
-endfunction
+  let id1  = synID(line("."), col("."), 1)
+  let tid1 = synIDtrans(id1)
 
-function! HomeKey()
-	let oldmode = mode()
-	let oldcol = col('.')
-	call MoveCursor('h', '^n')
-	let newcol = col('.')
-	if (oldcol == newcol)
-		if (&wrap != 1) || (newcol <= winwidth(0) - 20)
-			call MoveCursor('h', '0')
-			let lastcol = col('.')
-			if (newcol == lastcol)
-				if (newcol == oldcol)
-					normal i
-				else
-					call MoveCursor('h', '^n')
-				endif
-			else
-				call MoveCursor('h', '0')
-			endif
-		endif
-	endif
-endfunction
+  if synIDattr(id1, "name") != ""
+    let synid = "group: " . synIDattr(id1, "name")
+    if (tid1 != id1)
+      let synid = synid . '->' . synIDattr(tid1, "name")
+    endif
+    let id0 = synID(line("."), col("."), 0)
+    if (synIDattr(id1, "name") != synIDattr(id0, "name"))
+      let synid = synid .  " (" . synIDattr(id0, "name")
+      let tid0 = synIDtrans(id0)
+      if (tid0 != id0)
+        let synid = synid . '->' . synIDattr(tid0, "name")
+      endif
+      let synid = synid . ")"
+    endif
+  endif
 
-function! EndKey()
-	call MoveCursor('e', '$g')
+  " Use the translated id for all the color & attribute lookups; the linked id yields blank values.
+  if (synIDattr(tid1, "fg") != "" )
+    let guifg = " guifg=" . synIDattr(tid1, "fg") . "(" . synIDattr(tid1, "fg#") . ")"
+  endif
+  if (synIDattr(tid1, "bg") != "" )
+    let guibg = " guibg=" . synIDattr(tid1, "bg") . "(" . synIDattr(tid1, "bg#") . ")"
+  endif
+  if (synIDattr(tid1, "bold"     ))
+    let gui   = gui . ",bold"
+  endif
+  if (synIDattr(tid1, "italic"   ))
+    let gui   = gui . ",italic"
+  endif
+  if (synIDattr(tid1, "reverse"  ))
+    let gui   = gui . ",reverse"
+  endif
+  if (synIDattr(tid1, "inverse"  ))
+    let gui   = gui . ",inverse"
+  endif
+  if (synIDattr(tid1, "underline"))
+    let gui   = gui . ",underline"
+  endif
+  if (gui != ""                  )
+    let gui   = substitute(gui, "^,", " gui=", "")
+  endif
+
+  echohl MoreMsg
+  let message = synid . guifg . guibg . gui
+  if message == ""
+    echohl WarningMsg
+    let message = "<no syntax group here>"
+  endif
+  echo message
+  echohl None
 endfunction
+map gm :call SyntaxAttr()<CR>
+
+fu! MoveCursor(move, mode)
+  if (a:move == 'h')
+    if (a:mode == '0')
+      normal 0
+    elseif (a:mode =~ '^\^')
+      if (a:mode == '^g')
+        normal g^
+      elseif (a:mode == '^n')
+        normal ^
+      endif
+    endif
+  elseif (a:move == 'e')
+    if (a:mode =~ '^\$')
+      if (a:mode == '$g')
+        normal g$
+      elseif (a:mode == '$n')
+        normal $
+      endif
+    endif
+  endif
+endf
+
+fu! HomeKey()
+  let oldmode = mode()
+  let oldcol = col('.')
+  call MoveCursor('h', '^n')
+  let newcol = col('.')
+  if (oldcol == newcol)
+    if (&wrap != 1) || (newcol <= winwidth(0) - 20)
+      call MoveCursor('h', '0')
+      let lastcol = col('.')
+      if (newcol == lastcol)
+        if (newcol == oldcol)
+          normal i
+        else
+          call MoveCursor('h', '^n')
+        endif
+      else
+        call MoveCursor('h', '0')
+      endif
+    endif
+  endif
+endf
+
+fu! EndKey()
+  call MoveCursor('e', '$g')
+endf
 
 " Visual mode functions
-function! s:VSetSearch()
+fu! s:VSetSearch()
   let temp = @@
   norm! gvy
   let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
   let @@ = temp
-endfunction
+endf
 
-function! RestoreRegister()
+fu! RestoreRegister()
   if &clipboard == 'unnamed'
     let @* = s:restore_reg
   elseif &clipboard == 'unnamedplus'
@@ -286,172 +310,79 @@ function! RestoreRegister()
     let @" = s:restore_reg
   endif
   return ''
-endfunction
+endf
 
-function! ReplaceWithRegister()
+fu! ReplaceWithRegister()
     let s:restore_reg = @"
     return "p@=RestoreRegister()\<cr>"
-endfunction
-xnoremap <silent> <expr> p ReplaceWithRegister()
+endf
 
-function! ToggleSideEffects()
+xn <silent> <expr> p ReplaceWithRegister()
+
+fu! ToggleSideEffects()
   if mapcheck("dd", "n") == ""
-    noremap dd "_dd
-    noremap D "_D
-    noremap d "_d
-    noremap X "_X
-    noremap x "_x
-    vnoremap p "_dP
+    no dd "_dd
+    no D "_D
+    no d "_d
+    no X "_X
+    no x "_x
+    vn p "_dP
     echo 'side effects off'
   else
-    unmap dd
-    unmap D
-    unmap d
-    unmap X
-    unmap x
-    vunmap p
+    unm dd
+    unm D
+    unm d
+    unm X
+    unm x
+    vu p
     echo 'side effects on'
   endif
-endfunction
-nnoremap ,, :call ToggleSideEffects()<CR>
+endf
 
-function! SaveMap(key)
+nn ,, :call ToggleSideEffects()<CR>
+
+fu! SaveMap(key)
   return maparg(a:key, 'n', 0, 1)
-endfunction
+endf
 
-function! RestoreMap(map)
+fu! RestoreMap(map)
   if !empty(a:map)
     let l:tmp = ""
-    let l:tmp .= a:map.noremap ? 'nnoremap' : 'nmap'
+    let l:tmp .= a:map.noremap ? 'nn' : 'nmap'
     let l:tmp .= join(map(['buffer', 'expr', 'nowait', 'silent'], 'a:map[v:val] ? "<" . v:val . ">": ""'))
     let l:tmp .= a:map.lhs . ' '
     let l:tmp .= substitute(a:map.rhs, '<SID>', '<SNR>' . a:map.sid . '_', 'g')
     execute l:tmp
   endif
-endfunction
+endf
 
-let g:save_cr_map = {}
-
-" System clipboard interaction.
-map <leader>y "*y
-
-" Don't move the cursor
-noremap <C-a> <Home>
-noremap <C-e> <End>
-
-silent! nunmap Y
-vnoremap y myy`y
-vnoremap Y myY`y
-
-" re-select old stuff
-noremap gV `<v'>
-noremap g> `<v'>
-noremap g< `<v'>
-noremap g] `[v']
-noremap g[ `[v']
-
-" fix movement keys
-noremap j gj
-noremap k gk
-noremap <up> gk
-noremap <down> gj
-nnoremap D d$
-nnoremap * *<c-o>
-
-nnoremap K <nop>
-" remap: mistake, move visual
-vnoremap J j
-vnoremap K k
-" remap: mistake, hit u
-vnoremap u <nop>
-nnoremap <Del> "_x
-
-" Keep search matches in the middle of the window.
-nnoremap n nzzzv
-nnoremap N Nzzzv
-
-" Same when jumping around
-nnoremap g; g;zz
-nnoremap g, g,zz
-nnoremap <c-o> <c-o>zz
-
-" Heresy
-inoremap <c-a> <esc>I
-inoremap <c-e> <esc>A
-inoremap <c-c> <Esc>
-
-" emacs bindings, like the shell
-cnoremap <c-a> <home>
-cnoremap <c-e> <end>
-cnoremap <expr> %% expand('%:h').'/'
-
-" DELETE 
-nnoremap + <nop>
-nnoremap r <nop>
-nnoremap R <nop>
-nnoremap L <nop>
-nnoremap M <nop>
-nnoremap \| <nop>
-nnoremap ( <nop>
-nnoremap ) <nop>
-nnoremap [ <nop>
-nnoremap ] <nop>
-nnoremap { <nop>
-nnoremap } <nop>
-nnoremap ]] <nop>
-nnoremap [[ <nop>
-nnoremap [] <nop>
-nnoremap ][ <nop>
-" ag word
-nnoremap <silent> <leader>/ :Ag<cr>
-vnoremap <silent> <leader>/ :AgVisual<cr>
-" GRB: clear the search buffer when hitting return
-nnoremap <cr> :nohlsearch<cr>
-nnoremap <m-Down> :cnext<cr>zvzz
-nnoremap <m-Up> :cprevious<cr>zvzz
-" Use c-\ to do c-] but open it in a new split.
-nnoremap <c-\> <c-w>v<c-]>zvzz
-" quickfix
-nnoremap <leader>Q :cc<cr>
-" remap: always go to character, with ' and `
-nnoremap ' `
-xnoremap ' `
-map <leader>' ``
-map <leader>. `.
-map <leader>] `]
-map <leader>> `>
-map <leader>` `^
-" vaporize delete without overwriting the default register
-vnoremap p "_dP
-inoremap <C-u> <esc>mzgUiw`za
-vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
-vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
-nnoremap <silent> Q <nop>
-" quicker window switching
-nnoremap <C-h> <c-w>h
-nnoremap <C-j> <c-w>j
-nnoremap <C-k> <c-w>k
-nnoremap <C-l> <c-w>l
-" disable middle mouse pasting
-map  <MiddleMouse>  <Nop>
-map  <2-MiddleMouse>  <Nop>
-map  <3-MiddleMouse>  <Nop>
-map  <4-MiddleMouse>  <Nop>
-imap  <MiddleMouse>  <Nop>
-imap  <2-MiddleMouse>  <Nop>
-imap  <3-MiddleMouse>  <Nop>
-imap  <4-MiddleMouse>  <Nop>
-inoremap <S-Space> <Space>
-inoremap <C-Space> <C-o>m`
-inoremap <silent> <Home> <C-o>:call HomeKey()<CR>
-nnoremap <silent> <Home> :call HomeKey()<CR>
-noremap <Space> m`
-" switch cpp/h
-nmap <MapLocalLeader>h :AT<CR>
-" terminal
-nmap - <Plug>(choosewin)
-
-" disable mistakes
+nn K <nop>
+vn u <nop>
+nn + <nop>
+nn r <nop>
+nn R <nop>
+nn L <nop>
+nn M <nop>
+nn \| <nop>
+nn ( <nop>
+nn ) <nop>
+nn [ <nop>
+nn ] <nop>
+nn { <nop>
+nn } <nop>
+nn ]] <nop>
+nn [[ <nop>
+nn [] <nop>
+nn ][ <nop>
+nn <silent> Q <nop>
+map  <MiddleMouse>  <nop>
+map  <2-MiddleMouse>  <nop>
+map  <3-MiddleMouse>  <nop>
+map  <4-MiddleMouse>  <nop>
+im  <MiddleMouse>  <nop>
+im  <2-MiddleMouse>  <nop>
+im  <3-MiddleMouse>  <nop>
+im  <4-MiddleMouse>  <nop>
 lua <<EOF
 vim.api.nvim_set_keymap("", "<F1>", "<nop>", {noremap = true})
 for i=1,24 do
@@ -462,51 +393,121 @@ for i=1,24 do
 end
 EOF
 
+
+map <leader>y "*y
+no <C-a> <Home>
+no <C-e> <End>
+
+silent! nunmap Y
+vn y myy`y
+vn Y myY`y
+
+no gV `<v'>
+no g> `<v'>
+no g< `<v'>
+no g] `[v']
+no g[ `[v']
+
+no j gj
+no k gk
+no <up> gk
+no <down> gj
+nn D d$
+nn * *<c-o>
+
+vn J j
+vn K k
+nn <Del> "_x
+
+ino <c-a> <esc>I
+cno <c-a> <home>
+ino <c-e> <esc>A
+cno <c-e> <end>
+ino <c-c> <Esc>
+
+
+nn <silent> <leader>/ :Rg <cword><cr>
+
+nn <cr> :nohlsearch<cr>
+nn <m-Down> :cnext<cr>zz
+nn <m-Up> :cprevious<cr>zz
+
+nn ' `
+xn ' `
+map <leader>' ``
+map <leader>. `.
+map <leader>] `]
+map <leader>> `>
+map <leader>` `^
+
+vn p "_dP
+vn r "_dP
+ino <C-u> <esc>mzgUiw`za
+vn * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
+vn # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
+
+nn <C-h> <c-w>h
+nn <C-j> <c-w>j
+nn <C-k> <c-w>k
+nn <C-l> <c-w>l
+
+ino <S-Space> <Space>
+ino <C-Space> <C-o>m`
+ino <silent> <Home> <C-o>:call HomeKey()<CR>
+nn <silent> <Home> :call HomeKey()<CR>
+no <Space> m`
+
+nm <MapLocalLeader>h :AT<CR>
+
+nm - <Plug>(choosewin)
+
+
 if !exists('g:vscode')
-nnoremap <silent> gd          <cmd>lua vim.lsp.buf.definition()<CR>
-nnoremap <Leader>T            :lua require'lsp_extensions'.inlay_hints()<cr>
-nnoremap <silent> K           <cmd>lua vim.lsp.buf.signature_help()<CR>
-" nnoremap <silent> gi          <cmd>lua vim.lsp.buf.implementation()<CR>
-" nnoremap <silent> gr          <cmd>lua vim.lsp.buf.references()<CR>
-nnoremap <silent> gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
+nn <silent> gd          <cmd>lua vim.lsp.buf.definition()<CR>
+nn <Leader>T            :lua require'lsp_extensions'.inlay_hints()<cr>
+nn <silent> K           <cmd>lua vim.lsp.buf.signature_help()<CR>
+" nn <silent> gi          <cmd>lua vim.lsp.buf.implementation()<CR>
+" nn <silent> gr          <cmd>lua vim.lsp.buf.references()<CR>
+nn <silent> gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
 " <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{}<CR> 
 " <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR> 
-" nnoremap <silent> gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
-nnoremap <silent> gsd         <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
-nnoremap <silent> gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
-nnoremap <silent> <leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
-nnoremap <silent> <leader>f   <cmd>lua vim.lsp.buf.formatting()<CR>
-nnoremap <silent> <leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
-nnoremap <silent> [c          :NextDiagnostic<CR>
-nnoremap <silent> ]c          :PrevDiagnostic<CR>
-nnoremap <silent> <space>d    :OpenDiagnostic<CR>
+" nn <silent> gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
+nn <silent> gsd         <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
+nn <silent> gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+nn <silent> <leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
+nn <silent> <leader>f   <cmd>lua vim.lsp.buf.formatting()<CR>
+nn <silent> <leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
+nn <silent> [c          :NextDiagnostic<CR>
+nn <silent> ]c          :PrevDiagnostic<CR>
+nn <silent> <space>d    :OpenDiagnostic<CR>
 
 lua <<EOF
 function hoon_def_search()
   require 'telescope.builtin'.grep_string({search='\\+(\\+|\\$|\\*)  '.. vim.fn.expand('<cword>') .. '( |$)', use_regex=true})
 end
 EOF
-nnoremap <silent> <leader>d   <cmd>lua hoon_def_search()<CR>
+nn <silent><leader>d   <cmd>lua hoon_def_search()<CR>
 
-" LspSaga bindings
-nnoremap <silent> gh :Lspsaga lsp_finder<CR>
-nnoremap <silent><leader>ca :Lspsaga code_action<CR>
-nnoremap <silent>K :Lspsaga signature_help<CR>
-nnoremap <silent> gs :Lspsaga hover_doc<CR>
-nnoremap <silent> g<space> :Lspsaga preview_definition<CR>
-nnoremap <silent> <leader>cd :Lspsaga show_line_diagnostics<CR>
-nnoremap <silent> [e :Lspsaga diagnostic_jump_next<CR>
-nnoremap <silent> ]e :Lspsaga diagnostic_jump_prev<CR>
+nn <silent>gh :Lspsaga lsp_finder<CR>
+nn <silent><leader>ca :Lspsaga code_action<CR>
+nn <silent>K :Lspsaga signature_help<CR>
+nn <silent>gs :Lspsaga hover_doc<CR>
+nn <silent>g<space> :Lspsaga preview_definition<CR>
+nn <silent><leader>cd :Lspsaga show_line_diagnostics<CR>
+nn <silent>[e :Lspsaga diagnostic_jump_next<CR>
+nn <silent>]e :Lspsaga diagnostic_jump_prev<CR>
 
 let g:coq_settings = {
-	    \ 'auto_start': 'shut-up', 
-	    \ 'display.pum.fast_close': v:false,
-	    \ 'display.icons.mode': 'none', 
-	    \ 'clients.tags.enabled': v:false,  
-	    \ 'clients.snippets.enabled': v:false,
-	    \ 'clients.snippets.warn': {},
-	    \ 'clients.paths.enabled': v:false, 
-	    \ 'clients.tmux.enabled': v:false
+        \ 'auto_start': 'shut-up', 
+        \ 'display.pum.fast_close': v:false,
+        \ 'display.icons.mode': 'none', 
+        \ 'clients.tags.enabled': v:false,  
+        \ 'clients.snippets.enabled': v:false,
+        \ 'clients.snippets.warn': {},
+        \ 'clients.paths.enabled': v:false, 
+        \ 'clients.tmux.enabled': v:false, 
+        \ 'keymap.bigger_preview': '', 
+        \ 'keymap.jump_to_mark': ''
       \}
 
 lua <<EOF
@@ -523,30 +524,18 @@ lua <<EOF
 
   require('mini.comment').setup()
   require('mini.surround').setup( {
-    -- Add custom surroundings to be used on top of builtin ones. For more
-    -- information with examples, see `:h MiniSurround.config`.
     custom_surroundings = nil,
-
-    -- Duration (in ms) of highlight when calling `MiniSurround.highlight()`
     highlight_duration = 500,
-
-    -- Module mappings. Use `''` (empty string) to disable one.
     mappings = {
-      add = 'ys', -- Add surrounding in Normal and Visual modes
-      delete = 'ds', -- Delete surrounding
-      find = '', -- Find surrounding (to the right)
-      find_left = '', -- Find surrounding (to the left)
-      highlight = '', -- Highlight surrounding
-      replace = 'cs', -- Replace surrounding
-      update_n_lines = '', -- Update `n_lines`
+      add = 'ys',
+      delete = 'ds',
+      find = '',
+      find_left = '',
+      highlight = '',
+      replace = 'cs',
+      update_n_lines = '',
     },
-
-    -- Number of lines within which surrounding is searched
     n_lines = 20,
-
-    -- How to search for surrounding (first inside current line, then inside
-    -- neighborhood). One of 'cover', 'cover_or_next', 'cover_or_prev',
-    -- 'cover_or_nearest'. For more details, see `:h MiniSurround.config`.
     search_method = 'cover',
   })
   require('mini.bufremove').setup()
@@ -554,15 +543,11 @@ lua <<EOF
   local saga = require 'lspsaga'
   saga.init_lsp_saga()
 
-  -- Setup lspconfig.
-
   local lspconfig = require'lspconfig'
   local configs = require'lspconfig.configs'
   local util = require'lspconfig/util'
 
   local coq = require 'coq'
-  -- local metals   = require'metals'
-  -- local setup    = require'metals.setup' 
   local M = {}
 
   M.on_attach = function()
@@ -580,6 +565,7 @@ lua <<EOF
     on_attach = M.on_attach;
   }
 
+  require'go'.setup()
   lspconfig.gopls.setup{
     on_attach = M.on_attach;
     root_dir = util.root_pattern("go.mod");
@@ -589,14 +575,10 @@ lua <<EOF
     on_attach = M.on_attach;
     root_dir = util.root_pattern("deno.json");
   }
-  lspconfig.haxe_language_server.setup{
-  }
-  lspconfig.leanls.setup{
-  }
-  lspconfig.solang.setup{
-  }
-  lspconfig.svls.setup{
-  }
+  lspconfig.haxe_language_server.setup{ }
+  lspconfig.leanls.setup{ }
+  lspconfig.solang.setup{ }
+  lspconfig.svls.setup{ }
 
   lspconfig.rust_analyzer.setup{
     on_attach = M.on_attach;
@@ -620,17 +602,10 @@ lua <<EOF
       }
     };
   }
-  lspconfig.clojure_lsp.setup{
-  }
-  --lspconfig.clangd.setup{
-  --  cmd = {"/usr/local/opt/llvm/bin/clangd", "--index-background"}
-  --}
+  lspconfig.clojure_lsp.setup{ }
   lspconfig.intelephense.setup{
     on_attach = M.on_attach;
   }
-  -- lspconfig.pyright.setup{
-  --   on_attach = M.on_attach;
-  -- }
   lspconfig.svls.setup{}
   lspconfig.pylsp.setup{
     on_attach = M.on_attach;
@@ -670,17 +645,13 @@ lua <<EOF
     settings = {
       Lua = {
         runtime = {
-          -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
           version = 'LuaJIT',
-          -- Setup your lua path
           path = vim.split(package.path, ';'),
         },
         diagnostics = {
-          -- Get the language server to recognize the `vim` global
           globals = {'vim'},
         },
         workspace = {
-          -- Make the server aware of Neovim runtime files
           library = {
             [vim.fn.expand('$VIMRUNTIME/lua')] = true,
             [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
@@ -741,27 +712,26 @@ lua <<EOF
   lspconfig.hoon_ls.setup{
     on_attach    = M.on_attach;
   }
-  if 1 then
-    lspconfig.zls.setup(coq.lsp_ensure_capabilities())
-    lspconfig.gopls.setup(coq.lsp_ensure_capabilities())
-    lspconfig.denols.setup(coq.lsp_ensure_capabilities())
-    lspconfig.haxe_language_server.setup(coq.lsp_ensure_capabilities())
-    lspconfig.leanls.setup(coq.lsp_ensure_capabilities())
-    lspconfig.solang.setup(coq.lsp_ensure_capabilities())
-    lspconfig.svls.setup(coq.lsp_ensure_capabilities())
-    lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities())
-    lspconfig.ccls.setup(coq.lsp_ensure_capabilities())
-    lspconfig.intelephense.setup(coq.lsp_ensure_capabilities())
-    lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
-    lspconfig.jdtls.setup(coq.lsp_ensure_capabilities())
-    lspconfig.tsserver.setup(coq.lsp_ensure_capabilities())
-    lspconfig.sumneko_lua.setup(coq.lsp_ensure_capabilities())
-    lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
-    lspconfig.terraformls.setup(coq.lsp_ensure_capabilities())
-    lspconfig.elmls.setup(coq.lsp_ensure_capabilities())
-    lspconfig.html.setup(coq.lsp_ensure_capabilities())
-    lspconfig.yamlls.setup(coq.lsp_ensure_capabilities())
-  end
+
+  lspconfig.zls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.gopls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.denols.setup(coq.lsp_ensure_capabilities())
+  lspconfig.haxe_language_server.setup(coq.lsp_ensure_capabilities())
+  lspconfig.leanls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.solang.setup(coq.lsp_ensure_capabilities())
+  lspconfig.svls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities())
+  lspconfig.ccls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.intelephense.setup(coq.lsp_ensure_capabilities())
+  lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
+  lspconfig.jdtls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.tsserver.setup(coq.lsp_ensure_capabilities())
+  lspconfig.sumneko_lua.setup(coq.lsp_ensure_capabilities())
+  lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
+  lspconfig.terraformls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.elmls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.html.setup(coq.lsp_ensure_capabilities())
+  lspconfig.yamlls.setup(coq.lsp_ensure_capabilities())
 
   require "lsp_signature".setup({
     bind = true, 
@@ -795,8 +765,6 @@ lua <<EOF
         '--column',
         '--smart-case'
       },
-      -- prompt_prefix = ">",
-      -- selection_caret = ">", 
       selection_strategy = "reset",
       sorting_strategy = "descending",
       layout_strategy = "horizontal",
@@ -825,15 +793,15 @@ lua <<EOF
   require'nvim-treesitter.install'.compilers = { "gcc" }
   require'nvim-treesitter.configs'.setup {
     highlight = {
-      enable = true, -- false will disable the whole extension
-      disable = {},  -- list of language that will be disabled
+      enable = true,
+      disable = {},
     },
     force_unix_shell = true, 
     incremental_selection = {
       enable = true, 
       keymaps = {
-        init_selection = "gnn",
-        node_incremental = "grn",
+        init_selection = "<C-s>",
+        node_incremental = "<C-s>",
         scope_incremental = "grc",
         node_decremental = "grm"
       }
@@ -841,11 +809,11 @@ lua <<EOF
   }
 
   require'lsp_extensions'.setup{
-	  highlight = "Comment",
-	  prefix = " > ",
-	  aligned = false,
-	  only_current_line = false, 
-	  enabled = { "TypeHint", "ParameterHint", "ChainingHint" }
+    highlight = "Comment",
+    prefix = " > ",
+    aligned = false,
+    only_current_line = false, 
+    enabled = { "TypeHint", "ParameterHint", "ChainingHint" }
   }
 EOF
 endif
@@ -875,18 +843,18 @@ let g:vim_json_syntax_conceal = 0
 let g:terraform_align = 1
 let g:terraform_fmt_on_save = 1
 
-command! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
-command! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
+com! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
+com! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
 
 " typos
-command! -bang E e<bang>
-command! -bang Q q<bang>
-command! -bang QA qa<bang>
-command! -bang Qa qa<bang>
-command! -bang Wa wa<bang>
-command! -bang WA wa<bang>
-command! -bang Wq wq<bang>
-command! -bang WQ wq<bang>
+com! -bang E e<bang>
+com! -bang Q q<bang>
+com! -bang QA qa<bang>
+com! -bang Qa qa<bang>
+com! -bang Wa wa<bang>
+com! -bang WA wa<bang>
+com! -bang Wq wq<bang>
+com! -bang WQ wq<bang>
 
 hi default hi_MarkInsertStop ctermbg=128 ctermfg=white cterm=bold
 hi default hi_MarkChange ctermbg=160 ctermfg=231
@@ -940,78 +908,78 @@ end
 
 EOF
 
-augroup marks
-  autocmd!
-  autocmd CursorMoved * silent! lua mark_on_move()
-  autocmd BufModifiedSet,TextChangedP,TextChangedI,TextChanged * silent! lua mark_on_changed()
-  autocmd InsertLeave * silent! lua mark_on_insert_stop()
-augroup END
-
-augroup all_buffers
+aug marks
   au!
-  autocmd BufNewFile,BufRead *.Jenkinsfile set filetype=groovy
-  autocmd BufNewFile,BufRead *.ino set filetype=cpp
-  autocmd BufNewFile,BufRead *.pde set filetype=cpp
-  autocmd VimLeavePre * execute 'silent! 1,' . bufnr('$') . 'bwipeout!'
-  autocmd! CmdwinEnter * 
+  au CursorMoved * silent! lua mark_on_move()
+  au BufModifiedSet,TextChangedP,TextChangedI,TextChanged * silent! lua mark_on_changed()
+  au InsertLeave * silent! lua mark_on_insert_stop()
+aug END
+
+let g:save_cr_map = {}
+aug all_buffers
+  au!
+  au VimLeavePre * execute 'silent! 1,' . bufnr('$') . 'bwipeout!'
+  au! CmdwinEnter * 
     \ let g:save_cr_map = SaveMap('<cr>') |
     \ execute ':silent! :unmap <cr>'
-  autocmd! CmdwinLeave *
+  au! CmdwinLeave *
     \ execute ':call RestoreMap(g:save_cr_map)'
-  autocmd! WinEnter,BufWinEnter *
+  au! WinEnter,BufWinEnter *
     \ if &ft == "qf" |
     \     let g:save_cr_map = SaveMap('<cr>') |
     \     execute ':silent! unmap <cr>' |
     \ else |
     \     execute ':silent! call RestoreMap(g:save_cr_map)' |
     \ endif
-  autocmd! WinLeave * 
+  au! WinLeave * 
     \ if &ft == "qf" |
     \     execute ':call RestoreMap(g:save_cr_map)' |
     \ endif
-augroup END
+aug END
 
-augroup settings
+aug settings
   au!
-  autocmd FileType python setlocal et ts=4 sw=4 tw=120
-  autocmd FileType java setlocal et ts=2 sw=2
-  autocmd FileType ruby,haml,eruby,yaml,html,sass set ai sw=2 sts=2 et
-  autocmd FileType javascript setlocal ai sw=4 ts=4 sts=4 et
-  autocmd FileType c set ts=4 sw=4 sts=4 commentstring=//\ %s
-  autocmd FileType cpp set ts=4 sw=4 sts=4 commentstring=//\ %s
-  autocmd FileType openscad set ts=4 sw=4 sts=4 commentstring=//\ %s
-  autocmd FileType css set expandtab ts=4 sw=4 sts=4
-  autocmd FileType scss set expandtab ts=4 sw=4 sts=4
-  autocmd FileType text,markdown,mkd,pandoc,mail setlocal textwidth=1000
-  autocmd FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
-  autocmd FileType go set noexpandtab ts=4 sw=4 sts=4
-  autocmd FileType sh set iskeyword=35,36,45,46,48-57,64,65-90,97-122,_
-augroup END
+  au BufNewFile,BufRead *.Jenkinsfile set filetype=groovy
+  au BufNewFile,BufRead *.ino set filetype=cpp
+  au BufNewFile,BufRead *.pde set filetype=cpp
+  au FileType python setlocal et ts=4 sw=4
+  au FileType java setlocal et ts=2 sw=2
+  au FileType ruby,haml,eruby,yaml,html,sass setlocal ai sw=2 sts=2 et
+  au FileType javascript setlocal ai sw=4 ts=4 sts=4 et
+  au FileType c setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
+  au FileType cpp setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
+  au FileType openscad setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
+  au FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
+  au FileType go setlocal noexpandtab ts=4 sw=4 sts=4
+  au FileType sh setlocal iskeyword=35,36,45,46,48-57,64,65-90,97-122,_
+aug END
 
 " completions
 if !exists('g:vscode')
-augroup completions
+aug completions
   au!
-  autocmd FileType c setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType cpp setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType python setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType ruby setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType haskell setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType php setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType java setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType scala,sbt lua require('metals').initialize_or_attach({})
-  autocmd FileType rust setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType javascript setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType typescript setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd FileType go setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
-  autocmd CursorHold,CursorHoldI *.rs :lua require'lsp_extensions'.inlay_hints{ only_current_line = true }
-augroup END
+  au FileType c setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType cpp setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType python setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType ruby setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType haskell setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType php setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType java setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType scala,sbt lua require('metals').initialize_or_attach({})
+  au FileType rust setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType javascript setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType typescript setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType go setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  au FileType markdown setlocal nospell
+  au FileType checkhealth setlocal nospell
+  au BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
+  au CursorHold,CursorHoldI *.rs :lua require'lsp_extensions'.inlay_hints{ only_current_line = true }
+aug END
 endif
 
-augroup mappings
+aug mappings
   au!
-augroup END
+aug END
 
 let hostfile=$HOME . '.vim/hosts/' . hostname() . ".vim"
 if filereadable(hostfile)

@@ -16,6 +16,7 @@ endif
 let g:colors_name = 'monochrome'
 
 " These commands are generated, see bin/generate.rb.
+hi Error ctermfg=16 ctermbg=red cterm=NONE term=NONE
 hi Normal ctermfg=252 ctermbg=16 cterm=NONE term=NONE
 hi Cursor ctermfg=16 ctermbg=252 cterm=NONE term=NONE
 hi CursorLine ctermfg=252 ctermbg=234 cterm=NONE term=NONE
@@ -74,3 +75,6 @@ hi vimSynType ctermfg=252 ctermbg=16 cterm=NONE term=NONE
 hi vimCommentTitle ctermfg=243 ctermbg=16 cterm=NONE term=NONE
 hi SpellRare cterm=underline
 hi SpellBad cterm=underline
+
+"hi WHITE_ON_BLACK ctermfg=white
+hi NonText cterm=NONE ctermfg=NONE
