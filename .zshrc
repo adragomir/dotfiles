@@ -550,7 +550,7 @@ export GO111MODULE=on
 
 export PATH=\
 /usr/local/opt/bison/bin:\
-$HOME/.config/isomorphic-copy/bin:\
+$HOME/.config/isomorphic_copy/bin:\
 $HOME/bin:\
 $HOME/bin/$OS:\
 $HOME/.local/bin:\

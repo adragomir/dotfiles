@@ -12,16 +12,16 @@ git clone https://github.com/adragomir/dotfiles
 
 mkdir -p ~/.local/share/nvim/{bundle,lspconfig,shada,undo}
 mkdir -p ~/.config/nvim/{autoload,colors}
-ln -s ~/dotfiles/.vimrc ~/.config/nvim/init.vim
-ln -s ~/dotfiles/.vim/autoload ~/.config/nvim/autoload
-ln -s ~/dotfiles/.vim/colors ~/.config/nvim/colors
+ln -s ${HOME}/dotfiles/.vimrc ${HOME}/.config/nvim/init.vim
+ln -s ${HOME}/dotfiles/.vim/autoload ${HOME}/.config/nvim/autoload
+ln -s ${HOME}/dotfiles/.vim/colors ${HOME}/.config/nvim/colors
 mkdir -p ~/.zsh
 mkdir -p ~/.history
-ln -s ~/dotfiles/.zshrc ~/.zshrc
-ln -s ~/dotfiles/.zsh ~/.zsh
+ln -s ${HOME}/dotfiles/.zshrc ${HOME}/.zshrc
+ln -s ${HOME}/dotfiles/.zsh ${HOME}/.zsh
 mkdir -p ~/.tmux/
-ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf
-ln -s ~/dotfiles/.tmux/plugins ~/.tmux/plugins
+ln -s ${HOME}/dotfiles/.tmux.conf ${HOME}/.tmux.conf
+ln -s ${HOME}/dotfiles/.tmux/plugins ${HOME}/.tmux/plugins
 
 pip3 install neovim
 sudo gem install neovim
