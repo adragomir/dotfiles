@@ -57,6 +57,7 @@ set matchtime=3
 set complete=.,w,b,u,t,i,d
 set completeopt=menu,menuone,noselect "set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
 set to ttm=0
+set timeoutlen=200
 set ttimeoutlen=0
 if has("mac")
   set cb=unnamed "unnamed,unnamedplus,autoselect
