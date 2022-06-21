@@ -9,7 +9,11 @@
 }
 
 mkdir -p ~/.local/share/nvim/{bundle,lspconfig,shada,undo}
+mkdir -p ~/.config/nvim/{autoload,colors}
 curl -fsSL -o ~/.vimrc https://raw.githubusercontent.com/adragomir/dotfiles/master/.vimrc
+ln -s ~/.vimrc ~/.config/nvim/init.nvim
+curl -fsSL -o ~/.config/nvim/autoload/plug.vim https://raw.githubusercontent.com/adragomir/dotfiles/master/.vim/autoload/plug.vim
+curl -fsSL -o ~/.config/nvim/colors/monochrome.vim https://raw.githubusercontent.com/adragomir/dotfiles/master/.vim/colors/monochrome.vim
 mkdir -p ~/.zsh
 curl -fsSL -o ~/.zshrc https://raw.githubusercontent.com/adragomir/dotfiles/master/.zshrc
 mkdir -p ~/.tmux/{plugins,resurrect}
