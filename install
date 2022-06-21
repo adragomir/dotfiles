@@ -18,9 +18,18 @@ mkdir -p ~/.zsh
 mkdir -p ~/.history
 curl -fsSL -o ~/.zshrc https://raw.githubusercontent.com/adragomir/dotfiles/master/.zshrc
 curl -fsSL -o ~/.zsh/async https://raw.githubusercontent.com/adragomir/dotfiles/master/.zsh/async
+curl -fsSL -o ~/.zsh/golang.plugin.zsh https://raw.githubusercontent.com/adragomir/dotfiles/master/.zsh/golang.plugin.zsh
+curl -fsSL -o ~/.zsh/url-tools.plugin.zsh https://raw.githubusercontent.com/adragomir/dotfiles/master/.zsh/url-tools.plugin.zsh
 mkdir -p ~/.tmux/{plugins,resurrect}
 curl -fsSL -o ~/.tmux.conf https://raw.githubusercontent.com/adragomir/dotfiles/master/.tmux.conf
 pip3 install neovim
 sudo gem install neovim
 sudo npm install -g neovim
 chsh -s /usr/bin/zsh
+curl -fsSL https://fnm.vercel.app/install | bash
+curl -fsSL -o frum-v0.1.2-x86_64-unknown-linux-musl.tar.gz https://github.com/TaKO8Ki/frum/releases/download/v0.1.2/frum-v0.1.2-x86_64-unknown-linux-musl.tar.gz
+tar zxf frum-v0.1.2-x86_64-unknown-linux-musl.tar.gz
+mv frum-v0.1.2-x86_64-unknown-linux-musl /usr/local/bin/frum
+rm -rf frum*
+chmod +x /usr/local/bin/frum
+
