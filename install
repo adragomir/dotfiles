@@ -7,41 +7,44 @@ arch=$(uname -p)
   sudo apt install snapd
   sudo snap install nvim --classic
 }
-sudo apt-get -y install build-essential tmux python3 python3-dev ruby libluajit-5.1-dev luajit ruby-dev nodejs npm ripgrep python3-venv zsh fzy
+sudo apt-get -y install build-essential tmux python3 python3-dev ruby libluajit-5.1-dev luajit ruby-dev nodejs npm ripgrep python3-venv zsh fzy git
+git clone https://github.com/adragomir/dotfiles
 
 mkdir -p ~/.local/share/nvim/{bundle,lspconfig,shada,undo}
 mkdir -p ~/.config/nvim/{autoload,colors}
-curl -fsSL -o ~/.vimrc https://raw.githubusercontent.com/adragomir/dotfiles/master/.vimrc
-ln -s ~/.vimrc ~/.config/nvim/init.vim
-curl -fsSL -o ~/.config/nvim/autoload/plug.vim https://raw.githubusercontent.com/adragomir/dotfiles/master/.vim/autoload/plug.vim
-curl -fsSL -o ~/.config/nvim/colors/monochrome.vim https://raw.githubusercontent.com/adragomir/dotfiles/master/.vim/colors/monochrome.vim
+ln -s ~/dotfiles/.vimrc ~/.config/nvim/init.vim
+ln -s ~/dotfiles/.vim/autoload ~/.config/nvim/autoload
+ln -s ~/dotfiles/.vim/colors ~/.config/nvim/colors
 mkdir -p ~/.zsh
 mkdir -p ~/.history
-curl -fsSL -o ~/.zshrc https://raw.githubusercontent.com/adragomir/dotfiles/master/.zshrc
-curl -fsSL -o ~/.zsh/async https://raw.githubusercontent.com/adragomir/dotfiles/master/.zsh/async
-curl -fsSL -o ~/.zsh/golang.plugin.zsh https://raw.githubusercontent.com/adragomir/dotfiles/master/.zsh/golang.plugin.zsh
-curl -fsSL -o ~/.zsh/url-tools.plugin.zsh https://raw.githubusercontent.com/adragomir/dotfiles/master/.zsh/url-tools.plugin.zsh
-mkdir -p ~/.tmux/{plugins,resurrect}
-curl -fsSL -o ~/.tmux.conf https://raw.githubusercontent.com/adragomir/dotfiles/master/.tmux.conf
+ln -s ~/dotfiles/.zshrc ~/.zshrc
+ln -s ~/dotfiles/.zsh ~/.zsh
+mkdir -p ~/.tmux/
+ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf
+ln -s ~/dotfiles/.tmux/plugins ~/.tmux/plugins
+
 pip3 install neovim
 sudo gem install neovim
 sudo npm install -g neovim
+
 sudo chsh -s /usr/bin/zsh adragomi
 curl -fsSL https://fnm.vercel.app/install | bash
 curl -fsSL -o frum-v0.1.2-${arch}-unknown-linux-musl.tar.gz https://github.com/TaKO8Ki/frum/releases/download/v0.1.2/frum-v0.1.2-${arch}-unknown-linux-musl.tar.gz
 tar zxf frum-v0.1.2-${arch}-unknown-linux-musl.tar.gz
 sudo mv frum-v0.1.2-${arch}-unknown-linux-musl /usr/local/bin/frum
-rm -rf frum*
 chmod +x /usr/local/bin/frum
-git clone https://github.com/adragomir/dotfiles
-ln -s $(HOME)/dotfiles/bin $(HOME)/bin
-ln -s $(HOME)/dotfiles/.config/fish $(HOME)/.config/fish
-ln -s $(HOME)/dotfiles/.config/rubocop $(HOME)/.config/rubocop
-ln -s $(HOME)/dotfiles/.config/flake8 $(HOME)/.config/flake8
-ln -s $(HOME)/dotfiles/.config/pycodestyle $(HOME)/.config/pycodestyle
-ln -s $(HOME)/dotfiles/.tmux/plugins $(HOME)/.tmux/plugins
+rm -rf frum*
 
-ln -s $(HOME)/dotfiles/.inputrc $(HOME)/.inputrc
-ln -s $(HOME)/dotfiles/.gitconfig $(HOME)/.gitconfig
-ln -s $(HOME)/dotfiles/.gitignore_global $(HOME)/.gitignore_global
+ln -s ${HOME}/dotfiles/bin ${HOME}/bin
+ln -s ${HOME}/dotfiles/.config/fish ${HOME}/.config/fish
+ln -s ${HOME}/dotfiles/.config/rubocop ${HOME}/.config/rubocop
+ln -s ${HOME}/dotfiles/.config/flake8 ${HOME}/.config/flake8
+ln -s ${HOME}/dotfiles/.config/pycodestyle ${HOME}/.config/pycodestyle
+ln -s ${HOME}/dotfiles/.tmux/plugins ${HOME}/.tmux/plugins
+
+ln -s ${HOME}/dotfiles/.inputrc ${HOME}/.inputrc
+ln -s ${HOME}/dotfiles/.gitconfig ${HOME}/.gitconfig
+ln -s ${HOME}/dotfiles/.gitignore_global ${HOME}/.gitignore
+ln -s ${HOME}/dotfiles/.gdbinit ${HOME}/.gdbinit
+ln -s ${HOME}/dotfiles/.lldbinit ${HOME}/.lldbinit
 
