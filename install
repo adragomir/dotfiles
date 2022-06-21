@@ -6,7 +6,7 @@
   sudo apt install snapd
   sudo snap install nvim --classic
 }
-sudo apt-get -y install build-essential tmux python3 python3-dev ruby libluajit-5.1-dev luajit ruby-dev nodejs npm ripgrep python3-venv zsh 
+sudo apt-get -y install build-essential tmux python3 python3-dev ruby libluajit-5.1-dev luajit ruby-dev nodejs npm ripgrep python3-venv zsh fzy
 
 mkdir -p ~/.local/share/nvim/{bundle,lspconfig,shada,undo}
 mkdir -p ~/.config/nvim/{autoload,colors}

@@ -810,7 +810,7 @@ lua <<EOF
     }
   }
 
-  require'lsp_extensions'.setup{
+  require'lsp_extensions'.inlay_hints{
     highlight = "Comment",
     prefix = " > ",
     aligned = false,
