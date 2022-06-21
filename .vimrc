@@ -92,6 +92,8 @@ filetype on
 filetype indent on
 filetype plugin on
 set nospell
+
+let g:loaded_perl_provider = 0
 let g:loaded_tutor_mode_plugin = 1
 let g:loaded_man = 1
 let g:loaded_manpageview = 1
