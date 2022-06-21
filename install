@@ -36,6 +36,7 @@ chmod +x /usr/local/bin/frum
 rm -rf frum*
 
 ln -s ${HOME}/dotfiles/bin ${HOME}/bin
+ln -s ${HOME}/dotfiles/.config/isomorphic-copy ${HOME}/.config/isomorphic-copy
 ln -s ${HOME}/dotfiles/.config/fish ${HOME}/.config/fish
 ln -s ${HOME}/dotfiles/.config/rubocop ${HOME}/.config/rubocop
 ln -s ${HOME}/dotfiles/.config/flake8 ${HOME}/.config/flake8
