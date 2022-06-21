@@ -1,10 +1,16 @@
 #!/bin/bash
 
 # get app image for Ubuntu
-![[ $(type -P "nvim") ]] && {
+! [[ $(type -P "nvim") ]] && {
   sudo apt update
+  sudo apt-get install build-essential tmux python3 ruby libluajit-5.1-dev luajit
   sudo apt install snapd
   sudo snap install nvim --classic
 }
 
+mkdir -p ~/.local/share/nvim/{bundle,lspconfig,shada,undo}
 curl -fsSL -o ~/.vimrc https://raw.githubusercontent.com/adragomir/dotfiles/master/.vimrc
+mkdir -p ~/.zsh
+curl -fsSL -o ~/.zshrc https://raw.githubusercontent.com/adragomir/dotfiles/master/.zshrc
+mkdir -p ~/.tmux/{plugins,resurrect}
+curl -fsSL -o ~/.tmux.conf https://raw.githubusercontent.com/adragomir/dotfiles/master/.tmux.conf
