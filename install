@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # get app image for Ubuntu
-! [[ $(type -P "nvim") ]] && {
+[[ ! $(type -P "nvim") ]] && {
   sudo apt update
   sudo apt-get install build-essential tmux python3 ruby libluajit-5.1-dev luajit
   sudo apt install snapd
