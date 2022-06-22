@@ -1,4 +1,3 @@
-"vim:foldmethod=marker
 if has("mac")
   let g:os_bin_path = "darwin"
   let g:python2_host_prog = '/usr/local/bin/python'
@@ -35,6 +34,14 @@ if &term =~ '^screen'
 endif
 let g:do_filetype_lua=1
 let g:did_load_filetypes=0
+
+if exists('g:neovide') == 1
+  let g:neovide_cursor_animation_length=0.0
+  let g:neovide_cursor_trail_length=0.0
+  colorscheme monochrome2
+else
+  colorscheme monochrome
+endif
 
 filetype on
 syntax on
@@ -85,7 +92,6 @@ let maplocalleader = ","
 set guicursor=a:blinkon0
 set t_Co=256
 set background=dark
-colorscheme monochrome
 
 syntax enable
 syntax on
@@ -105,8 +111,11 @@ let g:loaded_gzip=1
 let g:loaded_spellfile_plugin=1
 let g:loaded_shada_plugin = 1
 let g:loaded_vimballPlugin=1
-let g:loaded_netrwPlugin = 1
-let g:loaded_netrwFileHandlers = 1
+"let g:loaded_netrwPlugin = 1
+let g:netrw_banner=0
+let g:netrw_altv=1
+let g:netrw_browse_split=4
+"let g:loaded_netrwFileHandlers = 1
 let g:loaded_zipPlugin=1
 let g:loaded_zip=1
 let g:loaded_tarPlugin=1
@@ -120,6 +129,7 @@ let g:plug_path = stdpath('data') . '/bundle'
 call plug#begin(g:plug_path)
 " languages
 if !exists('g:vscode')
+" lang
 Plug 'mfussenegger/nvim-jdtls'
 Plug 'ray-x/go.nvim'
 Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
@@ -146,7 +156,7 @@ Plug 'simrat39/rust-tools.nvim'
 lua <<EOF
 vim.lsp.set_log_level("error")
 EOF
-
+" lsp
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/lsp-status.nvim'
 Plug 'scalameta/nvim-metals', {'branch': 'main'}
@@ -158,24 +168,22 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzy-native.nvim'
 Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'ray-x/lsp_signature.nvim'
-
+" debug
 Plug 'mfussenegger/nvim-dap'
 Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'leoluz/nvim-dap-go'
 Plug 'rcarriga/nvim-dap-ui'
-
+" syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'RRethy/nvim-treesitter-textsubjects'
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
-
+" tools
 Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
-"Plug 'rking/ag.vim', { 'dir': stdpath('data') . '/bundle/ag'}
 Plug 'duane9/nvim-rg'
 Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
 Plug 'antoinemadec/FixCursorHold.nvim'
 let g:cursorhold_updatetime = 100
-
 " Plug 'lukas-reineke/indent-blankline.nvim', { 'dir': stdpath('data') . '/bundle/indent-blankline.nvim' }
 Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
 Plug 't9md/vim-choosewin'
