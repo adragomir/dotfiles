@@ -186,7 +186,6 @@ Plug 'antoinemadec/FixCursorHold.nvim'
 let g:cursorhold_updatetime = 100
 " Plug 'lukas-reineke/indent-blankline.nvim', { 'dir': stdpath('data') . '/bundle/indent-blankline.nvim' }
 Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
-Plug 'gbprod/cutlass.nvim'
 Plug 't9md/vim-choosewin'
 Plug 'tpope/vim-endwise', { 'dir': stdpath('data') . '/bundle/endwise' }
 Plug 'echasnovski/mini.nvim'
@@ -381,6 +380,21 @@ for i=1,24 do
   end
 end
 EOF
+" cutlass.nvim inline
+lua <<EOF
+local map = vim.api.nvim_set_keymap
+local keymap_opts = { noremap = true, silent = true }
+for _, mode in pairs({ "x", "n" }) do
+  for _, lhs in pairs({ "x", "X" }) do
+    if vim.fn.maparg(lhs, mode) == "" then
+      map(mode, lhs, '"_' .. lhs, keymap_opts)
+    end
+  end
+end
+
+map("n", "<Del>", '"_x', keymap_opts)
+map("x", "<Del>", '"_x', keymap_opts)
+EOF
 
 silent! nunmap Y
 vn y myy`y
@@ -422,8 +436,8 @@ map <leader>> `>
 map <leader>` `^
 nn gl `.
 
-" vn p "_dP
-" vn r "_dP
+vn p "_dP
+vn r "_dP
 vn * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 vn # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
@@ -770,11 +784,11 @@ nmap <F12> <cmd>lua require('telescope.builtin.lsp').document_symbols()<cr>
 nmap <leader>7 <cmd>lua require('telescope.builtin.lsp').workspace_symbols()<cr> 
 
 lua <<EOF
-  require("cutlass").setup({
-    cut_key = 'x', 
-    override_del = true, 
-    exclude = {}
-  })
+--   require("cutlass").setup({
+--     cut_key = 'x', 
+--     override_del = true, 
+--     exclude = {}
+--   })
   require'nvim-treesitter.install'.compilers = { "gcc" }
   require'nvim-treesitter.configs'.setup {
     highlight = {
