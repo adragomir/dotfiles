@@ -40,7 +40,7 @@ if exists('g:neovide') == 1
   let g:neovide_cursor_trail_length=0.0
   colorscheme monochrome2
 else
-  colorscheme monochrome
+  colorscheme codedark
 endif
 
 filetype on
@@ -91,6 +91,7 @@ let mapleader = ","
 let maplocalleader = ","
 set guicursor=a:blinkon0
 set t_Co=256
+"set t_ut=
 set background=dark
 
 syntax enable
@@ -175,7 +176,6 @@ Plug 'leoluz/nvim-dap-go'
 Plug 'rcarriga/nvim-dap-ui'
 " syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'RRethy/nvim-treesitter-textsubjects'
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
 " tools
@@ -186,6 +186,7 @@ Plug 'antoinemadec/FixCursorHold.nvim'
 let g:cursorhold_updatetime = 100
 " Plug 'lukas-reineke/indent-blankline.nvim', { 'dir': stdpath('data') . '/bundle/indent-blankline.nvim' }
 Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
+Plug 'gbprod/cutlass.nvim'
 Plug 't9md/vim-choosewin'
 Plug 'tpope/vim-endwise', { 'dir': stdpath('data') . '/bundle/endwise' }
 Plug 'echasnovski/mini.nvim'
@@ -194,7 +195,7 @@ Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
 endif
 call plug#end()
 
-function! SyntaxAttr()
+fu! SyntaxAttr()
   let synid = ""
   let guifg = ""
   let guibg = ""
@@ -253,8 +254,7 @@ function! SyntaxAttr()
   endif
   echo message
   echohl None
-endfunction
-map gm :call SyntaxAttr()<CR>
+endf
 
 fu! MoveCursor(move, mode)
   if (a:move == 'h')
@@ -330,28 +330,6 @@ endf
 
 xn <silent> <expr> p ReplaceWithRegister()
 
-fu! ToggleSideEffects()
-  if mapcheck("dd", "n") == ""
-    no dd "_dd
-    no D "_D
-    no d "_d
-    no X "_X
-    no x "_x
-    vn p "_dP
-    echo 'side effects off'
-  else
-    unm dd
-    unm D
-    unm d
-    unm X
-    unm x
-    vu p
-    echo 'side effects on'
-  endif
-endf
-
-nn ,, :call ToggleSideEffects()<CR>
-
 fu! SaveMap(key)
   return maparg(a:key, 'n', 0, 1)
 endf
@@ -370,8 +348,8 @@ endf
 nn K <nop>
 vn u <nop>
 nn + <nop>
-nn r <nop>
-nn R <nop>
+" nn r <nop>
+" nn R <nop>
 nn L <nop>
 nn M <nop>
 nn \| <nop>
@@ -404,20 +382,15 @@ for i=1,24 do
 end
 EOF
 
-
-map <leader>y "*y
-no <C-a> <Home>
-no <C-e> <End>
-
 silent! nunmap Y
 vn y myy`y
 vn Y myY`y
 
-no gV `<v'>
-no g> `<v'>
-no g< `<v'>
-no g] `[v']
-no g[ `[v']
+" no gV `<v'>
+" no g> `<v'>
+" no g< `<v'>
+" no g] `[v']
+" no g[ `[v']
 
 no j gj
 no k gk
@@ -428,16 +401,13 @@ nn * *<c-o>
 
 vn J j
 vn K k
-nn <Del> "_x
+"nn <Del> "_x
 
-ino <c-a> <esc>I
-cno <c-a> <home>
-ino <c-e> <esc>A
-cno <c-e> <end>
-ino <c-c> <Esc>
-
-
-nn <silent> <leader>/ :Rg <cword><cr>
+" ino <c-a> <esc>I
+" cno <c-a> <home>
+" ino <c-e> <esc>A
+" cno <c-e> <end>
+" ino <c-c> <Esc>
 
 nn <cr> :nohlsearch<cr>
 nn <m-Down> :cnext<cr>zz
@@ -450,10 +420,10 @@ map <leader>. `.
 map <leader>] `]
 map <leader>> `>
 map <leader>` `^
+nn gl `.
 
-vn p "_dP
-vn r "_dP
-ino <C-u> <esc>mzgUiw`za
+" vn p "_dP
+" vn r "_dP
 vn * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
 vn # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
@@ -462,16 +432,15 @@ nn <C-j> <c-w>j
 nn <C-k> <c-w>k
 nn <C-l> <c-w>l
 
-ino <S-Space> <Space>
-ino <C-Space> <C-o>m`
+" ino <S-Space> <Space>
+" ino <C-Space> <C-o>m`
+" no <Space> m`
+
 ino <silent> <Home> <C-o>:call HomeKey()<CR>
 nn <silent> <Home> :call HomeKey()<CR>
-no <Space> m`
-
+nn <silent> <leader>/ :Rg <cword><cr>
 nm <MapLocalLeader>h :AT<CR>
-
 nm - <Plug>(choosewin)
-
 
 if !exists('g:vscode')
 nn <silent> gd          <cmd>lua vim.lsp.buf.definition()<CR>
@@ -801,6 +770,11 @@ nmap <F12> <cmd>lua require('telescope.builtin.lsp').document_symbols()<cr>
 nmap <leader>7 <cmd>lua require('telescope.builtin.lsp').workspace_symbols()<cr> 
 
 lua <<EOF
+  require("cutlass").setup({
+    cut_key = 'x', 
+    override_del = true, 
+    exclude = {}
+  })
   require'nvim-treesitter.install'.compilers = { "gcc" }
   require'nvim-treesitter.configs'.setup {
     highlight = {
