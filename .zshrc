@@ -566,15 +566,14 @@ alias tmux='tmux -2'
 alias history='fc -l 1'
 alias k="kubectl"
 alias zigup="zigup --install-dir $HOME/.zig --path-link $HOME/bin/darwin/zig"
+alias neovide="~/Applications/Development\ Tools/Neovide.app/Contents/MacOS/neovide"
 
 if [[ "$OSTYPE" = darwin* ]]; then
-  export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home
-  export JAR=$HOME/.local/share/nvim/lspconfig/jdtls/plugins/org.eclipse.equinox.launcher_1.6.0.v20200915-1508.jar
+  export JAVA_HOME=/usr/local/opt/openjdk/
   export GRADLE_HOME=/usr/local/opt/gradle
-  export JDTLS_CONFIG=$HOME/.local/share/nvim/lspconfig/jdtls/config_mac
-  export WORKSPACE=$HOME/.cache/jdtls/workspace
   export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
   export HOMEBREW_NO_ENV_HINTS=1
+  export PATH=$JAVA_HOME/bin:$PATH
 fi
 
 if [[ "$OSTYPE" = msys* ]]; then
@@ -616,6 +615,8 @@ conda() {
 # <<< conda initialize <<<
 
 eval "$(frum init)"
+
+eval "$(jira --completion-script-zsh)"
 
 
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"

@@ -38,13 +38,18 @@ let g:did_load_filetypes=0
 if exists('g:neovide') == 1
   let g:neovide_cursor_animation_length=0.0
   let g:neovide_cursor_trail_length=0.0
-  colorscheme monochrome2
-else
+  let g:neovide_input_use_logo=1
   colorscheme codedark
+  cnoremap <D-v> <C-r>+
+  inoremap <D-v> <C-r>+
+  vnoremap <D-c> y
+else
+  colorscheme monochrome
 endif
 
 filetype on
 syntax on
+"set termguicolors
 set shm+=I
 set mouse=a
 set sr
@@ -146,6 +151,7 @@ Plug 'ziglang/zig.vim'
 Plug 'fedorenchik/fasm.vim'
 Plug 'urbit/hoon.vim'
 Plug 'simrat39/rust-tools.nvim'
+Plug 'karolbelina/uxntal.vim'
 " Plug 'neovimhaskell/haskell-vim', { 'dir': stdpath('data') . '/bundle/haskell-vim', 'for': 'haskell' }
 " Plug 'jdonaldson/vaxe', { 'dir': stdpath('data') . '/bundle/vaxe' }
 " Plug 'jansedivy/jai.vim', {'dir': stdpath('data') . '/bundle/jai' }
@@ -169,6 +175,7 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzy-native.nvim'
 Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'ray-x/lsp_signature.nvim'
+Plug 'WhoIsSethDaniel/toggle-lsp-diagnostics.nvim'
 " debug
 Plug 'mfussenegger/nvim-dap'
 Plug 'theHamsta/nvim-dap-virtual-text'
@@ -431,10 +438,10 @@ nn ' `
 xn ' `
 map <leader>' ``
 map <leader>. `.
+nn gl `.
 map <leader>] `]
 map <leader>> `>
 map <leader>` `^
-nn gl `.
 
 vn p "_dP
 vn r "_dP
@@ -446,9 +453,14 @@ nn <C-j> <c-w>j
 nn <C-k> <c-w>k
 nn <C-l> <c-w>l
 
+map <s-LEFT> :vertical resize +5 <Cr>
+map <s-RIGHT> :vertical resize -5 <Cr>
+map <s-UP> :resize +5 <Cr>
+map <s-DOWN> :resize -5 <Cr>
+
+no <Space> m`
 " ino <S-Space> <Space>
 " ino <C-Space> <C-o>m`
-" no <Space> m`
 
 ino <silent> <Home> <C-o>:call HomeKey()<CR>
 nn <silent> <Home> :call HomeKey()<CR>
@@ -480,8 +492,8 @@ function hoon_def_search()
   require 'telescope.builtin'.grep_string({search='\\+(\\+|\\$|\\*)  '.. vim.fn.expand('<cword>') .. '( |$)', use_regex=true})
 end
 EOF
-nn <silent><leader>d   <cmd>lua hoon_def_search()<CR>
 
+nn <silent><leader>d :ToggleDiag<CR>
 nn <silent>gh :Lspsaga lsp_finder<CR>
 nn <silent><leader>ca :Lspsaga code_action<CR>
 nn <silent>K :Lspsaga signature_help<CR>
@@ -505,6 +517,8 @@ let g:coq_settings = {
       \}
 
 lua <<EOF
+  require'toggle_lsp_diagnostics'.init({ start_on = false })
+
   require'nvim-treesitter.configs'.setup {
       textsubjects = {
           enable = true,
@@ -613,10 +627,10 @@ lua <<EOF
     end, 
   }
 
-  lspconfig.jdtls.setup{
-    on_attach = M.on_attach;
-    root_dir = util.root_pattern("pom.xml", "build.xml");
-  }
+  -- lspconfig.jdtls.setup{
+  --   on_attach = M.on_attach;
+  --   root_dir = util.root_pattern("pom.xml", "build.xml");
+  -- }
   lspconfig.tsserver.setup{
     on_attach = M.on_attach;
   }
@@ -718,7 +732,7 @@ lua <<EOF
   lspconfig.ccls.setup(coq.lsp_ensure_capabilities())
   lspconfig.intelephense.setup(coq.lsp_ensure_capabilities())
   lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
-  lspconfig.jdtls.setup(coq.lsp_ensure_capabilities())
+  --lspconfig.jdtls.setup(coq.lsp_ensure_capabilities())
   lspconfig.tsserver.setup(coq.lsp_ensure_capabilities())
   lspconfig.sumneko_lua.setup(coq.lsp_ensure_capabilities())
   lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
@@ -856,61 +870,50 @@ com! -bang Wq wq<bang>
 com! -bang WQ wq<bang>
 
 hi default hi_MarkInsertStop ctermbg=128 ctermfg=white cterm=bold
-hi default hi_MarkChange ctermbg=160 ctermfg=231
+hi default hi_MarkChange ctermbg=160 ctermfg=154 cterm=underdash
 hi default hi_MarkBeforeJump ctermbg=23 ctermfg=white cterm=undercurl,bold
+
 lua <<EOF
 local jump_ns = vim.api.nvim_create_namespace("jump_ns")
 local change_ns = vim.api.nvim_create_namespace("change_ns")
 local insert_ns = vim.api.nvim_create_namespace("insert_ns")
 
-function mark_on_move()
+function mark_on(ns, mark, highlight)
   local bufnr = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_clear_namespace(bufnr, jump_ns, 0, -1)
-  local pos = vim.api.nvim_buf_get_mark(bufnr, '`')
-  local pos1 = {pos[1] - 1, pos[2]}
-  local pos2 = {pos[1] - 1, pos[2]}
-  local lines = vim.api.nvim_buf_get_lines(bufnr, pos1[1], pos2[1]+1, true)
-  local length = lines[1]:len()
-  if pos1[2] == length then
-    pos1[2] = pos1[2] - 1
+  vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+  local pos = vim.api.nvim_buf_get_mark(bufnr, mark)
+  if pos ~= nil and (pos[1] ~= 0 and pos[2] ~= 0) then
+    local pos1 = {pos[1] - 1, pos[2]}
+    local pos2 = {pos[1] - 1, pos[2]}
+    local lines = vim.api.nvim_buf_get_lines(bufnr, pos1[1], pos2[1]+1, false)
+    if lines ~= nil and #lines > 0 then
+      local length = lines[1]:len()
+      if pos1[2] == length then
+        pos1[2] = pos1[2] - 1
+      end
+      vim.highlight.range(bufnr, ns, highlight, pos1, pos2, {inclusive = true, priority=10000})
+    end
   end
-  vim.highlight.range(bufnr, jump_ns, "hi_MarkBeforeJump", pos1, pos2, "c", true)
+
+end
+
+function mark_on_move()
+  mark_on(jump_ns, '`', 'hi_MarkBeforeJump')
 end
 
 function mark_on_changed()
-  local bufnr = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_clear_namespace(bufnr, change_ns, 0, -1)
-  local pos = vim.api.nvim_buf_get_mark(bufnr, '.')
-  local pos1 = {pos[1] - 1, pos[2]}
-  local pos2 = {pos[1] - 1, pos[2]}
-  local lines = vim.api.nvim_buf_get_lines(bufnr, pos1[1], pos2[1]+1, true)
-  local length = lines[1]:len()
-  if pos1[2] == length then
-    pos1[2] = pos1[2] - 1
-  end
-  vim.highlight.range(bufnr, change_ns, "hi_MarkChange", pos1, pos2, "c", true)
+  mark_on(change_ns, '.', 'hi_MarkChange')
 end
 
 function mark_on_insert_stop()
-  local bufnr = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_clear_namespace(bufnr, insert_ns, 0, -1)
-  local pos = vim.api.nvim_buf_get_mark(bufnr, '^')
-  local pos1 = {pos[1] - 1, pos[2]}
-  local pos2 = {pos[1] - 1, pos[2]}
-  local lines = vim.api.nvim_buf_get_lines(bufnr, pos1[1], pos2[1]+1, true)
-  local length = lines[1]:len()
-  if pos1[2] == length then
-    pos1[2] = pos1[2] - 1
-  end
-  vim.highlight.range(bufnr, insert_ns, "hi_MarkInsertStop", pos1, pos2, "c", true)
+  mark_on(insert_ns, '^', 'hi_MarkInsertStop')
 end
-
 EOF
 
 aug marks
   au!
   au CursorMoved * silent! lua mark_on_move()
-  au BufModifiedSet,TextChangedP,TextChangedI,TextChanged * silent! lua mark_on_changed()
+  au BufModifiedSet,TextChangedP,TextChangedI,TextChanged * lua mark_on_changed()
   au InsertLeave * silent! lua mark_on_insert_stop()
 aug END
 
@@ -978,6 +981,7 @@ endif
 
 aug mappings
   au!
+  au FileType hoon nn <silent><leader>d   <cmd>lua hoon_def_search()<CR>
 aug END
 
 let hostfile=$HOME . '.vim/hosts/' . hostname() . ".vim"
