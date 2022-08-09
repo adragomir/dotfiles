@@ -497,7 +497,7 @@ prompt_pure_setup "$@"
 source $ZSH/golang.plugin.zsh
 source $ZSH/url-tools.plugin.zsh
 source $ZSH/autoenv.plugin.zsh
-source <($HOME/bin/kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+[[ -x "$(command -v kubectl)" ]] && source <($HOME/bin/kubectl completion zsh)  # setup autocomplete in zsh into the current shell
 # }}}
 
 # program settings & paths {{{
