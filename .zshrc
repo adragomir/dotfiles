@@ -528,8 +528,6 @@ export LC_TELEPHONE="en_US.utf8"
 export LC_MEASUREMENT="en_US.utf8"
 export LC_IDENTIFICATION="en_US.utf8"
 export LC_ALL="en_US.UTF-8"
-export VERSIONER_PERL_PREFER_32_BIT=yes
-export PERL_BADLANG=0
 export CLICOLOR=1
 export SSH_AUTH_SOCK=$HOME/.ssh/.ssh-agent.sock
 export LESS="-rX"
@@ -537,14 +535,7 @@ export PAGER=less
 export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;32'
 export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
-export EDITOR=/usr/local/bin/nvim
-export GIT_EDITOR=/usr/local/bin/nvim
-export VISUAL='/usr/local/bin/nvim'
 export INPUTRC=~/.inputrc
-export PERL_LOCAL_LIB_ROOT=$HOME/.perl5
-export PERL_MB_OPT="--install_base $HOME/.perl5";
-export PERL_MM_OPT="INSTALL_BASE=$HOME/.perl5";
-export PERL5LIB="$HOME/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:$HOME/.perl5/lib/perl5";
 export GOPATH=$HOME/.gocode
 export GO111MODULE=on
 
@@ -571,7 +562,6 @@ alias zigup="zigup --install-dir $HOME/.zig --path-link $HOME/bin/${OS}/zig"
 
 if [[ "$OSTYPE" = darwin* ]]; then
   export JAVA_HOME=/usr/local/opt/openjdk/
-  export GRADLE_HOME=/usr/local/opt/gradle
   export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
   export HOMEBREW_NO_ENV_HINTS=1
   export PATH=$JAVA_HOME/bin:$PATH
@@ -583,8 +573,6 @@ if [[ "$OSTYPE" = msys* ]]; then
 fi
 
 # if [[ $OSTYPE = linux* ]]; then
-#   export EDITOR=/usr/bin/vim
-#   export GIT_EDITOR=/usr/bin/vim
 #   export JAVA_HOME=/home/linuxbrew/.linuxbrew/opt/openjdk/libexec/
 #   export GOPATH=$HOME/.golinux
 #   export CARGO_HOME=$HOME/.cargo-linux
@@ -620,4 +608,8 @@ conda() {
 [[ -x "$(command -v jira)" ]] && eval "$(jira --completion-script-zsh)"
 
 
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+[[ -x "$(command -v kubectl-krew)" ]] && export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+
+export EDITOR=nvim
+export GIT_EDITOR=nvim
+export VISUAL=nvim
