@@ -581,20 +581,20 @@ if [[ "$OSTYPE" = msys* ]]; then
   export PATH=$PATH:/c/tools/neovim-msys/bin:/mingw64/bin:/usr/bin
 fi
 
-if [[ $OSTYPE = linux* ]]; then
-  export EDITOR=/usr/bin/vim
-  export GIT_EDITOR=/usr/bin/vim
-  export JAVA_HOME=/home/linuxbrew/.linuxbrew/opt/openjdk/libexec/
-  export GOPATH=$HOME/.golinux
-  export CARGO_HOME=$HOME/.cargo-linux
-  export RUSTUP_HOME=$HOME/.rustup-linux
-  export PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
-fi
+# if [[ $OSTYPE = linux* ]]; then
+#   export EDITOR=/usr/bin/vim
+#   export GIT_EDITOR=/usr/bin/vim
+#   export JAVA_HOME=/home/linuxbrew/.linuxbrew/opt/openjdk/libexec/
+#   export GOPATH=$HOME/.golinux
+#   export CARGO_HOME=$HOME/.cargo-linux
+#   export RUSTUP_HOME=$HOME/.rustup-linux
+#   export PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
+# fi
 
-eval $(brew shellenv)
+[[ -x "$(command -v brew)" ]] && eval $(brew shellenv)
 
 # nvm
-eval "$(fnm env)"
+[[ -x "$(command -v fnm)" ]] && eval "$(fnm env)"
 
 # conda
 # !! Contents within this block are managed by 'conda init' !!
@@ -614,9 +614,9 @@ conda() {
 }
 # <<< conda initialize <<<
 
-eval "$(frum init)"
+[[ -x "$(command -v frum)" ]] && eval "$(frum init)"
 
-eval "$(jira --completion-script-zsh)"
+[[ -x "$(command -v jira)" ]] && eval "$(jira --completion-script-zsh)"
 
 
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"

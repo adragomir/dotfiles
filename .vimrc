@@ -34,16 +34,19 @@ if &term =~ '^screen'
 endif
 let g:do_filetype_lua=1
 let g:did_load_filetypes=0
+let g:tokyonight_style = "night"
 
-if exists('g:neovide') == 1
+if has('gui_vimr')
+  colorscheme codedark
+elseif exists('g:neovide') == 1
   let g:neovide_cursor_animation_length=0.0
   let g:neovide_cursor_trail_length=0.0
   let g:neovide_input_use_logo=1
   colorscheme codedark
-  cnoremap <D-v> <C-r>+
-  inoremap <D-v> <C-r>+
-  vnoremap <D-c> y
-else
+  cno <D-v> <C-r>+
+  ino <D-v> <C-r>+
+  vn <D-c> y
+else 
   colorscheme monochrome
 endif
 
@@ -133,12 +136,11 @@ let g:loaded_xmlformat = 1
 let g:plug_url_format='https://github.com/%s.git'
 let g:plug_path = stdpath('data') . '/bundle'
 call plug#begin(g:plug_path)
-" languages
 if !exists('g:vscode')
 " lang
 Plug 'mfussenegger/nvim-jdtls'
+Plug 'simrat39/rust-tools.nvim'
 Plug 'ray-x/go.nvim'
-Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
 Plug 'gabrielelana/vim-markdown', { 'dir': stdpath('data') . '/bundle/markdown', 'for': ['md', 'markdown']}
 Plug 'rust-lang/rust.vim', { 'dir': stdpath('data') . '/bundle/rust', 'for': 'rust' }
 Plug 'sirtaj/vim-openscad', { 'dir': stdpath('data') . '/bundle/openscad' }
@@ -146,12 +148,14 @@ Plug 'pearofducks/ansible-vim'
 Plug 'stephpy/vim-yaml', { 'for': 'yaml' }
 Plug 'rhysd/vim-clang-format'
 Plug 'hashivim/vim-terraform'
-Plug 'leafgarland/typescript-vim'
 Plug 'ziglang/zig.vim'
 Plug 'fedorenchik/fasm.vim'
 Plug 'urbit/hoon.vim'
 Plug 'simrat39/rust-tools.nvim'
 Plug 'karolbelina/uxntal.vim'
+Plug 'rluba/jai.vim'
+" Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
+" Plug 'leafgarland/typescript-vim'
 " Plug 'neovimhaskell/haskell-vim', { 'dir': stdpath('data') . '/bundle/haskell-vim', 'for': 'haskell' }
 " Plug 'jdonaldson/vaxe', { 'dir': stdpath('data') . '/bundle/vaxe' }
 " Plug 'jansedivy/jai.vim', {'dir': stdpath('data') . '/bundle/jai' }
@@ -165,10 +169,10 @@ vim.lsp.set_log_level("error")
 EOF
 " lsp
 Plug 'neovim/nvim-lspconfig'
+Plug 'williamboman/nvim-lsp-installer'
 Plug 'nvim-lua/lsp-status.nvim'
 Plug 'scalameta/nvim-metals', {'branch': 'main'}
-Plug 'nvim-lua/lsp_extensions.nvim'
-Plug 'tami5/lspsaga.nvim', {'branch': 'main'}
+Plug 'kkharji/lspsaga.nvim', {'branch': 'main'}
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
@@ -185,19 +189,23 @@ Plug 'rcarriga/nvim-dap-ui'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'RRethy/nvim-treesitter-textsubjects'
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+" colorscheme
+Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+Plug 'rebelot/kanagawa.nvim'
 " tools
+Plug 'kyazdani42/nvim-tree.lua'
 Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
 Plug 'duane9/nvim-rg'
 Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
 Plug 'antoinemadec/FixCursorHold.nvim'
 let g:cursorhold_updatetime = 100
 " Plug 'lukas-reineke/indent-blankline.nvim', { 'dir': stdpath('data') . '/bundle/indent-blankline.nvim' }
-Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
+" Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
+Plug 'NMAC427/guess-indent.nvim'
 Plug 't9md/vim-choosewin'
 Plug 'tpope/vim-endwise', { 'dir': stdpath('data') . '/bundle/endwise' }
 Plug 'echasnovski/mini.nvim'
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
-
 endif
 call plug#end()
 
@@ -311,13 +319,6 @@ fu! EndKey()
 endf
 
 " Visual mode functions
-fu! s:VSetSearch()
-  let temp = @@
-  norm! gvy
-  let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
-  let @@ = temp
-endf
-
 fu! RestoreRegister()
   if &clipboard == 'unnamed'
     let @* = s:restore_reg
@@ -370,14 +371,14 @@ nn [[ <nop>
 nn [] <nop>
 nn ][ <nop>
 nn <silent> Q <nop>
-map  <MiddleMouse>  <nop>
-map  <2-MiddleMouse>  <nop>
-map  <3-MiddleMouse>  <nop>
-map  <4-MiddleMouse>  <nop>
-im  <MiddleMouse>  <nop>
-im  <2-MiddleMouse>  <nop>
-im  <3-MiddleMouse>  <nop>
-im  <4-MiddleMouse>  <nop>
+map <MiddleMouse>  <nop>
+map <2-MiddleMouse>  <nop>
+map <3-MiddleMouse>  <nop>
+map <4-MiddleMouse>  <nop>
+im <MiddleMouse>  <nop>
+im <2-MiddleMouse>  <nop>
+im <3-MiddleMouse>  <nop>
+im <4-MiddleMouse>  <nop>
 lua <<EOF
 vim.api.nvim_set_keymap("", "<F1>", "<nop>", {noremap = true})
 for i=1,24 do
@@ -387,6 +388,7 @@ for i=1,24 do
   end
 end
 EOF
+
 " cutlass.nvim inline
 lua <<EOF
 local map = vim.api.nvim_set_keymap
@@ -406,33 +408,20 @@ EOF
 silent! nunmap Y
 vn y myy`y
 vn Y myY`y
-
-" no gV `<v'>
-" no g> `<v'>
-" no g< `<v'>
-" no g] `[v']
-" no g[ `[v']
-
 no j gj
 no k gk
 no <up> gk
 no <down> gj
 nn D d$
-nn * *<c-o>
 
 vn J j
 vn K k
-"nn <Del> "_x
-
-" ino <c-a> <esc>I
-" cno <c-a> <home>
-" ino <c-e> <esc>A
-" cno <c-e> <end>
-" ino <c-c> <Esc>
 
 nn <cr> :nohlsearch<cr>
-nn <m-Down> :cnext<cr>zz
-nn <m-Up> :cprevious<cr>zz
+nn <M-Right> :vertical resize +5<CR>
+nn <M-Left> :vertical resize -5<CR>
+nn <M-Down> :resize +3<CR>
+nn <M-Up> :resize -3<CR>
 
 nn ' `
 xn ' `
@@ -445,8 +434,6 @@ map <leader>` `^
 
 vn p "_dP
 vn r "_dP
-vn * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
-vn # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
 nn <C-h> <c-w>h
 nn <C-j> <c-w>j
@@ -459,8 +446,6 @@ map <s-UP> :resize +5 <Cr>
 map <s-DOWN> :resize -5 <Cr>
 
 no <Space> m`
-" ino <S-Space> <Space>
-" ino <C-Space> <C-o>m`
 
 ino <silent> <Home> <C-o>:call HomeKey()<CR>
 nn <silent> <Home> :call HomeKey()<CR>
@@ -469,23 +454,22 @@ nm <MapLocalLeader>h :AT<CR>
 nm - <Plug>(choosewin)
 
 if !exists('g:vscode')
-nn <silent> gd          <cmd>lua vim.lsp.buf.definition()<CR>
-nn <Leader>T            :lua require'lsp_extensions'.inlay_hints()<cr>
-nn <silent> K           <cmd>lua vim.lsp.buf.signature_help()<CR>
-" nn <silent> gi          <cmd>lua vim.lsp.buf.implementation()<CR>
-" nn <silent> gr          <cmd>lua vim.lsp.buf.references()<CR>
-nn <silent> gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
-" <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{}<CR> 
-" <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR> 
-" nn <silent> gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
-nn <silent> gsd         <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
-nn <silent> gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
-nn <silent> <leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
-nn <silent> <leader>f   <cmd>lua vim.lsp.buf.formatting()<CR>
-nn <silent> <leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
-nn <silent> [c          :NextDiagnostic<CR>
-nn <silent> ]c          :PrevDiagnostic<CR>
-nn <silent> <space>d    :OpenDiagnostic<CR>
+nn <silent>gd          <cmd>lua vim.lsp.buf.definition()<CR>
+nn <silent>K           <cmd>lua vim.lsp.buf.signature_help()<CR>
+" nn <silent>gi          <cmd>lua vim.lsp.buf.implementation()<CR>
+" nn <silent>gr          <cmd>lua vim.lsp.buf.references()<CR>
+nn <silent>gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
+nn <silent>gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
+nn <silent>gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+"nn <silent>gsd         <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
+nn <silent><f12>         <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
+nn <silent><c-f12>         <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{}<CR>  
+nn <silent><leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
+nn <silent><leader>f   <cmd>lua vim.lsp.buf.formatting()<CR>
+nn <silent><leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
+nn <silent>[c          :NextDiagnostic<CR>
+nn <silent>]c          :PrevDiagnostic<CR>
+nn <silent><space>d    :OpenDiagnostic<CR>
 
 lua <<EOF
 function hoon_def_search()
@@ -504,19 +488,41 @@ nn <silent>[e :Lspsaga diagnostic_jump_next<CR>
 nn <silent>]e :Lspsaga diagnostic_jump_prev<CR>
 
 let g:coq_settings = {
-        \ 'auto_start': 'shut-up', 
-        \ 'display.pum.fast_close': v:false,
-        \ 'display.icons.mode': 'none', 
-        \ 'clients.tags.enabled': v:false,  
-        \ 'clients.snippets.enabled': v:false,
-        \ 'clients.snippets.warn': {},
-        \ 'clients.paths.enabled': v:false, 
-        \ 'clients.tmux.enabled': v:false, 
-        \ 'keymap.bigger_preview': '', 
-        \ 'keymap.jump_to_mark': ''
-      \}
+  \ 'auto_start': 'shut-up', 
+  \ 'display.pum.fast_close': v:false,
+  \ 'display.icons.mode': 'none', 
+  \ 'clients.tags.enabled': v:false,  
+  \ 'clients.snippets.enabled': v:false,
+  \ 'clients.snippets.warn': {},
+  \ 'clients.paths.enabled': v:false, 
+  \ 'clients.tmux.enabled': v:false, 
+  \ 'keymap.bigger_preview': '', 
+  \ 'keymap.jump_to_mark': '', 
+  \ 'limits.index_cutoff': 933333
+  \}
+let g:chadtree_settings = {
+  \ 'theme.icon_glyph_set': 'ascii'
+  \}
 
 lua <<EOF
+  require("nvim-tree").setup({
+    sync_root_with_cwd = false, 
+    renderer = {
+      highlight_opened_files = "name", 
+      icons = {
+        show = {
+          file = false,
+          folder = false,
+          folder_arrow = false,
+          git = false, 
+        }
+      }, 
+    }, 
+    update_focused_file = {
+      enable = true,
+    },
+  })
+  require("nvim-lsp-installer").setup {}
   require'toggle_lsp_diagnostics'.init({ start_on = false })
 
   require'nvim-treesitter.configs'.setup {
@@ -588,12 +594,18 @@ lua <<EOF
   lspconfig.solang.setup{ }
   lspconfig.svls.setup{ }
 
-  lspconfig.rust_analyzer.setup{
-    on_attach = M.on_attach;
-  }
+  -- lspconfig.rust_analyzer.setup{
+  --   on_attach = M.on_attach;
+  -- }
+  require('rust-tools').setup({})
   lspconfig.ccls.setup{
     on_attach = M.on_attach;
     cmd = {"ccls"};
+    init_options = {
+      index = {
+        initialBlackList = { '.*omtr_tmp.*' }
+      }
+    };
     settings = {
       ccls = {
         clang = {
@@ -610,9 +622,31 @@ lua <<EOF
       }
     };
   }
+  -- lspconfig.clangd.setup{
+  --   on_attach = M.on_attach;
+  --   cmd = {"/usr/local/opt/llvm@14/bin/clangd"};
+  -- }
   lspconfig.clojure_lsp.setup{ }
+  -- lspconfig.phpactor.setup{ }
   lspconfig.intelephense.setup{
     on_attach = M.on_attach;
+    settings = {
+      intelephense = {
+        files = {
+          maxSize = 10000000,
+        },
+        format = {
+          enable = true,
+          braces = "psr12",
+        }, 
+        environment = {
+          shortOpenTag = true,
+          phpVersion = "8.1.8",
+          includePaths = {
+          },
+        }
+      }
+    }
   }
   lspconfig.svls.setup{}
   lspconfig.pylsp.setup{
@@ -728,7 +762,7 @@ lua <<EOF
   lspconfig.leanls.setup(coq.lsp_ensure_capabilities())
   lspconfig.solang.setup(coq.lsp_ensure_capabilities())
   lspconfig.svls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities())
   lspconfig.ccls.setup(coq.lsp_ensure_capabilities())
   lspconfig.intelephense.setup(coq.lsp_ensure_capabilities())
   lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
@@ -791,11 +825,10 @@ lua <<EOF
 EOF
 
 nmap <C-p> <cmd>lua require('telescope.builtin').find_files()<cr> 
+nmap <leader>1 :NvimTreeFindFileToggle<cr> 
 nmap <leader>g <cmd>lua require('telescope.builtin').live_grep()<cr> 
 nmap <leader>5 <cmd>lua require('telescope.builtin').buffers()<cr> 
 nmap <leader>6 <cmd>lua require('telescope.builtin').find_files({cwd= $HOME . '/Dropbox/personal/notes/'})<cr> 
-nmap <F12> <cmd>lua require('telescope.builtin.lsp').document_symbols()<cr>
-nmap <leader>7 <cmd>lua require('telescope.builtin.lsp').workspace_symbols()<cr> 
 
 lua <<EOF
 --   require("cutlass").setup({
@@ -808,6 +841,7 @@ lua <<EOF
     highlight = {
       enable = true,
       disable = {},
+      additional_vim_regex_highlighting = true,
     },
     force_unix_shell = true, 
     incremental_selection = {
@@ -820,18 +854,9 @@ lua <<EOF
       }
     }
   }
-
-  require'lsp_extensions'.inlay_hints{
-    highlight = "Comment",
-    prefix = " > ",
-    aligned = false,
-    only_current_line = false, 
-    enabled = { "TypeHint", "ParameterHint", "ChainingHint" }
-  }
 EOF
 endif
 
-let g:ag_prg = "rg --vimgrep -L 2>/dev/null"
 let g:godef_split = 0
 let g:go_play_open_browser = 0
 let g:go_fmt_fail_silently = 0
@@ -942,6 +967,7 @@ aug END
 aug settings
   au!
   au BufNewFile,BufRead *.Jenkinsfile set filetype=groovy
+  au BufNewFile,BufRead *.jai set filetype=jai
   au BufNewFile,BufRead *.ino set filetype=cpp
   au BufNewFile,BufRead *.pde set filetype=cpp
   au FileType python setlocal et ts=4 sw=4
@@ -967,15 +993,13 @@ aug completions
   au FileType haskell setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType php setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType java setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  au FileType scala,sbt lua require('metals').initialize_or_attach({})
+  au FileType scala,sbt lua require'metals'.initialize_or_attach({})
   au FileType rust setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType javascript setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType typescript setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType go setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType markdown setlocal nospell
   au FileType checkhealth setlocal nospell
-  au BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
-  au CursorHold,CursorHoldI *.rs :lua require'lsp_extensions'.inlay_hints{ only_current_line = true }
 aug END
 endif
 

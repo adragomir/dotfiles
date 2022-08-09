@@ -25,7 +25,4 @@ baseUrl = "https://signin.aws.amazon.com/federation"
 r = requests.get(f"{baseUrl}?Action=getSigninToken&Session={urllib.parse.quote(session, safe='')}")
 sign_in_token = urllib.parse.quote(r.json()['SigninToken'], safe='')
 dest = urllib.parse.quote("https://console.aws.amazon.com", safe='')
-if len(sys.argv) > 2:
-    print(f"{baseUrl}?Action=login&Destination={dest}&SigninToken={sign_in_token}")
-else:
-    os.system(f'''open "{baseUrl}?Action=login&Destination={dest}&SigninToken={sign_in_token}"''')
+print(f"{baseUrl}?Action=login&Destination={dest}&SigninToken={sign_in_token}")

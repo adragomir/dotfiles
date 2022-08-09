@@ -1,6 +1,7 @@
 #!/bin/bash
 
 arch=$(uname -p)
+os=$(uname)
 # get app image for Ubuntu
 [[ ! $(type -P "nvim") ]] && {
   sudo apt update
@@ -47,4 +48,14 @@ ln -s ${HOME}/dotfiles/.gitconfig ${HOME}/.gitconfig
 ln -s ${HOME}/dotfiles/.gitignore_global ${HOME}/.gitignore
 ln -s ${HOME}/dotfiles/.gdbinit ${HOME}/.gdbinit
 ln -s ${HOME}/dotfiles/.lldbinit ${HOME}/.lldbinit
+
+if [[ "${os}" == "Darwin" ]]; then
+  curl -fsSL -o ape https://justine.lol/ape.macho
+  chmod +x ape
+  sudo mv ape /usr/local/bin/ape
+else
+  curl -fsSL -o ape https://justine.lol/ape.elf
+  chmod +x ape
+  sudo mv ape /usr/bin/ape
+fi
 
