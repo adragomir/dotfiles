@@ -565,8 +565,9 @@ $PATH
 alias tmux='tmux -2'
 alias history='fc -l 1'
 alias k="kubectl"
-alias zigup="zigup --install-dir $HOME/.zig --path-link $HOME/bin/darwin/zig"
-alias neovide="~/Applications/Development\ Tools/Neovide.app/Contents/MacOS/neovide"
+alias zigup="zigup --install-dir $HOME/.zig --path-link $HOME/bin/${OS}/zig"
+[[ "$OS" == "darwin" ]] && alias neovide="~/Applications/Development\ Tools/Neovide.app/Contents/MacOS/neovide"
+
 
 if [[ "$OSTYPE" = darwin* ]]; then
   export JAVA_HOME=/usr/local/opt/openjdk/
