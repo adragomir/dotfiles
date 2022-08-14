@@ -50,7 +50,6 @@ hook -group TrailingWhitespaces global KakBegin .* %{
 }
 
 # colors
-colorscheme plain-grish
 
 # scroll offset
 set global scrolloff 12,0

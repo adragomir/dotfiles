@@ -1,4 +1,6 @@
 *.pyc
+.ccls-cache
+.config/kak/plugins
 *.class
 .DS_Store
 bin/araxis*
