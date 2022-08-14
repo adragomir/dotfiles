@@ -1,0 +1,15 @@
+#!/bin/bash
+qemu-system-x86_64 \
+         -machine accel=hvf \
+         -cpu Haswell-v4 -smp 2 -m 4G \
+         -device intel-hda -device hda-output \
+         -device qemu-xhci \
+         -device virtio-vga-gl \
+         -device usb-kbd \
+         -device virtio-net-pci,netdev=net \
+         -device virtio-mouse-pci \
+         -display cocoa,gl=es \
+         -netdev user,id=net,ipv6=off \
+         -drive "if=virtio,format=qcow2,file=hdd.qcow2,discard=on" \
+         -cdrom ubuntu-22.04-desktop-amd64.iso \
+         -boot d

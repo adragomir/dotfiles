@@ -1,0 +1,17 @@
+WordGrinder dumpfile v3: this is a text file; diff me!
+.globalSettings.debug.currentword: false
+.globalSettings.debug.location: false
+.globalSettings.debug.memory: false
+.globalSettings.directories.templates: "/Users/adragomi/.wordgrinder/templates"
+.globalSettings.gui.font_bold: "extras/fonts/FantasqueSansMono-Bold.ttf"
+.globalSettings.gui.font_bolditalic: "extras/fonts/FantasqueSansMono-BoldItalic.ttf"
+.globalSettings.gui.font_italic: "extras/fonts/FantasqueSansMono-Italic.ttf"
+.globalSettings.gui.font_regular: "extras/fonts/FantasqueSansMono-Regular.ttf"
+.globalSettings.gui.font_size: 16
+.globalSettings.gui.window_height: 600
+.globalSettings.gui.window_width: 800
+.globalSettings.lookandfeel.denseparagraphs: false
+.globalSettings.lookandfeel.enabled: false
+.globalSettings.lookandfeel.maxwidth: 80
+.globalSettings.lookandfeel.terminators: true
+.globalSettings.systemdictionary.filename: "/etc/dictionaries-common/words"

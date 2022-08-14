@@ -1,0 +1,33 @@
+#!/bin/bash
+
+sudo launchctl unload -w /Library/LaunchDaemons/io.github.virtualsquare.vde-2.vde_switch.plist
+sudo launchctl load -w /Library/LaunchDaemons/io.github.virtualsquare.vde-2.vde_switch.plist
+sudo launchctl unload -w /Library/LaunchDaemons/io.github.lima-vm.vde_vmnet.plist
+sudo launchctl load -w /Library/LaunchDaemons/io.github.lima-vm.vde_vmnet.plist
+
+DYLD_LIBRARY_PATH=/usr/local/opt/libangle/lib qemu-system-x86_64 \
+  -machine accel=hvf \
+  -cpu Haswell-v4 -smp 4 -m 8G \
+  -device intel-hda -device hda-output \
+  -device qemu-xhci \
+  -device virtio-vga-gl \
+  -device usb-kbd \
+  -device usb-tablet \
+  -device virtio-net-pci,netdev=net0 \
+  -netdev vde,id=net0,sock=/var/run/vde.ctl \
+  -chardev qemu-vdagent,id=spice,name=vdagent,clipboard=on \
+  -device virtio-serial-pci \
+  -device virtserialport,chardev=spice,name=com.redhat.spice.0 \
+  -display cocoa,gl=es \
+  -virtfs local,path=/Users/adragomi,security_model=none,mount_tag=adragomi \
+  -drive "if=virtio,format=qcow2,file=hdd.qcow2,discard=on"
+
+
+  # -netdev vmnet-host,id=n1 \
+  # -device virtio-net,netdev=n1 \
+
+  # -netdev vmnet-bridged,id=net0,ifname=en0 \
+  # -device virtio-net,netdev=net0 \
+
+  # -netdev user,id=net,ipv6=off \
+  # -device virtio-net-pci,netdev=net \

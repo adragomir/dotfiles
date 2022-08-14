@@ -970,6 +970,7 @@ aug settings
   au BufNewFile,BufRead *.jai set filetype=jai
   au BufNewFile,BufRead *.ino set filetype=cpp
   au BufNewFile,BufRead *.pde set filetype=cpp
+  au FileType jai setlocal et ts=4 sts=4 sw=4
   au FileType python setlocal et ts=4 sw=4
   au FileType java setlocal et ts=2 sw=2
   au FileType ruby,haml,eruby,yaml,html,sass setlocal ai sw=2 sts=2 et
