@@ -33,7 +33,7 @@ if &term =~ '^screen'
   execute "set <xLeft>=\e[1;*D"
 endif
 let g:do_filetype_lua=1
-let g:did_load_filetypes=0
+let g:did_load_filetypes=1
 let g:tokyonight_style = "night"
 
 if has('gui_vimr')
@@ -202,7 +202,7 @@ let g:cursorhold_updatetime = 100
 " Plug 'lukas-reineke/indent-blankline.nvim', { 'dir': stdpath('data') . '/bundle/indent-blankline.nvim' }
 " Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
 Plug 'NMAC427/guess-indent.nvim'
-Plug 't9md/vim-choosewin'
+Plug 'tkmpypy/chowcho.nvim'
 Plug 'tpope/vim-endwise', { 'dir': stdpath('data') . '/bundle/endwise' }
 Plug 'echasnovski/mini.nvim'
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
@@ -451,7 +451,7 @@ ino <silent> <Home> <C-o>:call HomeKey()<CR>
 nn <silent> <Home> :call HomeKey()<CR>
 nn <silent> <leader>/ :Rg <cword><cr>
 nm <MapLocalLeader>h :AT<CR>
-nm - <Plug>(choosewin)
+nm - :Chowcho<CR>
 
 if !exists('g:vscode')
 nn <silent>gd          <cmd>lua vim.lsp.buf.definition()<CR>
@@ -505,6 +505,14 @@ let g:chadtree_settings = {
   \}
 
 lua <<EOF
+  require('chowcho').setup {
+    icon_enabled = false, -- required 'nvim-web-devicons' (default: false)
+    text_color = '#FFFFFF',
+    bg_color = '#555555',
+    active_border_color = '#0A8BFF',
+    border_style = 'default', -- 'default', 'rounded',
+    use_exclude_default = false,
+  }
   require("nvim-tree").setup({
     sync_root_with_cwd = false, 
     renderer = {
@@ -867,13 +875,6 @@ let g:go_def_mode = 'gopls'
 let g:go_def_mapping_enabled = 0
 let g:go_bin_path = expand("~/.gocode/bin")
 let g:go_diagnostics_enabled = 0
-let g:choosewin_overlay_enable = 1
-let g:choosewin_statusline_replace = 0
-let g:choosewin_tabline_replace = 0
-let g:choosewin_blink_on_land = 0
-let g:choosewin_label = "1234567890"
-let g:choosewin_tablabel = "ABCDEFGHIJKLMNOPQRTUVWYZ"
-let g:choosewin_overlay_clear_multibyte = 1
 let g:clang_format#command = "/usr/local/bin/clang-format"
 let g:clang_format#detect_style_file = 1
 let javaScript_fold=0
@@ -895,7 +896,7 @@ com! -bang Wq wq<bang>
 com! -bang WQ wq<bang>
 
 hi default hi_MarkInsertStop ctermbg=128 ctermfg=white cterm=bold
-hi default hi_MarkChange ctermbg=160 ctermfg=154 cterm=underdash
+hi default hi_MarkChange ctermbg=160 ctermfg=154 cterm=underdashed
 hi default hi_MarkBeforeJump ctermbg=23 ctermfg=white cterm=undercurl,bold
 
 lua <<EOF
@@ -975,6 +976,7 @@ aug settings
   au FileType java setlocal et ts=2 sw=2
   au FileType ruby,haml,eruby,yaml,html,sass setlocal ai sw=2 sts=2 et
   au FileType javascript setlocal ai sw=4 ts=4 sts=4 et
+  au FileType jai setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
   au FileType c setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
   au FileType cpp setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
   au FileType openscad setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
