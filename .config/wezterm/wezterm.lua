@@ -1,13 +1,14 @@
 local wezterm = require 'wezterm';
 tmp = {
-  font_size = 13.0,
   line_height = 0.95,
   bold_brightens_ansi_colors = true,
   harfbuzz_features = {"calt=0", "clig=0", "liga=0"},
   warn_about_missing_glyphs = false,
   animation_fps = 1,
   cursor_blink_rate = 0,
-  font = wezterm.font("JetBrains Mono"),
+  font_size = 13.0,
+  -- font = wezterm.font("Liberation Mono"),
+  font = wezterm.font("JetBrains Mono NL"),
   -- font = wezterm.font("Berkeley Mono"),
   -- font_rules= {
   --   -- Select a fancy italic font for italic text

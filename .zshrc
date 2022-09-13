@@ -557,6 +557,9 @@ alias tmux='tmux -2'
 alias history='fc -l 1'
 alias k="kubectl"
 alias zigup="zigup --install-dir $HOME/.zig --path-link $HOME/bin/${OS}/zig"
+alias 4ed="~/Applications/Development\ Tools/4coder/4ed &"
+
+
 [[ "$OS" == "darwin" ]] && alias neovide="~/Applications/Development\ Tools/Neovide.app/Contents/MacOS/neovide"
 
 

@@ -3,9 +3,10 @@ import subprocess
 import sys
 import re
 import getopt
-from collections import namedtuple
+from itertools import groupby
+from typing import NamedTuple
 
-def shell(cmd):
+def shell(cmd:str):
   process = subprocess.Popen(cmd,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE,
@@ -13,29 +14,30 @@ def shell(cmd):
   stdout, _ = process.communicate()
   return stdout.decode('utf-8')
 
-Commit = namedtuple('Commit', ['message', 'id'])
-PR = namedtuple('PR', ['commits', 'branch_name'])
+class Commit(NamedTuple):
+    message: str
+    id: str
 
-if __name__ == "__main__":
-    push_only = False
-    opts, args = getopt.getopt(sys.argv[1:],"p",[])
-    for opt, arg in opts:
-        if opt == '-p':
-            push_only = True
+class PR(NamedTuple):
+    commits: list[Commit]
+    branch_name: str
 
-    current_branch = shell("git rev-parse --symbolic-full-name --abbrev-ref HEAD").strip()
-    remote_branch = shell("git rev-parse --abbrev-ref --symbolic-full-name @{u}").strip()
-    root_dir = shell("git rev-parse --show-toplevel").strip()
-    commits_str = shell(fr'git rev-list --reverse "{remote_branch}..{current_branch}"').strip()
-    commits = []
-    for commit_id in commits_str.split():
-        comment = shell(f"git log -1 --pretty=format:%s {commit_id}").strip()
-        commits.append(Commit(comment, commit_id))
-
+def work(commits: list[Commit]):
     regex = r"^(\[AN-[A-Za-z0-9\-]*\])"
 
-    markers = [ci for ci, commit in enumerate(commits) if re.search(regex, commit.message)]
-    slices = []
+    marker_ids:list[int] = [ci for ci, commit in enumerate(commits) if re.search(regex, commit.message)]
+    markers_messages:list[tuple[str, int]] = []
+    for ci in marker_ids:
+        m = re.search(regex, commits[ci].message)
+        markers_messages.append((m.group(0), ci))
+    markers_messages_grouped = [[i, list(v)] for i, v in groupby(markers_messages, lambda x: x[0])]
+
+    markers:list[int] = []
+    for gr in markers_messages_grouped:
+        l = gr[1]
+        markers.append(l[len(l)-1][1])
+
+    slices:list[list[int]] = []
     for i, el in enumerate(markers):
         if i < len(markers) - 1:
             endmarker = markers[i+1]
@@ -70,4 +72,31 @@ hub pull-request -f -m "{pr.commits[0].message}" -b {base_name} -h {pr.branch_na
             print(f"""\
 git push -f origin {pr.commits[len(pr.commits) - 1].id}:refs/heads/{pr.branch_name}
             """.strip())
+
+test_commits = [
+    Commit("[AN-1] 11", "aabb11"), 
+    Commit("[AN-1] 12", "aabb12"), 
+    Commit("[AN-2] 21", "aabb21"), 
+    Commit("[AN-2] 22", "aabb22"), 
+]
+# work(test_commits)
+# exit(1)
+
+if __name__ == "__main__":
+    push_only = False
+    opts, args = getopt.getopt(sys.argv[1:],"p",[])
+    for opt, arg in opts:
+        if opt == '-p':
+            push_only = True
+
+    current_branch = shell("git rev-parse --symbolic-full-name --abbrev-ref HEAD").strip()
+    remote_branch = shell("git rev-parse --abbrev-ref --symbolic-full-name @{u}").strip()
+    root_dir = shell("git rev-parse --show-toplevel").strip()
+    commits_str = shell(fr'git rev-list --reverse "{remote_branch}..{current_branch}"').strip()
+    commits = []
+    for commit_id in commits_str.split():
+        comment = shell(f"git log -1 --pretty=format:%s {commit_id}").strip()
+        commits.append(Commit(comment, commit_id))
+    work(commits)
+
 

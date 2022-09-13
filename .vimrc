@@ -24,8 +24,6 @@ elseif has("win64")
   endif
 endif
 
-set guifont=Jetbrains\ Mono:h12
-
 if &term =~ '^screen'
   execute "set <xUp>=\e[1;*A"
   execute "set <xDown>=\e[1;*B"
@@ -37,22 +35,28 @@ let g:did_load_filetypes=1
 let g:tokyonight_style = "night"
 
 if has('gui_vimr')
-  colorscheme codedark
+  colorscheme jb
+  set guicursor=a:block-blinkon0-Cursor
+  set guifont=Jetbrains\ Mono\ NL:h11
 elseif exists('g:neovide') == 1
+  set guifont=Jetbrains\ Mono\ NL:h11
   let g:neovide_cursor_animation_length=0.0
   let g:neovide_cursor_trail_length=0.0
   let g:neovide_input_use_logo=1
-  colorscheme codedark
+  colorscheme jb
   cno <D-v> <C-r>+
   ino <D-v> <C-r>+
   vn <D-c> y
+  set guicursor=a:block-blinkon0-Cursor
 else 
-  colorscheme monochrome
+  colorscheme jb
+  set guicursor=a:block-blinkon0-Cursor
+  "set guicursor=a:blinkon0
 endif
 
 filetype on
 syntax on
-"set termguicolors
+set termguicolors
 set shm+=I
 set mouse=a
 set sr
@@ -97,7 +101,6 @@ let g:is_bash=1
 
 let mapleader = ","
 let maplocalleader = ","
-set guicursor=a:blinkon0
 set t_Co=256
 "set t_ut=
 set background=dark
@@ -203,9 +206,10 @@ let g:cursorhold_updatetime = 100
 " Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
 Plug 'NMAC427/guess-indent.nvim'
 Plug 'tkmpypy/chowcho.nvim'
-Plug 'tpope/vim-endwise', { 'dir': stdpath('data') . '/bundle/endwise' }
 Plug 'echasnovski/mini.nvim'
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
+Plug 'skywind3000/asyncrun.vim'
+Plug 'PeterRincker/vim-searchlight'
 endif
 call plug#end()
 
@@ -445,6 +449,18 @@ map <s-RIGHT> :vertical resize -5 <Cr>
 map <s-UP> :resize +5 <Cr>
 map <s-DOWN> :resize -5 <Cr>
 
+function! CloseOther(wid)
+  if a:wid == 1
+    " on left
+    execute 2 .. "wincmd c"
+  else
+    execute 1 .. "wincmd c"
+  endif
+endfunction
+
+nmap <c-w><left> :call CloseOther(winnr())<cr>
+nmap <c-w><right> :call CloseOther(winnr())<cr>
+
 no <Space> m`
 
 ino <silent> <Home> <C-o>:call HomeKey()<CR>
@@ -487,24 +503,58 @@ nn <silent><leader>cd :Lspsaga show_line_diagnostics<CR>
 nn <silent>[e :Lspsaga diagnostic_jump_next<CR>
 nn <silent>]e :Lspsaga diagnostic_jump_prev<CR>
 
-let g:coq_settings = {
-  \ 'auto_start': 'shut-up', 
-  \ 'display.pum.fast_close': v:false,
-  \ 'display.icons.mode': 'none', 
-  \ 'clients.tags.enabled': v:false,  
-  \ 'clients.snippets.enabled': v:false,
-  \ 'clients.snippets.warn': {},
-  \ 'clients.paths.enabled': v:false, 
-  \ 'clients.tmux.enabled': v:false, 
-  \ 'keymap.bigger_preview': '', 
-  \ 'keymap.jump_to_mark': '', 
-  \ 'limits.index_cutoff': 933333
-  \}
+" let g:coq_settings = {
+"   \ 'auto_start': 'shut-up', 
+"   \ 'display.pum.fast_close': v:false,
+"   \ 'display.icons.mode': 'none', 
+"   \ 'clients.tags.enabled': v:false,  
+"   \ 'clients.snippets.enabled': v:false,
+"   \ 'clients.snippets.warn': {},
+"   \ 'clients.paths.enabled': v:false, 
+"   \ 'clients.tmux.enabled': v:false, 
+"   \ 'keymap.bigger_preview': '', 
+"   \ 'keymap.jump_to_mark': '', 
+"   \ 'completion.always': v:false, 
+"   \}
+
 let g:chadtree_settings = {
   \ 'theme.icon_glyph_set': 'ascii'
   \}
 
 lua <<EOF
+  vim.g.coq_settings = {
+    auto_start = 'shut-up',
+    completion = {
+      always = false
+    },
+    display = {
+      pum = {
+        fast_close = false
+      }, 
+      icons = {
+        mode = 'none'
+      } 
+    }, 
+    keymap = { 
+      pre_select = true,
+      recommended = false, 
+      bigger_preview = '', 
+      jump_to_mark = '',
+      eval_snips = '', 
+      manual_complete = '', 
+      ["repeat"] = ''
+    },
+    clients = {
+      tags = { enabled = false },
+      snippets = {
+        enabled = false, 
+        warn = {}, 
+      },
+      paths = { enabled = false },
+      tmux = { enabled = false },
+    },
+  }
+
   require('chowcho').setup {
     icon_enabled = false, -- required 'nvim-web-devicons' (default: false)
     text_color = '#FFFFFF',
@@ -561,6 +611,9 @@ lua <<EOF
     search_method = 'cover',
   })
   require('mini.bufremove').setup()
+  require('mini.ai').setup({
+    search_method = 'cover'
+  })
 
   local saga = require 'lspsaga'
   saga.init_lsp_saga()
@@ -832,9 +885,104 @@ lua <<EOF
   require('telescope').load_extension('fzy_native')
 EOF
 
+" function! s:check_back_space() abort
+" 	let col = col('.') - 1
+" 	return !col || getline('.')[col - 1] =~ '\s'
+" endfunction
+"
+" " make tab open coq
+" inoremap <silent><expr> <Tab>
+" 	\ pumvisible() ? "\<C-n>" :
+" 	\ <SID>check_back_space() ? "\<Tab>" :
+" 	\ "\<C-x>\<C-u>"
+
+lua <<EOF
+local chainy_tab = function()
+  -- if vim.fn.pumvisible() ~= 0 then
+  --   if vim.fn.complete_info({ "selected" }).selected ~= -1 then
+  --     return "<c-y>"
+  --   else
+  --     return "<c-n><c-y><c-e>"
+  --   end
+  -- else
+  --   return "<tab>"
+  -- end
+
+  if vim.fn.pumvisible() ~= 0 then
+    vim.api.nvim_eval([[feedkeys("\<c-n>", "n")]])
+    return
+  else
+    local col = vim.fn.col('.') - 1
+    if col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
+      vim.api.nvim_eval([[feedkeys("\<tab>", "n")]])
+      return
+    else
+      vim.api.nvim_eval([[feedkeys("\<c-x>\<c-u>", "n")]])
+      return
+    end
+  end
+end
+local chainy_esc = function()
+  if vim.fn.pumvisible() ~= 0 then
+    vim.api.nvim_eval([[feedkeys("\<c-e>\<Esc>", "n")]])
+    return
+  else
+    vim.api.nvim_eval([[feedkeys("\<Esc>", "n")]])
+    return
+  end
+end
+local chainy_cc = function()
+  if vim.fn.pumvisible() ~= 0 then
+    vim.api.nvim_eval([[feedkeys("\<c-e>\<c-c>", "n")]])
+    return
+  else
+    vim.api.nvim_eval([[feedkeys("\<c-c>", "n")]])
+    return
+  end
+end
+local chainy_bs = function()
+  if vim.fn.pumvisible() ~= 0 then
+    vim.api.nvim_eval([[feedkeys("\<c-e>\<BS>", "n")]])
+    return
+  else
+    vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
+    return
+  end
+end
+local chainy_cr = function()
+  if vim.fn.pumvisible() ~= 0 then
+    if vim.fn.complete_info() == -1 then
+      vim.api.nvim_eval([[feedkeys("\<c-e>\<CR>", "n")]])
+      return
+    else
+      vim.api.nvim_eval([[feedkeys("\<c-y>", "n")]])
+      return
+    end
+  else
+    vim.api.nvim_eval([[feedkeys("\<CR>", "n")]])
+    return
+  end
+end
+local chainy_stab = function()
+  if vim.fn.pumvisible() ~= 0 then
+    vim.api.nvim_eval([[feedkeys("\<c-p>", "n")]])
+    return
+  else
+    vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
+    return
+  end
+end
+vim.keymap.set("i", "<Esc>", chainy_esc, { silent=true, expr = true, noremap = true })
+vim.keymap.set("i", "<C-c>", chainy_cc, { silent=true, expr = true, noremap = true })
+vim.keymap.set("i", "<BS>", chainy_bs, { silent=true, expr = true, noremap = true })
+vim.keymap.set("i", "<CR>", chainy_cr, { silent=true, expr = true, noremap = true })
+vim.keymap.set("i", "<Tab>", chainy_tab, { silent=true, expr = true, noremap = true })
+vim.keymap.set("i", "<S-Tab>", chainy_stab, { silent=true, expr = true, noremap = true })
+EOF
+
 nmap <C-p> <cmd>lua require('telescope.builtin').find_files()<cr> 
 nmap <leader>1 :NvimTreeFindFileToggle<cr> 
-nmap <leader>g <cmd>lua require('telescope.builtin').live_grep()<cr> 
+nmap <leader>g <cmd>lua require('telescope.builtin').grep_string({ search = vim.fn.input('Grep >' ) })<cr>
 nmap <leader>5 <cmd>lua require('telescope.builtin').buffers()<cr> 
 nmap <leader>6 <cmd>lua require('telescope.builtin').find_files({cwd= $HOME . '/Dropbox/personal/notes/'})<cr> 
 
@@ -983,14 +1131,15 @@ aug settings
   au BufNewFile,BufRead *.jai set filetype=jai
   au BufNewFile,BufRead *.ino set filetype=cpp
   au BufNewFile,BufRead *.pde set filetype=cpp
+  au FileType qf wincmd J
   au FileType jai setlocal et ts=4 sts=4 sw=4
   au FileType python setlocal et ts=4 sw=4
   au FileType java setlocal et ts=2 sw=2
   au FileType ruby,haml,eruby,yaml,html,sass setlocal ai sw=2 sts=2 et
   au FileType javascript setlocal ai sw=4 ts=4 sts=4 et
-  au FileType jai setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
-  au FileType c setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
-  au FileType cpp setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
+  au FileType jai setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_,.,- commentstring=//\ %s
+  au FileType c setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_,.,-,> commentstring=//\ %s
+  au FileType cpp setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_,.,-,> commentstring=//\ %s
   au FileType openscad setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
   au FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
   au FileType go setlocal noexpandtab ts=4 sw=4 sts=4
