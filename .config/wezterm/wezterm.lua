@@ -1,14 +1,16 @@
 local wezterm = require 'wezterm';
-tmp = {
+local tmp = {
   line_height = 0.95,
   bold_brightens_ansi_colors = true,
   harfbuzz_features = {"calt=0", "clig=0", "liga=0"},
   warn_about_missing_glyphs = false,
   animation_fps = 1,
   cursor_blink_rate = 0,
-  font_size = 13.0,
-  -- font = wezterm.font("Liberation Mono"),
-  font = wezterm.font("JetBrains Mono NL"),
+  font_size = 14.0,
+  font = wezterm.font("Consolas"),
+  enable_csi_u_key_encoding = true,
+  --enable_kitty_keyboard = true,
+  -- font = wezterm.font("JetBrains Mono NL"),
   -- font = wezterm.font("Berkeley Mono"),
   -- font_rules= {
   --   -- Select a fancy italic font for italic text
@@ -114,12 +116,21 @@ tmp = {
     {key="8", mods="SUPER", action=wezterm.action{ActivateTab=7}},
     {key="9", mods="SUPER", action=wezterm.action{ActivateTab=8}},
     {key="0", mods="SUPER", action=wezterm.action{ActivateTab=9}},
+    {
+      key = "/",
+      mods = "SUPER",
+      action = wezterm.action.Multiple({
+        wezterm.action.CopyMode("ClearPattern"),
+        wezterm.action.Search({ CaseSensitiveString = "" }),
+      }),
+    },
   },
   scrollback_lines = 10000,
   skip_close_confirmation_for_processes_named = {
     "bash", "sh", "zsh", "fish", "tmux", "ncdu"
   },
-  window_decorations = "TITLE | RESIZE"
+  window_decorations = "TITLE | RESIZE",
+  hyperlink_rules = {}
 }
 
 return tmp

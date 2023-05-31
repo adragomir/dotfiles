@@ -1,3 +1,4 @@
 settings set target.x86-disassembly-flavor intel
 settings set target.max-memory-read-size 4096
-command script import  ~/dotfiles/lldbinit.py
+command script import  ~/.config/lldb/lldbinit.py
+command script import ~/.config/lldb/jaitype.py

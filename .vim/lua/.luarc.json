@@ -1,0 +1,11 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+    "Lua.diagnostics.disable": [
+        "trailing-space",
+        "deprecated",
+        "unused-local"
+    ],
+    "Lua.diagnostics.globals": [
+        "vim"
+    ]
+}

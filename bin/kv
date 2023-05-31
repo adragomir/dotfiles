@@ -1,5 +1,5 @@
 #!/bin/bash
-KENV=${1:-dev}
+KENV=${1:-qe6}
 CACHE_AWS=${2:-$HOME/work/analytics-techops/cache-aws}
 
 [[ ! -d "${CACHE_AWS}/compiled" ]] && { 
@@ -9,5 +9,5 @@ CACHE_AWS=${2:-$HOME/work/analytics-techops/cache-aws}
 }
 
 pushd $CACHE_AWS
-AWS_PROFILE=KLAM-stage SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-make.sh validate-config kubeconfig
-AWS_PROFILE=KLAM-stage SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-install-kubeconfig.sh
+AWS_PROFILE=tf-trommel SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-make.sh validate-config kubeconfig
+AWS_PROFILE=tf-trommel SA=ethos-admin sh compiled/$KENV/ethos-aws/scripts/ethos-install-kubeconfig.sh

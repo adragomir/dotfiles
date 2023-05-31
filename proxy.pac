@@ -57,7 +57,7 @@ var FindProxyForURL = function(config) {
         return "DIRECT";
     };
 }([
-//["DIRECT, [//]], 
-//["SOCKS5", checkProxy("from", "mask")]]
+["DIRECT, [//]], 
+//["SOCKS5 localhost:1235", [/(ut1\.omniture\.com|or1.omniture.com)$/]]
 ])
 

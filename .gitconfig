@@ -141,7 +141,8 @@
 
 [merge] 
   summary = true
-  tool = smerge
+  #tool = smerge
+  tool = bcomp
   #tool = araxis
   #tool = opendiff
 
@@ -162,6 +163,7 @@
 
 [advice]
   statusHints = false
+  skippedCherryPicks = false
 
 [gui]
 	fontdiff = -family Inconsolata-g -size 13 -weight normal -slant roman -underline 0 -overstrike 0

@@ -1,9 +1,0 @@
-#!/bin/bash
-
-PATH=$PATH:/usr/local/bin
-
-secret=$(kubectl --kubeconfig ~/.kube/ethos-dev.yml get serviceaccount ethos-admin  -n kube-system -o json | jq -r '.secrets[0].name')
-
-token=$(kubectl --kubeconfig ~/.kube/ethos-dev.yml get secret "$secret" -n kube-system -o json | jq -r '.data.token' | base64 --d)
-
-echo $token

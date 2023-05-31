@@ -1,9 +1,9 @@
 if has("mac")
   let g:os_bin_path = "darwin"
-  let g:python2_host_prog = '/usr/local/bin/python'
-  let g:python3_host_prog = '/usr/local/opt/python@3.10/bin/python3'
-  let g:ruby_host_prog = $HOME . '/.frum/versions/2.7.5/bin/neovim-ruby-host'
-  let g:node_host_prog = $HOME . '/.fnm/node-versions/v14.16.1/installation/lib/node_modules/neovim/bin/cli.js'
+  let g:python2_host_prog = '/usr/local/bin/python2.7'
+  let g:python3_host_prog = '/usr/local/opt/python@3.11/bin/python3.11'
+  let g:ruby_host_prog = $HOME . '/.cache/frum/versions/2.7.5/bin/neovim-ruby-host'
+  let g:node_host_prog = $HOME . '/.cache/fnm/node-versions/v16.20.0/installation/lib/node_modules/neovim/bin/cli.js'
 elseif has("wsl")
   let g:os_bin_path = "linux"
   let g:python2_host_prog = '/usr/local/bin/python'
@@ -32,14 +32,51 @@ if &term =~ '^screen'
 endif
 let g:do_filetype_lua=1
 let g:did_load_filetypes=1
-let g:tokyonight_style = "night"
+
+function! GuiTabLabel(n)
+  let tab_num = a:n
+  let win_num = tabpagewinnr(a:n)
+  return fnamemodify(getcwd(win_num, tab_num), ':t')
+endfunction
+
+function! MyTabLine()
+  let s = ''
+  for i in range(tabpagenr('$'))
+    " select the highlighting
+    if i + 1 == tabpagenr()
+      let s ..= '%#TabLineSel#'
+    else
+      let s ..= '%#TabLine#'
+    endif
+
+    " set the tab page number (for mouse clicks)
+    let s ..= '%' .. (i + 1) .. 'T'
+
+    " the label is made by MyTabLabel()
+    let s ..= ' %{GuiTabLabel(' .. (i + 1) .. ')} '
+  endfor
+
+  " after the last tab fill with TabLineFill and reset tab page nr
+  let s ..= '%#TabLineFill#%T'
+
+  " right-align the label to close the current tab page
+  if tabpagenr('$') > 1
+    let s ..= '%=%#TabLine#%999Xclose'
+  endif
+
+  return s
+endfunction
 
 if has('gui_vimr')
   colorscheme jb
-  set guicursor=a:block-blinkon0-Cursor
-  set guifont=Jetbrains\ Mono\ NL:h11
+  "set guifont=Jetbrains\ Mono\ NL:h11
+  set guifont=Consolas:h12
+  set guicursor=a:block-blinkon0-VimrDefaultCursor
+  set tabline=%!MyTabLine()
 elseif exists('g:neovide') == 1
-  set guifont=Jetbrains\ Mono\ NL:h11
+  set tabline=%!MyTabLine()
+  "set guifont=Jetbrains\ Mono\ NL:h11
+  set guifont=Consolas:h13
   let g:neovide_cursor_animation_length=0.0
   let g:neovide_cursor_trail_length=0.0
   let g:neovide_input_use_logo=1
@@ -71,7 +108,7 @@ set novb noeb
 set wa
 set isk=@,-,>,48-57,128-167,224-235,_
 set isk-=.
-set showtabline=0
+set showtabline=1
 set matchtime=3
 set complete=.,w,b,u,t,i,d
 set completeopt=menu,menuone,noselect "set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
@@ -118,16 +155,17 @@ let g:loaded_man = 1
 let g:loaded_manpageview = 1
 let g:loaded_manpageviewPlugin = 1
 let g:loaded_sql_completion=1
+let g:omni_sql_no_default_maps = 1
 let g:loaded_remote_plugins = 1
 let g:loaded_gzip=1
 let g:loaded_spellfile_plugin=1
 let g:loaded_shada_plugin = 1
 let g:loaded_vimballPlugin=1
-"let g:loaded_netrwPlugin = 1
+let g:loaded_netrwPlugin = 1
 let g:netrw_banner=0
 let g:netrw_altv=1
 let g:netrw_browse_split=4
-"let g:loaded_netrwFileHandlers = 1
+let g:loaded_netrwFileHandlers = 1
 let g:loaded_zipPlugin=1
 let g:loaded_zip=1
 let g:loaded_tarPlugin=1
@@ -141,20 +179,17 @@ let g:plug_path = stdpath('data') . '/bundle'
 call plug#begin(g:plug_path)
 if !exists('g:vscode')
 " lang
-Plug 'mfussenegger/nvim-jdtls'
 Plug 'simrat39/rust-tools.nvim'
+Plug 'ray-x/guihua.lua'
 Plug 'ray-x/go.nvim'
-Plug 'gabrielelana/vim-markdown', { 'dir': stdpath('data') . '/bundle/markdown', 'for': ['md', 'markdown']}
 Plug 'rust-lang/rust.vim', { 'dir': stdpath('data') . '/bundle/rust', 'for': 'rust' }
 Plug 'sirtaj/vim-openscad', { 'dir': stdpath('data') . '/bundle/openscad' }
-Plug 'pearofducks/ansible-vim'
 Plug 'stephpy/vim-yaml', { 'for': 'yaml' }
 Plug 'rhysd/vim-clang-format'
 Plug 'hashivim/vim-terraform'
 Plug 'ziglang/zig.vim'
 Plug 'fedorenchik/fasm.vim'
 Plug 'urbit/hoon.vim'
-Plug 'simrat39/rust-tools.nvim'
 Plug 'karolbelina/uxntal.vim'
 Plug 'rluba/jai.vim'
 " Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
@@ -166,16 +201,16 @@ Plug 'rluba/jai.vim'
 " Plug 'google/vim-jsonnet', {'dir': stdpath('data') . '/bundle/jsonnet', 'for': 'jsonnet' }
 " Plug 'edwinb/idris2-vim' 
 " Plug 'tomlion/vim-solidity'
-
 lua <<EOF
-vim.lsp.set_log_level("error")
+vim.opt.runtimepath:append(',~/.config/nvim/lua')
+vim.lsp.set_log_level('error')
 EOF
 " lsp
 Plug 'neovim/nvim-lspconfig'
 Plug 'williamboman/nvim-lsp-installer'
 Plug 'nvim-lua/lsp-status.nvim'
-Plug 'scalameta/nvim-metals', {'branch': 'main'}
-Plug 'kkharji/lspsaga.nvim', {'branch': 'main'}
+" Plug 'scalameta/nvim-metals', {'branch': 'main'}
+Plug 'nvimdev/lspsaga.nvim', {'branch': 'main'}
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
@@ -183,35 +218,37 @@ Plug 'nvim-telescope/telescope-fzy-native.nvim'
 Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'ray-x/lsp_signature.nvim'
 Plug 'WhoIsSethDaniel/toggle-lsp-diagnostics.nvim'
+Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
 " debug
 Plug 'mfussenegger/nvim-dap'
 Plug 'theHamsta/nvim-dap-virtual-text'
-Plug 'leoluz/nvim-dap-go'
 Plug 'rcarriga/nvim-dap-ui'
+Plug 'leoluz/nvim-dap-go'
+Plug 'nvim-telescope/telescope-dap.nvim'
+Plug 'mfussenegger/nvim-jdtls'
 " syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-treesitter/playground'
+" Plug 'nvim-treesitter/nvim-treesitter-context'
 Plug 'RRethy/nvim-treesitter-textsubjects'
-Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
-" colorscheme
-Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
-Plug 'rebelot/kanagawa.nvim'
 " tools
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
-Plug 'duane9/nvim-rg'
+"Plug 'duane9/nvim-rg', {'branch': 'adragomi'}
+Plug 'jremmen/vim-ripgrep'
 Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
-Plug 'antoinemadec/FixCursorHold.nvim'
-let g:cursorhold_updatetime = 100
-" Plug 'lukas-reineke/indent-blankline.nvim', { 'dir': stdpath('data') . '/bundle/indent-blankline.nvim' }
-" Plug 'vim-scripts/DetectIndent', { 'dir': stdpath('data') . '/bundle/detectindent' }
 Plug 'NMAC427/guess-indent.nvim'
 Plug 'tkmpypy/chowcho.nvim'
 Plug 'echasnovski/mini.nvim'
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
+"map <leader>m :AsyncRun -mode=term -pos=right -focus=0 -listed=0 ./build && jairun ./main<cr>
 Plug 'skywind3000/asyncrun.vim'
-Plug 'PeterRincker/vim-searchlight'
 endif
 call plug#end()
+
+
+let g:copilot_no_tab_map = v:true
+imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
 
 fu! SyntaxAttr()
   let synid = ""
@@ -239,8 +276,8 @@ fu! SyntaxAttr()
   endif
 
   " Use the translated id for all the color & attribute lookups; the linked id yields blank values.
-  if (synIDattr(tid1, "fg") != "" )
-    let guifg = " guifg=" . synIDattr(tid1, "fg") . "(" . synIDattr(tid1, "fg#") . ")"
+  if (synIDattr(tid1, 'fg') != '' )
+    let guifg = ' guifg=' . synIDattr(tid1, 'fg') . '(' . synIDattr(tid1, 'fg#') . ')'
   endif
   if (synIDattr(tid1, "bg") != "" )
     let guibg = " guibg=" . synIDattr(tid1, "bg") . "(" . synIDattr(tid1, "bg#") . ")"
@@ -393,6 +430,35 @@ for i=1,24 do
 end
 EOF
 
+"profile.nvim
+lua <<EOF
+local should_profile = os.getenv("NVIM_PROFILE")
+if should_profile then
+  require("profile").instrument_autocmds()
+  if should_profile:lower():match("^start") then
+    require("profile").start("*")
+  else
+    require("profile").instrument("*")
+  end
+end
+
+local function toggle_profile()
+  local prof = require("profile")
+  if prof.is_recording() then
+    prof.stop()
+    vim.ui.input({ prompt = "Save profile to:", completion = "file", default = "profile.json" }, function(filename)
+      if filename then
+        prof.export(filename)
+        vim.notify(string.format("Wrote %s", filename))
+      end
+    end)
+  else
+    prof.start("*")
+  end
+end
+vim.keymap.set("", "<f1>", toggle_profile)
+EOF
+
 " cutlass.nvim inline
 lua <<EOF
 local map = vim.api.nvim_set_keymap
@@ -444,10 +510,10 @@ nn <C-j> <c-w>j
 nn <C-k> <c-w>k
 nn <C-l> <c-w>l
 
-map <s-LEFT> :vertical resize +5 <Cr>
-map <s-RIGHT> :vertical resize -5 <Cr>
-map <s-UP> :resize +5 <Cr>
-map <s-DOWN> :resize -5 <Cr>
+" map <s-LEFT> :vertical resize +5 <Cr>
+" map <s-RIGHT> :vertical resize -5 <Cr>
+" map <s-UP> :resize +5 <Cr>
+" map <s-DOWN> :resize -5 <Cr>
 
 function! CloseOther(wid)
   if a:wid == 1
@@ -472,20 +538,50 @@ nm - :Chowcho<CR>
 if !exists('g:vscode')
 nn <silent>gd          <cmd>lua vim.lsp.buf.definition()<CR>
 nn <silent>K           <cmd>lua vim.lsp.buf.signature_help()<CR>
-" nn <silent>gi          <cmd>lua vim.lsp.buf.implementation()<CR>
-" nn <silent>gr          <cmd>lua vim.lsp.buf.references()<CR>
+" nn <silent>gi        <cmd>lua vim.lsp.buf.implementation()<CR>
+" nn <silent>gr        <cmd>lua vim.lsp.buf.references()<CR>
 nn <silent>gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
 nn <silent>gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
 nn <silent>gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
-"nn <silent>gsd         <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
-nn <silent><f12>         <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
-nn <silent><c-f12>         <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{}<CR>  
+"nn <silent>gsd        <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
+nn <silent><f12>       <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
+nn <silent><c-f12>     <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{}<CR>  
 nn <silent><leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
-nn <silent><leader>f   <cmd>lua vim.lsp.buf.formatting()<CR>
+nn <silent><leader>f   <cmd>lua vim.lsp.buf.format()<CR>
 nn <silent><leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
 nn <silent>[c          :NextDiagnostic<CR>
 nn <silent>]c          :PrevDiagnostic<CR>
 nn <silent><space>d    :OpenDiagnostic<CR>
+
+if has('gui_vimr') || exists('g:neovide') == 1
+  nn <silent><D-t>  :tabnew<cr>
+  nn <silent><D-w>  :tabclose<cr>
+  nn <silent><D-]>  :tabnext<cr>
+  nn <silent><D-[>  :tabprevious<cr>
+  no <silent><D-1>  1gt
+  no <silent><D-2>  2gt
+  no <silent><D-3>  3gt
+  no <silent><D-4>  4gt
+  no <silent><D-5>  5gt
+  no <silent><D-6>  6gt
+  no <silent><D-7>  7gt
+  no <silent><D-8>  8gt
+  no <silent><D-9>  9gt
+
+  ino <silent><D-1> 1gt
+  ino <silent><D-2> 2gt
+  ino <silent><D-3> 3gt
+  ino <silent><D-4> 4gt
+  ino <silent><D-5> 5gt
+  ino <silent><D-6> 6gt
+  ino <silent><D-7> 7gt
+  ino <silent><D-8> 8gt
+  ino <silent><D-9> 9gt
+  ino <silent><D-t> <C-o>:tabnew<cr>
+  ino <silent><D-w> <C-o>:tabclose<cr>
+  ino <silent><D-]> <C-o>:tabnext<cr>
+  ino <silent><D-[> <C-o>:tabprevious<cr>
+endif
 
 lua <<EOF
 function hoon_def_search()
@@ -502,24 +598,6 @@ nn <silent>g<space> :Lspsaga preview_definition<CR>
 nn <silent><leader>cd :Lspsaga show_line_diagnostics<CR>
 nn <silent>[e :Lspsaga diagnostic_jump_next<CR>
 nn <silent>]e :Lspsaga diagnostic_jump_prev<CR>
-
-" let g:coq_settings = {
-"   \ 'auto_start': 'shut-up', 
-"   \ 'display.pum.fast_close': v:false,
-"   \ 'display.icons.mode': 'none', 
-"   \ 'clients.tags.enabled': v:false,  
-"   \ 'clients.snippets.enabled': v:false,
-"   \ 'clients.snippets.warn': {},
-"   \ 'clients.paths.enabled': v:false, 
-"   \ 'clients.tmux.enabled': v:false, 
-"   \ 'keymap.bigger_preview': '', 
-"   \ 'keymap.jump_to_mark': '', 
-"   \ 'completion.always': v:false, 
-"   \}
-
-let g:chadtree_settings = {
-  \ 'theme.icon_glyph_set': 'ascii'
-  \}
 
 lua <<EOF
   vim.g.coq_settings = {
@@ -564,7 +642,7 @@ lua <<EOF
     use_exclude_default = false,
   }
   require("nvim-tree").setup({
-    sync_root_with_cwd = false, 
+    sync_root_with_cwd = true, 
     renderer = {
       highlight_opened_files = "name", 
       icons = {
@@ -578,21 +656,118 @@ lua <<EOF
     }, 
     update_focused_file = {
       enable = true,
+      update_root = true,
+      ignore_list = {
+          "fzf", "help", "qf",
+          "lspinfo", "undotree"
+      }
     },
   })
   require("nvim-lsp-installer").setup {}
-  require'toggle_lsp_diagnostics'.init({ start_on = false })
+  --require'toggle_lsp_diagnostics'.init({ start_on = false })
 
   require'nvim-treesitter.configs'.setup {
       textsubjects = {
           enable = true,
+          prev_selection = ',', 
           keymaps = {
               ['.'] = 'textsubjects-smart',
-              [';'] = 'textsubjects-container-outer',
           }
       },
   }
   require('dap-go').setup()
+  require("dapui").setup()
+  local dap = require('dap')
+  dap.adapters.codelldb = {
+    type = 'server',
+    port = "${port}",
+    executable = {
+      -- CHANGE THIS to your path!
+      command = '/Users/adragomi/work/tools/codelldb/adapter/codelldb',
+      args = {"--port", "${port}"},
+      -- On windows you may have to uncomment this:
+      -- detached = false,
+    }
+  }
+  dap.adapters.lldb = {
+    type = 'executable',
+    command = '/usr/local/opt/llvm@16/bin/lldb-vscode',
+    name = 'lldb'
+  }
+  -- dap.configurations.cpp = {
+  --   {
+  --     name = "Launch file",
+  --     type = "codelldb",
+  --     request = "launch",
+  --     program = function()
+  --       return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+  --     end,
+  --     cwd = '${workspaceFolder}',
+  --     stopOnEntry = false,
+  --   },
+  -- }
+  -- dap.configurations.c = dap.configurations.cpp
+  -- dap.configurations.rust = dap.configurations.cpp
+  -- dap.configurations.rust.initCommands = function()
+  --   -- Find out where to look for the pretty printer Python module
+  --   local rustc_sysroot = vim.fn.trim(vim.fn.system('rustc --print sysroot'))
+  --   local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
+  --   local commands_file = rustc_sysroot .. '/lib/rustlib/etc/lldb_commands'
+  --   local commands = {}
+  --   local file = io.open(commands_file, 'r')
+  --   if file then
+  --     for line in file:lines() do
+  --       table.insert(commands, line)
+  --     end
+  --     file:close()
+  --   end
+  --   table.insert(commands, 1, script_import)
+  --   return commands
+  -- end
+  --
+  -- dap.configurations.jai = dap.configurations.cpp
+  -- dap.configurations.jai.initCommands = function()
+  --   local commands = {}
+  --   table.insert(commands, 1, 'command script import "' .. vim.env.HOME .. '/.config/lldb/jaitype.jai"')
+  --   return commands
+  -- end
+
+  local dap, dapui = require("dap"), require("dapui")
+  local keymap_restore = {}
+  dap.listeners.after.event_initialized["dapui_config"] = function()
+    dapui.open()
+  end
+  dap.listeners.before.event_terminated["dapui_config"] = function()
+    dapui.close()
+  end
+  dap.listeners.before.event_exited["dapui_config"] = function()
+    dapui.close()
+  end
+  dap.listeners.after.event_initialized['me'] = function()
+    for _, buf in pairs(vim.api.nvim_list_bufs()) do
+      local keymaps = vim.api.nvim_buf_get_keymap(buf, 'n')
+      for _, keymap in pairs(keymaps) do
+        if keymap.lhs == "K" then
+          table.insert(keymap_restore, keymap)
+          vim.api.nvim_buf_del_keymap(buf, 'n', 'K')
+        end
+      end
+    end
+    vim.api.nvim_set_keymap('n', 'K', '<Cmd>lua require("dap.ui.widgets").hover()<CR>', { silent = true })
+  end
+
+  dap.listeners.after.event_terminated['me'] = function()
+    for _, keymap in pairs(keymap_restore) do
+      vim.api.nvim_buf_set_keymap(
+        keymap.buffer,
+        keymap.mode,
+        keymap.lhs,
+        keymap.rhs,
+        { silent = keymap.silent == 1 }
+      )
+    end
+    keymap_restore = {}
+  end
 
   require('mini.comment').setup()
   require('mini.surround').setup( {
@@ -610,13 +785,44 @@ lua <<EOF
     n_lines = 20,
     search_method = 'cover',
   })
+  require('mini.align').setup({
+    modifiers = {
+      [':'] = function(steps, opts)
+        opts.split_pattern = ':+'
+        table.insert(steps.pre_justify, MiniAlign.gen_step.trim())
+        table.insert(steps.pre_justify, MiniAlign.gen_step.pair())
+        opts.merge_delimiter = ' '
+      end,
+      ['='] = function(steps, opts)
+        opts.split_pattern = '=+'
+        table.insert(steps.pre_justify, MiniAlign.gen_step.trim())
+        table.insert(steps.pre_justify, MiniAlign.gen_step.pair())
+        opts.merge_delimiter = ' '
+      end,
+      ['>'] = function(steps, opts)
+        opts.split_pattern = '=>'
+        table.insert(steps.pre_justify, MiniAlign.gen_step.trim())
+        table.insert(steps.pre_justify, MiniAlign.gen_step.pair())
+        opts.merge_delimiter = ' '
+      end,
+    }
+  })
   require('mini.bufremove').setup()
   require('mini.ai').setup({
     search_method = 'cover'
   })
 
-  local saga = require 'lspsaga'
-  saga.init_lsp_saga()
+  require('lspsaga').setup({
+    lightbulb = {
+      enable = false
+    }, 
+    symbol_in_winbar = {
+      enable = false
+    }, 
+    beacon = {
+      enable = false
+    }, 
+  })
 
   local lspconfig = require'lspconfig'
   local configs = require'lspconfig.configs'
@@ -626,47 +832,55 @@ lua <<EOF
   local M = {}
 
   M.on_attach = function()
-    --require'completion'.on_attach();
+    --require'completion'.on_attach(),
     --setup.auto_commands()
   end
 
-  lspconfig.pasls.setup{}
-  lspconfig.prosemd_lsp.setup{}
-  lspconfig.racket_langserver.setup{}
+  -- lspconfig.pasls.setup{}
+  -- lspconfig.prosemd_lsp.setup{}
+  -- lspconfig.racket_langserver.setup{}
   lspconfig.zls.setup{
+    cmd = { vim.env.HOME .. '/bin/darwin/zls-0.11.0' }, 
     flags = {
       debounce_text_changes = 250, 
-    };
-    on_attach = M.on_attach;
+    },
+    on_attach = M.on_attach,
   }
 
-  require'go'.setup()
+  require'go'.setup({
+    lsp_codelens = true,
+    lsp_inlay_hints = {
+      enable = true, 
+      only_current_line = true, 
+    }, 
+  })
   lspconfig.gopls.setup{
-    on_attach = M.on_attach;
-    root_dir = util.root_pattern("go.mod");
+    cmd = { vim.env.HOME .. '/.gocode/bin/gopls' },
+    on_attach = M.on_attach,
+    root_dir = util.root_pattern("go.mod"),
   }
 
-  lspconfig.denols.setup{
-    on_attach = M.on_attach;
-    root_dir = util.root_pattern("deno.json");
-  }
-  lspconfig.haxe_language_server.setup{ }
-  lspconfig.leanls.setup{ }
-  lspconfig.solang.setup{ }
-  lspconfig.svls.setup{ }
+  -- lspconfig.denols.setup{
+  --   on_attach = M.on_attach,
+  --   root_dir = util.root_pattern("deno.json"),
+  -- }
+  -- lspconfig.haxe_language_server.setup{ }
+  -- lspconfig.leanls.setup{ }
+  -- lspconfig.solang.setup{ }
+  -- lspconfig.svls.setup{ }
 
   -- lspconfig.rust_analyzer.setup{
-  --   on_attach = M.on_attach;
+  --   on_attach = M.on_attach,
   -- }
   require('rust-tools').setup({})
   lspconfig.ccls.setup{
-    on_attach = M.on_attach;
-    cmd = {"ccls"};
+    on_attach = M.on_attach,
+    cmd = {"ccls"},
     init_options = {
       index = {
         initialBlackList = { '.*omtr_tmp.*' }
       }
-    };
+    },
     settings = {
       ccls = {
         clang = {
@@ -681,37 +895,50 @@ lua <<EOF
           resourceDir = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3"
         }
       }
-    };
+    },
   }
   -- lspconfig.clangd.setup{
-  --   on_attach = M.on_attach;
-  --   cmd = {"/usr/local/opt/llvm@14/bin/clangd"};
+  --   on_attach = M.on_attach,
+  --   cmd = {
+  --     "clangd", 
+  --     "--background-index",
+  --     "--pch-storage=memory",
+  --     "--clang-tidy",
+  --     "--suggest-missing-includes",
+  --     "--all-scopes-completion",
+  --     "--pretty",
+  --     "--header-insertion=never",
+  --     "-j=4",
+  --     "--inlay-hints",
+  --     "--header-insertion-decorators",
+  --   },
+  --   root_dir = utils.root_pattern("compile_commands.json", "compile_flags.txt", ".git")
+  --   init_option = { fallbackFlags = {  "-std=c++2a"  } }
   -- }
-  lspconfig.clojure_lsp.setup{ }
-  -- lspconfig.phpactor.setup{ }
-  lspconfig.intelephense.setup{
-    on_attach = M.on_attach;
-    settings = {
-      intelephense = {
-        files = {
-          maxSize = 10000000,
-        },
-        format = {
-          enable = true,
-          braces = "psr12",
-        }, 
-        environment = {
-          shortOpenTag = true,
-          phpVersion = "8.1.8",
-          includePaths = {
-          },
-        }
-      }
-    }
-  }
-  lspconfig.svls.setup{}
+  -- lspconfig.clojure_lsp.setup{ }
+  -- lspconfig.intelephense.setup{
+  --   on_attach = M.on_attach,
+  --   settings = {
+  --     intelephense = {
+  --       files = {
+  --         maxSize = 10000000,
+  --       },
+  --       format = {
+  --         enable = true,
+  --         braces = "psr12",
+  --       }, 
+  --       environment = {
+  --         shortOpenTag = true,
+  --         phpVersion = "8.1.8",
+  --         includePaths = {
+  --         },
+  --       }
+  --     }
+  --   }
+  -- }
+  -- lspconfig.svls.setup{}
   lspconfig.pylsp.setup{
-    on_attach = M.on_attach;
+    on_attach = M.on_attach,
     on_init = function(client)
       client.config.settings = {
         pylsp = {
@@ -723,12 +950,12 @@ lua <<EOF
   }
 
   -- lspconfig.jdtls.setup{
-  --   on_attach = M.on_attach;
-  --   root_dir = util.root_pattern("pom.xml", "build.xml");
+  --   on_attach = M.on_attach,
+  --   root_dir = util.root_pattern("pom.xml", "build.xml"),
   -- }
-  lspconfig.tsserver.setup{
-    on_attach = M.on_attach;
-  }
+  -- lspconfig.tsserver.setup{
+  --   on_attach = M.on_attach,
+  -- }
 
   local system_name
   if vim.fn.has("mac") == 1 then
@@ -742,9 +969,9 @@ lua <<EOF
   end
   local sumneko_root_path = vim.fn.stdpath('data')..'/lspconfig/sumneko_lua/lua-language-server'
   local sumneko_binary = sumneko_root_path.."/bin/"..system_name.."/lua-language-server"
-  lspconfig.sumneko_lua.setup {
-    cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"};
-    on_attach = M.on_attach;
+  lspconfig.lua_ls.setup {
+    cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"},
+    on_attach = M.on_attach,
     settings = {
       Lua = {
         runtime = {
@@ -761,95 +988,97 @@ lua <<EOF
           },
         },
       },
-    };
+    },
   }
 
-  lspconfig.sourcekit.setup{}
-  lspconfig.solargraph.setup{
-    on_attach = M.on_attach;
-    settings = {
-      solargraph = {
-        diagnostics = false;
-        formatting = true;
-        autoformat = false;
-      }
-    };
-  }
+  -- lspconfig.sourcekit.setup{}
+  -- lspconfig.solargraph.setup{
+  --   on_attach = M.on_attach,
+  --   settings = {
+  --     solargraph = {
+  --       diagnostics = false,
+  --       formatting = true,
+  --       autoformat = false,
+  --     }
+  --   },
+  -- }
   lspconfig.terraformls.setup{
-    on_attach = M.on_attach;
+    on_attach = M.on_attach,
   }
 --  lspconfig.metals.setup{
---    on_attach    = M.on_attach;
---    root_dir     = util.root_pattern("pom.xml", "build.sbt", "build.sc", ".git");
+--    on_attach    = M.on_attach,
+--    root_dir     = util.root_pattern("pom.xml", "build.sbt", "build.sc", ".git"),
 --    init_options = {
---      statusBarProvider            = "on";
---      inputBoxProvider             = true;
---      quickPickProvider            = true;
---      executeClientCommandProvider = true;
---      didFocusProvider             = true;
---      decorationProvider           = true;
---    };
+--      statusBarProvider            = "on",
+--      inputBoxProvider             = true,
+--      quickPickProvider            = true,
+--      executeClientCommandProvider = true,
+--      didFocusProvider             = true,
+--      decorationProvider           = true,
+--    },
 --
---    on_init = setup.on_init;
+--    on_init = setup.on_init,
 --
 --    handlers = {
---      ["textDocument/hover"]          = metals['textDocument/hover'];
---      ["metals/status"]               = metals['metals/status'];
---      ["metals/inputBox"]             = metals['metals/inputBox'];
---      ["metals/quickPick"]            = metals['metals/quickPick'];
---      ["metals/executeClientCommand"] = metals["metals/executeClientCommand"];
---      ["metals/publishDecorations"]   = metals["metals/publishDecorations"];
---      ["metals/didFocusTextDocument"] = metals["metals/didFocusTextDocument"];
---    };
+--      ["textDocument/hover"]          = metals['textDocument/hover'],
+--      ["metals/status"]               = metals['metals/status'],
+--      ["metals/inputBox"]             = metals['metals/inputBox'],
+--      ["metals/quickPick"]            = metals['metals/quickPick'],
+--      ["metals/executeClientCommand"] = metals["metals/executeClientCommand"],
+--      ["metals/publishDecorations"]   = metals["metals/publishDecorations"],
+--      ["metals/didFocusTextDocument"] = metals["metals/didFocusTextDocument"],
+--    },
 --  }
 
-  lspconfig.elmls.setup{
-    on_attach    = M.on_attach;
-  }
-  lspconfig.html.setup{
-    on_attach    = M.on_attach;
-  }
-  lspconfig.yamlls.setup{
-    on_attach    = M.on_attach;
-  }
+  -- lspconfig.elmls.setup{
+  --   on_attach    = M.on_attach,
+  -- }
+  -- lspconfig.html.setup{
+  --   on_attach    = M.on_attach,
+  -- }
+  -- lspconfig.yamlls.setup{
+  --   on_attach    = M.on_attach,
+  -- }
   lspconfig.hoon_ls.setup{
-    on_attach    = M.on_attach;
+    on_attach    = M.on_attach,
   }
 
   lspconfig.zls.setup(coq.lsp_ensure_capabilities())
   lspconfig.gopls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.denols.setup(coq.lsp_ensure_capabilities())
-  lspconfig.haxe_language_server.setup(coq.lsp_ensure_capabilities())
-  lspconfig.leanls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.solang.setup(coq.lsp_ensure_capabilities())
-  lspconfig.svls.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.denols.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.haxe_language_server.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.leanls.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.solang.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.svls.setup(coq.lsp_ensure_capabilities())
   -- lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities())
   lspconfig.ccls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.intelephense.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.intelephense.setup(coq.lsp_ensure_capabilities())
   lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
   --lspconfig.jdtls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.tsserver.setup(coq.lsp_ensure_capabilities())
-  lspconfig.sumneko_lua.setup(coq.lsp_ensure_capabilities())
-  lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.tsserver.setup(coq.lsp_ensure_capabilities())
+  lspconfig.lua_ls.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
   lspconfig.terraformls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.elmls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.html.setup(coq.lsp_ensure_capabilities())
-  lspconfig.yamlls.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.elmls.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.html.setup(coq.lsp_ensure_capabilities())
+  -- lspconfig.yamlls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.jails.setup{
+    on_attach    = M.on_attach,
+  }
 
-  require "lsp_signature".setup({
-    bind = true, 
-    doc_lines = 0, 
-    floating_window = true, 
-    floating_window_above_cur_line = true, 
-    fix_pos = false,
-    hint_enable = false, 
-    use_lspsaga = false, 
-    always_trigger = false, 
-    toggle_key = nil, 
-    handler_opts = {
-      border = "rounded"
-    }
-  })
+  -- require "lsp_signature".setup({
+  --   bind = false, 
+  --   doc_lines = 0, 
+  --   floating_window = true, 
+  --   floating_window_above_cur_line = true, 
+  --   fix_pos = false,
+  --   hint_enable = false, 
+  --   always_trigger = false, 
+  --   toggle_key = nil, 
+  --   handler_opts = {
+  --     border = "rounded"
+  --   }
+  -- })
 
   require('telescope').setup{
     extensions = {
@@ -858,7 +1087,19 @@ lua <<EOF
         override_file_sorter = true,
       }
     }, 
+    highlight = {
+      enable = false
+    }, 
     defaults = {
+      mappings = {
+        n = {
+    	    ['<C-d>'] = require('telescope.actions').delete_buffer
+        },
+        i = {
+          ["<C-h>"] = "which_key", 
+          ['<C-d>'] = require('telescope.actions').delete_buffer
+        }
+      }, 
       vimgrep_arguments = {
         'rg',
         '--color=never',
@@ -878,6 +1119,7 @@ lua <<EOF
       }, 
       file_ignore_patterns = {},
       use_less = true,
+      preview = false, 
       grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
       qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
     }
@@ -886,15 +1128,15 @@ lua <<EOF
 EOF
 
 " function! s:check_back_space() abort
-" 	let col = col('.') - 1
-" 	return !col || getline('.')[col - 1] =~ '\s'
+"   let col = col('.') - 1
+"   return !col || getline('.')[col - 1] =~ '\s'
 " endfunction
 "
 " " make tab open coq
 " inoremap <silent><expr> <Tab>
-" 	\ pumvisible() ? "\<C-n>" :
-" 	\ <SID>check_back_space() ? "\<Tab>" :
-" 	\ "\<C-x>\<C-u>"
+"   \ pumvisible() ? "\<C-n>" :
+"   \ <SID>check_back_space() ? "\<Tab>" :
+"   \ "\<C-x>\<C-u>"
 
 lua <<EOF
 local chainy_tab = function()
@@ -980,11 +1222,51 @@ vim.keymap.set("i", "<Tab>", chainy_tab, { silent=true, expr = true, noremap = t
 vim.keymap.set("i", "<S-Tab>", chainy_stab, { silent=true, expr = true, noremap = true })
 EOF
 
+lua <<EOF
+local move_left = function()
+  require("move").move(1)
+end
+local move_right = function()
+  require("move").move(2)
+end
+vim.keymap.set("n", "<M-h>", move_left, { silent=true, expr = true, noremap = true })
+vim.keymap.set("n", "<M-l>", move_right, { silent=true, expr = true, noremap = true })
+EOF
+
 nmap <C-p> <cmd>lua require('telescope.builtin').find_files()<cr> 
 nmap <leader>1 :NvimTreeFindFileToggle<cr> 
 nmap <leader>g <cmd>lua require('telescope.builtin').grep_string({ search = vim.fn.input('Grep >' ) })<cr>
 nmap <leader>5 <cmd>lua require('telescope.builtin').buffers()<cr> 
 nmap <leader>6 <cmd>lua require('telescope.builtin').find_files({cwd= $HOME . '/Dropbox/personal/notes/'})<cr> 
+
+lua <<EOF
+vim.keymap.set('n', '<F7>', function() require('dap').continue() end)
+vim.keymap.set('n', '<S-F7>', function() require('dap').terminate() end)
+vim.keymap.set('n', '<C-F7>', function() require('dap').restart() end)
+vim.keymap.set('n', '<C-F10>', function() require('dap').run_to_cursor() end)
+vim.keymap.set('n', '<F10>', function() require('dap').step_over() end)
+vim.keymap.set('n', '<F11>', function() require('dap').step_into() end)
+vim.keymap.set('n', '<S-F11>', function() require('dap').step_out() end)
+vim.keymap.set('n', '<F9>', function() require('dap').toggle_breakpoint() end)
+vim.keymap.set('n', '<Leader>B', function() require('dap').set_breakpoint() end)
+vim.keymap.set('n', '<Leader>lp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
+vim.keymap.set('n', '<Leader>dr', function() require('dap').repl.open() end)
+vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
+vim.keymap.set({'n', 'v'}, '<Leader>dh', function()
+  require('dap.ui.widgets').hover()
+end)
+vim.keymap.set({'n', 'v'}, '<Leader>dp', function()
+  require('dap.ui.widgets').preview()
+end)
+vim.keymap.set('n', '<Leader>df', function()
+  local widgets = require('dap.ui.widgets')
+  widgets.centered_float(widgets.frames)
+end)
+vim.keymap.set('n', '<Leader>ds', function()
+  local widgets = require('dap.ui.widgets')
+  widgets.centered_float(widgets.scopes)
+end)
+EOF
 
 lua <<EOF
 --   require("cutlass").setup({
@@ -1013,11 +1295,12 @@ lua <<EOF
   local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
   parser_config.jai = {
     install_info = {
-      url = "https://github.com/Pyromuffin/tree-sitter-jai", -- local path or git repo
+      -- url = "https://github.com/adragomir/tree-sitter-jai", -- local path or git repo
+      url = "/Users/adragomi/temp/tree-sitter-jai-new", -- local path or git repo
       files = {"src/parser.c", "src/scanner.cc"},
       -- optional entries:
-      branch = "master", -- default branch in case of git repo if different from master
-      generate_requires_npm = false, -- if stand-alone parser without npm dependencies
+      branch = "adragomi",
+      generate_requires_npm = true,
       requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
     },
     filetype = "jai", -- if filetype does not match the parser name
@@ -1096,12 +1379,44 @@ function mark_on_insert_stop()
 end
 EOF
 
-aug marks
-  au!
-  au CursorMoved * silent! lua mark_on_move()
-  au BufModifiedSet,TextChangedP,TextChangedI,TextChanged * lua mark_on_changed()
-  au InsertLeave * silent! lua mark_on_insert_stop()
-aug END
+" aug marks
+"   au!
+"   au CursorMoved * silent! lua mark_on_move()
+"   au BufModifiedSet,TextChangedP,TextChangedI,TextChanged * lua mark_on_changed()
+"   au InsertLeave * silent! lua mark_on_insert_stop()
+" aug END
+
+lua << EOF
+function dump(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. dump(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
+end
+
+local make_diagnostics_ns = vim.api.nvim_create_namespace("make_diagnostics_ns")
+
+function append_make_diagnostics()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local ql = vim.fn.getqflist()
+  qlb = {}
+  for i, qli in pairs(ql) do
+    if qli['bufnr'] == bufnr and qli['lnum'] > 0 and qli['col'] > 0 then
+      qlb[#qlb+1] = qli
+    end
+  end
+  local dqlb = vim.diagnostic.fromqflist(qlb)
+  vim.diagnostic.reset(make_diagnostics_ns, bufnr)
+  vim.diagnostic.set(make_diagnostics_ns, bufnr, dqlb)
+end
+
+EOF
 
 let g:save_cr_map = {}
 aug all_buffers
@@ -1128,22 +1443,24 @@ aug END
 aug settings
   au!
   au BufNewFile,BufRead *.Jenkinsfile set filetype=groovy
+  autocmd BufRead ~/work/DPO/*.class set filetype=php
   au BufNewFile,BufRead *.jai set filetype=jai
   au BufNewFile,BufRead *.ino set filetype=cpp
   au BufNewFile,BufRead *.pde set filetype=cpp
   au FileType qf wincmd J
-  au FileType jai setlocal et ts=4 sts=4 sw=4
+  au FileType jai setlocal et ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\ %s | compiler jai
+  au QuickFixCmdPost jaimake lua append_make_diagnostics()
   au FileType python setlocal et ts=4 sw=4
   au FileType java setlocal et ts=2 sw=2
   au FileType ruby,haml,eruby,yaml,html,sass setlocal ai sw=2 sts=2 et
   au FileType javascript setlocal ai sw=4 ts=4 sts=4 et
-  au FileType jai setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_,.,- commentstring=//\ %s
-  au FileType c setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_,.,-,> commentstring=//\ %s
-  au FileType cpp setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_,.,-,> commentstring=//\ %s
+  au FileType c setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\ %s
+  au FileType cpp setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\ %s
   au FileType openscad setlocal ts=4 sw=4 sts=4 commentstring=//\ %s
   au FileType qf setlocal colorcolumn=0 nolist nocursorline nowrap
   au FileType go setlocal noexpandtab ts=4 sw=4 sts=4
   au FileType sh setlocal iskeyword=35,36,45,46,48-57,64,65-90,97-122,_
+  au FileType php setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\ %s
 aug END
 
 " completions
@@ -1167,12 +1484,15 @@ aug completions
 aug END
 endif
 
-aug mappings
+map <Leader>j :let g:jai_entrypoint = expand('%')<Enter> :call UpdateJaiMakeprg()<Enter>
+map <Leader>u :call UpdateJaiMakeprg()<Enter>
+
+aug hoon_mappings
   au!
   au FileType hoon nn <silent><leader>d   <cmd>lua hoon_def_search()<CR>
 aug END
 
-let hostfile=$HOME . '.vim/hosts/' . hostname() . ".vim"
+let hostfile=$HOME . '/.vim/hosts/' . hostname() . ".vim"
 if filereadable(hostfile)
   exe 'source ' . hostfile
 endif

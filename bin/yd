@@ -1,14 +1,20 @@
 #!/bin/bash
 
-url="$1"
-if [[ $# == 2 ]]; then
+if [[ $# == 1 ]]; then
+  url="$1"
+  shift
+elif [[ $# -ge 2 ]]; then
   sz="$1"
-  url="$2"
+  shift
+  url="${@: -1}"
+  set -- "${@:1:$(($#-1))}"
 fi
+echo "$@"
+echo "$url"
 
 if [[ "$sz"  != "" ]]; then
-  yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"  -f "bestvideo[height<=$sz]+bestaudio/best[height<=$sz]" "$url"
+  yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"  -f "bestvideo[height<=$sz]+bestaudio/best[height<=$sz]" --write-subs --write-automatic-subs --sub-langs en --sub-format srt "$@" "$url"
 else
-  yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36" "$url"
+  yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36" --write-subs --write-automatic-subs --sub-langs en --sub-format srt "$@" "$url"
 fi
 

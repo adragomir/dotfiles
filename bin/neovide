@@ -1,0 +1,33 @@
+#!/bin/bash
+
+while getopts "n:" flag; do
+    case "${flag}" in
+        n) name=${OPTARG};;
+    esac
+done
+
+if test ${name}; then
+  shift 2
+fi
+
+NVIM_SOCKET="/tmp/neovide${name}.socket"
+if [ ! -S $NVIM_SOCKET ]; then
+    echo "start first"
+    ~/Applications/Development\ Tools/neovide.app/Contents/MacOS/neovide --noidle  -- --listen $NVIM_SOCKET $@
+else
+    if [[ "$#" -eq 0 ]]; then
+        dir_or_file=$(pwd)
+    else
+        dir_or_file=$1
+    fi
+    if [[ -d ${dir_or_file} ]]; then
+        echo "Open dir ${dir_or_file}"
+        nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew | :tcd ${dir_or_file}<CR>"
+    else
+        dir=$(dirname $dir_or_file)
+        echo "Open file ${dir_or_file} in dir ${dir}"
+        nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew | :tcd ${dir} | :e ${dir_or_file}<CR>"
+    fi
+
+    osascript -e 'tell application "Neovide" to activate'
+fi

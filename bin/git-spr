@@ -12,7 +12,7 @@ fi
 echo "Synchronising with origin/$CURRENT..."
 
 git fetch -p origin
-git rebase -r origin/$CURRENT
+git rebase origin/$CURRENT
 
 if [ "x$NST" == "x$NNST" ]; then
   echo "No stash to pop..."

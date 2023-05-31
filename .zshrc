@@ -26,6 +26,7 @@ autoload -U compinit && compinit -u -d "$ZSH/cache/zcompdump-$HOST"
 autoload -U url-quote-magic
 autoload allopt
 autoload -U zcalc
+autoload -Uz zmv
 # }}}
 
 # settings {{{
@@ -539,13 +540,26 @@ export INPUTRC=~/.inputrc
 export GOPATH=$HOME/.gocode
 export GO111MODULE=on
 
+export SOLARGRAPH_CACHE=$HOME/.cache/solargraph
+export MAVEN_HOME=$HOME/.cache/m2
+export RUSTUP_HOME=$HOME/.cache/rustup
+export CARGO_HOME=$HOME/.cache/cargo
+export FNM_DIR=$HOME/.cache/fnm
+export npm_config_devdir=$HOME/.cache/node-gyp
+export PEX_ROOT=$HOME/.cache/pex
+export BUNDLE_USER_HOME=$HOME/.cache/bundle
+export FRUM_DIR=$HOME/.cache/frum
+export XDG_CONFIG_HOME=$HOME/.config/
+export XDG_CACHE_HOME=$HOME/.cache/
+export XDG_DATA_HOME=$HOME/.local/share/
+
 export PATH=\
 /usr/local/opt/bison/bin:\
 $HOME/.config/isomorphic_copy/bin:\
 $HOME/bin:\
 $HOME/bin/$OS:\
 $HOME/.local/bin:\
-$HOME/.cargo/bin:\
+$HOME/.cache/cargo/bin:\
 $GOPATH/bin:\
 /usr/local/bin:\
 /usr/local/sbin:\
@@ -556,15 +570,16 @@ $PATH
 alias tmux='tmux -2'
 alias history='fc -l 1'
 alias k="kubectl"
-alias zigup="zigup --install-dir $HOME/.zig --path-link $HOME/bin/${OS}/zig"
+alias zigup="zigup --install-dir $HOME/.cache/zigup --path-link $HOME/bin/${OS}/zig"
 alias 4ed="~/Applications/Development\ Tools/4coder/4ed &"
+alias wezterm="~/Applications/Utilities/WezTerm.app/Contents/MacOS/wezterm"
 
 
-[[ "$OS" == "darwin" ]] && alias neovide="~/Applications/Development\ Tools/Neovide.app/Contents/MacOS/neovide"
+# [[ "$OS" == "darwin" ]] && alias neovide="~/Applications/Development\ Tools/Neovide.app/Contents/MacOS/neovide"
 
 
 if [[ "$OSTYPE" = darwin* ]]; then
-  export JAVA_HOME=/usr/local/opt/openjdk/
+  export JAVA_HOME=/usr/local/opt/openjdk@11/
   export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
   export HOMEBREW_NO_ENV_HINTS=1
   export PATH=$JAVA_HOME/bin:$PATH

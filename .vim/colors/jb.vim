@@ -6,21 +6,24 @@ endif
 let g:colors_name="jb"
 
 let s:none = ['none', 'none']
-let s:back = ['#062329']
+"let s:back = ['#062329']
+"jb - let s:back = ['#041818']
+let s:back = ['#072626']
 let s:gutters = ['#062329']
 let s:gutter_fg = ['#062329']
 let s:gutters_active = ['#062329']
 let s:builtin = ['#ffffff']
 let s:selection = ['#0e01d9'] "['#0000ff']
 let s:search = ['#f085a6']
+let s:builtin = ['#7bbd85']
 let s:text = ['#d1b897']
 let s:comments = ['#6bc267'] " ['#3fdf1f'] "['#6bc267'] "['#7fd470'] "['#44b340']
 let s:punctuation = ['#8cde94']
 let s:keywords = ['#ffffff']
-let s:variables = ['#d1b897'] "['#c1d1e3']
+let s:variables = ['#c8d4ec'] "['#d1b897'] "['#c8d4ec']"['#c1d1e3']
 let s:functions = ['#ffffff']
 let s:methods = ['#c1d1e3']
-let s:strings = ['#46b5a2'] "['#2ec09c']
+let s:strings = ['#0fdfaf'] "['#46b5a2'] "['#0fdfaf'] "['#2ec09c']
 let s:constants = ['#7ad0c6']
 let s:macros = ['#8cde94']
 let s:numbers = ['#7ad0c6']
@@ -75,8 +78,12 @@ endfunction
 
 " Vim editor colors
 "    s:Hi(GROUP, FOREGROUND, BACKGROUND, ATTRIBUTE, SPECIAL)
+"
+autocmd VimEnter,ColorScheme * :hi Cursor guifg=#062329 guibg=#9ceda3
 call s:Hi('Normal', s:text, s:back, 'none')
 call s:Hi('Cursor', s:back, ['#9ceda3'], 'none') "#90C090
+call s:Hi('VimrDefaultCursor', s:back, ['#9ceda3'], 'reverse') "#90C090
+call s:Hi('VimrInsertCursor', s:back, ['#9ceda3'], 'reverse') "#90C090
 call s:Hi('ErrorMsg', ['0xFFBB00'], s:back, 'none')
 call s:Hi('IncSearch', s:black, s:search, 'none')
 call s:Hi('Search', s:none, ['#769594'], 'bold')
@@ -96,6 +103,11 @@ call s:Hi('WarningMsg', s:warning, s:back, 'none')
 call s:Hi('WildMenu', s:none, s:selection, 'none')
 call s:Hi('Pmenu', s:text, ['#6c6c6c'], 'none')
 call s:Hi('PmenuSel', s:text, s:selection, 'none')
+
+
+highlight IndentBlanklineIndent0 guifg=#111111 gui=nocombine
+highlight IndentBlanklineIndent1 guibg=#1f1f1f gui=nocombine
+highlight IndentBlanklineIndent2 guibg=#1a1a1a gui=nocombine
 
 highlight link Searchlight Incsearch
 
@@ -179,8 +191,8 @@ call s:Hi('TSKeywordFunction', s:keywords, s:none, 'none')
 call s:Hi('TSKeywordOperator', s:keywords, s:none, 'none')
 call s:Hi('TSOperator', s:keywords, s:none, 'none')
 call s:Hi('TSException', s:keywords, s:none, 'none')
-call s:Hi('TSType', s:keywords, s:none, 'none')
-call s:Hi('TSTypeBuiltin', s:keywords, s:none, 'none')
+call s:Hi('TSType', s:text, s:none, 'none')
+call s:Hi('TSTypeBuiltin', s:builtin, s:none, 'none')
 call s:Hi('TSStructure', s:keywords, s:none, 'none')
 call s:Hi('TSInclude', s:keywords, s:none, 'none')
 " Variable

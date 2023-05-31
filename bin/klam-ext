@@ -20,7 +20,7 @@ set -e -o pipefail
 
 SELF=$(basename "$0")
 
-KLAM_EXT_VERSION="1.17.6"
+KLAM_EXT_VERSION="1.19.0"
 KLAM_BROWSER="${KLAM_BROWSER}"
 KLAM_URL="${KLAM_URL:-https://klam.corp.adobe.com}"
 KLAM_EXT_YML="$HOME/.klam-ext"
@@ -41,8 +41,8 @@ MIN_VERSION_JQ="1.5"
 usage() {
   echo "Usage: ${SELF} [profile] ACTION [options]"
 }
-ACTIONS=( version help cfg unset get getssh ssh profiles console ec2-hosts )
-OPTIONS=( -v --verbose -q --quiet --env --json --color --no-color --force --1h --ssh-add --no-ssh-add)
+ACTIONS=( version help cfg unset get profiles console ec2-hosts )
+OPTIONS=( -v --verbose -q --quiet --env --json --color --no-color --force --1h )
 
 help() {
 cat <<HELP
@@ -55,12 +55,8 @@ ${W}Actions:${R}
     ${Gr}${R}                    ${Gr}aws configure${R} command, outputs the
     ${Gr}${R}                    ${Gr}AWS_PROFILE${R}. PROFILE is optional, if you set the
     ${Gr}${R}                    environment variable ${Gr}KLAM_PROFILE${R}.
-    ${Gr}getssh${R}            Get SSH Private Key and store it in:
-    ${Gr}${R}                    ${Gr}~/.ssh/klam.\${PROFILE}.pem${R}
     ${Gr}ec2-hosts${R}         List EC2 Instance using ${Gr}aws ec2 describe-instances${R},
     ${Gr}${R}                    additional parameters are passed through.
-    ${Gr}ssh${R} [HOST|INS_ID] Connect to host or instance ID via ${Gr}ssh${R}, calls ${Gr}getssh${R} on
-    ${Gr}${R}                    demand.
     ${Gr}unset${R}             Release current credentials.
     ${Gr}console${R}           Open the AWS management console in your default browser.
     ${Gr}version${R}           Display klam-ext version info: klam-ext/${KLAM_EXT_VERSION}
@@ -83,23 +79,28 @@ ${W}Options:${R}
     ${Gr}-d|--dedicated${R}    When used with ${Gr}console${R} action, a new browser instance
     ${Gr}${R}                    will be launched with a dedicated profile.
     ${Gr}${R}                    (only works with Google Chrome)
-    ${Gr}--ssh-add${R}         Adds the fetched SSH private key to the SSH Agent.
 
-${W}BASH Integration:${R}
+${W}BASH/ZSH Integration:${R}
     To allow ${Gr}klam-ext${R} to change the ${Gr}AWS_PROFILE${R} environment variable
-    when the AWS Credentials have been retrieved, there needs to be a bash
-    function to wrap the invocation of the shell script.
+    when the AWS Credentials have been retrieved, there needs to be a shell function
+    to wrap the invocation of the shell script.
 
-    To activate the ${Gr}bash-integration${R} in your current shell, evaluate the following cmd:
+    To activate in your current shell, evaluate one of the following cmds:
         ${C}eval "\$(klam-ext bash-integration)"${R}
+        ${C}eval "\$(klam-ext zsh-integration)"${R}
 
     Add the following to your ${Gr}~/.bash_profile${R} to enable it for every new shell:
-        ${C}if which klam-ext >/dev/null 2>/dev/null; then${R}
+        ${C}if command -v klam-ext &> /dev/null; then${R}
         ${C}    eval "\$(env klam-ext bash-integration)";${R}
         ${C}fi${R}
 
+    Add the following to your ${Gr}~/.zshrc${R} to enable it for every new shell:
+        ${C}if command -v klam-ext &> /dev/null; then${R}
+        ${C}    eval "\$(env klam-ext zsh-integration)";${R}
+        ${C}fi${R}
+
 ${W}Example Configuration:${R}
-    
+
     Config file ~/.klam-ext
     ${C}---${R}
     ${C}CP-DEV:${R}
@@ -107,8 +108,7 @@ ${W}Example Configuration:${R}
     ${C}  env:      ${G}Dev${R}
     ${C}  policy:   ${G}administrator_and_support${R}
     ${C}  mfa:      ${Gr}false${R}
-    ${C}  duration: ${Y}28800 ${Gr}# 8h ${R}
-    ${C}  ssh-add:  ${Gr}true${R}
+    ${C}  duration: ${Y}28800 ${Gr}# 8h${R}
 
     ${C}CP-STAGE:${R}
     ${C}  project:  ${G}CommunityPlatform${R}
@@ -120,7 +120,7 @@ ${W}Example Configuration:${R}
 
 ${W}Documentation:${R}
     For further documentation and some tips'n'tricks see the latest ${Gr}README${R}.
-        ${C}open https://git.corp.adobe.com/KlamExt/klam-ext/#table-of-contents ${R}
+        ${C}open https://git.corp.adobe.com/KlamExt/klam-ext/#table-of-contents${R}
 
 
 HELP
@@ -137,16 +137,36 @@ ${W}Dependencies: [macOS]${R}
 
     AWS CLI >= ${MIN_VERSION_AWS_CLI}
         The official AWS Command Line Interface
-        ${C}sudo pip install --upgrade awscli --ignore-installed six ${R}
+        ${C}sudo pip install --upgrade awscli --ignore-installed six${R}
 
-    python with yaml module
-        ${C}sudo pip install pyyaml ${R}
+    python with yaml and packaging modules
+        ${C}sudo pip install pyyaml packaging${R}
         If pip is missing, install via ${C}sudo easy_install pip${R}
 
     jq >= ${MIN_VERSION_JQ}
         a lightweight and flexible command-line JSON processor
         Install via homebrew: ${C}brew install jq${R}
-        or ${C}open https://stedolan.github.io/jq/download/ ${R}
+        or ${C}open https://stedolan.github.io/jq/download/${R}
+
+HELP
+}
+wsl-help() {
+  cat <<-HELP
+${W}Dependencies: [wsl/ubuntu]${R}
+
+    AWS CLI >= ${MIN_VERSION_AWS_CLI}
+        The official AWS Command Line Interface
+        ${C}pip install --upgrade awscli --ignore-installed six${R}
+
+    python with yaml and packaging modules
+        ${C}pip install pyyaml packaging${R}
+        If pip is missing, install via ${C}sudo apt install python-pip${R}
+
+    jq >= ${MIN_VERSION_JQ}
+        a lightweight and flexible command-line JSON processor
+        Install via apt: ${C}sudo apt install jq${R}
+        or ${C}open https://stedolan.github.io/jq/download/${R}
+
 
 HELP
 }
@@ -156,25 +176,25 @@ ${W}Dependencies: [linux/ubuntu]${R}
 
     AWS CLI >= ${MIN_VERSION_AWS_CLI}
         The official AWS Command Line Interface
-        ${C}pip install --upgrade awscli --ignore-installed six ${R}
+        ${C}pip install --upgrade awscli --ignore-installed six${R}
 
-    python with yaml module
-        ${C}pip install pyyaml${R}
+    python with yaml and packaging modules
+        ${C}pip install pyyaml packaging${R}
         If pip is missing, install via ${C}sudo apt install python-pip${R}
 
     jq >= ${MIN_VERSION_JQ}
         a lightweight and flexible command-line JSON processor
-        Install via apt: ${C}sudo apt install jq ${R}
-        or ${C}open https://stedolan.github.io/jq/download/ ${R}
+        Install via apt: ${C}sudo apt install jq${R}
+        or ${C}open https://stedolan.github.io/jq/download/${R}
 
     xsel
         a command line clipboard tool
-        Install via apt: ${C}sudo apt install xsel ${R}
+        Install via apt: ${C}sudo apt install xsel${R}
 
     xdotool ${Gr}[optional]${R}
         command-line X11 automation tool, which allows klam-ext to switch
         back focus to terminal.
-        Install via apt: ${C}sodo apt install xdotool ${R}
+        Install via apt: ${C}sodo apt install xdotool${R}
 
 
 HELP
@@ -190,7 +210,6 @@ JSON_MODE=0
 FORCE_DEFAULT_DURATION=0
 FORCE_FRESH_CREDENTIALS=0
 DEDICATED=0
-SSH_ADD=""
 
 W=""; Y=""; G=""; C=""; Gr=""; R="";
 
@@ -252,12 +271,6 @@ main () {
       -d|-dedicated|--dedicated)
         DEDICATED=1; shift
         ;;
-      -ssh-add|--ssh-add)
-        SSH_ADD=1; shift
-        ;;
-      -no-ssh-add|--no-ssh-add)
-        SSH_ADD=0; shift
-        ;;
       -version|--version)
         ACTION="version"; shift
         ;;
@@ -268,7 +281,7 @@ main () {
               ACTION="help"
               shift
               ;;
-            version|cfg|profiles|unset|get|getssh|ssh|console|ec2-hosts|spinner|bash-integration)
+            version|cfg|profiles|unset|get|console|ec2-hosts|spinner|bash-integration|zsh-integration)
               ACTION="$1"
               shift
               ;;
@@ -283,7 +296,7 @@ main () {
           esac
         else
           case "$ACTION" in
-            get|getssh|console)
+            get|console)
               if [[ -z "$PROFILE" && "$1" != -*  ]]; then 
                 PROFILE="$1"
                 shift
@@ -291,7 +304,7 @@ main () {
                 unknown-opt "$1"
               fi
               ;;
-            ssh|ec2-hosts)
+            ec2-hosts)
               if [[ -z "$PROFILE" && -z "$KLAM_PROFILE" && "$1" != -* ]]; then 
                 PROFILE="$1"
                 shift
@@ -333,7 +346,7 @@ main () {
 
   if [[ -z "$PROFILE" ]]; then
     case "$ACTION" in
-      get|getssh|console|ec2-hosts)
+      get|console|ec2-hosts)
         if [[ ! -t 0 && ! -t 1 ]]; then # STDIN and STDOUT are not a terminal
           PROFILE="$(platform choose-profile-gui)"
         fi
@@ -351,8 +364,14 @@ main () {
 
 }
 
-# Supported Platforms: macos, linux
-PLATFORM="$([[ "$(uname -s)" == "Darwin" ]] && echo "macos" || echo "linux")"
+# Supported Platforms: macos, wsl, linux
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  PLATFORM="macos"
+elif type -P "powershell.exe" &> /dev/null; then
+  PLATFORM="wsl"
+else
+  PLATFORM="linux"
+fi
 platform() {
   local FN=$PLATFORM-$1; shift;
   if [[ "$(type -t $FN)" == "function" ]]; then
@@ -412,6 +431,25 @@ macos-choose-profile-gui() {
   osascript 2>/dev/null -e "choose from list {${OSA_PROFILES_STR}} with prompt \"Select a profile:\"" \
   | grep -v false || true
 }
+
+# wsl compatibility
+wsl-clipboard-clear() { powershell.exe -NoProfile -Command Set-Clipboard "" >/dev/null 2>/dev/null; }
+wsl-clipboard-paste() { powershell.exe -NoProfile -Command Get-Clipboard 2>/dev/null; }
+wsl-open-url-in-browser() {
+  local URL="$1"
+  if [[ -n $KLAM_BROWSER ]]; then
+    debug "Start KLAM_BROWSER=$KLAM_BROWSER DEDICATED=$DEDICATED"
+    DEDICATED=$DEDICATED "$KLAM_BROWSER" "$URL"
+  elif [[ DEDICATED -eq 1 ]]; then
+    fatal "The --dedicated option is only available when used with KLAM_BROWSER=/path/to/browser-launch-script..."
+  else
+    debug "Open klam website"
+    powershell.exe -Command Start-Process "'""$URL""'" >/dev/null
+  fi
+}
+wsl-install-hint-jq() { linux-install-hint-jq; }
+wsl-install-hint-pick() { linux-install-hint-pick; }
+wsl-install-hint-pip() { linux-install-hint-pip; }
 
 # linux (ubuntu) compatibility
 linux-clipboard-clear() { xsel --clipboard --clear; }
@@ -478,6 +516,14 @@ check-dependencies() {
     fi
   fi
   local NEED_PIP=0
+  local CAN_USE_VERSION_GTE=1
+  local MISSING_PYTHON_MODULE=()
+  local MISSING_PIP_PACKAGES=()
+  if ! can_use_version_gte; then
+    CAN_USE_VERSION_GTE=0
+    MISSING_PYTHON_MODULE=("packaging")
+    MISSING_PIP_PACKAGES=("packaging")
+  fi
   until [[ ${#@} -eq 0 ]]; do
     case "$1" in
       awscli)
@@ -485,7 +531,7 @@ check-dependencies() {
           error "missing aws command line tools. "
           errorhint "install awscli via: sudo pip install awscli"
           NEED_PIP=1
-        else
+        elif [[ $CAN_USE_VERSION_GTE -eq 1 ]]; then
           AWSCLI_VERSION="$( (unset AWS_DEFAULT_PROFILE AWS_PROFILE; aws --version 2>&1) | grep -Eo -m 1 '([0-9]+(\.[0-9]+)+)' | head -1)"
           if [[ -z "$AWSCLI_VERSION" ]] || ! version_gte "$AWSCLI_VERSION" "$MIN_VERSION_AWS_CLI"; then
             error "out-dated version of aws-cli ($AWSCLI_VERSION), at least version $MIN_VERSION_AWS_CLI is required"
@@ -497,7 +543,7 @@ check-dependencies() {
         if ! which jq >/dev/null 2>&1; then
           error "missing jq. "
           errorhint "$(platform install-hint-jq)"
-        else
+        elif [[ $CAN_USE_VERSION_GTE -eq 1 ]]; then
           JQ_VERSION_RAW="$(jq --version 2>&1)"
           if [[ "$JQ_VERSION_RAW" != jq-HEAD-* ]]; then
             JQ_VERSION="$(grep <<<"$JQ_VERSION_RAW" -Eo -m 1 '[0-9.]+' | head -1)"
@@ -510,9 +556,8 @@ check-dependencies() {
         ;;
       pyyaml)
         if ! "${KLAM_PYTHON}" -c 'import yaml' >/dev/null 2>&1; then
-          error "missing yaml python module for python:" $(which "${KLAM_PYTHON}")
-          errorhint "install yaml module via: sudo pip install pyyaml"
-          errorhint "or specify python with pyyaml using environment variable KLAM_PYTHON"
+          MISSING_PYTHON_MODULE=("${MISSING_PYTHON_MODULE[@]}" "yaml")
+          MISSING_PIP_PACKAGES=("${MISSING_PIP_PACKAGES[@]}" "pyyaml")
           NEED_PIP=1
         fi
         ;;
@@ -520,7 +565,16 @@ check-dependencies() {
     shift;
   done || true
 
-  if [[ "$ERRORS" -gt 0 ]]; then 
+  if [[ ${#MISSING_PIP_PACKAGES[@]} -gt 0 ]]; then
+    local modules=${MISSING_PYTHON_MODULE[@]}
+    error "missing python module(s): ${modules// /, } (for $(which "${KLAM_PYTHON}"))"
+    errorhint "install package(s) via: sudo pip install ${MISSING_PIP_PACKAGES[@]}"
+    if [[ $KLAM_PYTHON == 'python' ]]; then
+      errorhint "or specify a different python executable with KLAM_PYTHON environment variable"
+    fi
+  fi
+
+  if [[ "$ERRORS" -gt 0 ]]; then
     if [[ $NEED_PIP -eq 1 ]] && ! which pip >/dev/null 2>&1; then
       errorhint "$(platform install-hint-pip)"
     fi
@@ -544,9 +598,7 @@ klam-ext-version(){
 }
 
 klam-ext-bash-integration() {
-  check-dependencies awscli jq pyyaml
-
-  cat <<'SHELL_SCRIPT'
+  cat <<SHELL_SCRIPT
 # wrapper to export AWS_PROFILE and AWS_DEFAULT_PROFILE
 # when 'klam-ext get PROFILE' is called.
 klam-ext() {
@@ -564,7 +616,7 @@ __klam-ext() {
   cur=${COMP_WORDS[COMP_CWORD]}
   if [[ $COMP_CWORD -eq 1 ]]; then
       COMPREPLY=( $( compgen -W "$(klam-ext 2>/dev/null __actions) $(klam-ext 2>/dev/null profiles)" -- $cur ) )
-  elif [[ $COMP_CWORD -eq 2 && -z "$KLAM_PROFILE" && ( "${COMP_WORDS[1]}" = get* || "${COMP_WORDS[1]}" = console || "${COMP_WORDS[1]}" = ssh || "${COMP_WORDS[1]}" = ec2-hosts ) ]]; then
+  elif [[ $COMP_CWORD -eq 2 && -z "$KLAM_PROFILE" && ( "${COMP_WORDS[1]}" = get* || "${COMP_WORDS[1]}" = console || "${COMP_WORDS[1]}" = ec2-hosts ) ]]; then
       COMPREPLY=( $( compgen -W "$(klam-ext 2>/dev/null profiles)" -- $cur ) )
   elif [[ $COMP_CWORD -eq 2 && -n "$KLAM_PROFILE" && "${COMP_WORDS[1]}" = ec2-hosts ]]; then
       COMPREPLY=( $( compgen -W "--region" -- $cur ) )
@@ -579,6 +631,38 @@ complete -F __klam-ext klam-ext
 SHELL_SCRIPT
 }
 
+klam-ext-zsh-integration() {
+  cat <<'SHELL_SCRIPT'
+klam-ext() {
+  TMPFILE="$(mktemp -t klam-ext-sh.XXXXXXXXXX)"
+  KLAM_EXT_SHELL_INT="$TMPFILE" COLUMNS="$COLUMNS" env klam-ext "$@"
+  CODE="$?"
+  [ -s "$TMPFILE" ] && source "$TMPFILE"
+  [ -f "$TMPFILE" ] && \rm "$TMPFILE"
+  return $CODE
+}
+_klam-ext() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+  _arguments '1: :->command' '*: :->args'
+  case $state in
+    command)
+      compadd -- $(env klam-ext 2>/dev/null __actions) $(env klam-ext 2>/dev/null profiles)
+      ;;
+    *)
+      local lastword=${words[${#words[@]}-1]}
+      if [[ "$lastword" = "get" || "$lastword" = "console" ]]; then
+        compadd -- $(env klam-ext 2>/dev/null profiles)
+      else
+        compadd -- $(env klam-ext 2>/dev/null __options)
+      fi
+      ;;
+  esac
+}
+compdef _klam-ext klam-ext
+SHELL_SCRIPT
+}
+
 klam-ext-url() {
   klam-ext-cfg | jq -r \
       --arg P "$PROFILE" \
@@ -590,7 +674,6 @@ klam-ext-unset() {
   check-dependencies awscli
 
   local AWS_PROFILE="$KLAM_EXT_PROFILE_PREFIX$PROFILE"
-  local PEM_FILE="$HOME/.ssh/klam.$PROFILE.pem"
 
   if [[ -n "$KLAM_EXT_SHELL_INT" ]]; then
     (
@@ -602,9 +685,6 @@ klam-ext-unset() {
       echo 'unset AWS_SESSION_TOKEN'
       echo 'unset AWS_SECURITY_TOKEN'
     ) >> "$KLAM_EXT_SHELL_INT"
-  fi
-  if [[ -f "$PEM_FILE" ]]; then
-    rm -f "$PEM_FILE"
   fi
   if [[ -n "$AWS_PROFILE" ]]; then
     aws configure --profile "$AWS_PROFILE" set aws_access_key_id ""
@@ -632,7 +712,7 @@ klam-ext-get() {
   # echo "LAST_STILL_VALID: $LAST_STILL_VALID"
   local UPDATED=0
   if [[ "$LAST_STILL_VALID" == "false" || FORCE_FRESH_CREDENTIALS -eq 1 || FORCE_DEFAULT_DURATION -eq 1 || "$ENV_MODE" -eq 1 || "$JSON_MODE" -eq 1 || -n "$_KLAM_EXT_GET_RESULT" ]]; then
-    if [[ -z "$_KLAM_EXT_GET_RESULT" ]]; then # might already hav a response from klam-ext-getssh
+    if [[ -z "$_KLAM_EXT_GET_RESULT" ]]; then
       _klam-ext-get "get"
     fi
     local CREDENTIALS_JSON="$( echo "$_KLAM_EXT_GET_RESULT" | (jq '.B64_AWS_CREDS ' | base64_decode | jq .) 2>/dev/null)"
@@ -730,50 +810,6 @@ klam-ext-get() {
   fi
 }
 
-klam-ext-getssh() {
-  check-dependencies jq pyyaml
-  klam-ext-ssh-out
-  _klam-ext-get "getssh"
-  local PASTEBIN_URL_SSH="$(echo "$_KLAM_EXT_GET_RESULT" | jq '.PASTEBIN_URL_SSH // ""' -r)"
-  local PASTEBIN_URL_AWS="$(echo "$_KLAM_EXT_GET_RESULT" | jq '.PASTEBIN_URL_AWS // ""' -r)"
-  if [[ -z "$PASTEBIN_URL_SSH" ]]; then
-    HINT=""
-    if [[ $FORCE_DEFAULT_DURATION -eq 0 ]]; then
-      HINT="Want to retry with default (1 hour) duration? ...use -1h option."
-    fi
-    fatal "Missing PASTEBIN_URL_SSH in response. $HINT"
-  fi
-  PASTEBIN_RESULT="$(curl -s "${PASTEBIN_URL_SSH}")"
-  if echo "$PASTEBIN_RESULT" | grep 'PRIVATE KEY' >/dev/null 2>&1; then
-    local PEM_FILE="$HOME/.ssh/klam.$PROFILE.pem"
-    local PEM_DIR="$(dirname "$PEM_FILE")"
-
-    [[ -d "$PEM_DIR" ]] || mkdir -p "$PEM_DIR"
-    [[ ! -f "$PEM_FILE" ]] || rm -f "$PEM_FILE"
-    echo "$PASTEBIN_RESULT" > "$PEM_FILE"
-    chmod 0400 "$PEM_FILE"
-
-    info "Private Key retrieved."
-    echo "$PEM_FILE"
-    SSH_ADD="${SSH_ADD:-$(klam-ext-cfg | jq -r --arg P "$PROFILE" ".[\$P]//{}|if .[\"ssh-add\"] then 1 else 0 end")}"
-    if [ "$SSH_ADD" -eq 1 ]; then
-      if ssh-add "$PEM_FILE"; then
-        info "Added $PEM_FILE to ssh-agent with ssh-add"
-    else
-        warn "Failed to add $PEM_FILE to ssh-agent with ssh-add"
-      fi
-    fi
-    if [[ ! -z "$PASTEBIN_URL_AWS" ]]; then
-      klam-ext-get
-    fi
-  else
-    error "Failed to get private key. See response below:"
-    echo >&2 "$PASTEBIN_RESULT"
-    return 1
-  fi
-}
-
-
 _klam-ext-get() {
   _KLAM_EXT_GET_RESULT=""
 
@@ -806,7 +842,6 @@ _klam-ext-get() {
       project_env:      .env,
       my_policy:        .policy,
       projectDuration:  (if \$H==\"1\" then \"default\" else (.duration//\"default\"|tostring) end),
-      projectSshPolicy: (.ssh//1|tostring),
       projectMfa:       \"${TOKEN}\",
     } | to_entries | map([.key,\"=\",(.value|@uri)]|add) | join(\"&\")
   ")"
@@ -905,99 +940,6 @@ _klam-ext-load-credentials-when-available() {
   fi
 }
 
-_ADOBE_SSH_OUT_URL=""
-_ADOBE_SSH_OUT_DELAY=""
-_ADOBE_SSH_OUT_PATTERN=""
-klam-ext-ssh-out-init() {
-  if [[ -z "${KLAM_EXT_NO_SSH_OUT}" ]]; then
-    _ADOBE_SSH_OUT_URL="${ADOBE_SSH_OUT_URL:-http://global-ssh-out.adobe.com/}"
-    _ADOBE_SSH_OUT_DELAY="${ADOBE_SSH_OUT_DELAY:-1s}"
-    _ADOBE_SSH_OUT_PATTERN="${ADOBE_SSH_OUT_PATTERN:-WebAuth Successful}"
-  fi
-}
-klam-ext-ssh-out-ok() {
-    curl -sLm2 "${_ADOBE_SSH_OUT_URL}" -H 'Connection: close' 2>/dev/null | grep -q "${_ADOBE_SSH_OUT_PATTERN}";
-}
-klam-ext-ssh-out() {
-  klam-ext-ssh-out-init
-  if [[ -n "${_ADOBE_SSH_OUT_URL}" &&  -n "${_ADOBE_SSH_OUT_PATTERN}" ]]; then
-    debug "Checking SSH-OUT... URL: ${_ADOBE_SSH_OUT_URL}   PATTERN: ${_ADOBE_SSH_OUT_PATTERN}"
-    if ! klam-ext-ssh-out-ok; then
-      debug "Need to SSH-OUT."
-      
-      if [[ -n "$_ADOBE_SSH_OUT_DELAY" ]]; then
-        debug "Need to delay by $_ADOBE_SSH_OUT_DELAY..."
-        sleep "$_ADOBE_SSH_OUT_DELAY"
-      fi
-
-      debug "Open URL:" "${_ADOBE_SSH_OUT_URL}"
-      platform open-url-in-browser "${_ADOBE_SSH_OUT_URL}"
-
-      spinner-start "Wait for ssh-out..."
-      while ! klam-ext-ssh-out-ok; do
-        spinner-progress
-        sleep .3
-      done
-      spinner-end
-
-      platform reactivate-terminal || true
-      sleep .3
-    fi
-  else
-    debug "Skip SSH-OUT check... missing ADOBE_SSH_OUT_URL and ADOBE_SSH_OUT_PATTERN envs."
-  fi
-}
-
-
-klam-ext-ssh() {
-  local PEM_FILE="$HOME/.ssh/klam.$PROFILE.pem"
-  local SSH_HOST="$1"
-  MAX_DURATION_MINUTES=$(klam-ext-cfg | jq --arg P "$PROFILE" "(.[\$P]//empty|.duration)//3600|. * 0.8 / 60")
-  if [[ ! -f "$PEM_FILE" || FORCE_FRESH_CREDENTIALS -eq 1 || -z "$(find "$PEM_FILE" -mmin -${MAX_DURATION_MINUTES} -print)" ]]; then
-    klam-ext-getssh >&2
-  fi
-  if [[ -z "$SSH_HOST" || "$SSH_HOST" = -* ]]; then
-    if type pick >/dev/null 2>/dev/null; then
-      _klam-ext-load-credentials-when-available
-      local EC2_HOSTS="$(klam-ext-ec2-hosts)"
-      if [[ -n "$EC2_HOSTS" ]]; then
-        info "Pick an EC2 Instance: (CTRL-c to abort)"
-        local PICK=($(echo "$EC2_HOSTS" | pick -X | tee /dev/stderr))
-        if [[ "${PICK[1]}" == *internal ]]; then
-          SSH_HOST="${PICK[0]}"
-        else
-          SSH_HOST="${PICK[1]}"
-        fi
-      fi
-    else
-      error "Missing pick executable. (allows to interactively select the host you like to connect to)"
-      errorhint "$(platform install-hint-pick)"
-    fi
-    if [[ -z "$SSH_HOST" || "$SSH_HOST" = -* ]]; then
-      fatal "missing HOST or INSTANCE_ID parameter"
-    fi
-  fi
-  if [[ "$SSH_HOST" == "$1" ]]; then
-    shift;
-  fi
-  if [[ "$SSH_HOST" = i-* ]]; then
-    _klam-ext-load-credentials-when-available
-    if [[ "$AWS_PROFILE" != "$KLAM_EXT_PROFILE_PREFIX$PROFILE" ]]; then
-      echo >&2 "klam-ext-ssh: AWS_PROFILE = $AWS_PROFILE"
-      echo >&2 "klam-ext-ssh: PROFILE = $PROFILE"
-      fatal "missing AWS credentials. Needed to resolve hostname for Instance ID."
-    fi
-    SSH_HOST="$( klam-ext-ec2-hosts --instance-id "$SSH_HOST" ) | tee /dev/stderr | awk '{print $2}')"
-    if [[ -z "$SSH_HOST" ]]; then
-      fatal "Failed to resolve hostname for Instance ID. Is it running?"
-    fi
-  fi
-  if [[ ! -f "$PEM_FILE" ]]; then
-    fatal "Still missing $PEM_FILE"
-  fi
-  ssh -o IdentitiesOnly=yes -i "$PEM_FILE" -l "$(whoami)" "$SSH_HOST" "$@"
-}
-
 klam-ext-ec2-hosts() {
   _klam-ext-load-credentials-when-available
   AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-$(aws configure get region 2>/dev/null || true )}"
@@ -1079,25 +1021,25 @@ klam-ext-spinner() {
 aws_bin="$(which aws 2>/dev/null || echo aws)"
 aws() {
   debug "CALL: ${Gr}aws $(printf "%q " "$@")"
-  "$aws_bin" "$@"   
-}
-
-ssh_bin="$(which ssh 2>/dev/null || echo ssh)"
-ssh() {
-  debug "CALL: ${Gr}ssh $(printf "%q " "$@")"
-  "$ssh_bin" "$@"   
+  "$aws_bin" "$@"
 }
 
 open_bin="$(which open 2>/dev/null || echo open)"
 open() {
   debug "CALL: ${Gr}open $(printf "%q " "$@")"
-  "$open_bin" "$@"   
+  "$open_bin" "$@"
 }
 
 osascript_bin="$(which osascript 2>/dev/null || echo osascript)"
 osascript() {
   debug "CALL: ${Gr}osascript $(printf "%q " "$@")"
-  "$osascript_bin" "$@"   
+  "$osascript_bin" "$@"
+}
+
+powershellexe_bin="$(which powershell.exe 2>/dev/null || echo powershell.exe)"
+powershell.exe() {
+  debug "CALL: ${Gr}powershell.exe $(printf "%q " "$@")"
+  "$powershellexe_bin" "$@"
 }
 
 # /**************************************************************/
@@ -1178,9 +1120,13 @@ yml2json() {
   "${KLAM_PYTHON}" -c 'import sys,json,yaml;json.dump(yaml.safe_load(sys.stdin),sys.stdout,ensure_ascii=False,indent=2)'
 }
 
+can_use_version_gte() {
+  "${KLAM_PYTHON}" -c $'try:\n  from packaging.version import Version;\nexcept:\n  from distutils.version import StrictVersion;' 2>/dev/null
+}
+
 version_gte() {
   # returns exit code 0 if first arg is greater than or equal to the second, otherwise exit code 1.
-  "${KLAM_PYTHON}" -c 'import sys;from distutils.version import StrictVersion;sys.exit(int( False == (StrictVersion(sys.argv[1]) >= StrictVersion(sys.argv[2]))));' "$1" "$2"
+  "${KLAM_PYTHON}" -c $'import sys;\ntry:\n  from packaging.version import Version;\n  sys.exit(int(False == (Version(sys.argv[1]) >= Version(sys.argv[2]))));\nexcept:\n  from distutils.version import StrictVersion;\n  sys.exit(int(False == (StrictVersion(sys.argv[1]) >= StrictVersion(sys.argv[2]))));' "$1" "$2" 2>/dev/null
 }
 
 base64_decode() {
