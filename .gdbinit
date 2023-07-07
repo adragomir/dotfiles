@@ -102,6 +102,7 @@ set $USECOLOR = 1
 set $KDP64BITS = -1
 set $64BITS = 0
 
+set startup-with-shell off
 set confirm off
 set verbose off
 set history filename ~/.gdb_history

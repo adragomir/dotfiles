@@ -1,0 +1,31 @@
+CompileFlags:
+  Add: 
+    # - "--std=gnu++20"
+    - "-Wall"
+    - "-Wextra"
+    - "-Wpedantic"
+    - "-Wno-gnu"
+    - "-Wno-format-nonliteral"
+    - "-Wno-unused-parameter"
+    - "-Wnoc99-extensions"
+    - "-Wnoc99-designator"
+    - "-fno-omit-frame-pointer"
+    - "-I/usr/local/include"
+    - "-I/usr/local/include/freetype2"
+    - "-I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"
+    - "-I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include"
+    - "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
+    - "-I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"
+    - "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+  Compiler: clang
+Diagnostics:
+  UnusedIncludes: None
+Completion:
+  AllScopes: yes
+InlayHints:
+  Designators: Yes
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+Hover:
+  ShowAKA: Yes

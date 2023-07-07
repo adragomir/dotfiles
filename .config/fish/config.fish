@@ -240,95 +240,100 @@ function bind_dollar
     end
 end
 
-# function fish_user_key_bindings
-#     bind ! bind_bang
-#     bind '$' bind_dollar
-# end
-
-# function fish_prompt --description 'Informative prompt'
-#     #Save the return status of the previous command
-#     set -l last_pipestatus $pipestatus
-#     set -lx __fish_last_status $status # set -x for __fish_print_pipestatus.
-# 
-#     set -l status_color (set_color $fish_color_status)
-#     set -l statusb_color (set_color --bold $fish_color_status)
-#     set -l pipestatus_string (__fish_print_pipestatus "[" "]" "|" "$status_color" "$statusb_color" $last_pipestatus)
-#     set -g fish_prompt_pwd_dir_length 10
-#     #if test $status -eq 0
-#       set -l arrow_color (set_color magenta)
-#     #else
-#     #  set -l arrow_color (set_color red)
-#     #end
-# 
-#     printf '%s%s%s %s%s%s \n%s❯%s ' \
-#       (set_color blue) (set_color $fish_color_cwd) (prompt_pwd) \
-#       $pipestatus_string (fish_git_prompt) (set_color normal) \
-#       $arrow_color (set_color normal)
-# end
-
 if status is-interactive
     # Commands to run in interactive sessions can go here
 end
 
-set -x LANG "en_US.UTF-8"
-set -x LANGUAGE "en_US.UTF-8"
-set -x LC_ALL "en_US.UTF-8"
-set -x LC_CTYPE "en_US.UTF-8"
-set -x LC_NUMERIC "en_US.utf8"
-set -x LC_TIME "en_US.utf8"
-set -x LC_COLLATE "en_US.utf8"
-set -x LC_MONETARY "en_US.utf8"
-set -x LC_MESSAGES "en_US.utf8"
-set -x LC_PAPER "en_US.utf8"
-set -x LC_NAME "en_US.utf8"
-set -x LC_ADDRESS "en_US.utf8"
-set -x LC_TELEPHONE "en_US.utf8"
-set -x LC_MEASUREMENT "en_US.utf8"
-set -x LC_IDENTIFICATION "en_US.utf8"
-set -x LC_ALL "en_US.UTF-8"
-set -x VERSIONER_PERL_PREFER_32_BIT yes
-set -x PERL_BADLANG 0
-set -x CLICOLOR 1
-set -x SSH_AUTH_SOCK $HOME/.ssh/.ssh-agent.sock
-set -x LESS "-rX"
-set -x PAGER less
-set -x GREP_COLOR '1;32'
-set -x GREP_COLORS "38;5;230:sl 38;5;240:cs 38;5;100:mt 38;5;161:fn 38;5;197:ln 38;5;212:bn 38;5;44:se 38;5;166"
-set -x EDITOR /usr/local/bin/nvim
-set -x GIT_EDITOR /usr/local/bin/nvim
-set -x VISUAL '/usr/local/bin/nvim'
-set -x INPUTRC ~/.inputrc
-set -x PERL_LOCAL_LIB_ROOT $HOME/.perl5
-set -x PERL_MB_OPT "--install_base $HOME/.perl5";
-set -x PERL_MM_OPT "INSTALL_BASE $HOME/.perl5";
-set -x PERL5LIB "$HOME/.perl5/lib/perl5/x86_64-linux-gnu-thread-multi:$HOME/.perl5/lib/perl5";
-set -x GOPATH $HOME/.gocode
-set -x GO111MODULE on
-set -x OS darwin
-
-set -x PATH \
+set -gx EDITOR /usr/local/bin/nvim
+set -gx GIT_EDITOR /usr/local/bin/nvim
+set -gx VISUAL '/usr/local/bin/nvim'
+set -gx LANG "en_US.UTF-8"
+set -gx LANGUAGE "en_US.UTF-8"
+set -gx LC_ALL "en_US.UTF-8"
+set -gx CLICOLOR 1
+set -gx SSH_AUTH_SOCK $HOME/.ssh/.ssh-agent.sock
+set -gx LESS "-rX"
+set -gx PAGER less
+set -gx INPUTRC $HOME/.inputrc
+set -gx GOPATH $HOME/.gocode
+set -gx GO111MODULE on
+set -gx OS darwin
+set -gx SOLARGRAPH_CACHE $HOME/.cache/solargraph
+set -gx MAVEN_HOME $HOME/.cache/m2
+set -gx RUSTUP_HOME $HOME/.cache/rustup
+set -gx CARGO_HOME $HOME/.cache/cargo
+set -gx FNM_DIR $HOME/.cache/fnm
+set -gx npm_config_devdir $HOME/.cache/node-gyp
+set -gx BUNDLE_USER_HOME $HOME/.cache/bundle
+set -gx FRUM_DIR $HOME/.cache/frum
+set -gx XDG_CONFIG_HOME $HOME/.config/
+set -gx XDG_CACHE_HOME $HOME/.cache/
+set -gx XDG_DATA_HOME $HOME/.local/share/
+set -gx JAVA_HOME /usr/local/opt/openjdk@11/
+#set -gx JAVA_HOME "/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home"
+set -gx CONDA_PREFIX $HOME/.conda
+set -gx HOMEBREW_PREFIX "/usr/local";
+set -gx HOMEBREW_CELLAR "/usr/local/Cellar";
+set -gx HOMEBREW_REPOSITORY "/usr/local/Homebrew";
+set -gx HOMEBREW_CASK_OPTS "--appdir $HOME/Applications"
+set -gx HOMEBREW_NO_ENV_HINTS 1
+set -gx PATH \
+$HOME/.krew/bin:\
+/usr/local/opt/bison/bin:\
 $HOME/bin:\
 $HOME/bin/$OS:\
 $HOME/.local/bin:\
-$HOME/.cargo/bin:\
+$HOME/.cache/cargo/bin:\
 $GOPATH/bin:\
 /usr/local/bin:\
 /usr/local/sbin:\
 $HOME/.platformio/penv/bin:\
+/opt/X11/bin:\
+/usr/local/share/dotnet:\
+/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:\
 $PATH
 
 alias tmux='tmux -2'
 alias history='fc -l 1'
 alias k="kubectl"
+if test "$TERM" = "xterm-kitty" 
+  alias icat="kitty +kitten icat"
+  alias hg="kitty +kitten hyperlinked_grep"
+end
 
-set -x JAVA_HOME "/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home"
-set -x JAR "$HOME/.local/share/nvim/lspconfig/jdtls/plugins/org.eclipse.equinox.launcher_1.6.0.v20200915-1508.jar"
-set -x GRADLE_HOME "/usr/local/opt/gradle"
-set -x JDTLS_CONFIG "$HOME/.local/share/nvim/lspconfig/jdtls/config_mac"
-set -x WORKSPACE "$HOME/.cache/jdtls/workspace"
-set -x HOMEBREW_CASK_OPTS "--appdir $HOME/Applications"
+set -gx JAR "$HOME/.local/share/nvim/lspconfig/jdtls/plugins/org.eclipse.equinox.launcher_1.6.0.v20200915-1508.jar"
+set -gx GRADLE_HOME "/usr/local/opt/gradle"
+set -gx JDTLS_CONFIG "$HOME/.local/share/nvim/lspconfig/jdtls/config_mac"
+set -gx WORKSPACE "$HOME/.cache/jdtls/workspace"
 
-test (command -v brew) && eval (brew shellenv)
+function __ssh_agent_is_started -d "check if ssh agent is already started"
+	if begin; test -f $SSH_ENV; and test -z "$SSH_AGENT_PID"; end
+		source $SSH_ENV > /dev/null
+	end
+
+	if begin; test -z "$SSH_AGENT_PID"; and test -z "$SSH_CONNECTION"; end
+		return 1
+	end
+
+	/usr/local/bin/ssh-add -l > /dev/null 2>&1
+	if test $status -eq 2
+		return 1
+	end
+end
+
+function __ssh_agent_start -d "start a new ssh agent"
+  /usr/local/bin/ssh-agent -c | sed 's/^echo/#echo/' > $SSH_ENV
+  chmod 600 $SSH_ENV
+  source $SSH_ENV > /dev/null
+end
+
+if test -z "$SSH_ENV"
+    set -xg SSH_ENV $HOME/.ssh/environment
+end
+if not __ssh_agent_is_started
+    __ssh_agent_start
+end
+
+
 test (command -v frum) && frum init | source
 test (command -v fnm) && fnm env | source
-test (command -v kubectl-krew) && set -x PATH (default "$KREW_ROOT" "$HOME/.krew")"/bin":$PATH

@@ -1,3 +1,7 @@
+export LANG="en_US.UTF-8"
+export LANGUAGE="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
 # fpath {{{
 export ZSH=$HOME/.zsh
 fpath=($ZSH $fpath)
@@ -131,7 +135,7 @@ cdpath=(.)
 # zstyle ':completion:*:hosts' hosts $hosts
 # Use caching so that commands like apt and dpkg complete are useable
 zstyle ':completion::complete:*' use-cache 1
-zstyle ':completion::complete:*' cache-path ~/.zsh/cache/
+zstyle ':completion::complete:*' cache-path ${HOME}/.zsh/cache/
 # Don't complete uninteresting users
 zstyle ':completion:*:*:*:users' ignored-patterns \
         adm amanda apache avahi beaglidx bin cacti canna clamav daemon \
@@ -175,7 +179,7 @@ bindkey "^[[Z" complete-files
 
 autoload -U edit-command-line
 zle -N edit-command-line
-bindkey '\C-x\C-e' edit-command-line
+bindkey '^X^E' edit-command-line
 
 _completeme() {
   zle -I
@@ -205,7 +209,6 @@ bindkey -r "^T"
 bindkey "^T" "insert-selecta-path-in-command-line"
 
 autoload -Uz narrow-to-region
-
 # http://qiita.com/uchiko/items/f6b1528d7362c9310da0
 function _selecta-select-history() {
     local selected_entry
@@ -283,14 +286,6 @@ zle -N self-insert url-quote-magic
 # }}}
 
 # functions {{{
-function allopen() {
-  if [[ "$OSTYPE" = darwin* ]]; then
-    open $1
-  else
-    gnome-open > /dev/null 2>&1 $*
-  fi
-}
-
 function autoenv_chpwd_hook() {
   local env_file="$PWD/.env"
   local unenv_file="${dirstack[1]}/.unenv"
@@ -309,147 +304,93 @@ add-zsh-hook chpwd autoenv_chpwd_hook
 prompt_pure_preprompt_render() {
 	setopt localoptions noshwordsplit
 	local git_color=242
-
-	# Initialize the preprompt array.
 	local -a preprompt_parts
-
-	# Set the path.
 	preprompt_parts+=('%F{blue}%~%f')
-
-	# Add git branch and dirty status info.
 	typeset -gA prompt_pure_vcs_info
 	if [[ -n $prompt_pure_vcs_info[branch] ]]; then
 		preprompt_parts+=("%F{$git_color}"'${prompt_pure_vcs_info[branch]}%f')
 	fi
-
-	# Username and machine, if applicable.
 	[[ -n $prompt_pure_username ]] && preprompt_parts+=('$prompt_pure_username')
-
 	local cleaned_ps1=$PROMPT
 	local -H MATCH
 	if [[ $PROMPT = *$prompt_newline* ]]; then
-		# When the prompt contains newlines, we keep everything before the first
-		# and after the last newline, leaving us with everything except the
-		# preprompt. This is needed because some software prefixes the prompt
-		# (e.g. virtualenv).
 		cleaned_ps1=${PROMPT%%${prompt_newline}*}${PROMPT##*${prompt_newline}}
 	fi
-
-	# Construct the new prompt with a clean preprompt.
 	local -ah ps1
 	ps1=(
-		$prompt_newline           # Initial newline, for spaciousness.
-		${(j. .)preprompt_parts}  # Join parts, space separated.
-		$prompt_newline           # Separate preprompt and prompt.
+		$prompt_newline
+		${(j. .)preprompt_parts}
+		$prompt_newline
 		$cleaned_ps1
 	)
-
 	PROMPT="${(j..)ps1}" #"
-
-  # Expand the prompt for future comparision.
 	local expanded_prompt
 	expanded_prompt="${(S%%)PROMPT}" #"
-
 	if [[ $1 != precmd ]] && [[ $prompt_pure_last_prompt != $expanded_prompt ]]; then
-		# Redraw the prompt.
 		zle && zle .reset-prompt
 	fi
-
 	typeset -g prompt_pure_last_prompt=$expanded_prompt
 }
 
 prompt_pure_precmd() {
-	# preform async git dirty check and fetch
 	prompt_pure_async_tasks
-
-	# store name of virtualenv in psvar if activated
 	psvar[12]=
 	[[ -n $VIRTUAL_ENV ]] && psvar[12]="${VIRTUAL_ENV:t}"
-
-	# print the preprompt
 	prompt_pure_preprompt_render "precmd"
 }
 
 prompt_pure_async_vcs_info() {
 	setopt localoptions noshwordsplit
 	builtin cd -q $1 2>/dev/null
-
-	# configure vcs_info inside async task, this frees up vcs_info
-	# to be used or configured as the user pleases.
 	zstyle ':vcs_info:*' enable git
 	zstyle ':vcs_info:*' use-simple true
 	zstyle ':vcs_info:git*:*' get-revision true
-
-	# only export two msg variables from vcs_info
 	zstyle ':vcs_info:*' max-exports 2
-	# export branch (%b) and git toplevel (%R)
 	zstyle ':vcs_info:git*' formats '%b %6.6i' '%R'
 	zstyle ':vcs_info:git*' actionformats '%b %6.6i|%a' '%R'
-
 	vcs_info
-
 	local -A info
 	info[top]=$vcs_info_msg_1_
 	info[branch]=$vcs_info_msg_0_
-
 	print -r - ${(@kvq)info}
 }
 
 prompt_pure_async_tasks() {
 	setopt localoptions noshwordsplit
-
-	# initialize async worker
 	((!${prompt_pure_async_init:-0})) && {
 		async_start_worker "prompt_pure" -u -n
 		async_register_callback "prompt_pure" prompt_pure_async_callback
 		typeset -g prompt_pure_async_init=1
 	}
-
 	typeset -gA prompt_pure_vcs_info
-
 	local -H MATCH
 	if ! [[ $PWD = ${prompt_pure_vcs_info[pwd]}* ]]; then
-		# stop any running async jobs
 		async_flush_jobs "prompt_pure"
-
-		# reset git preprompt variables, switching working tree
 		prompt_pure_vcs_info[branch]=
 		prompt_pure_vcs_info[top]=
 	fi
 	unset MATCH
-
 	async_job "prompt_pure" prompt_pure_async_vcs_info $PWD
-
-	# # only perform tasks inside git working tree
 	[[ -n $prompt_pure_vcs_info[top] ]] || return
 }
 
 prompt_pure_async_callback() {
 	setopt localoptions noshwordsplit
 	local job=$1 code=$2 output=$3 exec_time=$4
-
 	case $job in
 		prompt_pure_async_vcs_info)
 			local -A info
 			typeset -gA prompt_pure_vcs_info
-
-			# parse output (z) and unquote as array (Q@)
 			info=("${(Q@)${(z)output}}") #"
 			local -H MATCH
-			# check if git toplevel has changed
 			if [[ $info[top] = $prompt_pure_vcs_info[top] ]]; then
-				# if stored pwd is part of $PWD, $PWD is shorter and likelier
-				# to be toplevel, so we update pwd
 				if [[ $prompt_pure_vcs_info[pwd] = ${PWD}* ]]; then
 					prompt_pure_vcs_info[pwd]=$PWD
 				fi
 			else
-				# store $PWD to detect if we (maybe) left the git path
 				prompt_pure_vcs_info[pwd]=$PWD
 			fi
 			unset MATCH
-
-			# always update branch and toplevel
 			prompt_pure_vcs_info[branch]=$info[branch]
 			prompt_pure_vcs_info[top]=$info[top]
 			prompt_pure_preprompt_render
@@ -458,47 +399,42 @@ prompt_pure_async_callback() {
 }
 
 prompt_pure_setup() {
-  # prevent percentage showing up
-  # if output doesn't end with a newline
   export PROMPT_EOL_MARK=''
-
-	# disallow python virtualenvs from updating the prompt
   export VIRTUAL_ENV_DISABLE_PROMPT=1
-
   prompt_opts=(subst percent)
-
-	# borrowed from promptinit, sets the prompt options in case pure was not
-	# initialized via promptinit.
 	setopt noprompt{bang,cr,percent,subst} "prompt${^prompt_opts[@]}" #"
-
 	if [[ -z $prompt_newline ]]; then
-		# This variable needs to be set, usually set by promptinit.
 		typeset -g prompt_newline=$'\n%{\r%}'
   fi
-
 	zmodload zsh/datetime
 	zmodload zsh/zle
 	zmodload zsh/parameter
-
 	autoload -Uz add-zsh-hook
 	autoload -Uz vcs_info
   autoload -Uz async && async
-
   add-zsh-hook precmd prompt_pure_precmd
-
-	# if a virtualenv is activated, display it in grey
   PROMPT='%(12V.%F{242}%12v%f .)'
-
-  # prompt turns red if the previous command didn't exit with 0
   PROMPT='%(?.%F{magenta}.%F{red})❯%f '
 }
-
 prompt_pure_setup "$@"
 
 source $ZSH/golang.plugin.zsh
 source $ZSH/url-tools.plugin.zsh
 source $ZSH/autoenv.plugin.zsh
-[[ -x "$(command -v kubectl)" ]] && source <($HOME/bin/kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+[[ -x "$(command -v kubectl)" ]] && source <($HOME/bin/kubectl completion zsh)
+[[ -x "$(command -v jira)" ]] && eval "$(jira --completion-script-zsh)"
+
+function iplot {
+    cat <<EOF | gnuplot
+    set terminal pngcairo enhanced font 'Fira Sans,10'
+    set autoscale
+    set samples 1000
+    set output '|kitty +kitten icat --stdin yes'
+    set object 1 rectangle from screen 0,0 to screen 1,1 fillcolor rgb"#fdf6e3" behind
+    plot $@
+    set output '/dev/null'
+EOF
+}
 # }}}
 
 # program settings & paths {{{
@@ -512,50 +448,38 @@ case $OSTYPE in
   msys*)
     export OS=windows
 esac
-
-export LANG="en_US.UTF-8"
-export LANGUAGE="en_US.UTF-8"
-export LC_ALL="en_US.UTF-8"
-export LC_CTYPE="en_US.UTF-8"
-export LC_NUMERIC="en_US.utf8"
-export LC_TIME="en_US.utf8"
-export LC_COLLATE="en_US.utf8"
-export LC_MONETARY="en_US.utf8"
-export LC_MESSAGES="en_US.utf8"
-export LC_PAPER="en_US.utf8"
-export LC_NAME="en_US.utf8"
-export LC_ADDRESS="en_US.utf8"
-export LC_TELEPHONE="en_US.utf8"
-export LC_MEASUREMENT="en_US.utf8"
-export LC_IDENTIFICATION="en_US.utf8"
-export LC_ALL="en_US.UTF-8"
+export EDITOR=nvim
+export GIT_EDITOR=nvim
+export VISUAL=nvim
 export CLICOLOR=1
 export SSH_AUTH_SOCK=$HOME/.ssh/.ssh-agent.sock
 export LESS="-rX"
 export PAGER=less
-export GREP_OPTIONS='--color=auto'
-export GREP_COLOR='1;32'
-export GREP_COLORS="38;5;230:sl=38;5;240:cs=38;5;100:mt=38;5;161:fn=38;5;197:ln=38;5;212:bn=38;5;44:se=38;5;166"
-export INPUTRC=~/.inputrc
+export INPUTRC=${HOME}/.inputrc
 export GOPATH=$HOME/.gocode
 export GO111MODULE=on
-
 export SOLARGRAPH_CACHE=$HOME/.cache/solargraph
 export MAVEN_HOME=$HOME/.cache/m2
 export RUSTUP_HOME=$HOME/.cache/rustup
 export CARGO_HOME=$HOME/.cache/cargo
 export FNM_DIR=$HOME/.cache/fnm
 export npm_config_devdir=$HOME/.cache/node-gyp
-export PEX_ROOT=$HOME/.cache/pex
 export BUNDLE_USER_HOME=$HOME/.cache/bundle
 export FRUM_DIR=$HOME/.cache/frum
 export XDG_CONFIG_HOME=$HOME/.config/
 export XDG_CACHE_HOME=$HOME/.cache/
 export XDG_DATA_HOME=$HOME/.local/share/
+export JAVA_HOME=/usr/local/opt/openjdk@11/
+export CONDA_PREFIX=$HOME/.conda
+export HOMEBREW_PREFIX="/usr/local";
+export HOMEBREW_CELLAR="/usr/local/Cellar";
+export HOMEBREW_REPOSITORY="/usr/local/Homebrew";
+export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
+export HOMEBREW_NO_ENV_HINTS=1
 
 export PATH=\
+$HOME/.krew/bin:\
 /usr/local/opt/bison/bin:\
-$HOME/.config/isomorphic_copy/bin:\
 $HOME/bin:\
 $HOME/bin/$OS:\
 $HOME/.local/bin:\
@@ -564,32 +488,28 @@ $GOPATH/bin:\
 /usr/local/bin:\
 /usr/local/sbin:\
 $HOME/.platformio/penv/bin:\
+/opt/X11/bin:\
+/usr/local/share/dotnet:\
+/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:\
 $PATH
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"
+
 alias tmux='tmux -2'
 alias history='fc -l 1'
 alias k="kubectl"
 alias zigup="zigup --install-dir $HOME/.cache/zigup --path-link $HOME/bin/${OS}/zig"
-alias 4ed="~/Applications/Development\ Tools/4coder/4ed &"
-alias wezterm="~/Applications/Utilities/WezTerm.app/Contents/MacOS/wezterm"
+alias 4ed="${HOME}/Applications/Development\ Tools/4coder/4ed &"
 
-
-# [[ "$OS" == "darwin" ]] && alias neovide="~/Applications/Development\ Tools/Neovide.app/Contents/MacOS/neovide"
-
-
-if [[ "$OSTYPE" = darwin* ]]; then
-  export JAVA_HOME=/usr/local/opt/openjdk@11/
-  export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
-  export HOMEBREW_NO_ENV_HINTS=1
-  export PATH=$JAVA_HOME/bin:$PATH
-fi
+[[ "$TERM" == "xterm-kitty" ]] && {
+  alias icat="kitty +kitten icat"
+  alias hg="kitty +kitten hyperlinked_grep"
+}
 
 if [[ "$OSTYPE" = msys* ]]; then
   export PYTHONHOME=/c/tools/msys64/mingw64
   export PATH=$PATH:/c/tools/neovim-msys/bin:/mingw64/bin:/usr/bin
 fi
-
 # if [[ $OSTYPE = linux* ]]; then
 #   export JAVA_HOME=/home/linuxbrew/.linuxbrew/opt/openjdk/libexec/
 #   export GOPATH=$HOME/.golinux
@@ -597,15 +517,9 @@ fi
 #   export RUSTUP_HOME=$HOME/.rustup-linux
 #   export PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
 # fi
-
-[[ -x "$(command -v brew)" ]] && eval $(brew shellenv)
-
-# nvm
+#
 [[ -x "$(command -v fnm)" ]] && eval "$(fnm env)"
-
-# conda
-# !! Contents within this block are managed by 'conda init' !!
-export CONDA_PREFIX=/Users/adragomi/.conda
+[[ -x "$(command -v frum)" ]] && eval "$(frum init)"
 conda() {
   __conda_setup="$('/usr/local/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
   if [ $? -eq 0 ]; then
@@ -619,15 +533,4 @@ conda() {
   fi
   unset __conda_setup
 }
-# <<< conda initialize <<<
 
-[[ -x "$(command -v frum)" ]] && eval "$(frum init)"
-
-[[ -x "$(command -v jira)" ]] && eval "$(jira --completion-script-zsh)"
-
-
-[[ -x "$(command -v kubectl-krew)" ]] && export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-
-export EDITOR=nvim
-export GIT_EDITOR=nvim
-export VISUAL=nvim

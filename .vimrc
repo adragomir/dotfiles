@@ -42,28 +42,18 @@ endfunction
 function! MyTabLine()
   let s = ''
   for i in range(tabpagenr('$'))
-    " select the highlighting
     if i + 1 == tabpagenr()
       let s ..= '%#TabLineSel#'
     else
       let s ..= '%#TabLine#'
     endif
-
-    " set the tab page number (for mouse clicks)
     let s ..= '%' .. (i + 1) .. 'T'
-
-    " the label is made by MyTabLabel()
     let s ..= ' %{GuiTabLabel(' .. (i + 1) .. ')} '
   endfor
-
-  " after the last tab fill with TabLineFill and reset tab page nr
   let s ..= '%#TabLineFill#%T'
-
-  " right-align the label to close the current tab page
   if tabpagenr('$') > 1
     let s ..= '%=%#TabLine#%999Xclose'
   endif
-
   return s
 endfunction
 
@@ -99,6 +89,7 @@ set mouse=a
 set sr
 set noswf
 set nu
+" set fdc=1
 set ww=<,>,h,l,b,s,~,[,]
 set ic scs gd
 set lbr bri briopt=sbr sbr=…
@@ -213,12 +204,23 @@ Plug 'nvim-lua/lsp-status.nvim'
 Plug 'nvimdev/lspsaga.nvim', {'branch': 'main'}
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-pack/nvim-spectre'
 Plug 'nvim-telescope/telescope.nvim'
-Plug 'nvim-telescope/telescope-fzy-native.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
 Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'ray-x/lsp_signature.nvim'
 Plug 'WhoIsSethDaniel/toggle-lsp-diagnostics.nvim'
-Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+"Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+Plug 'mfussenegger/nvim-lsp-compl'
+" Plug 'vim-denops/denops.vim'
+" Plug 'Shougo/ddc.vim'
+" Plug 'Shougo/ddc-ui-native'
+" Plug 'Shougo/ddc-source-around'
+" Plug 'Shougo/ddc-matcher_head'
+" Plug 'Shougo/ddc-filter-matcher_length'
+" Plug 'Shougo/ddc-sorter_rank'
+" Plug 'Shougo/ddc-source-nvim-lsp'
+" Plug 'matsui54/ddc-buffer'
 " debug
 Plug 'mfussenegger/nvim-dap'
 Plug 'theHamsta/nvim-dap-virtual-text'
@@ -243,73 +245,12 @@ Plug 'echasnovski/mini.nvim'
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
 "map <leader>m :AsyncRun -mode=term -pos=right -focus=0 -listed=0 ./build && jairun ./main<cr>
 Plug 'skywind3000/asyncrun.vim'
+" Plug 'github/copilot.vim'
 endif
 call plug#end()
 
-
-let g:copilot_no_tab_map = v:true
-imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
-
-fu! SyntaxAttr()
-  let synid = ""
-  let guifg = ""
-  let guibg = ""
-  let gui   = ""
-
-  let id1  = synID(line("."), col("."), 1)
-  let tid1 = synIDtrans(id1)
-
-  if synIDattr(id1, "name") != ""
-    let synid = "group: " . synIDattr(id1, "name")
-    if (tid1 != id1)
-      let synid = synid . '->' . synIDattr(tid1, "name")
-    endif
-    let id0 = synID(line("."), col("."), 0)
-    if (synIDattr(id1, "name") != synIDattr(id0, "name"))
-      let synid = synid .  " (" . synIDattr(id0, "name")
-      let tid0 = synIDtrans(id0)
-      if (tid0 != id0)
-        let synid = synid . '->' . synIDattr(tid0, "name")
-      endif
-      let synid = synid . ")"
-    endif
-  endif
-
-  " Use the translated id for all the color & attribute lookups; the linked id yields blank values.
-  if (synIDattr(tid1, 'fg') != '' )
-    let guifg = ' guifg=' . synIDattr(tid1, 'fg') . '(' . synIDattr(tid1, 'fg#') . ')'
-  endif
-  if (synIDattr(tid1, "bg") != "" )
-    let guibg = " guibg=" . synIDattr(tid1, "bg") . "(" . synIDattr(tid1, "bg#") . ")"
-  endif
-  if (synIDattr(tid1, "bold"     ))
-    let gui   = gui . ",bold"
-  endif
-  if (synIDattr(tid1, "italic"   ))
-    let gui   = gui . ",italic"
-  endif
-  if (synIDattr(tid1, "reverse"  ))
-    let gui   = gui . ",reverse"
-  endif
-  if (synIDattr(tid1, "inverse"  ))
-    let gui   = gui . ",inverse"
-  endif
-  if (synIDattr(tid1, "underline"))
-    let gui   = gui . ",underline"
-  endif
-  if (gui != ""                  )
-    let gui   = substitute(gui, "^,", " gui=", "")
-  endif
-
-  echohl MoreMsg
-  let message = synid . guifg . guibg . gui
-  if message == ""
-    echohl WarningMsg
-    let message = "<no syntax group here>"
-  endif
-  echo message
-  echohl None
-endf
+" let g:copilot_no_tab_map = v:true
+" imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
 
 fu! MoveCursor(move, mode)
   if (a:move == 'h')
@@ -375,13 +316,11 @@ fu! ReplaceWithRegister()
     let s:restore_reg = @"
     return "p@=RestoreRegister()\<cr>"
 endf
-
 xn <silent> <expr> p ReplaceWithRegister()
 
 fu! SaveMap(key)
   return maparg(a:key, 'n', 0, 1)
 endf
-
 fu! RestoreMap(map)
   if !empty(a:map)
     let l:tmp = ""
@@ -405,8 +344,8 @@ nn ( <nop>
 nn ) <nop>
 nn [ <nop>
 nn ] <nop>
-nn { <nop>
-nn } <nop>
+" nn { <nop>
+" nn } <nop>
 nn ]] <nop>
 nn [[ <nop>
 nn [] <nop>
@@ -501,6 +440,7 @@ nn gl `.
 map <leader>] `]
 map <leader>> `>
 map <leader>` `^
+nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 
 vn p "_dP
 vn r "_dP
@@ -536,11 +476,12 @@ nm <MapLocalLeader>h :AT<CR>
 nm - :Chowcho<CR>
 
 if !exists('g:vscode')
+nn <silent>gD          <cmd>lua vim.lsp.buf.declaration()<CR>
 nn <silent>gd          <cmd>lua vim.lsp.buf.definition()<CR>
 nn <silent>K           <cmd>lua vim.lsp.buf.signature_help()<CR>
-" nn <silent>gi        <cmd>lua vim.lsp.buf.implementation()<CR>
-" nn <silent>gr        <cmd>lua vim.lsp.buf.references()<CR>
-nn <silent>gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
+nn <silent>gi          <cmd>lua vim.lsp.buf.implementation()<CR>
+nn <silent>gr          <cmd>lua vim.lsp.buf.references()<CR>
+"nn <silent>gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
 nn <silent>gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
 nn <silent>gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
 "nn <silent>gsd        <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
@@ -552,6 +493,7 @@ nn <silent><leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
 nn <silent>[c          :NextDiagnostic<CR>
 nn <silent>]c          :PrevDiagnostic<CR>
 nn <silent><space>d    :OpenDiagnostic<CR>
+nn <silent><leader>sp   <cmd>lua require("spectre").open()<CR>
 
 if has('gui_vimr') || exists('g:neovide') == 1
   nn <silent><D-t>  :tabnew<cr>
@@ -592,7 +534,6 @@ EOF
 nn <silent><leader>d :ToggleDiag<CR>
 nn <silent>gh :Lspsaga lsp_finder<CR>
 nn <silent><leader>ca :Lspsaga code_action<CR>
-nn <silent>K :Lspsaga signature_help<CR>
 nn <silent>gs :Lspsaga hover_doc<CR>
 nn <silent>g<space> :Lspsaga preview_definition<CR>
 nn <silent><leader>cd :Lspsaga show_line_diagnostics<CR>
@@ -600,38 +541,39 @@ nn <silent>[e :Lspsaga diagnostic_jump_next<CR>
 nn <silent>]e :Lspsaga diagnostic_jump_prev<CR>
 
 lua <<EOF
-  vim.g.coq_settings = {
-    auto_start = 'shut-up',
-    completion = {
-      always = false
-    },
-    display = {
-      pum = {
-        fast_close = false
-      }, 
-      icons = {
-        mode = 'none'
-      } 
-    }, 
-    keymap = { 
-      pre_select = true,
-      recommended = false, 
-      bigger_preview = '', 
-      jump_to_mark = '',
-      eval_snips = '', 
-      manual_complete = '', 
-      ["repeat"] = ''
-    },
-    clients = {
-      tags = { enabled = false },
-      snippets = {
-        enabled = false, 
-        warn = {}, 
-      },
-      paths = { enabled = false },
-      tmux = { enabled = false },
-    },
-  }
+  require('spectre').setup()
+  -- vim.g.coq_settings = {
+  --   auto_start = 'shut-up',
+  --   completion = {
+  --     always = false
+  --   },
+  --   display = {
+  --     pum = {
+  --       fast_close = false
+  --     }, 
+  --     icons = {
+  --       mode = 'none'
+  --     } 
+  --   }, 
+  --   keymap = { 
+  --     pre_select = true,
+  --     recommended = false, 
+  --     bigger_preview = '', 
+  --     jump_to_mark = '',
+  --     eval_snips = '', 
+  --     manual_complete = '', 
+  --     ["repeat"] = ''
+  --   },
+  --   clients = {
+  --     tags = { enabled = false },
+  --     snippets = {
+  --       enabled = false, 
+  --       warn = {}, 
+  --     },
+  --     paths = { enabled = false },
+  --     tmux = { enabled = false },
+  --   },
+  -- }
 
   require('chowcho').setup {
     icon_enabled = false, -- required 'nvim-web-devicons' (default: false)
@@ -642,7 +584,9 @@ lua <<EOF
     use_exclude_default = false,
   }
   require("nvim-tree").setup({
+    prefer_startup_root = true, 
     sync_root_with_cwd = true, 
+    respect_buf_cwd = true, 
     renderer = {
       highlight_opened_files = "name", 
       icons = {
@@ -656,7 +600,7 @@ lua <<EOF
     }, 
     update_focused_file = {
       enable = true,
-      update_root = true,
+      update_root = false,
       ignore_list = {
           "fzf", "help", "qf",
           "lspinfo", "undotree"
@@ -770,6 +714,14 @@ lua <<EOF
   end
 
   require('mini.comment').setup()
+  require('mini.bracketed').setup({
+    diagnostic = { suffix = 'd', options = { severity = vim.diagnostic.severity.ERROR, } },
+    jump       = { suffix = 'j', options = {} },
+    location   = { suffix = 'l', options = {} },
+    quickfix   = { suffix = 'q', options = {} },
+    treesitter = { suffix = 't', options = {} },
+    yank       = { suffix = 'y', options = {} }, 
+  })
   require('mini.surround').setup( {
     custom_surroundings = nil,
     highlight_duration = 500,
@@ -828,134 +780,164 @@ lua <<EOF
   local configs = require'lspconfig.configs'
   local util = require'lspconfig/util'
 
-  local coq = require 'coq'
-  local M = {}
-
-  M.on_attach = function()
-    --require'completion'.on_attach(),
-    --setup.auto_commands()
+  function make_lsp_config(t)
+    if false then
+      coq = require 'coq'
+    else
+      coq = {
+        lsp_ensure_capabilities = function(t2)
+          return t2
+        end
+      }
+    end
+    tmp = coq.lsp_ensure_capabilities(vim.deepcopy(t))
+    tmp.on_attach = function(client, bufnr)
+      require'lsp_compl'.attach(client, bufnr, {
+        --server_side_fuzzy_completion = true
+      })
+    end
+    return tmp
   end
 
-  -- lspconfig.pasls.setup{}
-  -- lspconfig.prosemd_lsp.setup{}
-  -- lspconfig.racket_langserver.setup{}
-  lspconfig.zls.setup{
+  -- lspconfig.pasls.setup(make_lsp_config({}))
+  -- lspconfig.prosemd_lsp.setup(make_lsp_config({}))
+  -- lspconfig.racket_langserver.setup(make_lsp_config({}))
+  lspconfig.zls.setup(make_lsp_config({
     cmd = { vim.env.HOME .. '/bin/darwin/zls-0.11.0' }, 
     flags = {
       debounce_text_changes = 250, 
     },
-    on_attach = M.on_attach,
-  }
+  }))
 
-  require'go'.setup({
+  require'go'.setup(make_lsp_config({
     lsp_codelens = true,
     lsp_inlay_hints = {
       enable = true, 
       only_current_line = true, 
     }, 
-  })
-  lspconfig.gopls.setup{
+  }))
+
+  lspconfig.gopls.setup(make_lsp_config({
     cmd = { vim.env.HOME .. '/.gocode/bin/gopls' },
-    on_attach = M.on_attach,
-    root_dir = util.root_pattern("go.mod"),
-  }
+    root_dir = util.root_pattern("go.mod"), 
+  }))
 
-  -- lspconfig.denols.setup{
-  --   on_attach = M.on_attach,
+  -- lspconfig.denols.setup(make_lsp_config({
   --   root_dir = util.root_pattern("deno.json"),
-  -- }
-  -- lspconfig.haxe_language_server.setup{ }
-  -- lspconfig.leanls.setup{ }
-  -- lspconfig.solang.setup{ }
-  -- lspconfig.svls.setup{ }
+  -- }))
+  -- lspconfig.haxe_language_server.setup(make_lsp_config({}))
+  -- lspconfig.leanls.setup(make_lsp_config({})).
+  -- lspconfig.solang.setup(make_lsp_config({}))
+  -- lspconfig.svls.setup(make_lsp_config({}))
 
-  -- lspconfig.rust_analyzer.setup{
-  --   on_attach = M.on_attach,
-  -- }
-  require('rust-tools').setup({})
-  lspconfig.ccls.setup{
-    on_attach = M.on_attach,
-    cmd = {"ccls"},
-    init_options = {
-      index = {
-        initialBlackList = { '.*omtr_tmp.*' }
-      }
-    },
-    settings = {
-      ccls = {
-        clang = {
-          extraArgs = {
-              "-isystem/usr/local/include", 
-              "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1", 
-              "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include", 
-              "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include", 
-              "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include", 
-              "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks}", 
-          }, 
-          resourceDir = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3"
-        }
-      }
-    },
-  }
-  -- lspconfig.clangd.setup{
-  --   on_attach = M.on_attach,
+  lspconfig.rust_analyzer.setup(make_lsp_config({
+  }))
+  -- require('rust-tools').setup({})
+  -- lspconfig.ccls.setup(make_lsp_config({
   --   cmd = {
-  --     "clangd", 
-  --     "--background-index",
-  --     "--pch-storage=memory",
-  --     "--clang-tidy",
-  --     "--suggest-missing-includes",
-  --     "--all-scopes-completion",
-  --     "--pretty",
-  --     "--header-insertion=never",
-  --     "-j=4",
-  --     "--inlay-hints",
-  --     "--header-insertion-decorators",
+  --     "ccls", 
+  --     "--log-file=/tmp/ccls.out", 
+  --     "-v=1", 
   --   },
-  --   root_dir = utils.root_pattern("compile_commands.json", "compile_flags.txt", ".git")
-  --   init_option = { fallbackFlags = {  "-std=c++2a"  } }
-  -- }
-  -- lspconfig.clojure_lsp.setup{ }
-  -- lspconfig.intelephense.setup{
-  --   on_attach = M.on_attach,
+  --   init_options = {
+  --     index = {
+  --       initialBlackList = { '.*omtr_tmp.*' }
+  --     }
+  --   },
   --   settings = {
-  --     intelephense = {
-  --       files = {
-  --         maxSize = 10000000,
-  --       },
-  --       format = {
-  --         enable = true,
-  --         braces = "psr12",
-  --       }, 
-  --       environment = {
-  --         shortOpenTag = true,
-  --         phpVersion = "8.1.8",
-  --         includePaths = {
-  --         },
+  --     ccls = {
+  --       clang = {
+  --         extraArgs = {
+  --             "-isystem/usr/local/include", 
+  --             "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1", 
+  --             "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include", 
+  --             "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include", 
+  --             "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include", 
+  --             "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks}", 
+  --         }, 
+  --         resourceDir = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3"
   --       }
   --     }
-  --   }
-  -- }
-  -- lspconfig.svls.setup{}
-  lspconfig.pylsp.setup{
-    on_attach = M.on_attach,
+  --   },
+  -- }))
+  lspconfig.clangd.setup(make_lsp_config({
+    cmd = {
+      "/usr/local/opt/llvm/bin/clangd", 
+      "--background-index",
+      "--pch-storage=memory",
+      "--all-scopes-completion",
+      "--pretty",
+      "--header-insertion=never",
+      "-j=4",
+      "--inlay-hints",
+      "--header-insertion-decorators",
+      "--function-arg-placeholders",
+      "--completion-style=detailed", 
+      "--enable-config", 
+    },
+    root_dir = util.root_pattern(".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git"), 
+    init_option = {
+      fallbackFlags = {
+        "-std=c++2a"
+      }, 
+    }, 
+  }))
+  lspconfig.clojure_lsp.setup(make_lsp_config({}))
+  lspconfig.intelephense.setup(make_lsp_config({
+    settings = {
+      intelephense = {
+        files = {
+          maxSize = 10000000,
+        },
+        format = {
+          enable = true,
+          braces = "psr12",
+        }, 
+        environment = {
+          shortOpenTag = true,
+          phpVersion = "8.1.8",
+          includePaths = {
+          },
+        }
+      }
+    }
+  }))
+  -- lspconfig.svls.setup(make_lsp_config({}))
+  lspconfig.pylsp.setup(make_lsp_config({
     on_init = function(client)
       client.config.settings = {
         pylsp = {
-
+          plugins = {
+            pycodestyle = {
+              ignore = {"E261", "E121", "E262", "W503", "E228"}
+            }, 
+            flake8 = {
+              ignore = {"E261"}
+            }, 
+            mccabe = {
+              enabled= false, 
+            }, 
+            preload = {
+              enabled= false, 
+            }, 
+            pyflakes = {
+              enabled= false, 
+            }, 
+            yapf = {
+              enabled= false, 
+            }, 
+          }
         }
       }
       client.notify('workspace/didChangeConfiguration')
     end, 
-  }
+  }))
 
-  -- lspconfig.jdtls.setup{
-  --   on_attach = M.on_attach,
+  -- lspconfig.jdtls.setup(make_lsp_config({
   --   root_dir = util.root_pattern("pom.xml", "build.xml"),
-  -- }
-  -- lspconfig.tsserver.setup{
-  --   on_attach = M.on_attach,
-  -- }
+  -- }))
+  -- lspconfig.tsserver.setup(make_lsp_config({
+  -- }))
 
   local system_name
   if vim.fn.has("mac") == 1 then
@@ -969,9 +951,8 @@ lua <<EOF
   end
   local sumneko_root_path = vim.fn.stdpath('data')..'/lspconfig/sumneko_lua/lua-language-server'
   local sumneko_binary = sumneko_root_path.."/bin/"..system_name.."/lua-language-server"
-  lspconfig.lua_ls.setup {
+  lspconfig.lua_ls.setup(make_lsp_config({
     cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"},
-    on_attach = M.on_attach,
     settings = {
       Lua = {
         runtime = {
@@ -989,11 +970,10 @@ lua <<EOF
         },
       },
     },
-  }
+  }))
 
-  -- lspconfig.sourcekit.setup{}
-  -- lspconfig.solargraph.setup{
-  --   on_attach = M.on_attach,
+  -- lspconfig.sourcekit.setup(make_lsp_config({}))
+  -- lspconfig.solargraph.setup(make_lsp_config({
   --   settings = {
   --     solargraph = {
   --       diagnostics = false,
@@ -1001,90 +981,80 @@ lua <<EOF
   --       autoformat = false,
   --     }
   --   },
-  -- }
-  lspconfig.terraformls.setup{
-    on_attach = M.on_attach,
-  }
---  lspconfig.metals.setup{
---    on_attach    = M.on_attach,
---    root_dir     = util.root_pattern("pom.xml", "build.sbt", "build.sc", ".git"),
---    init_options = {
---      statusBarProvider            = "on",
---      inputBoxProvider             = true,
---      quickPickProvider            = true,
---      executeClientCommandProvider = true,
---      didFocusProvider             = true,
---      decorationProvider           = true,
---    },
---
---    on_init = setup.on_init,
---
---    handlers = {
---      ["textDocument/hover"]          = metals['textDocument/hover'],
---      ["metals/status"]               = metals['metals/status'],
---      ["metals/inputBox"]             = metals['metals/inputBox'],
---      ["metals/quickPick"]            = metals['metals/quickPick'],
---      ["metals/executeClientCommand"] = metals["metals/executeClientCommand"],
---      ["metals/publishDecorations"]   = metals["metals/publishDecorations"],
---      ["metals/didFocusTextDocument"] = metals["metals/didFocusTextDocument"],
---    },
---  }
+  -- }))
 
-  -- lspconfig.elmls.setup{
-  --   on_attach    = M.on_attach,
-  -- }
-  -- lspconfig.html.setup{
-  --   on_attach    = M.on_attach,
-  -- }
-  -- lspconfig.yamlls.setup{
-  --   on_attach    = M.on_attach,
-  -- }
-  lspconfig.hoon_ls.setup{
-    on_attach    = M.on_attach,
-  }
+  lspconfig.terraformls.setup(make_lsp_config({
+  }))
 
-  lspconfig.zls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.gopls.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.denols.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.haxe_language_server.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.leanls.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.solang.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.svls.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities())
-  lspconfig.ccls.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.intelephense.setup(coq.lsp_ensure_capabilities())
-  lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
-  --lspconfig.jdtls.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.tsserver.setup(coq.lsp_ensure_capabilities())
-  lspconfig.lua_ls.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
-  lspconfig.terraformls.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.elmls.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.html.setup(coq.lsp_ensure_capabilities())
-  -- lspconfig.yamlls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.jails.setup{
-    on_attach    = M.on_attach,
-  }
+  -- lspconfig.metals.setup(make_lsp_config({
+  --   root_dir     = util.root_pattern("pom.xml", "build.sbt", "build.sc", ".git"),
+  --   init_options = {
+  --     statusBarProvider            = "on",
+  --     inputBoxProvider             = true,
+  --     quickPickProvider            = true,
+  --     executeClientCommandProvider = true,
+  --     didFocusProvider             = true,
+  --     decorationProvider           = true,
+  --   },
+  --
+  --   on_init = setup.on_init,
+  --
+  --   handlers = {
+  --     ["textDocument/hover"]          = metals['textDocument/hover'],
+  --     ["metals/status"]               = metals['metals/status'],
+  --     ["metals/inputBox"]             = metals['metals/inputBox'],
+  --     ["metals/quickPick"]            = metals['metals/quickPick'],
+  --     ["metals/executeClientCommand"] = metals["metals/executeClientCommand"],
+  --     ["metals/publishDecorations"]   = metals["metals/publishDecorations"],
+  --     ["metals/didFocusTextDocument"] = metals["metals/didFocusTextDocument"],
+  --   },
+  -- }))
+
+  -- lspconfig.elmls.setup(make_lsp_config({
+  -- }))
+  -- lspconfig.html.setup(make_lsp_config({
+  -- }))
+  -- lspconfig.yamlls.setup(make_lsp_config({
+  -- }))
+  lspconfig.hoon_ls.setup(make_lsp_config({
+  }))
+
+  lspconfig.jails.setup(make_lsp_config({
+  }))
 
   -- require "lsp_signature".setup({
-  --   bind = false, 
-  --   doc_lines = 0, 
-  --   floating_window = true, 
-  --   floating_window_above_cur_line = true, 
+  --   bind = false,
+  --   doc_lines = 0,
+  --   floating_window = true,
+  --   floating_window_above_cur_line = true,
   --   fix_pos = false,
-  --   hint_enable = false, 
-  --   always_trigger = false, 
-  --   toggle_key = nil, 
+  --   hint_enable = false,
+  --   always_trigger = true,
+  --   toggle_key = nil,
   --   handler_opts = {
   --     border = "rounded"
   --   }
   -- })
+  vim.api.nvim_create_autocmd('LspAttach', {
+    group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+    callback = function(ev)
+      -- Enable completion triggered by <c-x><c-o>
+      vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+      vim.bo[ev.buf].completefunc = 'v:lua.vim.lsp.omnifunc'
+    end,
+  })
 
   require('telescope').setup{
     extensions = {
       fzy_native = {
         override_generic_sorter = true,
         override_file_sorter = true,
+      }, 
+      fzf = {
+        fuzzy = true,
+        override_generic_sorter = true,
+        override_file_sorter = true,
+        case_mode = "smart_case",
       }
     }, 
     highlight = {
@@ -1119,13 +1089,29 @@ lua <<EOF
       }, 
       file_ignore_patterns = {},
       use_less = true,
-      preview = false, 
+      preview = true, 
       grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
       qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
     }
   }
-  require('telescope').load_extension('fzy_native')
+  require('telescope').load_extension('fzf')
 EOF
+
+" call ddc#custom#patch_global('ui', 'native')
+" call ddc#custom#patch_global('sources', ['around', 'nvim-lsp', 'buffer'])
+" call ddc#custom#patch_global('sourceOptions', #{
+"       \ _: #{
+"       \   matchers: ['matcher_head'],
+"       \   sorters: ['sorter_rank']},
+"       \ })
+" " <TAB>: completion.
+" inoremap <silent><expr> <TAB>
+" \ pumvisible() ? '<C-n>' :
+" \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+" \ '<TAB>' : ddc#map#manual_complete()
+" " <S-TAB>: completion back.
+" inoremap <expr><S-TAB>  pumvisible() ? '<C-p>' : '<C-h>'
+" call ddc#enable()
 
 " function! s:check_back_space() abort
 "   let col = col('.') - 1
@@ -1159,7 +1145,7 @@ local chainy_tab = function()
       vim.api.nvim_eval([[feedkeys("\<tab>", "n")]])
       return
     else
-      vim.api.nvim_eval([[feedkeys("\<c-x>\<c-u>", "n")]])
+      vim.api.nvim_eval([[feedkeys("\<c-x>\<c-o>", "n")]])
       return
     end
   end
@@ -1235,7 +1221,9 @@ EOF
 
 nmap <C-p> <cmd>lua require('telescope.builtin').find_files()<cr> 
 nmap <leader>1 :NvimTreeFindFileToggle<cr> 
-nmap <leader>g <cmd>lua require('telescope.builtin').grep_string({ search = vim.fn.input('Grep >' ) })<cr>
+"nmap <leader>g <cmd>lua require('telescope.builtin').grep_string({ search = vim.fn.input('Grep >' ) })<cr>
+nmap <leader>g <cmd>lua require('telescope.builtin').live_grep()<cr>
+nmap <leader>s <cmd>lua require('telescope.builtin').lsp_workspace_symbols({file_encoding='utf-8'})<cr>
 nmap <leader>5 <cmd>lua require('telescope.builtin').buffers()<cr> 
 nmap <leader>6 <cmd>lua require('telescope.builtin').find_files({cwd= $HOME . '/Dropbox/personal/notes/'})<cr> 
 
@@ -1274,7 +1262,7 @@ lua <<EOF
 --     override_del = true, 
 --     exclude = {}
 --   })
-  require'nvim-treesitter.install'.compilers = { "gcc" }
+  require'nvim-treesitter.install'.compilers = { "clang" }
   require'nvim-treesitter.configs'.setup {
     highlight = {
       enable = true,
@@ -1327,7 +1315,6 @@ let g:terraform_fmt_on_save = 1
 
 com! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
 com! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
-
 " typos
 com! -bang E e<bang>
 com! -bang Q q<bang>
@@ -1363,17 +1350,13 @@ function mark_on(ns, mark, highlight)
       vim.highlight.range(bufnr, ns, highlight, pos1, pos2, {inclusive = true, priority=10000})
     end
   end
-
 end
-
 function mark_on_move()
   mark_on(jump_ns, '`', 'hi_MarkBeforeJump')
 end
-
 function mark_on_changed()
   mark_on(change_ns, '.', 'hi_MarkChange')
 end
-
 function mark_on_insert_stop()
   mark_on(insert_ns, '^', 'hi_MarkInsertStop')
 end
@@ -1420,6 +1403,7 @@ EOF
 
 let g:save_cr_map = {}
 aug all_buffers
+  au! 
   au!
   au VimLeavePre * execute 'silent! 1,' . bufnr('$') . 'bwipeout!'
   au! CmdwinEnter * 
@@ -1441,7 +1425,7 @@ aug all_buffers
 aug END
 
 aug settings
-  au!
+  au! ModeChanged *:[iiI]* hi ModeMsg guifg=#ff0000
   au BufNewFile,BufRead *.Jenkinsfile set filetype=groovy
   autocmd BufRead ~/work/DPO/*.class set filetype=php
   au BufNewFile,BufRead *.jai set filetype=jai

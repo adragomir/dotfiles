@@ -1,4 +1,12 @@
-local wezterm = require 'wezterm';
+local wezterm = require 'wezterm'
+local mux = wezterm.mux
+
+-- local gpus = wezterm.gui.enumerate_gpus()
+wezterm.on('gui-startup', function()
+  local tab, pane, window = mux.spawn_window({})
+  window:gui_window():maximize()
+end)
+
 local tmp = {
   line_height = 0.95,
   bold_brightens_ansi_colors = true,
@@ -130,7 +138,15 @@ local tmp = {
     "bash", "sh", "zsh", "fish", "tmux", "ncdu"
   },
   window_decorations = "TITLE | RESIZE",
-  hyperlink_rules = {}
+  hyperlink_rules = {},
+  inactive_pane_hsb = {
+    saturation = 0.9,
+    brightness = 0.8,
+  },
+  -- webgpu_preferred_adapter = gpus[0],
+  -- webgpu_power_preference = "HighPerformance",
+  front_end = 'OpenGL',
+  use_dead_keys = false
 }
 
 return tmp
