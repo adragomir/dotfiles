@@ -18,7 +18,7 @@ local config = {
     '--add-modules=ALL-SYSTEM',
     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-    '-jar', '/Users/adragomi/.cache/jdtls-server/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar',
+    '-jar', '/Users/adragomi/.cache/jdtls-server/plugins/org.eclipse.equinox.launcher_1.6.500.v20230622-2056.jar',
     '-configuration', '/Users/adragomi/.cache/jdtls-server/config_mac/',
    '-data', workspace_dir,
   },
