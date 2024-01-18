@@ -23,7 +23,7 @@ class PR(NamedTuple):
     branch_name: str
 
 def work(commits: list[Commit]):
-    regex = r"^(\[AN-[A-Za-z0-9\-]*\])"
+    regex = r"^(\[[A-Z]+-[A-Za-z0-9\-]*\])"
 
     marker_ids:list[int] = [ci for ci, commit in enumerate(commits) if re.search(regex, commit.message)]
     markers_messages:list[tuple[str, int]] = []

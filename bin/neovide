@@ -13,15 +13,16 @@ fi
 NVIM_SOCKET="/tmp/neovide${name}.socket"
 if [ ! -S $NVIM_SOCKET ]; then
     echo "start first"
-    ~/Applications/Development\ Tools/neovide.app/Contents/MacOS/neovide --noidle  -- --listen $NVIM_SOCKET $@
+    ~/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide --noidle  -- --listen $NVIM_SOCKET $@
 else
     if [[ "$#" -eq 0 ]]; then
         dir_or_file=$(pwd)
     else
         dir_or_file=$1
     fi
+    echo "dir: ${dir_or_file}"
     if [[ -d ${dir_or_file} ]]; then
-        echo "Open dir ${dir_or_file}"
+        echo "Open dir ${dir_or_file}: <C-\><C-N>:\$tabnew | :tcd ${dir_or_file}<CR>"
         nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew | :tcd ${dir_or_file}<CR>"
     else
         dir=$(dirname $dir_or_file)

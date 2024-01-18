@@ -1,9 +1,0 @@
-#!/bin/bash
-
-portname=$(echo "$1" | rev | cut -d'/' -f1 | rev)
-instance=$(echo "$1" | rev | cut -d'/' -f2 | rev)
-job=$(echo "$1" | cut -d'/' -f1-4)
-
-host=$(aurora job status ${job} --write-json 2>/dev/null | jq -r ".[0].active[${instance}].assignedTask.slaveHost")
-port=$(aurora job status ${job} --write-json 2>/dev/null | jq -r ".[0].active[${instance}].assignedTask.assignedPorts.${portname}")
-echo -n "${host}:${port}"

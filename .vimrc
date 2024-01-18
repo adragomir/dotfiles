@@ -66,7 +66,7 @@ if has('gui_vimr')
 elseif exists('g:neovide') == 1
   set tabline=%!MyTabLine()
   "set guifont=Jetbrains\ Mono\ NL:h11
-  set guifont=Consolas:h13
+  set guifont=Consolas:h12
   let g:neovide_cursor_animation_length=0.0
   let g:neovide_cursor_trail_length=0.0
   let g:neovide_input_use_logo=1
@@ -170,6 +170,7 @@ let g:plug_path = stdpath('data') . '/bundle'
 call plug#begin(g:plug_path)
 if !exists('g:vscode')
 " lang
+Plug 'https://git.sr.ht/~sircmpwn/hare.vim'
 Plug 'simrat39/rust-tools.nvim'
 Plug 'ray-x/guihua.lua'
 Plug 'ray-x/go.nvim'
@@ -183,6 +184,7 @@ Plug 'fedorenchik/fasm.vim'
 Plug 'urbit/hoon.vim'
 Plug 'karolbelina/uxntal.vim'
 Plug 'rluba/jai.vim'
+Plug 'mikesmithgh/kitty-scrollback.nvim'
 " Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
 " Plug 'leafgarland/typescript-vim'
 " Plug 'neovimhaskell/haskell-vim', { 'dir': stdpath('data') . '/bundle/haskell-vim', 'for': 'haskell' }
@@ -200,7 +202,7 @@ EOF
 Plug 'neovim/nvim-lspconfig'
 Plug 'williamboman/nvim-lsp-installer'
 Plug 'nvim-lua/lsp-status.nvim'
-" Plug 'scalameta/nvim-metals', {'branch': 'main'}
+Plug 'scalameta/nvim-metals', {'branch': 'main'}
 Plug 'nvimdev/lspsaga.nvim', {'branch': 'main'}
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
@@ -212,6 +214,7 @@ Plug 'ray-x/lsp_signature.nvim'
 Plug 'WhoIsSethDaniel/toggle-lsp-diagnostics.nvim'
 "Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
 Plug 'mfussenegger/nvim-lsp-compl'
+Plug 'Decodetalkers/csharpls-extended-lsp.nvim'
 " Plug 'vim-denops/denops.vim'
 " Plug 'Shougo/ddc.vim'
 " Plug 'Shougo/ddc-ui-native'
@@ -234,6 +237,7 @@ Plug 'nvim-treesitter/playground'
 " Plug 'nvim-treesitter/nvim-treesitter-context'
 Plug 'RRethy/nvim-treesitter-textsubjects'
 " tools
+Plug 'lambdalisue/suda.vim'
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
 "Plug 'duane9/nvim-rg', {'branch': 'adragomi'}
@@ -245,6 +249,7 @@ Plug 'echasnovski/mini.nvim'
 Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
 "map <leader>m :AsyncRun -mode=term -pos=right -focus=0 -listed=0 ./build && jairun ./main<cr>
 Plug 'skywind3000/asyncrun.vim'
+Plug 'famiu/bufdelete.nvim'
 " Plug 'github/copilot.vim'
 endif
 call plug#end()
@@ -367,35 +372,6 @@ for i=1,24 do
     vim.api.nvim_set_keymap(t, "<S-F" .. i .. ">", "<nop>", {noremap = true})
   end
 end
-EOF
-
-"profile.nvim
-lua <<EOF
-local should_profile = os.getenv("NVIM_PROFILE")
-if should_profile then
-  require("profile").instrument_autocmds()
-  if should_profile:lower():match("^start") then
-    require("profile").start("*")
-  else
-    require("profile").instrument("*")
-  end
-end
-
-local function toggle_profile()
-  local prof = require("profile")
-  if prof.is_recording() then
-    prof.stop()
-    vim.ui.input({ prompt = "Save profile to:", completion = "file", default = "profile.json" }, function(filename)
-      if filename then
-        prof.export(filename)
-        vim.notify(string.format("Wrote %s", filename))
-      end
-    end)
-  else
-    prof.start("*")
-  end
-end
-vim.keymap.set("", "<f1>", toggle_profile)
 EOF
 
 " cutlass.nvim inline
@@ -638,6 +614,7 @@ lua <<EOF
     command = '/usr/local/opt/llvm@16/bin/lldb-vscode',
     name = 'lldb'
   }
+
   -- dap.configurations.cpp = {
   --   {
   --     name = "Launch file",
@@ -675,6 +652,25 @@ lua <<EOF
   --   table.insert(commands, 1, 'command script import "' .. vim.env.HOME .. '/.config/lldb/jaitype.jai"')
   --   return commands
   -- end
+  dap.configurations.scala = {
+    {
+      type = "scala",
+      request = "launch",
+      name = "RunOrTest",
+      metals = {
+        runType = "runOrTestFile",
+        --args = { "firstArg", "secondArg", "thirdArg" }, -- here just as an example
+      },
+    },
+    {
+      type = "scala",
+      request = "launch",
+      name = "Test Target",
+      metals = {
+        runType = "testTarget",
+      },
+    },
+  }
 
   local dap, dapui = require("dap"), require("dapui")
   local keymap_restore = {}
@@ -909,9 +905,11 @@ lua <<EOF
         pylsp = {
           plugins = {
             pycodestyle = {
-              ignore = {"E261", "E121", "E262", "W503", "E228"}
+              enabled = false, 
+              select = {"E112", "E113", "E117", "E223", "E224", }
             }, 
             flake8 = {
+              enabled = false, 
               ignore = {"E261"}
             }, 
             mccabe = {
@@ -936,8 +934,8 @@ lua <<EOF
   -- lspconfig.jdtls.setup(make_lsp_config({
   --   root_dir = util.root_pattern("pom.xml", "build.xml"),
   -- }))
-  -- lspconfig.tsserver.setup(make_lsp_config({
-  -- }))
+  lspconfig.tsserver.setup(make_lsp_config({
+  }))
 
   local system_name
   if vim.fn.has("mac") == 1 then
@@ -986,30 +984,28 @@ lua <<EOF
   lspconfig.terraformls.setup(make_lsp_config({
   }))
 
-  -- lspconfig.metals.setup(make_lsp_config({
-  --   root_dir     = util.root_pattern("pom.xml", "build.sbt", "build.sc", ".git"),
-  --   init_options = {
-  --     statusBarProvider            = "on",
-  --     inputBoxProvider             = true,
-  --     quickPickProvider            = true,
-  --     executeClientCommandProvider = true,
-  --     didFocusProvider             = true,
-  --     decorationProvider           = true,
-  --   },
-  --
-  --   on_init = setup.on_init,
-  --
-  --   handlers = {
-  --     ["textDocument/hover"]          = metals['textDocument/hover'],
-  --     ["metals/status"]               = metals['metals/status'],
-  --     ["metals/inputBox"]             = metals['metals/inputBox'],
-  --     ["metals/quickPick"]            = metals['metals/quickPick'],
-  --     ["metals/executeClientCommand"] = metals["metals/executeClientCommand"],
-  --     ["metals/publishDecorations"]   = metals["metals/publishDecorations"],
-  --     ["metals/didFocusTextDocument"] = metals["metals/didFocusTextDocument"],
-  --   },
-  -- }))
-
+  local metals_config = require("metals").bare_config()
+  metals_config.settings = {
+    showImplicitArguments = true,
+    excludedPackages = {
+      "akka.actor.typed.javadsl",
+      "com.github.swagger.akka.javadsl"
+    },
+  }
+  metals_config.on_attach = function(client, bufnr)
+    require("metals").setup_dap()
+  end
+  local nvim_metals_group = vim.api.nvim_create_augroup("nvim-metals", { clear = true })
+  vim.api.nvim_create_autocmd("FileType", {
+    -- NOTE: You may or may not want java included here. You will need it if you
+    -- want basic Java support but it may also conflict if you are using
+    -- something like nvim-jdtls which also works on a java filetype autocmd.
+    pattern = { "scala", "sbt", "java" },
+    callback = function()
+      require("metals").initialize_or_attach(metals_config)
+    end,
+    group = nvim_metals_group,
+  })
   -- lspconfig.elmls.setup(make_lsp_config({
   -- }))
   -- lspconfig.html.setup(make_lsp_config({
@@ -1021,6 +1017,33 @@ lua <<EOF
 
   lspconfig.jails.setup(make_lsp_config({
   }))
+
+  lspconfig.csharp_ls.setup{
+    cmd = {
+      "/Users/adragomi/.dotnet/tools/csharp-ls"
+    }, 
+    handlers = {
+      ["textDocument/definition"] = require('csharpls_extended').handler,
+    },
+  }
+  -- lspconfig.omnisharp.setup {
+  --   cmd = {
+  --     "/Users/adragomi/work/tools/omnisharp/OmniSharp",
+  --     "--languageserver",
+  --     "--hostPID",
+  --     tostring(vim.fn.getpid())
+  --   },
+  --   handlers = {
+  --     ["textDocument/definition"] = require('omnisharp_extended').handler,
+  --   },
+  --   enable_editorconfig_support = true,
+  --   enable_ms_build_load_projects_on_demand = false,
+  --   enable_roslyn_analyzers = false,
+  --   organize_imports_on_format = false,
+  --   enable_import_completion = false,
+  --   sdk_include_prereleases = false,
+  --   analyze_open_documents_only = true,
+  -- }
 
   -- require "lsp_signature".setup({
   --   bind = false,
@@ -1089,7 +1112,7 @@ lua <<EOF
       }, 
       file_ignore_patterns = {},
       use_less = true,
-      preview = true, 
+      preview = false, 
       grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
       qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
     }
@@ -1313,6 +1336,8 @@ let g:vim_json_syntax_conceal = 0
 let g:terraform_align = 1
 let g:terraform_fmt_on_save = 1
 
+" does not work, see https://github.com/neovim/neovim/issues/1716
+" for now, replaced with SudaWrite
 com! -bar -nargs=0 W  silent! exec "write !sudo tee % >/dev/null"  | silent! edit!
 com! -bar -nargs=0 WX silent! exec "write !chmod a+x % >/dev/null" | silent! edit!
 " typos
@@ -1458,7 +1483,6 @@ aug completions
   au FileType haskell setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType php setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType java setlocal omnifunc=v:lua.vim.lsp.omnifunc
-  au FileType scala,sbt lua require'metals'.initialize_or_attach({})
   au FileType rust setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType javascript setlocal omnifunc=v:lua.vim.lsp.omnifunc
   au FileType typescript setlocal omnifunc=v:lua.vim.lsp.omnifunc

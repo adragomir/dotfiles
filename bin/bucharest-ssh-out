@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-URL="https://bucharest-cp-portal.corp.adobe.com:6082/php/uid.php?vsys=1&rule=0&url=http://ssh-out%2f"
-
-USER='adragomi'
-PIN='1234'
-OTP=$(~/bin/token | tr -d '\n')
-
-curl -s ${URL} --data "inputStr=&escapeUser=${USER}&preauthid=&user=${USER}&passwd=${PIN}${OTP}&ok=Login"

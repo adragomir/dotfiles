@@ -1,3 +1,0 @@
-#!/bin/bash
-
-/usr/local/bin/curl -xprodproxy-000-lxc.prod.dal09.fitbit.com:3128 --proxy-negotiate -u :  "$@"

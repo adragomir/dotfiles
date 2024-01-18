@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [[ -f "${1}" ]] ;
-then
-	mvim --servername VIM --remote-tab-silent "$@"
-else
-	`touch ${1}`
-	mvim --servername VIM --remote-tab-silent "$@"
-fi

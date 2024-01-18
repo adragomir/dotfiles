@@ -1,5 +1,10 @@
 #!/bin/bash
 
+trans="false"
+if [[ "$0" == *"trans"* ]] ; then 
+  trans="true"
+fi
+
 if [[ $# == 1 ]]; then
   url="$1"
   shift
@@ -9,12 +14,17 @@ elif [[ $# -ge 2 ]]; then
   url="${@: -1}"
   set -- "${@:1:$(($#-1))}"
 fi
-echo "$@"
-echo "$url"
 
+sz_arg="bestvideo*+bestaudio/best"
 if [[ "$sz"  != "" ]]; then
-  yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"  -f "bestvideo[height<=$sz]+bestaudio/best[height<=$sz]" --write-subs --write-automatic-subs --sub-langs en --sub-format srt "$@" "$url"
-else
-  yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36" --write-subs --write-automatic-subs --sub-langs en --sub-format srt "$@" "$url"
+  sz_arg="bestvideo[height<=$sz]+bestaudio/best[height<=$sz]"
 fi
 
+output_template="%(title)s [%(id)s].%(ext)s"
+if [[ "$trans" == "true" ]]; then
+  title=$(yt-dlp --extractor-args "youtube:lang=en" --print title "$url")
+  trans_title=$(trans -b "${title}" | gsed 's!/!!g')
+  output_template="${trans_title} - %(title)s [%(id)s].%(ext)s"
+fi
+
+yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36" -f $sz_arg --extractor-args "lang:en" --write-subs --write-automatic-subs --sub-langs en --sub-format srt -o "${output_template}" "$@" "$url"

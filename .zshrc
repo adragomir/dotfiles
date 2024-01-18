@@ -5,7 +5,7 @@ export LC_ALL="en_US.UTF-8"
 # fpath {{{
 export ZSH=$HOME/.zsh
 fpath=($ZSH $fpath)
-fpath=(/usr/local/share/zsh-completions $fpath)
+fpath=(/opt/homebrew/share/zsh-completions $fpath)
 # }}}
 
 # {{{ modules
@@ -459,7 +459,6 @@ export INPUTRC=${HOME}/.inputrc
 export GOPATH=$HOME/.gocode
 export GO111MODULE=on
 export SOLARGRAPH_CACHE=$HOME/.cache/solargraph
-export MAVEN_HOME=$HOME/.cache/m2
 export RUSTUP_HOME=$HOME/.cache/rustup
 export CARGO_HOME=$HOME/.cache/cargo
 export FNM_DIR=$HOME/.cache/fnm
@@ -469,28 +468,40 @@ export FRUM_DIR=$HOME/.cache/frum
 export XDG_CONFIG_HOME=$HOME/.config/
 export XDG_CACHE_HOME=$HOME/.cache/
 export XDG_DATA_HOME=$HOME/.local/share/
-export JAVA_HOME=/usr/local/opt/openjdk@11/
+export JAVA_HOME=/opt/homebrew/opt/openjdk@11/
 export CONDA_PREFIX=$HOME/.conda
-export HOMEBREW_PREFIX="/usr/local";
-export HOMEBREW_CELLAR="/usr/local/Cellar";
-export HOMEBREW_REPOSITORY="/usr/local/Homebrew";
 export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
+export HOMEBREW_NO_INSTALL_FROM_API=1
 export HOMEBREW_NO_ENV_HINTS=1
+if [[ $(arch) == "arm64" ]]; then
+  eval $(/opt/homebrew/bin/brew shellenv)
+else
+  eval $(/usr/local/bin/brew shellenv)
+fi
 
 export PATH=\
-$HOME/.krew/bin:\
-/usr/local/opt/bison/bin:\
+/opt/blink/bin:\
+/opt/cosmo/bin:\
+/opt/homebrew/opt/bison/bin:\
 $HOME/bin:\
 $HOME/bin/$OS:\
+$HOME/.krew/bin:\
+$HOME/.krew/bin:\
 $HOME/.local/bin:\
 $HOME/.cache/cargo/bin:\
 $GOPATH/bin:\
+/opt/homebrew/share/dotnet:\
+/opt/homebrew/bin:\
+/opt/homebrew/sbin:\
 /usr/local/bin:\
-/usr/local/sbin:\
+/opt/local/sbin:\
 $HOME/.platformio/penv/bin:\
+$HOME/.dotnet/tools:\
 /opt/X11/bin:\
-/usr/local/share/dotnet:\
-/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:\
+/opt/homebrew/share/dotnet:\
+/usr/bin:/bin:\
+/usr/sbin:\
+/sbin:\
 $PATH
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"
@@ -521,16 +532,15 @@ fi
 [[ -x "$(command -v fnm)" ]] && eval "$(fnm env)"
 [[ -x "$(command -v frum)" ]] && eval "$(frum init)"
 conda() {
-  __conda_setup="$('/usr/local/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+  __conda_setup="$('/opt/homebrew/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
   if [ $? -eq 0 ]; then
       eval "$__conda_setup"
   else
-      if [ -f "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
-          . "/usr/local/Caskroom/miniconda/base/etc/profile.d/conda.sh"
+      if [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
+          . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh"
       else
-          export PATH="/usr/local/Caskroom/miniconda/base/bin:$PATH"
+          export PATH="/opt/homebrew/Caskroom/miniconda/base/bin:$PATH"
       fi
   fi
   unset __conda_setup
 }
-

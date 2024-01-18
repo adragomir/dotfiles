@@ -9,7 +9,6 @@ function r(tmp) {
         for (var i = 0; i < tests.length; i++) {
             var test = tests[i]
             if (test instanceof RegExp) {
-                alert("Found regexp for testing: " + test + " and url " + url)
                 if (test.test(host)) {
                     return true;
                 }
@@ -50,14 +49,18 @@ var FindProxyForURL = function(config) {
             proxy = config[i][0]
             tests = config[i][1]
             if (r(tests)(url, host)) {
-                alert("Returning proxy " + proxy + " for url " + url + ", " + host);
                 return proxy
             }
         }
         return "DIRECT";
     };
 }([
-["DIRECT, [//]], 
-//["SOCKS5 localhost:1235", [/(ut1\.omniture\.com|or1.omniture.com)$/]]
+//  [
+//    "SOCKS5 localhost:1235",
+//    [
+//      /(ut1\.omniture\.com|or1.omniture.com|mcps\.adobe\.net|lon\.omniture\.com)$/
+//    ]
+//  ],
+  ["DIRECT", [ new RegExp("") ] ], 
 ])
 
