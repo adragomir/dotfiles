@@ -75,6 +75,13 @@ elseif exists('g:neovide') == 1
   ino <D-v> <C-r>+
   vn <D-c> y
   set guicursor=a:block-blinkon0-Cursor
+  let g:neovide_scroll_animation_far_lines = 9999
+  let g:neovide_scroll_animation_length = 0.0
+  let g:neovide_hide_mouse_when_typing = v:true
+  let g:neovide_cursor_animation_length = 0.0
+  let g:neovide_cursor_trail_size = 0.0
+  let g:neovide_cursor_animate_in_insert_mode = v:false
+  let g:neovide_cursor_animate_command_line = v:false
 else 
   colorscheme jb
   set guicursor=a:block-blinkon0-Cursor

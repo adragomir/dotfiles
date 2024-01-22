@@ -2,33 +2,34 @@
 
 while getopts "n:" flag; do
     case "${flag}" in
-        n) name=${OPTARG};;
+        n) optname=${OPTARG};;
     esac
 done
 
-if test ${name}; then
+if test ${optname}; then
   shift 2
 fi
 
+name=${optname:-App}
+
 NVIM_SOCKET="/tmp/neovide${name}.socket"
 if [ ! -S $NVIM_SOCKET ]; then
-    echo "start first"
-    ~/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide --noidle  -- --listen $NVIM_SOCKET $@
+    /Users/adragomi/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide --neovim-bin=/opt/homebrew/bin/nvim --maximized --frame buttonless -- --listen ${NVIM_SOCKET} "$@"
 else
     if [[ "$#" -eq 0 ]]; then
         dir_or_file=$(pwd)
     else
         dir_or_file=$1
     fi
-    echo "dir: ${dir_or_file}"
-    if [[ -d ${dir_or_file} ]]; then
-        echo "Open dir ${dir_or_file}: <C-\><C-N>:\$tabnew | :tcd ${dir_or_file}<CR>"
+    dir_or_file=$(realpath $dir_or_file)
+    if [[ -d "${dir_or_file}" ]]; then
+        #echo "Open dir ${dir_or_file}: <C-\><C-N>:\$tabnew | :tcd ${dir_or_file}<CR>"
         nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew | :tcd ${dir_or_file}<CR>"
     else
-        dir=$(dirname $dir_or_file)
-        echo "Open file ${dir_or_file} in dir ${dir}"
+        file=$dir_or_file
+        dir=$(dirname "$file")
+        #echo "Open file ${dir_or_file} in dir ${dir}"
         nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew | :tcd ${dir} | :e ${dir_or_file}<CR>"
     fi
-
     osascript -e 'tell application "Neovide" to activate'
 fi
