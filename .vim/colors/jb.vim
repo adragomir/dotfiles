@@ -81,6 +81,7 @@ endfunction
 "
 autocmd VimEnter,ColorScheme * :hi Cursor guifg=#062329 guibg=#9ceda3
 "call s:Hi('ModeMsg', ['#ff0000'], s:back, 'none')
+call s:Hi('LspInlayHint', ['#888888'], s:none, '')
 call s:Hi('Normal', s:text, s:back, 'none')
 call s:Hi('Cursor', s:back, ['#9ceda3'], 'none') "#90C090
 call s:Hi('VimrDefaultCursor', s:back, ['#9ceda3'], 'reverse') "#90C090

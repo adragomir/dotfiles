@@ -179,7 +179,7 @@ bindkey "^[[Z" complete-files
 
 autoload -U edit-command-line
 zle -N edit-command-line
-bindkey '^X^E' edit-command-line
+bindkey '^x^e' edit-command-line
 
 _completeme() {
   zle -I
@@ -421,7 +421,7 @@ prompt_pure_setup "$@"
 source $ZSH/golang.plugin.zsh
 source $ZSH/url-tools.plugin.zsh
 source $ZSH/autoenv.plugin.zsh
-[[ -x "$(command -v kubectl)" ]] && source <($HOME/bin/kubectl completion zsh)
+[[ -x "$(command -v kubectl)" ]] && source <(kubectl completion zsh)
 [[ -x "$(command -v jira)" ]] && eval "$(jira --completion-script-zsh)"
 
 function iplot {
@@ -457,9 +457,11 @@ export LESS="-rX"
 export PAGER=less
 export INPUTRC=${HOME}/.inputrc
 export GOPATH=$HOME/.gocode
+export GOBIN=$HOME/.gocode/bin
 export GO111MODULE=on
 export SOLARGRAPH_CACHE=$HOME/.cache/solargraph
 export RUSTUP_HOME=$HOME/.cache/rustup
+export RUST_SRC_PATH=${RUSTUP_HOME}/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust
 export CARGO_HOME=$HOME/.cache/cargo
 export FNM_DIR=$HOME/.cache/fnm
 export npm_config_devdir=$HOME/.cache/node-gyp
@@ -479,6 +481,9 @@ else
   eval $(/usr/local/bin/brew shellenv)
 fi
 
+export ZVM_PATH=$XDG_DATA_HOME/zvm
+export ZVM_INSTALL="$ZVM_PATH/self"
+
 export PATH=\
 /opt/blink/bin:\
 /opt/cosmo/bin:\
@@ -486,10 +491,12 @@ export PATH=\
 $HOME/bin:\
 $HOME/bin/$OS:\
 $HOME/.krew/bin:\
-$HOME/.krew/bin:\
 $HOME/.local/bin:\
 $HOME/.cache/cargo/bin:\
+$ZVM_INSTALL:\
+$ZVM_PATH/bin:\
 $GOPATH/bin:\
+$HOME/work/tools/jai/bin:\
 /opt/homebrew/share/dotnet:\
 /opt/homebrew/bin:\
 /opt/homebrew/sbin:\
@@ -504,12 +511,13 @@ $HOME/.dotnet/tools:\
 /sbin:\
 $PATH
 
+source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"
 
 alias tmux='tmux -2'
 alias history='fc -l 1'
 alias k="kubectl"
-alias zigup="zigup --install-dir $HOME/.cache/zigup --path-link $HOME/bin/${OS}/zig"
 alias 4ed="${HOME}/Applications/Development\ Tools/4coder/4ed &"
 
 [[ "$TERM" == "xterm-kitty" ]] && {
@@ -529,8 +537,6 @@ fi
 #   export PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
 # fi
 #
-[[ -x "$(command -v fnm)" ]] && eval "$(fnm env)"
-[[ -x "$(command -v frum)" ]] && eval "$(frum init)"
 conda() {
   __conda_setup="$('/opt/homebrew/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
   if [ $? -eq 0 ]; then
@@ -544,3 +550,6 @@ conda() {
   fi
   unset __conda_setup
 }
+export PIP_BREAK_SYSTEM_PACKAGES=1
+
+export VCPKG_ROOT="$HOME/.cache/vcpkg"

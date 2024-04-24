@@ -1,9 +1,8 @@
 if has("mac")
   let g:os_bin_path = "darwin"
-  let g:python2_host_prog = '/usr/local/bin/python2.7'
-  let g:python3_host_prog = '/usr/local/opt/python@3.11/bin/python3.11'
-  let g:ruby_host_prog = $HOME . '/.cache/frum/versions/2.7.5/bin/neovim-ruby-host'
-  let g:node_host_prog = $HOME . '/.cache/fnm/node-versions/v16.20.0/installation/lib/node_modules/neovim/bin/cli.js'
+  let g:python3_host_prog = '/opt/homebrew/opt/python@3.12/bin/python3.12'
+  let g:ruby_host_prog = '/opt/homebrew/lib/ruby/gems/3.3.0/bin/neovim-ruby-host'
+  let g:node_host_prog = '/opt/homebrew/lib/node_modules/neovim/bin/cli.js'
 elseif has("wsl")
   let g:os_bin_path = "linux"
   let g:python2_host_prog = '/usr/local/bin/python'
@@ -77,7 +76,7 @@ elseif exists('g:neovide') == 1
   set guicursor=a:block-blinkon0-Cursor
   let g:neovide_scroll_animation_far_lines = 9999
   let g:neovide_scroll_animation_length = 0.0
-  let g:neovide_hide_mouse_when_typing = v:true
+  let g:neovide_hide_mouse_when_typing = v:false
   let g:neovide_cursor_animation_length = 0.0
   let g:neovide_cursor_trail_size = 0.0
   let g:neovide_cursor_animate_in_insert_mode = v:false
@@ -178,7 +177,7 @@ call plug#begin(g:plug_path)
 if !exists('g:vscode')
 " lang
 Plug 'https://git.sr.ht/~sircmpwn/hare.vim'
-Plug 'simrat39/rust-tools.nvim'
+Plug 'mrcjkb/rustaceanvim'
 Plug 'ray-x/guihua.lua'
 Plug 'ray-x/go.nvim'
 Plug 'rust-lang/rust.vim', { 'dir': stdpath('data') . '/bundle/rust', 'for': 'rust' }
@@ -234,22 +233,27 @@ Plug 'Decodetalkers/csharpls-extended-lsp.nvim'
 " debug
 Plug 'mfussenegger/nvim-dap'
 Plug 'theHamsta/nvim-dap-virtual-text'
+Plug 'nvim-neotest/nvim-nio'
 Plug 'rcarriga/nvim-dap-ui'
 Plug 'leoluz/nvim-dap-go'
 Plug 'nvim-telescope/telescope-dap.nvim'
-Plug 'mfussenegger/nvim-jdtls'
+"Plug 'mfussenegger/nvim-jdtls'
 " syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/playground'
 " Plug 'nvim-treesitter/nvim-treesitter-context'
 Plug 'RRethy/nvim-treesitter-textsubjects'
 " tools
+Plug 'tversteeg/registers.nvim'
+Plug 'kkharji/sqlite.lua'
+Plug 'gbprod/yanky.nvim'
+Plug 'dccsillag/magma-nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'lambdalisue/suda.vim'
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
 "Plug 'duane9/nvim-rg', {'branch': 'adragomi'}
 Plug 'jremmen/vim-ripgrep'
-Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a', 'do': 'patch -p1 < ~/.vim/patches/a.patch' }
+Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a' }
 Plug 'NMAC427/guess-indent.nvim'
 Plug 'tkmpypy/chowcho.nvim'
 Plug 'echasnovski/mini.nvim'
@@ -264,266 +268,40 @@ call plug#end()
 " let g:copilot_no_tab_map = v:true
 " imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
 
-fu! MoveCursor(move, mode)
-  if (a:move == 'h')
-    if (a:mode == '0')
-      normal 0
-    elseif (a:mode =~ '^\^')
-      if (a:mode == '^g')
-        normal g^
-      elseif (a:mode == '^n')
-        normal ^
-      endif
-    endif
-  elseif (a:move == 'e')
-    if (a:mode =~ '^\$')
-      if (a:mode == '$g')
-        normal g$
-      elseif (a:mode == '$n')
-        normal $
-      endif
-    endif
-  endif
-endf
+if !exists('g:vscode') " >>> VSCODE
 
-fu! HomeKey()
-  let oldmode = mode()
-  let oldcol = col('.')
-  call MoveCursor('h', '^n')
-  let newcol = col('.')
-  if (oldcol == newcol)
-    if (&wrap != 1) || (newcol <= winwidth(0) - 20)
-      call MoveCursor('h', '0')
-      let lastcol = col('.')
-      if (newcol == lastcol)
-        if (newcol == oldcol)
-          normal i
-        else
-          call MoveCursor('h', '^n')
-        endif
-      else
-        call MoveCursor('h', '0')
-      endif
-    endif
-  endif
-endf
 
-fu! EndKey()
-  call MoveCursor('e', '$g')
-endf
-
-" Visual mode functions
-fu! RestoreRegister()
-  if &clipboard == 'unnamed'
-    let @* = s:restore_reg
-  elseif &clipboard == 'unnamedplus'
-    let @+ = s:restore_reg
-  else
-    let @" = s:restore_reg
-  endif
-  return ''
-endf
-
-fu! ReplaceWithRegister()
-    let s:restore_reg = @"
-    return "p@=RestoreRegister()\<cr>"
-endf
-xn <silent> <expr> p ReplaceWithRegister()
-
-fu! SaveMap(key)
-  return maparg(a:key, 'n', 0, 1)
-endf
-fu! RestoreMap(map)
-  if !empty(a:map)
-    let l:tmp = ""
-    let l:tmp .= a:map.noremap ? 'nn' : 'nmap'
-    let l:tmp .= join(map(['buffer', 'expr', 'nowait', 'silent'], 'a:map[v:val] ? "<" . v:val . ">": ""'))
-    let l:tmp .= a:map.lhs . ' '
-    let l:tmp .= substitute(a:map.rhs, '<SID>', '<SNR>' . a:map.sid . '_', 'g')
-    execute l:tmp
-  endif
-endf
-
-nn K <nop>
-vn u <nop>
-nn + <nop>
-" nn r <nop>
-" nn R <nop>
-nn L <nop>
-nn M <nop>
-nn \| <nop>
-nn ( <nop>
-nn ) <nop>
-nn [ <nop>
-nn ] <nop>
-" nn { <nop>
-" nn } <nop>
-nn ]] <nop>
-nn [[ <nop>
-nn [] <nop>
-nn ][ <nop>
-nn <silent> Q <nop>
-map <MiddleMouse>  <nop>
-map <2-MiddleMouse>  <nop>
-map <3-MiddleMouse>  <nop>
-map <4-MiddleMouse>  <nop>
-im <MiddleMouse>  <nop>
-im <2-MiddleMouse>  <nop>
-im <3-MiddleMouse>  <nop>
-im <4-MiddleMouse>  <nop>
 lua <<EOF
-vim.api.nvim_set_keymap("", "<F1>", "<nop>", {noremap = true})
-for i=1,24 do
-  for j, t in ipairs({"i", "c"}) do
-    vim.api.nvim_set_keymap(t, "<F" .. i .. ">", "<nop>", {noremap = true})
-    vim.api.nvim_set_keymap(t, "<S-F" .. i .. ">", "<nop>", {noremap = true})
+  function hoon_def_search()
+    require 'telescope.builtin'.grep_string({search='\\+(\\+|\\$|\\*)  '.. vim.fn.expand('<cword>') .. '( |$)', use_regex=true})
   end
-end
-EOF
 
-" cutlass.nvim inline
-lua <<EOF
-local map = vim.api.nvim_set_keymap
-local keymap_opts = { noremap = true, silent = true }
-for _, mode in pairs({ "x", "n" }) do
-  for _, lhs in pairs({ "x", "X" }) do
-    if vim.fn.maparg(lhs, mode) == "" then
-      map(mode, lhs, '"_' .. lhs, keymap_opts)
-    end
-  end
-end
+  require('registers').setup()
 
-map("n", "<Del>", '"_x', keymap_opts)
-map("x", "<Del>", '"_x', keymap_opts)
-EOF
-
-silent! nunmap Y
-vn y myy`y
-vn Y myY`y
-no j gj
-no k gk
-no <up> gk
-no <down> gj
-nn D d$
-
-vn J j
-vn K k
-
-nn <cr> :nohlsearch<cr>
-nn <M-Right> :vertical resize +5<CR>
-nn <M-Left> :vertical resize -5<CR>
-nn <M-Down> :resize +3<CR>
-nn <M-Up> :resize -3<CR>
-
-nn ' `
-xn ' `
-map <leader>' ``
-map <leader>. `.
-nn gl `.
-map <leader>] `]
-map <leader>> `>
-map <leader>` `^
-nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
-
-vn p "_dP
-vn r "_dP
-
-nn <C-h> <c-w>h
-nn <C-j> <c-w>j
-nn <C-k> <c-w>k
-nn <C-l> <c-w>l
-
-" map <s-LEFT> :vertical resize +5 <Cr>
-" map <s-RIGHT> :vertical resize -5 <Cr>
-" map <s-UP> :resize +5 <Cr>
-" map <s-DOWN> :resize -5 <Cr>
-
-function! CloseOther(wid)
-  if a:wid == 1
-    " on left
-    execute 2 .. "wincmd c"
-  else
-    execute 1 .. "wincmd c"
-  endif
-endfunction
-
-nmap <c-w><left> :call CloseOther(winnr())<cr>
-nmap <c-w><right> :call CloseOther(winnr())<cr>
-
-no <Space> m`
-
-ino <silent> <Home> <C-o>:call HomeKey()<CR>
-nn <silent> <Home> :call HomeKey()<CR>
-nn <silent> <leader>/ :Rg <cword><cr>
-nm <MapLocalLeader>h :AT<CR>
-nm - :Chowcho<CR>
-
-if !exists('g:vscode')
-nn <silent>gD          <cmd>lua vim.lsp.buf.declaration()<CR>
-nn <silent>gd          <cmd>lua vim.lsp.buf.definition()<CR>
-nn <silent>K           <cmd>lua vim.lsp.buf.signature_help()<CR>
-nn <silent>gi          <cmd>lua vim.lsp.buf.implementation()<CR>
-nn <silent>gr          <cmd>lua vim.lsp.buf.references()<CR>
-"nn <silent>gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
-nn <silent>gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
-nn <silent>gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
-"nn <silent>gsd        <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
-nn <silent><f12>       <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
-nn <silent><c-f12>     <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{}<CR>  
-nn <silent><leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
-nn <silent><leader>f   <cmd>lua vim.lsp.buf.format()<CR>
-nn <silent><leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
-nn <silent>[c          :NextDiagnostic<CR>
-nn <silent>]c          :PrevDiagnostic<CR>
-nn <silent><space>d    :OpenDiagnostic<CR>
-nn <silent><leader>sp   <cmd>lua require("spectre").open()<CR>
-
-if has('gui_vimr') || exists('g:neovide') == 1
-  nn <silent><D-t>  :tabnew<cr>
-  nn <silent><D-w>  :tabclose<cr>
-  nn <silent><D-]>  :tabnext<cr>
-  nn <silent><D-[>  :tabprevious<cr>
-  no <silent><D-1>  1gt
-  no <silent><D-2>  2gt
-  no <silent><D-3>  3gt
-  no <silent><D-4>  4gt
-  no <silent><D-5>  5gt
-  no <silent><D-6>  6gt
-  no <silent><D-7>  7gt
-  no <silent><D-8>  8gt
-  no <silent><D-9>  9gt
-
-  ino <silent><D-1> 1gt
-  ino <silent><D-2> 2gt
-  ino <silent><D-3> 3gt
-  ino <silent><D-4> 4gt
-  ino <silent><D-5> 5gt
-  ino <silent><D-6> 6gt
-  ino <silent><D-7> 7gt
-  ino <silent><D-8> 8gt
-  ino <silent><D-9> 9gt
-  ino <silent><D-t> <C-o>:tabnew<cr>
-  ino <silent><D-w> <C-o>:tabclose<cr>
-  ino <silent><D-]> <C-o>:tabnext<cr>
-  ino <silent><D-[> <C-o>:tabprevious<cr>
-endif
-
-lua <<EOF
-function hoon_def_search()
-  require 'telescope.builtin'.grep_string({search='\\+(\\+|\\$|\\*)  '.. vim.fn.expand('<cword>') .. '( |$)', use_regex=true})
-end
-EOF
-
-nn <silent><leader>d :ToggleDiag<CR>
-nn <silent>gh :Lspsaga lsp_finder<CR>
-nn <silent><leader>ca :Lspsaga code_action<CR>
-nn <silent>gs :Lspsaga hover_doc<CR>
-nn <silent>g<space> :Lspsaga preview_definition<CR>
-nn <silent><leader>cd :Lspsaga show_line_diagnostics<CR>
-nn <silent>[e :Lspsaga diagnostic_jump_next<CR>
-nn <silent>]e :Lspsaga diagnostic_jump_prev<CR>
-
-lua <<EOF
+  require('yanky').setup({
+    ring = {
+      history_length = 100,
+      storage = "sqlite",
+      sync_with_numbered_registers = true,
+      cancel_event = "update",
+      ignore_registers = { "_" },
+      update_register_on_cycle = false,
+    },
+    system_clipboard = {
+      sync_with_ring = true,
+    },
+    highlight = {
+      on_put = true,
+      on_yank = true,
+      timer = 50,
+    },
+    preserve_cursor_position = {
+      enabled = true,
+    },
+    textobj = {
+      enabled = true,
+    },
+  })
   require('spectre').setup()
   -- vim.g.coq_settings = {
   --   auto_start = 'shut-up',
@@ -806,7 +584,7 @@ lua <<EOF
   -- lspconfig.prosemd_lsp.setup(make_lsp_config({}))
   -- lspconfig.racket_langserver.setup(make_lsp_config({}))
   lspconfig.zls.setup(make_lsp_config({
-    cmd = { vim.env.HOME .. '/bin/darwin/zls-0.11.0' }, 
+    cmd = { vim.env.HOME .. '/.local/share/zvm/bin/zls' }, 
     flags = {
       debounce_text_changes = 250, 
     },
@@ -833,39 +611,115 @@ lua <<EOF
   -- lspconfig.solang.setup(make_lsp_config({}))
   -- lspconfig.svls.setup(make_lsp_config({}))
 
-  lspconfig.rust_analyzer.setup(make_lsp_config({
-  }))
-  -- require('rust-tools').setup({})
-  -- lspconfig.ccls.setup(make_lsp_config({
-  --   cmd = {
-  --     "ccls", 
-  --     "--log-file=/tmp/ccls.out", 
-  --     "-v=1", 
-  --   },
-  --   init_options = {
-  --     index = {
-  --       initialBlackList = { '.*omtr_tmp.*' }
-  --     }
-  --   },
-  --   settings = {
-  --     ccls = {
-  --       clang = {
-  --         extraArgs = {
-  --             "-isystem/usr/local/include", 
-  --             "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1", 
-  --             "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include", 
-  --             "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include", 
-  --             "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include", 
-  --             "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks}", 
-  --         }, 
-  --         resourceDir = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3"
-  --       }
-  --     }
-  --   },
+  -- lspconfig.rust_analyzer.setup(make_lsp_config({
   -- }))
+  vim.g.rustaceanvim = {
+    -- Plugin configuration
+    tools = {
+      reload_workspace_from_cargo_toml = true, 
+      hover_actions = {
+        replace_builtin_hover = true
+      }, 
+      code_actions = {
+        ui_select_fallback = false
+      }, 
+      float_win_config = {
+        auto_focus = true
+      }
+    },
+    -- LSP configuration
+    server = {
+      on_attach = function(client, bufnr)
+        -- you can also put keymaps in here
+        if client.server_capabilities.inlayHintProvider then
+            vim.g.inlay_hints_visible = true
+            vim.lsp.inlay_hint.enable(true, {bufnr = bufnr})
+        end
+      end,
+      default_settings = {
+        -- rust-analyzer language server configuration
+        ['rust-analyzer'] = {
+          completion = {
+            autoimport = {
+              enable = true
+            }, 
+            callable = {
+              snippets = 'none'
+            }, 
+            fullFunctionSignatures = {
+              enable = true
+            }, 
+            privateEditable = {
+              enable = true
+            }, 
+          }, 
+          hover = {
+            actions = {
+              enable = true, 
+              references = {
+                enable = true
+              }
+            }
+          }, 
+          inlayHints = {
+            chainingHints = {
+              enable = true
+            }, 
+            closureStyle = 'rust_analyzer', 
+            typeHints = {
+              enable = true
+            }, 
+            closureCaptureHints = {
+              enable = true
+            }, 
+            expressionAdjustmentHints = {
+              enable = 'always'
+            }, 
+            closureReturnTypeHints = {
+              enable = true
+            }, 
+            implicitDrops = {
+              enable = true
+            }, 
+            lifetimeElisionHints = {
+              enable = 'skip_trivial'
+            }, 
+            maxLength = nil, 
+            parameterHints = {
+              enable = true
+            }, 
+          }, 
+          diagnostics = {
+            disabled = {
+              'incorrect-ident-case', 
+              'replace-filter-map-next-with-find-map'
+            }
+          }, 
+          lens = {
+            enable = true, 
+            references = {
+              adt = {
+                enable = true
+              }, 
+              method = {
+                enable = true
+              }, 
+              trait = {
+                enable = true
+              }, 
+            }
+          }
+        },
+      },
+    },
+    -- DAP configuration
+    dap = {
+    },
+  }
+  lspconfig.ols.setup({})
   lspconfig.clangd.setup(make_lsp_config({
     cmd = {
-      "/usr/local/opt/llvm/bin/clangd", 
+      "/opt/homebrew/opt/llvm/bin/clangd", 
       "--background-index",
       "--pch-storage=memory",
       "--all-scopes-completion",
@@ -913,11 +767,11 @@ lua <<EOF
           plugins = {
             pycodestyle = {
               enabled = false, 
-              select = {"E112", "E113", "E117", "E223", "E224", }
+              select = {"E112", "E113", "E117", "E223", "E224", "E221" }
             }, 
             flake8 = {
               enabled = false, 
-              ignore = {"E261"}
+              ignore = {"E261", "E221"}
             }, 
             mccabe = {
               enabled= false, 
@@ -1052,19 +906,11 @@ lua <<EOF
   --   analyze_open_documents_only = true,
   -- }
 
-  -- require "lsp_signature".setup({
-  --   bind = false,
-  --   doc_lines = 0,
-  --   floating_window = true,
-  --   floating_window_above_cur_line = true,
-  --   fix_pos = false,
-  --   hint_enable = false,
-  --   always_trigger = true,
-  --   toggle_key = nil,
-  --   handler_opts = {
-  --     border = "rounded"
-  --   }
-  -- })
+  require "lsp_signature".setup({
+    bind = true,
+    floating_window = false,
+    hint_prefix = "", 
+  })
   vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('UserLspConfig', {}),
     callback = function(ev)
@@ -1127,171 +973,125 @@ lua <<EOF
   require('telescope').load_extension('fzf')
 EOF
 
-" call ddc#custom#patch_global('ui', 'native')
-" call ddc#custom#patch_global('sources', ['around', 'nvim-lsp', 'buffer'])
-" call ddc#custom#patch_global('sourceOptions', #{
-"       \ _: #{
-"       \   matchers: ['matcher_head'],
-"       \   sorters: ['sorter_rank']},
-"       \ })
-" " <TAB>: completion.
-" inoremap <silent><expr> <TAB>
-" \ pumvisible() ? '<C-n>' :
-" \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
-" \ '<TAB>' : ddc#map#manual_complete()
-" " <S-TAB>: completion back.
-" inoremap <expr><S-TAB>  pumvisible() ? '<C-p>' : '<C-h>'
-" call ddc#enable()
-
-" function! s:check_back_space() abort
-"   let col = col('.') - 1
-"   return !col || getline('.')[col - 1] =~ '\s'
-" endfunction
-"
-" " make tab open coq
-" inoremap <silent><expr> <Tab>
-"   \ pumvisible() ? "\<C-n>" :
-"   \ <SID>check_back_space() ? "\<Tab>" :
-"   \ "\<C-x>\<C-u>"
-
 lua <<EOF
-local chainy_tab = function()
-  -- if vim.fn.pumvisible() ~= 0 then
-  --   if vim.fn.complete_info({ "selected" }).selected ~= -1 then
-  --     return "<c-y>"
-  --   else
-  --     return "<c-n><c-y><c-e>"
-  --   end
-  -- else
-  --   return "<tab>"
-  -- end
+  local chainy_tab = function()
+    -- if vim.fn.pumvisible() ~= 0 then
+    --   if vim.fn.complete_info({ "selected" }).selected ~= -1 then
+    --     return "<c-y>"
+    --   else
+    --     return "<c-n><c-y><c-e>"
+    --   end
+    -- else
+    --   return "<tab>"
+    -- end
 
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-n>", "n")]])
-    return
-  else
-    local col = vim.fn.col('.') - 1
-    if col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
-      vim.api.nvim_eval([[feedkeys("\<tab>", "n")]])
+    if vim.fn.pumvisible() ~= 0 then
+      vim.api.nvim_eval([[feedkeys("\<c-n>", "n")]])
       return
     else
-      vim.api.nvim_eval([[feedkeys("\<c-x>\<c-o>", "n")]])
+      local col = vim.fn.col('.') - 1
+      if col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
+        vim.api.nvim_eval([[feedkeys("\<tab>", "n")]])
+        return
+      else
+        vim.api.nvim_eval([[feedkeys("\<c-x>\<c-o>", "n")]])
+        return
+      end
+    end
+  end
+  local chainy_esc = function()
+    if vim.fn.pumvisible() ~= 0 then
+      vim.api.nvim_eval([[feedkeys("\<c-e>\<Esc>", "n")]])
+      return
+    else
+      vim.api.nvim_eval([[feedkeys("\<Esc>", "n")]])
       return
     end
   end
-end
-local chainy_esc = function()
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-e>\<Esc>", "n")]])
-    return
-  else
-    vim.api.nvim_eval([[feedkeys("\<Esc>", "n")]])
-    return
-  end
-end
-local chainy_cc = function()
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-e>\<c-c>", "n")]])
-    return
-  else
-    vim.api.nvim_eval([[feedkeys("\<c-c>", "n")]])
-    return
-  end
-end
-local chainy_bs = function()
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-e>\<BS>", "n")]])
-    return
-  else
-    vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
-    return
-  end
-end
-local chainy_cr = function()
-  if vim.fn.pumvisible() ~= 0 then
-    if vim.fn.complete_info() == -1 then
-      vim.api.nvim_eval([[feedkeys("\<c-e>\<CR>", "n")]])
+  local chainy_cc = function()
+    if vim.fn.pumvisible() ~= 0 then
+      vim.api.nvim_eval([[feedkeys("\<c-e>\<c-c>", "n")]])
       return
     else
-      vim.api.nvim_eval([[feedkeys("\<c-y>", "n")]])
+      vim.api.nvim_eval([[feedkeys("\<c-c>", "n")]])
       return
     end
-  else
-    vim.api.nvim_eval([[feedkeys("\<CR>", "n")]])
-    return
   end
-end
-local chainy_stab = function()
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-p>", "n")]])
-    return
-  else
-    vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
-    return
+  local chainy_bs = function()
+    if vim.fn.pumvisible() ~= 0 then
+      vim.api.nvim_eval([[feedkeys("\<c-e>\<BS>", "n")]])
+      return
+    else
+      vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
+      return
+    end
   end
-end
-vim.keymap.set("i", "<Esc>", chainy_esc, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<C-c>", chainy_cc, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<BS>", chainy_bs, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<CR>", chainy_cr, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<Tab>", chainy_tab, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<S-Tab>", chainy_stab, { silent=true, expr = true, noremap = true })
-EOF
+  local chainy_cr = function()
+    if vim.fn.pumvisible() ~= 0 then
+      if vim.fn.complete_info() == -1 then
+        vim.api.nvim_eval([[feedkeys("\<c-e>\<CR>", "n")]])
+        return
+      else
+        vim.api.nvim_eval([[feedkeys("\<c-y>", "n")]])
+        return
+      end
+    else
+      vim.api.nvim_eval([[feedkeys("\<CR>", "n")]])
+      return
+    end
+  end
+  local chainy_stab = function()
+    if vim.fn.pumvisible() ~= 0 then
+      vim.api.nvim_eval([[feedkeys("\<c-p>", "n")]])
+      return
+    else
+      vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
+      return
+    end
+  end
+  vim.keymap.set("i", "<Esc>", chainy_esc, { silent=true, expr = true, noremap = true })
+  vim.keymap.set("i", "<C-c>", chainy_cc, { silent=true, expr = true, noremap = true })
+  vim.keymap.set("i", "<BS>", chainy_bs, { silent=true, expr = true, noremap = true })
+  vim.keymap.set("i", "<CR>", chainy_cr, { silent=true, expr = true, noremap = true })
+  vim.keymap.set("i", "<Tab>", chainy_tab, { silent=true, expr = true, noremap = true })
+  vim.keymap.set("i", "<S-Tab>", chainy_stab, { silent=true, expr = true, noremap = true })
 
-lua <<EOF
-local move_left = function()
-  require("move").move(1)
-end
-local move_right = function()
-  require("move").move(2)
-end
-vim.keymap.set("n", "<M-h>", move_left, { silent=true, expr = true, noremap = true })
-vim.keymap.set("n", "<M-l>", move_right, { silent=true, expr = true, noremap = true })
-EOF
+  local move_left = function()
+    require("move").move(1)
+  end
+  local move_right = function()
+    require("move").move(2)
+  end
+  vim.keymap.set("n", "<M-h>", move_left, { silent=true, expr = true, noremap = true })
+  vim.keymap.set("n", "<M-l>", move_right, { silent=true, expr = true, noremap = true })
 
-nmap <C-p> <cmd>lua require('telescope.builtin').find_files()<cr> 
-nmap <leader>1 :NvimTreeFindFileToggle<cr> 
-"nmap <leader>g <cmd>lua require('telescope.builtin').grep_string({ search = vim.fn.input('Grep >' ) })<cr>
-nmap <leader>g <cmd>lua require('telescope.builtin').live_grep()<cr>
-nmap <leader>s <cmd>lua require('telescope.builtin').lsp_workspace_symbols({file_encoding='utf-8'})<cr>
-nmap <leader>5 <cmd>lua require('telescope.builtin').buffers()<cr> 
-nmap <leader>6 <cmd>lua require('telescope.builtin').find_files({cwd= $HOME . '/Dropbox/personal/notes/'})<cr> 
+  vim.keymap.set('n', '<F7>', function() require('dap').continue() end)
+  vim.keymap.set('n', '<S-F7>', function() require('dap').terminate() end)
+  vim.keymap.set('n', '<C-F7>', function() require('dap').restart() end)
+  vim.keymap.set('n', '<C-F10>', function() require('dap').run_to_cursor() end)
+  vim.keymap.set('n', '<F10>', function() require('dap').step_over() end)
+  vim.keymap.set('n', '<F11>', function() require('dap').step_into() end)
+  vim.keymap.set('n', '<S-F11>', function() require('dap').step_out() end)
+  vim.keymap.set('n', '<F9>', function() require('dap').toggle_breakpoint() end)
+  vim.keymap.set('n', '<Leader>B', function() require('dap').set_breakpoint() end)
+  vim.keymap.set('n', '<Leader>lp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
+  vim.keymap.set('n', '<Leader>dr', function() require('dap').repl.open() end)
+  vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
+  vim.keymap.set({'n', 'v'}, '<Leader>dh', function()
+    require('dap.ui.widgets').hover()
+  end)
+  vim.keymap.set({'n', 'v'}, '<Leader>dp', function()
+    require('dap.ui.widgets').preview()
+  end)
+  vim.keymap.set('n', '<Leader>df', function()
+    local widgets = require('dap.ui.widgets')
+    widgets.centered_float(widgets.frames)
+  end)
+  vim.keymap.set('n', '<Leader>ds', function()
+    local widgets = require('dap.ui.widgets')
+    widgets.centered_float(widgets.scopes)
+  end)
 
-lua <<EOF
-vim.keymap.set('n', '<F7>', function() require('dap').continue() end)
-vim.keymap.set('n', '<S-F7>', function() require('dap').terminate() end)
-vim.keymap.set('n', '<C-F7>', function() require('dap').restart() end)
-vim.keymap.set('n', '<C-F10>', function() require('dap').run_to_cursor() end)
-vim.keymap.set('n', '<F10>', function() require('dap').step_over() end)
-vim.keymap.set('n', '<F11>', function() require('dap').step_into() end)
-vim.keymap.set('n', '<S-F11>', function() require('dap').step_out() end)
-vim.keymap.set('n', '<F9>', function() require('dap').toggle_breakpoint() end)
-vim.keymap.set('n', '<Leader>B', function() require('dap').set_breakpoint() end)
-vim.keymap.set('n', '<Leader>lp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
-vim.keymap.set('n', '<Leader>dr', function() require('dap').repl.open() end)
-vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
-vim.keymap.set({'n', 'v'}, '<Leader>dh', function()
-  require('dap.ui.widgets').hover()
-end)
-vim.keymap.set({'n', 'v'}, '<Leader>dp', function()
-  require('dap.ui.widgets').preview()
-end)
-vim.keymap.set('n', '<Leader>df', function()
-  local widgets = require('dap.ui.widgets')
-  widgets.centered_float(widgets.frames)
-end)
-vim.keymap.set('n', '<Leader>ds', function()
-  local widgets = require('dap.ui.widgets')
-  widgets.centered_float(widgets.scopes)
-end)
-EOF
-
-lua <<EOF
---   require("cutlass").setup({
---     cut_key = 'x', 
---     override_del = true, 
---     exclude = {}
---   })
   require'nvim-treesitter.install'.compilers = { "clang" }
   require'nvim-treesitter.configs'.setup {
     highlight = {
@@ -1323,8 +1123,330 @@ lua <<EOF
     },
     filetype = "jai", -- if filetype does not match the parser name
   }
+
+  -- COLORING
+  local jump_ns = vim.api.nvim_create_namespace("jump_ns")
+  local change_ns = vim.api.nvim_create_namespace("change_ns")
+  local insert_ns = vim.api.nvim_create_namespace("insert_ns")
+
+  function mark_on(ns, mark, highlight)
+    local bufnr = vim.api.nvim_get_current_buf()
+    vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+    local pos = vim.api.nvim_buf_get_mark(bufnr, mark)
+    if pos ~= nil and (pos[1] ~= 0 and pos[2] ~= 0) then
+      local pos1 = {pos[1] - 1, pos[2]}
+      local pos2 = {pos[1] - 1, pos[2]}
+      local lines = vim.api.nvim_buf_get_lines(bufnr, pos1[1], pos2[1]+1, false)
+      if lines ~= nil and #lines > 0 then
+        local length = lines[1]:len()
+        if pos1[2] == length then
+          pos1[2] = pos1[2] - 1
+        end
+        vim.highlight.range(bufnr, ns, highlight, pos1, pos2, {inclusive = true, priority=10000})
+      end
+    end
+  end
+  function mark_on_move()
+    mark_on(jump_ns, '`', 'hi_MarkBeforeJump')
+  end
+  function mark_on_changed()
+    mark_on(change_ns, '.', 'hi_MarkChange')
+  end
+  function mark_on_insert_stop()
+    mark_on(insert_ns, '^', 'hi_MarkInsertStop')
+  end
 EOF
+
+fu! MoveCursor(move, mode)
+  if (a:move == 'h')
+    if (a:mode == '0')
+      normal 0
+    elseif (a:mode =~ '^\^')
+      if (a:mode == '^g')
+        normal g^
+      elseif (a:mode == '^n')
+        normal ^
+      endif
+    endif
+  elseif (a:move == 'e')
+    if (a:mode =~ '^\$')
+      if (a:mode == '$g')
+        normal g$
+      elseif (a:mode == '$n')
+        normal $
+      endif
+    endif
+  endif
+endf
+
+fu! HomeKey()
+  let oldmode = mode()
+  let oldcol = col('.')
+  call MoveCursor('h', '^n')
+  let newcol = col('.')
+  if (oldcol == newcol)
+    if (&wrap != 1) || (newcol <= winwidth(0) - 20)
+      call MoveCursor('h', '0')
+      let lastcol = col('.')
+      if (newcol == lastcol)
+        if (newcol == oldcol)
+          normal i
+        else
+          call MoveCursor('h', '^n')
+        endif
+      else
+        call MoveCursor('h', '0')
+      endif
+    endif
+  endif
+endf
+
+fu! EndKey()
+  call MoveCursor('e', '$g')
+endf
+
+" Visual mode functions
+fu! RestoreRegister()
+  if &clipboard == 'unnamed'
+    let @* = s:restore_reg
+  elseif &clipboard == 'unnamedplus'
+    let @+ = s:restore_reg
+  else
+    let @" = s:restore_reg
+  endif
+  return ''
+endf
+
+fu! ReplaceWithRegister()
+    let s:restore_reg = @"
+    return "p@=RestoreRegister()\<cr>"
+endf
+xn <silent> <expr> p ReplaceWithRegister()
+
+fu! SaveMap(key)
+  return maparg(a:key, 'n', 0, 1)
+endf
+
+fu! RestoreMap(map)
+  if !empty(a:map)
+    let l:tmp = ""
+    let l:tmp .= a:map.noremap ? 'nn' : 'nmap'
+    let l:tmp .= join(map(['buffer', 'expr', 'nowait', 'silent'], 'a:map[v:val] ? "<" . v:val . ">": ""'))
+    let l:tmp .= a:map.lhs . ' '
+    let l:tmp .= substitute(a:map.rhs, '<SID>', '<SNR>' . a:map.sid . '_', 'g')
+    execute l:tmp
+  endif
+endf
+
+" mapping disable
+nn K <nop>
+vn u <nop>
+nn + <nop>
+" nn r <nop>
+" nn R <nop>
+nn L <nop>
+nn M <nop>
+nn \| <nop>
+nn ( <nop>
+nn ) <nop>
+nn [ <nop>
+nn ] <nop>
+" nn { <nop>
+" nn } <nop>
+nn ]] <nop>
+nn [[ <nop>
+nn [] <nop>
+nn ][ <nop>
+nn <silent> Q <nop>
+map <MiddleMouse>  <nop>
+map <2-MiddleMouse>  <nop>
+map <3-MiddleMouse>  <nop>
+map <4-MiddleMouse>  <nop>
+im <MiddleMouse>  <nop>
+im <2-MiddleMouse>  <nop>
+im <3-MiddleMouse>  <nop>
+im <4-MiddleMouse>  <nop>
+lua <<EOF
+vim.keymap.set("", "<F1>", "<nop>", {noremap = true})
+for i=1,24 do
+  for j, t in ipairs({"i", "c"}) do
+    vim.keymap.set(t, "<F" .. i .. ">", "<nop>", {noremap = true})
+    vim.keymap.set(t, "<S-F" .. i .. ">", "<nop>", {noremap = true})
+  end
+end
+EOF
+
+" cutlass.nvim inline
+lua <<EOF
+--[[
+local keymap_opts = { noremap = true, silent = true }
+for _, mode in pairs({ "x", "n" }) do
+  for _, lhs in pairs({ "x", "X" }) do
+    if vim.fn.maparg(lhs, mode) == "" then
+      vim.keymap.set(mode, lhs, '"_' .. lhs, keymap_opts)
+    end
+  end
+end
+
+vim.keymap.set("n", "<Del>", '"_x', keymap_opts)
+vim.keymap.set("x", "<Del>", '"_x', keymap_opts)
+--]]
+EOF
+
+" mapping kill / yank
+lua <<EOF
+vim.keymap.set({"n","x"}, "p", "<Plug>(YankyPutAfter)")
+vim.keymap.set({"n","x"}, "P", "<Plug>(YankyPutBefore)")
+vim.keymap.set({"n","x"}, "gp", "<Plug>(YankyGPutAfter)")
+vim.keymap.set({"n","x"}, "gP", "<Plug>(YankyGPutBefore)")
+vim.keymap.set("n", "<c-s-v>", "<Plug>(YankyPreviousEntry)")
+vim.keymap.set("n", "<c-v>", "<Plug>(YankyNextEntry)")
+EOF
+" silent! nunmap Y
+" vn y myy`y
+" vn Y myY`y
+" nn D d$
+" vn p "_dP
+" vn r "_dP
+
+" mapping movement
+no j gj
+no k gk
+no <up> gk
+no <down> gj
+vn J j
+vn K k
+
+" mapping cr
+nn <cr> :nohlsearch<cr>
+let g:save_cr_map = {}
+aug all_buffers
+  au! 
+  au!
+  au VimLeavePre * execute 'silent! 1,' . bufnr('$') . 'bwipeout!'
+  au! CmdwinEnter * 
+    \ let g:save_cr_map = SaveMap('<cr>') |
+    \ execute ':silent! :unmap <cr>'
+  au! CmdwinLeave *
+    \ execute ':call RestoreMap(g:save_cr_map)'
+  au! WinEnter,BufWinEnter *
+    \ if &ft == "qf" |
+    \     let g:save_cr_map = SaveMap('<cr>') |
+    \     execute ':silent! unmap <cr>' |
+    \ else |
+    \     execute ':silent! call RestoreMap(g:save_cr_map)' |
+    \ endif
+  au! WinLeave * 
+    \ if &ft == "qf" |
+    \     execute ':call RestoreMap(g:save_cr_map)' |
+    \ endif
+aug END
+
+" mapping resize
+nn <M-Right> :vertical resize +5<CR>
+nn <M-Left> :vertical resize -5<CR>
+nn <M-Down> :resize +3<CR>
+nn <M-Up> :resize -3<CR>
+nn <C-h> <c-w>h
+nn <C-j> <c-w>j
+nn <C-k> <c-w>k
+nn <C-l> <c-w>l
+
+nn ' `
+xn ' `
+map <leader>' ``
+map <leader>. `.
+nn gl `.
+map <leader>] `]
+map <leader>> `>
+map <leader>` `^
+nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
+
+no <Space> m`
+
+" mappings home end
+ino <silent> <Home> <C-o>:call HomeKey()<CR>
+nn <silent> <Home> :call HomeKey()<CR>
+nn <silent> <leader>/ :Rg <cword><cr>
+nm <MapLocalLeader>h :AT<CR>
+nm - :Chowcho<CR>
+
+" mappings lsp
+nn <silent>gD          <cmd>lua vim.lsp.buf.declaration()<CR>
+nn <silent>gd          <cmd>lua vim.lsp.buf.definition()<CR>
+nn <silent>K           <cmd>lua vim.lsp.buf.signature_help()<CR>
+nn <silent>gi          <cmd>lua vim.lsp.buf.implementation()<CR>
+nn <silent>gr          <cmd>lua vim.lsp.buf.references()<CR>
+"nn <silent>gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
+nn <silent>gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
+nn <silent>gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+"nn <silent>gsd        <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
+nn <silent><f12>       <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
+nn <silent><c-f12>     <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{}<CR>  
+nn <silent><leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
+nn <silent><leader>f   <cmd>lua vim.lsp.buf.format()<CR>
+"nn <silent><leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
+nn <silent>[c          :NextDiagnostic<CR>
+nn <silent>]c          :PrevDiagnostic<CR>
+nn <silent><space>d    :OpenDiagnostic<CR>
+nn <silent><leader>sp   <cmd>lua require("spectre").open()<CR>
+
+nn <silent><leader>d   :ToggleDiag<CR>
+nn <silent>gh          :Lspsaga finder<CR>
+nn <silent><leader>ca  :Lspsaga code_action<CR>
+nn <silent>gs          :Lspsaga hover_doc<CR>
+nn <silent>g<space>    :Lspsaga peek_definition<CR>
+nn <silent>gt<space>   :Lspsaga peek_type_definition<CR>
+nn <silent>[e          :Lspsaga diagnostic_jump_next<CR>
+nn <silent>]e          :Lspsaga diagnostic_jump_prev<CR>
+
+if has('gui_vimr') || exists('g:neovide') == 1
+  nn <silent><D-t>  :tabnew<cr>
+  nn <silent><D-w>  :tabclose<cr>
+  nn <silent><D-]>  :tabnext<cr>
+  nn <silent><D-[>  :tabprevious<cr>
+  nn <silent><D-}>  :tabnext<cr>
+  nn <silent><D-{>  :tabprevious<cr>
+  no <silent><D-1>  1gt
+  no <silent><D-2>  2gt
+  no <silent><D-3>  3gt
+  no <silent><D-4>  4gt
+  no <silent><D-5>  5gt
+  no <silent><D-6>  6gt
+  no <silent><D-7>  7gt
+  no <silent><D-8>  8gt
+  no <silent><D-9>  9gt
+
+  ino <silent><D-1> 1gt
+  ino <silent><D-2> 2gt
+  ino <silent><D-3> 3gt
+  ino <silent><D-4> 4gt
+  ino <silent><D-5> 5gt
+  ino <silent><D-6> 6gt
+  ino <silent><D-7> 7gt
+  ino <silent><D-8> 8gt
+  ino <silent><D-9> 9gt
+  ino <silent><D-t> <C-o>:tabnew<cr>
+  ino <silent><D-w> <C-o>:tabclose<cr>
+  ino <silent><D-]> <C-o>:tabnext<cr>
+  ino <silent><D-[> <C-o>:tabprevious<cr>
+  ino <silent><D-}> <C-o>:tabnext<cr>
+  ino <silent><D-{> <C-o>:tabprevious<cr>
 endif
+" telescope
+nm <C-p> <cmd>lua require('telescope.builtin').find_files()<cr> 
+nm <leader>1 :NvimTreeFindFileToggle<cr> 
+"nmap <leader>g <cmd>lua require('telescope.builtin').grep_string({ search = vim.fn.input('Grep >' ) })<cr>
+" nmap <leader>g <cmd>lua require('telescope.builtin').live_grep()<cr>
+nm <leader>s <cmd>lua require('telescope.builtin').lsp_workspace_symbols({file_encoding='utf-8'})<cr>
+nm <leader>5 <cmd>lua require('telescope.builtin').buffers()<cr> 
+nm <leader>6 <cmd>lua require('telescope.builtin').find_files({cwd= $HOME . '/Dropbox/personal/notes/'})<cr> 
+
+" jai 
+map <Leader>j :let g:jai_entrypoint = expand('%')<Enter> :call UpdateJaiMakeprg()<Enter>
+map <Leader>u :call UpdateJaiMakeprg()<Enter>
+
+endif " VSCODE
 
 let g:godef_split = 0
 let g:go_play_open_browser = 0
@@ -1360,40 +1482,6 @@ com! -bang WQ wq<bang>
 hi default hi_MarkInsertStop ctermbg=128 ctermfg=white cterm=bold
 hi default hi_MarkChange ctermbg=160 ctermfg=154 cterm=underdashed
 hi default hi_MarkBeforeJump ctermbg=23 ctermfg=white cterm=undercurl,bold
-
-lua <<EOF
-local jump_ns = vim.api.nvim_create_namespace("jump_ns")
-local change_ns = vim.api.nvim_create_namespace("change_ns")
-local insert_ns = vim.api.nvim_create_namespace("insert_ns")
-
-function mark_on(ns, mark, highlight)
-  local bufnr = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
-  local pos = vim.api.nvim_buf_get_mark(bufnr, mark)
-  if pos ~= nil and (pos[1] ~= 0 and pos[2] ~= 0) then
-    local pos1 = {pos[1] - 1, pos[2]}
-    local pos2 = {pos[1] - 1, pos[2]}
-    local lines = vim.api.nvim_buf_get_lines(bufnr, pos1[1], pos2[1]+1, false)
-    if lines ~= nil and #lines > 0 then
-      local length = lines[1]:len()
-      if pos1[2] == length then
-        pos1[2] = pos1[2] - 1
-      end
-      vim.highlight.range(bufnr, ns, highlight, pos1, pos2, {inclusive = true, priority=10000})
-    end
-  end
-end
-function mark_on_move()
-  mark_on(jump_ns, '`', 'hi_MarkBeforeJump')
-end
-function mark_on_changed()
-  mark_on(change_ns, '.', 'hi_MarkChange')
-end
-function mark_on_insert_stop()
-  mark_on(insert_ns, '^', 'hi_MarkInsertStop')
-end
-EOF
-
 " aug marks
 "   au!
 "   au CursorMoved * silent! lua mark_on_move()
@@ -1431,30 +1519,21 @@ function append_make_diagnostics()
   vim.diagnostic.set(make_diagnostics_ns, bufnr, dqlb)
 end
 
+vim.api.nvim_create_autocmd({ "VimEnter" }, {
+  group = vim.api.nvim_create_augroup("KittySetVarVimEnter", { clear = true }),
+  callback = function()
+    io.stdout:write("\x1b]1337;SetUserVar=in_editor=MQo\007")
+  end,
+})
+
+vim.api.nvim_create_autocmd({ "VimLeave" }, {
+  group = vim.api.nvim_create_augroup("KittyUnsetVarVimLeave", { clear = true }),
+  callback = function()
+    io.stdout:write("\x1b]1337;SetUserVar=in_editor\007")
+  end,
+})
 EOF
 
-let g:save_cr_map = {}
-aug all_buffers
-  au! 
-  au!
-  au VimLeavePre * execute 'silent! 1,' . bufnr('$') . 'bwipeout!'
-  au! CmdwinEnter * 
-    \ let g:save_cr_map = SaveMap('<cr>') |
-    \ execute ':silent! :unmap <cr>'
-  au! CmdwinLeave *
-    \ execute ':call RestoreMap(g:save_cr_map)'
-  au! WinEnter,BufWinEnter *
-    \ if &ft == "qf" |
-    \     let g:save_cr_map = SaveMap('<cr>') |
-    \     execute ':silent! unmap <cr>' |
-    \ else |
-    \     execute ':silent! call RestoreMap(g:save_cr_map)' |
-    \ endif
-  au! WinLeave * 
-    \ if &ft == "qf" |
-    \     execute ':call RestoreMap(g:save_cr_map)' |
-    \ endif
-aug END
 
 aug settings
   au! ModeChanged *:[iiI]* hi ModeMsg guifg=#ff0000
@@ -1498,9 +1577,6 @@ aug completions
   au FileType checkhealth setlocal nospell
 aug END
 endif
-
-map <Leader>j :let g:jai_entrypoint = expand('%')<Enter> :call UpdateJaiMakeprg()<Enter>
-map <Leader>u :call UpdateJaiMakeprg()<Enter>
 
 aug hoon_mappings
   au!
