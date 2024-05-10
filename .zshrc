@@ -553,3 +553,6 @@ conda() {
 export PIP_BREAK_SYSTEM_PACKAGES=1
 
 export VCPKG_ROOT="$HOME/.cache/vcpkg"
+
+export DOCKER_BUILDKIT=1
+export DOCKER_DEFAULT_PLATFORM=linux/amd64

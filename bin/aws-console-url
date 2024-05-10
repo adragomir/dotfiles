@@ -1,4 +1,4 @@
-#!python3.10
+#!python3.12
 import sys, os, requests, urllib, json
 
 

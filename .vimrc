@@ -257,7 +257,8 @@ Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a' }
 Plug 'NMAC427/guess-indent.nvim'
 Plug 'tkmpypy/chowcho.nvim'
 Plug 'echasnovski/mini.nvim'
-Plug 'isa/vim-matchit', { 'dir': stdpath('data') . '/bundle/matchit' }
+Plug 'chrisbra/matchit'
+Plug 'utilyre/sentiment.nvim'
 "map <leader>m :AsyncRun -mode=term -pos=right -focus=0 -listed=0 ./build && jairun ./main<cr>
 Plug 'skywind3000/asyncrun.vim'
 Plug 'famiu/bufdelete.nvim'
@@ -270,13 +271,15 @@ call plug#end()
 
 if !exists('g:vscode') " >>> VSCODE
 
-
-lua <<EOF
+lua << EOF
   function hoon_def_search()
     require 'telescope.builtin'.grep_string({search='\\+(\\+|\\$|\\*)  '.. vim.fn.expand('<cword>') .. '( |$)', use_regex=true})
   end
 
   require('registers').setup()
+  require("sentiment").setup({
+    -- config
+  })
 
   require('yanky').setup({
     ring = {
@@ -291,8 +294,8 @@ lua <<EOF
       sync_with_ring = true,
     },
     highlight = {
-      on_put = true,
-      on_yank = true,
+      on_put = false,
+      on_yank = false,
       timer = 50,
     },
     preserve_cursor_position = {
@@ -636,13 +639,20 @@ lua <<EOF
             vim.lsp.inlay_hint.enable(true, {bufnr = bufnr})
         end
       end,
+      -- logfile = '/Users/adragomi/rust-analyzer.log', 
       default_settings = {
         -- rust-analyzer language server configuration
         ['rust-analyzer'] = {
-          completion = {
-            autoimport = {
-              enable = true
+          server = {
+            -- path = ''
+            ['extraEnv'] = {
+              ['RA_LOG'] = 'info'
             }, 
+          }, 
+          -- trace = {
+          --   server = 'verbose'
+          -- }, 
+          completion = {
             callable = {
               snippets = 'none'
             }, 
@@ -652,6 +662,9 @@ lua <<EOF
             privateEditable = {
               enable = true
             }, 
+            postfix = {
+              enable = false
+            }
           }, 
           hover = {
             actions = {
@@ -662,7 +675,7 @@ lua <<EOF
             }
           }, 
           inlayHints = {
-            chainingHints = {
+            bindingModeHints = {
               enable = true
             }, 
             closureStyle = 'rust_analyzer', 
@@ -673,6 +686,10 @@ lua <<EOF
               enable = true
             }, 
             expressionAdjustmentHints = {
+              enable = 'always', 
+              mode = 'postfix'
+            }, 
+            reborrowHints = {
               enable = 'always'
             }, 
             closureReturnTypeHints = {
@@ -682,17 +699,24 @@ lua <<EOF
               enable = true
             }, 
             lifetimeElisionHints = {
-              enable = 'skip_trivial'
+              enable = 'always', 
+              useParameterNames = true
+            }, 
+            parameterHints = {
+              enable = false
             }, 
             maxLength = nil, 
-            parameterHints = {
-              enable = true
-            }, 
+          }, 
+          interpret = {
+            tests = true
           }, 
           diagnostics = {
             disabled = {
               'incorrect-ident-case', 
               'replace-filter-map-next-with-find-map'
+            }, 
+            experimental = {
+              enable = true
             }
           }, 
           lens = {
@@ -707,8 +731,13 @@ lua <<EOF
               trait = {
                 enable = true
               }, 
+            }, 
+            implementations = {
+              enable = true
             }
-          }
+          }, 
+          -- for nightly
+          checkOnSave = true, 
         },
       },
     },
@@ -973,7 +1002,7 @@ lua <<EOF
   require('telescope').load_extension('fzf')
 EOF
 
-lua <<EOF
+lua << EOF
   local chainy_tab = function()
     -- if vim.fn.pumvisible() ~= 0 then
     --   if vim.fn.complete_info({ "selected" }).selected ~= -1 then
@@ -1205,24 +1234,6 @@ fu! EndKey()
   call MoveCursor('e', '$g')
 endf
 
-" Visual mode functions
-fu! RestoreRegister()
-  if &clipboard == 'unnamed'
-    let @* = s:restore_reg
-  elseif &clipboard == 'unnamedplus'
-    let @+ = s:restore_reg
-  else
-    let @" = s:restore_reg
-  endif
-  return ''
-endf
-
-fu! ReplaceWithRegister()
-    let s:restore_reg = @"
-    return "p@=RestoreRegister()\<cr>"
-endf
-xn <silent> <expr> p ReplaceWithRegister()
-
 fu! SaveMap(key)
   return maparg(a:key, 'n', 0, 1)
 endf
@@ -1276,38 +1287,47 @@ for i=1,24 do
 end
 EOF
 
-" cutlass.nvim inline
-lua <<EOF
---[[
-local keymap_opts = { noremap = true, silent = true }
-for _, mode in pairs({ "x", "n" }) do
-  for _, lhs in pairs({ "x", "X" }) do
-    if vim.fn.maparg(lhs, mode) == "" then
-      vim.keymap.set(mode, lhs, '"_' .. lhs, keymap_opts)
-    end
-  end
-end
-
-vim.keymap.set("n", "<Del>", '"_x', keymap_opts)
-vim.keymap.set("x", "<Del>", '"_x', keymap_opts)
---]]
-EOF
-
 " mapping kill / yank
 lua <<EOF
 vim.keymap.set({"n","x"}, "p", "<Plug>(YankyPutAfter)")
 vim.keymap.set({"n","x"}, "P", "<Plug>(YankyPutBefore)")
 vim.keymap.set({"n","x"}, "gp", "<Plug>(YankyGPutAfter)")
 vim.keymap.set({"n","x"}, "gP", "<Plug>(YankyGPutBefore)")
-vim.keymap.set("n", "<c-s-v>", "<Plug>(YankyPreviousEntry)")
-vim.keymap.set("n", "<c-v>", "<Plug>(YankyNextEntry)")
+vim.keymap.set("n", "<c-q>", "<Plug>(YankyPreviousEntry)")
+vim.keymap.set("n", "<c-s-q>", "<Plug>(YankyNextEntry)")
 EOF
-" silent! nunmap Y
-" vn y myy`y
-" vn Y myY`y
+
+
+lua <<EOF
+vim.keymap.set('n', "<f2>", function()
+  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(), {bufnr=0})
+end, {silent = true})
+EOF
+
+silent! nunmap Y
+vn y myy`y
+vn Y myY`y
 " nn D d$
 " vn p "_dP
 " vn r "_dP
+"
+" Visual mode functions
+fu! RestoreRegister()
+  if &clipboard == 'unnamed'
+    let @* = s:restore_reg
+  elseif &clipboard == 'unnamedplus'
+    let @+ = s:restore_reg
+  else
+    let @" = s:restore_reg
+  endif
+  return ''
+endf
+
+fu! ReplaceWithRegister()
+    let s:restore_reg = @"
+    return "p@=RestoreRegister()\<cr>"
+endf
+xn <silent> <expr> p ReplaceWithRegister()
 
 " mapping movement
 no j gj
@@ -1352,6 +1372,8 @@ nn <C-j> <c-w>j
 nn <C-k> <c-w>k
 nn <C-l> <c-w>l
 
+" mapping jumps
+nmap <S-D-Left> <C-o>
 nn ' `
 xn ' `
 map <leader>' ``
@@ -1373,7 +1395,9 @@ nm - :Chowcho<CR>
 
 " mappings lsp
 nn <silent>gD          <cmd>lua vim.lsp.buf.declaration()<CR>
+nn <silent><D-S-b>     <cmd>lua vim.lsp.buf.declaration()<CR>
 nn <silent>gd          <cmd>lua vim.lsp.buf.definition()<CR>
+nn <silent><D-b>       <cmd>lua vim.lsp.buf.definition()<CR>
 nn <silent>K           <cmd>lua vim.lsp.buf.signature_help()<CR>
 nn <silent>gi          <cmd>lua vim.lsp.buf.implementation()<CR>
 nn <silent>gr          <cmd>lua vim.lsp.buf.references()<CR>

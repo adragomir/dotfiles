@@ -27,4 +27,15 @@ if [[ "$trans" == "true" ]]; then
   output_template="${trans_title} - %(title)s [%(id)s].%(ext)s"
 fi
 
-yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36" -f $sz_arg --extractor-args "lang:en" --write-subs --write-automatic-subs --sub-langs en --sub-format srt -o "${output_template}" "$@" "$url"
+recode_args=(
+)
+if [[ "${url}" == *"twitch"* ]]; then
+  recode_args=(
+    "--downloader"
+    "ffmpeg"
+    "--downloader-args"
+    "ffmpeg:-c:v libx264 -crf 30 -preset medium"
+  )
+fi
+echo yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36" -f $sz_arg --extractor-args "lang:en" --write-subs --write-automatic-subs --sub-langs en --sub-format srt "${recode_args[@]}"   -o "${output_template}" "$@" "$url"
+yt-dlp --cookies-from-browser chrome --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36" -f $sz_arg --extractor-args "lang:en" --write-subs --write-automatic-subs --sub-langs en --sub-format srt "${recode_args[@]}" -o "${output_template}" "$@" "$url"

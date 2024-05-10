@@ -124,7 +124,6 @@
   autostash = true
 
 [diff]
-  algorithm = patience
   ignoresubmodules = all
   mnemonicprefix = true
   renameLimit = 4000
