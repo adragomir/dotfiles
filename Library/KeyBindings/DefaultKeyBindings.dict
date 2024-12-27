@@ -1,15 +1,38 @@
+/*
+goes into ~/Library/KeyBindings/DefaultKeyBindings.dict
+*/
+/*
+Up Arrow: \UF700 Backspace: \U0008 F1: \UF704
+Down Arrow: \UF701 Tab: \U0009 F2: \UF705
+Left Arrow: \UF702 Escape: \U001B F3: \UF706
+Right Arrow: \UF703 Enter: \U000A ...
+Insert: \UF727 Page Up: \UF72C
+Delete: \UF728 Page Down: \UF72D
+Home: \UF729 Print Screen: \UF72E
+End: \UF72B Scroll Lock: \UF72F
+Break: \UF732 Pause: \UF730
+SysReq: \UF731 Menu: \UF735
+Help: \UF746
+ 
+Modifiers: 
+ 
+^ : Ctrl
+$ : Shift
+~ : Option (Alt)
+@ : Command (Apple)
+# : Numeric Keypad
+ 
+*/
 {
     /* home */
     "\UF729"  = "moveToBeginningOfLine:";
     "$\UF729" = "moveToBeginningOfLineAndModifySelection:";
-
-
     /* end */
     "\UF72B"  = "moveToEndOfLine:";
     "$\UF72B" = "moveToEndOfLineAndModifySelection:";
-
-
     /* page up/down */
     "\UF72C"  = "pageUp:";
     "\UF72D"  = "pageDown:";
+    "~d" = "deleteWordForward:";
+    "^w" = "deleteWordBackward:";
 }

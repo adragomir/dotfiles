@@ -14,7 +14,13 @@ name=${optname:-App}
 
 NVIM_SOCKET="/tmp/neovide${name}.socket"
 if [ ! -S $NVIM_SOCKET ]; then
-    /Users/adragomi/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide --neovim-bin=/opt/homebrew/bin/nvim --maximized --frame buttonless -- --listen ${NVIM_SOCKET} "$@"
+    /Users/adragomi/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide \
+    --fork \
+    --neovim-bin=/opt/homebrew/bin/nvim \
+    --maximized \
+    --frame buttonless \
+    --no-vsync --no-multigrid \
+    -- --listen ${NVIM_SOCKET} "$@"
 else
     if [[ "$#" -eq 0 ]]; then
         dir_or_file=$(pwd)

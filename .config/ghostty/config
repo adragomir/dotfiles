@@ -1,0 +1,84 @@
+palette =  0=#616161
+palette =  1=#ff8272
+palette =  2=#b4fa72
+palette =  3=#fefdc2
+palette =  4=#a5d5fe
+palette =  5=#ff8ffd
+palette =  6=#d0d1fe
+palette =  7=#f1f1f1
+palette =  8=#8e8e8e
+palette =  9=#ffc4bd
+palette = 10=#d6fcb9
+palette = 11=#fefdd5
+palette = 12=#c1e3fe
+palette = 13=#ffb1fe
+palette = 14=#e5e6fe
+palette = 15=#feffff
+background = 000000
+foreground = c7c7c7
+cursor-color = ffb473
+selection-background = 454d95
+selection-foreground = f4f4f4
+
+font-family = Consolas
+font-family-bold = Consolas Bold
+font-family-italic = Consolas Italic
+font-family-bold-italic = Consolas Bold Italic
+font-size = 11.0
+font-feature = -calt
+font-feature = -liga
+font-feature = -dlig
+font-thicken = true
+
+cursor-style = block
+cursor-style-blink = false
+cursor-click-to-move = true
+
+shell-integration = detect
+shell-integration-features = no-cursor
+
+keybind = clear
+keybind = super+q=quit
+keybind = super+n=new_window
+keybind = super+t=new_tab
+keybind = super+c=copy_to_clipboard
+keybind = super+w=close_surface
+keybind = super+v=paste_from_clipboard
+keybind = super+shift+plus=increase_font_size:1
+keybind = super+shift+-=decrease_font_size:1
+keybind = super+zero=reset_font_size
+keybind = super+shift+left_bracket=previous_tab
+keybind = super+shift+right_bracket=next_tab
+keybind = super+physical:one=goto_tab:1
+keybind = super+physical:two=goto_tab:2
+keybind = super+physical:three=goto_tab:3
+keybind = super+physical:four=goto_tab:4
+keybind = super+physical:five=goto_tab:5
+keybind = super+physical:six=goto_tab:6
+keybind = super+physical:seven=goto_tab:7
+keybind = super+physical:eight=goto_tab:8
+keybind = super+physical:nine=goto_tab:9
+keybind = super+d=new_split:right
+keybind = super+shift+d=new_split:down
+keybind = super+shift+right=goto_split:right
+keybind = super+shift+down=goto_split:bottom
+keybind = super+shift+left=goto_split:left
+keybind = super+shift+up=goto_split:top
+keybind = super+shift+enter=toggle_split_zoom
+keybind = super+k=clear_screen
+keybind = alt+left=esc:b
+keybind = alt+right=esc:f
+keybind = super+shift+r=reload_config
+keybind = super+shift+f=write_scrollback_file:open
+keybind = super+shift+up=jump_to_prompt:-1
+keybind = super+shift+down=jump_to_prompt:1
+keybind = super+right=text:\x05
+keybind = super+left=text:\x01
+#keybind = super+alt+i=inspector:toggle
+
+scrollback-limit = 10485760
+quick-terminal-animation-duration = 0
+
+macos-titlebar-style = tabs
+macos-option-as-alt = true
+macos-window-shadow = false

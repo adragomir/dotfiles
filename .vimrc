@@ -35,7 +35,7 @@ let g:did_load_filetypes=1
 function! GuiTabLabel(n)
   let tab_num = a:n
   let win_num = tabpagewinnr(a:n)
-  return fnamemodify(getcwd(win_num, tab_num), ':t')
+  return tab_num .. ' ' .. fnamemodify(getcwd(win_num, tab_num), ':t')
 endfunction
 
 function! MyTabLine()
@@ -47,7 +47,12 @@ function! MyTabLine()
       let s ..= '%#TabLine#'
     endif
     let s ..= '%' .. (i + 1) .. 'T'
-    let s ..= ' %{GuiTabLabel(' .. (i + 1) .. ')} '
+    let s ..= ' %{GuiTabLabel(' .. (i + 1) .. ')}'
+    if i + 1 == tabpagenr()
+      let s ..= ' *'
+    else
+      let s ..= ' '
+    endif
   endfor
   let s ..= '%#TabLineFill#%T'
   if tabpagenr('$') > 1
@@ -90,43 +95,45 @@ endif
 filetype on
 syntax on
 set termguicolors
-set shm+=I
+set shortmess+=I
 set mouse=a
-set sr
-set noswf
-set nu
-" set fdc=1
-set ww=<,>,h,l,b,s,~,[,]
-set ic scs gd
-set lbr bri briopt=sbr sbr=…
-set stl=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o\|%B%)
-set ve+=block
-set novb noeb
-set wa
-set isk=@,-,>,48-57,128-167,224-235,_
-set isk-=.
+set noswapfile
+set number
+" set foldcolumn
+set whichwrap=<,>,h,l,b,s,~,[,]
+set ignorecase smartcase gdefault
+set linebreak breakindent breakindentopt=sbr showbreak=…
+set statusline=%<%f\ (%{&ft},%{&ff})\ (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})\ %-4(%m%)%=%-19(%3l,%02c%03V,%o\|%B%)
+set virtualedit+=block
+set signcolumn=yes
+set novisualbell noerrorbells
+set writeany
+set iskeyword=@,-,>,48-57,128-167,224-235,_
+set iskeyword+=.
 set showtabline=1
 set matchtime=3
 set complete=.,w,b,u,t,i,d
 set completeopt=menu,menuone,noselect "set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
-set to ttm=0
-set timeoutlen=200
-set ttimeoutlen=0
+set timeout timeoutlen=200 ttimeoutlen=0
 if has("mac")
-  set cb=unnamed "unnamed,unnamedplus,autoselect
+  set clipboard=unnamed "unnamed,unnamedplus,autoselect
 else 
-  set cb=unnamedplus
+  set clipboard=unnamedplus
 endif
 if has("wsl") || has("mac")
   set shell=bash
   set shellcmdflag=-lc
 endif
-set sb spr
-set swb=useopen
+set splitbelow splitright
+set switchbuf=useopen
 set grepprg=rg\ --no-ignore\ -H\ --no-heading\ --color\ never
 set grepformat=%f:%l:%m
 set nofoldenable
-set si ci pi ai et ts=2 sw=2 sts=2
+set smartindent copyindent preserveindent autoindent
+set shiftround expandtab tabstop=2 shiftwidth=2 softtabstop=2
+set scrolloff=10
+set nostartofline
+set splitkeep=topline
 
 "set wildmode=list:longest,full
 set wildmode=longest,list
@@ -146,6 +153,7 @@ filetype indent on
 filetype plugin on
 set nospell
 
+" disable plugins
 let g:loaded_perl_provider = 0
 let g:loaded_tutor_mode_plugin = 1
 let g:loaded_man = 1
@@ -167,7 +175,7 @@ let g:loaded_zipPlugin=1
 let g:loaded_zip=1
 let g:loaded_tarPlugin=1
 let g:loaded_2html_plugin=1
-let g:loaded_matchparen = 1
+"let g:loaded_matchparen = 1
 let g:loaded_xmlformat = 1
 
 " vim-plug
@@ -176,6 +184,7 @@ let g:plug_path = stdpath('data') . '/bundle'
 call plug#begin(g:plug_path)
 if !exists('g:vscode')
 " lang
+Plug 'terrastruct/d2-vim'
 Plug 'https://git.sr.ht/~sircmpwn/hare.vim'
 Plug 'mrcjkb/rustaceanvim'
 Plug 'ray-x/guihua.lua'
@@ -190,7 +199,7 @@ Plug 'fedorenchik/fasm.vim'
 Plug 'urbit/hoon.vim'
 Plug 'karolbelina/uxntal.vim'
 Plug 'rluba/jai.vim'
-Plug 'mikesmithgh/kitty-scrollback.nvim'
+Plug 'Decodetalkers/csharpls-extended-lsp.nvim'
 " Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
 " Plug 'leafgarland/typescript-vim'
 " Plug 'neovimhaskell/haskell-vim', { 'dir': stdpath('data') . '/bundle/haskell-vim', 'for': 'haskell' }
@@ -205,38 +214,26 @@ vim.opt.runtimepath:append(',~/.config/nvim/lua')
 vim.lsp.set_log_level('error')
 EOF
 " lsp
+Plug 'https://git.sr.ht/~whynothugo/lsp_lines.nvim'
+Plug 'onsails/diaglist.nvim'
+" Plug 'rachartier/tiny-inline-diagnostic.nvim'
 Plug 'neovim/nvim-lspconfig'
-Plug 'williamboman/nvim-lsp-installer'
-Plug 'nvim-lua/lsp-status.nvim'
-Plug 'scalameta/nvim-metals', {'branch': 'main'}
+" Plug 'scalameta/nvim-metals', {'branch': 'main'}
 Plug 'nvimdev/lspsaga.nvim', {'branch': 'main'}
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-pack/nvim-spectre'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
 Plug 'nvim-telescope/telescope-ui-select.nvim'
+Plug 'nvim-telescope/telescope-dap.nvim'
 Plug 'ray-x/lsp_signature.nvim'
-Plug 'WhoIsSethDaniel/toggle-lsp-diagnostics.nvim'
-"Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
-Plug 'mfussenegger/nvim-lsp-compl'
-Plug 'Decodetalkers/csharpls-extended-lsp.nvim'
-" Plug 'vim-denops/denops.vim'
-" Plug 'Shougo/ddc.vim'
-" Plug 'Shougo/ddc-ui-native'
-" Plug 'Shougo/ddc-source-around'
-" Plug 'Shougo/ddc-matcher_head'
-" Plug 'Shougo/ddc-filter-matcher_length'
-" Plug 'Shougo/ddc-sorter_rank'
-" Plug 'Shougo/ddc-source-nvim-lsp'
-" Plug 'matsui54/ddc-buffer'
+" Plug 'mfussenegger/nvim-lsp-compl'
 " debug
 Plug 'mfussenegger/nvim-dap'
 Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'nvim-neotest/nvim-nio'
 Plug 'rcarriga/nvim-dap-ui'
 Plug 'leoluz/nvim-dap-go'
-Plug 'nvim-telescope/telescope-dap.nvim'
 "Plug 'mfussenegger/nvim-jdtls'
 " syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -244,24 +241,30 @@ Plug 'nvim-treesitter/playground'
 " Plug 'nvim-treesitter/nvim-treesitter-context'
 Plug 'RRethy/nvim-treesitter-textsubjects'
 " tools
+Plug 'sourcegraph/sg.nvim', { 'do': 'nvim -l build/init.lua' }
+"Plug 'gelguy/wilder.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'rbgrouleff/bclose.vim'
+Plug 'nvim-pack/nvim-spectre'
+Plug '0x00-ketsu/maximizer.nvim'
+Plug 'tiagovla/scope.nvim'
+Plug 'mikesmithgh/kitty-scrollback.nvim'
+Plug 'folke/neodev.nvim'
 Plug 'tversteeg/registers.nvim'
 Plug 'kkharji/sqlite.lua'
 Plug 'gbprod/yanky.nvim'
-Plug 'dccsillag/magma-nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'lambdalisue/suda.vim'
+"Plug 'lambdalisue/suda.vim'
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
-"Plug 'duane9/nvim-rg', {'branch': 'adragomi'}
 Plug 'jremmen/vim-ripgrep'
 Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a' }
 Plug 'NMAC427/guess-indent.nvim'
 Plug 'tkmpypy/chowcho.nvim'
 Plug 'echasnovski/mini.nvim'
 Plug 'chrisbra/matchit'
+"Plug 'andymass/vim-matchup'
 Plug 'utilyre/sentiment.nvim'
 "map <leader>m :AsyncRun -mode=term -pos=right -focus=0 -listed=0 ./build && jairun ./main<cr>
 Plug 'skywind3000/asyncrun.vim'
-Plug 'famiu/bufdelete.nvim'
 " Plug 'github/copilot.vim'
 endif
 call plug#end()
@@ -272,10 +275,12 @@ call plug#end()
 if !exists('g:vscode') " >>> VSCODE
 
 lua << EOF
+  require('sg').setup()
   function hoon_def_search()
     require 'telescope.builtin'.grep_string({search='\\+(\\+|\\$|\\*)  '.. vim.fn.expand('<cword>') .. '( |$)', use_regex=true})
   end
 
+  require('maximizer').setup()
   require('registers').setup()
   require("sentiment").setup({
     -- config
@@ -306,38 +311,6 @@ lua << EOF
     },
   })
   require('spectre').setup()
-  -- vim.g.coq_settings = {
-  --   auto_start = 'shut-up',
-  --   completion = {
-  --     always = false
-  --   },
-  --   display = {
-  --     pum = {
-  --       fast_close = false
-  --     }, 
-  --     icons = {
-  --       mode = 'none'
-  --     } 
-  --   }, 
-  --   keymap = { 
-  --     pre_select = true,
-  --     recommended = false, 
-  --     bigger_preview = '', 
-  --     jump_to_mark = '',
-  --     eval_snips = '', 
-  --     manual_complete = '', 
-  --     ["repeat"] = ''
-  --   },
-  --   clients = {
-  --     tags = { enabled = false },
-  --     snippets = {
-  --       enabled = false, 
-  --       warn = {}, 
-  --     },
-  --     paths = { enabled = false },
-  --     tmux = { enabled = false },
-  --   },
-  -- }
 
   require('chowcho').setup {
     icon_enabled = false, -- required 'nvim-web-devicons' (default: false)
@@ -371,8 +344,6 @@ lua << EOF
       }
     },
   })
-  require("nvim-lsp-installer").setup {}
-  --require'toggle_lsp_diagnostics'.init({ start_on = false })
 
   require'nvim-treesitter.configs'.setup {
       textsubjects = {
@@ -399,7 +370,7 @@ lua << EOF
   }
   dap.adapters.lldb = {
     type = 'executable',
-    command = '/usr/local/opt/llvm@16/bin/lldb-vscode',
+    command = '/opt/homebrew/opt/llvm@16/bin/lldb-vscode',
     name = 'lldb'
   }
 
@@ -440,25 +411,25 @@ lua << EOF
   --   table.insert(commands, 1, 'command script import "' .. vim.env.HOME .. '/.config/lldb/jaitype.jai"')
   --   return commands
   -- end
-  dap.configurations.scala = {
-    {
-      type = "scala",
-      request = "launch",
-      name = "RunOrTest",
-      metals = {
-        runType = "runOrTestFile",
-        --args = { "firstArg", "secondArg", "thirdArg" }, -- here just as an example
-      },
-    },
-    {
-      type = "scala",
-      request = "launch",
-      name = "Test Target",
-      metals = {
-        runType = "testTarget",
-      },
-    },
-  }
+  -- dap.configurations.scala = {
+  --   {
+  --     type = "scala",
+  --     request = "launch",
+  --     name = "RunOrTest",
+  --     metals = {
+  --       runType = "runOrTestFile",
+  --       --args = { "firstArg", "secondArg", "thirdArg" }, -- here just as an example
+  --     },
+  --   },
+  --   {
+  --     type = "scala",
+  --     request = "launch",
+  --     name = "Test Target",
+  --     metals = {
+  --       runType = "testTarget",
+  --     },
+  --   },
+  -- }
 
   local dap, dapui = require("dap"), require("dapui")
   local keymap_restore = {}
@@ -522,26 +493,6 @@ lua << EOF
     search_method = 'cover',
   })
   require('mini.align').setup({
-    modifiers = {
-      [':'] = function(steps, opts)
-        opts.split_pattern = ':+'
-        table.insert(steps.pre_justify, MiniAlign.gen_step.trim())
-        table.insert(steps.pre_justify, MiniAlign.gen_step.pair())
-        opts.merge_delimiter = ' '
-      end,
-      ['='] = function(steps, opts)
-        opts.split_pattern = '=+'
-        table.insert(steps.pre_justify, MiniAlign.gen_step.trim())
-        table.insert(steps.pre_justify, MiniAlign.gen_step.pair())
-        opts.merge_delimiter = ' '
-      end,
-      ['>'] = function(steps, opts)
-        opts.split_pattern = '=>'
-        table.insert(steps.pre_justify, MiniAlign.gen_step.trim())
-        table.insert(steps.pre_justify, MiniAlign.gen_step.pair())
-        opts.merge_delimiter = ' '
-      end,
-    }
   })
   require('mini.bufremove').setup()
   require('mini.ai').setup({
@@ -562,35 +513,38 @@ lua << EOF
 
   local lspconfig = require'lspconfig'
   local configs = require'lspconfig.configs'
-  local util = require'lspconfig/util'
+  local util = require'lspconfig.util'
+
+  if not configs.jails then
+     configs.jails = {
+       default_config = {
+         cmd = { '/Users/adragomi/temp/source/jai/Jails2/bin/jails' },
+         filetypes = { 'jai' },
+         root_dir = util.root_pattern('jails.json'),
+         single_file_support = true,
+       },
+     }
+  end
 
   function make_lsp_config(t)
-    if false then
-      coq = require 'coq'
-    else
-      coq = {
-        lsp_ensure_capabilities = function(t2)
-          return t2
-        end
-      }
-    end
-    tmp = coq.lsp_ensure_capabilities(vim.deepcopy(t))
+    tmp = vim.deepcopy(t)
     tmp.on_attach = function(client, bufnr)
-      require'lsp_compl'.attach(client, bufnr, {
-        --server_side_fuzzy_completion = true
-      })
+      if vim.fn.has('nvim-0.11') then
+      else
+        require'lsp_compl'.attach(client, bufnr, {})
+      end
     end
     return tmp
   end
 
-  -- lspconfig.pasls.setup(make_lsp_config({}))
-  -- lspconfig.prosemd_lsp.setup(make_lsp_config({}))
-  -- lspconfig.racket_langserver.setup(make_lsp_config({}))
   lspconfig.zls.setup(make_lsp_config({
     cmd = { vim.env.HOME .. '/.local/share/zvm/bin/zls' }, 
     flags = {
       debounce_text_changes = 250, 
     },
+  }))
+
+  lspconfig.buf_ls.setup(make_lsp_config({
   }))
 
   require'go'.setup(make_lsp_config({
@@ -604,6 +558,10 @@ lua << EOF
   lspconfig.gopls.setup(make_lsp_config({
     cmd = { vim.env.HOME .. '/.gocode/bin/gopls' },
     root_dir = util.root_pattern("go.mod"), 
+  }))
+
+  lspconfig.mojo.setup(make_lsp_config({
+    cmd = { vim.env.HOME .. '/.local/share/modular/pkg/packages.modular.com_mojo/bin/mojo-lsp-server' },
   }))
 
   -- lspconfig.denols.setup(make_lsp_config({
@@ -646,65 +604,64 @@ lua << EOF
           server = {
             -- path = ''
             ['extraEnv'] = {
-              ['RA_LOG'] = 'info'
+              ['RA_LOG'] = 'error'
             }, 
           }, 
           -- trace = {
           --   server = 'verbose'
           -- }, 
-          completion = {
-            callable = {
-              snippets = 'none'
-            }, 
-            fullFunctionSignatures = {
+          cargo = {
+            allFeatures = true, 
+            buildScripts = {
               enable = true
             }, 
-            privateEditable = {
-              enable = true
-            }, 
-            postfix = {
-              enable = false
+          }, 
+          check = {
+            ignore = {
+              "dead_code",
+              "unused_imports", 
+              "unused_mut", 
             }
+          }, 
+          procMacro = {
+            enable = true, 
+            attributes = { enable = true }
+          }, 
+          completion = {
+            autoself = { enable = true }, 
+            callable = { snippets = 'none' }, 
+            fullFunctionSignatures = { enable = true }, 
+            privateEditable = { enable = true }, 
+            postfix = { enable = false }, 
+            termSearch = { enable = true }
+          }, 
+          imports = {
+            group = { enable = false }
           }, 
           hover = {
             actions = {
               enable = true, 
-              references = {
-                enable = true
-              }
-            }
+              references = { enable = true }, 
+              run = { enable = true }, 
+              gotoTypeDef = { enable = true }, 
+              implementations = { enable = true }, 
+            }, 
           }, 
           inlayHints = {
-            bindingModeHints = {
-              enable = true
-            }, 
+            bindingModeHints = { enable = true }, 
             closureStyle = 'rust_analyzer', 
-            typeHints = {
-              enable = true
-            }, 
-            closureCaptureHints = {
-              enable = true
-            }, 
-            expressionAdjustmentHints = {
-              enable = 'always', 
-              mode = 'postfix'
-            }, 
-            reborrowHints = {
-              enable = 'always'
-            }, 
-            closureReturnTypeHints = {
-              enable = true
-            }, 
-            implicitDrops = {
-              enable = true
-            }, 
+            typeHints = { enable = true }, 
+            closureCaptureHints = { enable = true }, 
+            expressionAdjustmentHints = { enable = 'always', mode = 'postfix' }, 
+            reborrowHints = { enable = 'always' }, 
+            closureReturnTypeHints = { enable = true }, 
+            implicitDrops = { enable = true }, 
             lifetimeElisionHints = {
               enable = 'always', 
               useParameterNames = true
             }, 
-            parameterHints = {
-              enable = false
-            }, 
+            parameterHints = { enable = false }, 
+            discriminantHints = { enable = 'fieldless' }, 
             maxLength = nil, 
           }, 
           interpret = {
@@ -722,19 +679,11 @@ lua << EOF
           lens = {
             enable = true, 
             references = {
-              adt = {
-                enable = true
-              }, 
-              method = {
-                enable = true
-              }, 
-              trait = {
-                enable = true
-              }, 
-            }, 
-            implementations = {
-              enable = true
-            }
+              adt = { enable = true }, 
+              method = { enable = true }, 
+              trait = { enable = true }, 
+            },
+            implementations = { enable = true }
           }, 
           -- for nightly
           checkOnSave = true, 
@@ -749,17 +698,16 @@ lua << EOF
   lspconfig.clangd.setup(make_lsp_config({
     cmd = {
       "/opt/homebrew/opt/llvm/bin/clangd", 
-      "--background-index",
-      "--pch-storage=memory",
-      "--all-scopes-completion",
-      "--pretty",
+      -- "--background-index",
+      "--pch-storage=disk",
+      -- "--all-scopes-completion",
+      -- "--pretty",
       "--header-insertion=never",
       "-j=4",
-      "--inlay-hints",
-      "--header-insertion-decorators",
       "--function-arg-placeholders",
       "--completion-style=detailed", 
       "--enable-config", 
+      "--query-driver=**", 
     },
     root_dir = util.root_pattern(".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git"), 
     init_option = {
@@ -768,6 +716,39 @@ lua << EOF
       }, 
     }, 
   }))
+  -- lspconfig.ccls.setup(make_lsp_config({
+  --   cmd = {
+  --     "ccls",
+  --     "--log-file=/tmp/ccls.out",
+  --     "-v=1",
+  --   },
+  --   init_options = {
+  --     index = {
+  --       initialBlackList = { '.*omtr_tmp.*' }
+  --     }
+  --   },
+  --   settings = {
+  --     ccls = {
+  --       clang = {
+  --         extraArgs = {
+  --           "-isystem/usr/local/include",
+  --           "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1",
+  --           "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include",
+  --           "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
+  --           "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
+  --           "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks}",
+  --         },
+  --         resourceDir = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3", 
+  --         client = {
+  --           snippetSupport = false, 
+  --         }, 
+  --         index = {
+  --           comments = 0
+  --         }
+  --       }
+  --     }
+  --   }
+  -- }))
   lspconfig.clojure_lsp.setup(make_lsp_config({}))
   lspconfig.intelephense.setup(make_lsp_config({
     settings = {
@@ -824,7 +805,7 @@ lua << EOF
   -- lspconfig.jdtls.setup(make_lsp_config({
   --   root_dir = util.root_pattern("pom.xml", "build.xml"),
   -- }))
-  lspconfig.tsserver.setup(make_lsp_config({
+  lspconfig.ts_ls.setup(make_lsp_config({
   }))
 
   local system_name
@@ -874,28 +855,17 @@ lua << EOF
   lspconfig.terraformls.setup(make_lsp_config({
   }))
 
-  local metals_config = require("metals").bare_config()
-  metals_config.settings = {
-    showImplicitArguments = true,
-    excludedPackages = {
-      "akka.actor.typed.javadsl",
-      "com.github.swagger.akka.javadsl"
-    },
-  }
-  metals_config.on_attach = function(client, bufnr)
-    require("metals").setup_dap()
-  end
-  local nvim_metals_group = vim.api.nvim_create_augroup("nvim-metals", { clear = true })
-  vim.api.nvim_create_autocmd("FileType", {
-    -- NOTE: You may or may not want java included here. You will need it if you
-    -- want basic Java support but it may also conflict if you are using
-    -- something like nvim-jdtls which also works on a java filetype autocmd.
-    pattern = { "scala", "sbt", "java" },
-    callback = function()
-      require("metals").initialize_or_attach(metals_config)
-    end,
-    group = nvim_metals_group,
-  })
+  -- local metals_config = require("metals").bare_config()
+  -- metals_config.settings = {
+  --   showImplicitArguments = true,
+  --   excludedPackages = {
+  --     "akka.actor.typed.javadsl",
+  --     "com.github.swagger.akka.javadsl"
+  --   },
+  -- }
+  -- metals_config.on_attach = function(client, bufnr)
+  --   require("metals").setup_dap()
+  -- end
   -- lspconfig.elmls.setup(make_lsp_config({
   -- }))
   -- lspconfig.html.setup(make_lsp_config({
@@ -1000,6 +970,27 @@ lua << EOF
     }
   }
   require('telescope').load_extension('fzf')
+
+  vim.diagnostic.config({
+    virtual_text = false, 
+    virtual_lines = true
+  })
+  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+    vim.lsp.diagnostic.on_publish_diagnostics, {
+      signs = {
+        severity_limit = "Warning",
+      },
+      virtual_text = {
+        severity_limit = "Warning",
+      },
+      virtual_text = false, 
+      virtual_lines = false, 
+      update_in_insert = false,
+    }
+  )
+
+  -- local wilder = require('wilder')
+  -- wilder.setup({modes = {':', '/', '?'}})
 EOF
 
 lua << EOF
@@ -1023,14 +1014,18 @@ lua << EOF
         vim.api.nvim_eval([[feedkeys("\<tab>", "n")]])
         return
       else
-        vim.api.nvim_eval([[feedkeys("\<c-x>\<c-o>", "n")]])
+        if vim.o.omnifunc == "" then
+          vim.api.nvim_eval([[feedkeys("\<c-n>", "n")]])
+        else
+          vim.api.nvim_eval([[feedkeys("\<c-x>\<c-o>", "n")]])
+        end
         return
       end
     end
   end
   local chainy_esc = function()
     if vim.fn.pumvisible() ~= 0 then
-      vim.api.nvim_eval([[feedkeys("\<c-e>\<Esc>", "n")]])
+      vim.api.nvim_eval([[feedkeys("\<c-e>", "n")]])
       return
     else
       vim.api.nvim_eval([[feedkeys("\<Esc>", "n")]])
@@ -1074,7 +1069,12 @@ lua << EOF
       vim.api.nvim_eval([[feedkeys("\<c-p>", "n")]])
       return
     else
-      vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
+      if vim.o.omnifunc == "" then
+        vim.api.nvim_eval([[feedkeys("\<c-p>", "n")]])
+      else
+        vim.api.nvim_eval([[feedkeys("\<c-x>\<c-o>", "n")]])
+        --vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
+      end
       return
     end
   end
@@ -1151,6 +1151,16 @@ lua << EOF
       requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
     },
     filetype = "jai", -- if filetype does not match the parser name
+  }
+  parser_config.mojo = {
+    install_info = {
+      url = "https://github.com/HerringtonDarkholme/tree-sitter-mojo", -- local path or git repo
+      files = {"src/parser.c", "src/scanner.cc"},
+      -- optional entries:
+      generate_requires_npm = true,
+      requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
+    },
+    filetype = "mojo", -- if filetype does not match the parser name
   }
 
   -- COLORING
@@ -1300,7 +1310,7 @@ EOF
 
 lua <<EOF
 vim.keymap.set('n', "<f2>", function()
-  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(), {bufnr=0})
+vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({bufnr=0}), {bufnr=0})
 end, {silent = true})
 EOF
 
@@ -1383,6 +1393,7 @@ map <leader>] `]
 map <leader>> `>
 map <leader>` `^
 nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
+nnoremap <silent>bd :Bclose<CR>
 
 no <Space> m`
 
@@ -1393,36 +1404,35 @@ nn <silent> <leader>/ :Rg <cword><cr>
 nm <MapLocalLeader>h :AT<CR>
 nm - :Chowcho<CR>
 
+" mapping maximizer
+nn <silent><D-F12>     <cmd>lua require("maximizer").toggle()<CR>
+
 " mappings lsp
 nn <silent>gD          <cmd>lua vim.lsp.buf.declaration()<CR>
 nn <silent><D-S-b>     <cmd>lua vim.lsp.buf.declaration()<CR>
 nn <silent>gd          <cmd>lua vim.lsp.buf.definition()<CR>
 nn <silent><D-b>       <cmd>lua vim.lsp.buf.definition()<CR>
+nn <silent>pd          <cmd>Lspsaga peek_definition<CR>
 nn <silent>K           <cmd>lua vim.lsp.buf.signature_help()<CR>
 nn <silent>gi          <cmd>lua vim.lsp.buf.implementation()<CR>
 nn <silent>gr          <cmd>lua vim.lsp.buf.references()<CR>
-"nn <silent>gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
+" nn <silent>gr          <cmd>lua require'telescope.builtin'.lsp_references{}<CR> 
 nn <silent>gsd         <cmd>lua vim.lsp.buf.document_symbol()<CR>
 nn <silent>gsw         <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
-"nn <silent>gsd        <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
+" nn <silent>gsd        <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
 nn <silent><f12>       <cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>  
 nn <silent><c-f12>     <cmd>lua require'telescope.builtin'.lsp_workspace_symbols{}<CR>  
 nn <silent><leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
 nn <silent><leader>f   <cmd>lua vim.lsp.buf.format()<CR>
-"nn <silent><leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
-nn <silent>[c          :NextDiagnostic<CR>
-nn <silent>]c          :PrevDiagnostic<CR>
-nn <silent><space>d    :OpenDiagnostic<CR>
-nn <silent><leader>sp   <cmd>lua require("spectre").open()<CR>
-
-nn <silent><leader>d   :ToggleDiag<CR>
+" nn <silent><leader>ca  <cmd>lua vim.lsp.buf.code_action()<CR>
+" nn <silent><leader>sp   <cmd>lua require("spectre").open()<CR>
+nn <silent><leader>d   <cmd>lua vim.diagnostic.enable(not vim.diagnostic.is_enabled())<CR>
 nn <silent>gh          :Lspsaga finder<CR>
 nn <silent><leader>ca  :Lspsaga code_action<CR>
 nn <silent>gs          :Lspsaga hover_doc<CR>
-nn <silent>g<space>    :Lspsaga peek_definition<CR>
 nn <silent>gt<space>   :Lspsaga peek_type_definition<CR>
-nn <silent>[e          :Lspsaga diagnostic_jump_next<CR>
-nn <silent>]e          :Lspsaga diagnostic_jump_prev<CR>
+nn <silent><leader>da  <cmd>lua require('diaglist').open_all_diagnostics()<cr>
+nn <silent><leader>dw  <cmd>lua require('diaglist').open_all_diagnostics()<cr>
 
 if has('gui_vimr') || exists('g:neovide') == 1
   nn <silent><D-t>  :tabnew<cr>
@@ -1459,11 +1469,13 @@ if has('gui_vimr') || exists('g:neovide') == 1
 endif
 " telescope
 nm <C-p> <cmd>lua require('telescope.builtin').find_files()<cr> 
+nm <C-f> <cmd>lua require('telescope.builtin').diagnostics()<cr> 
 nm <leader>1 :NvimTreeFindFileToggle<cr> 
 "nmap <leader>g <cmd>lua require('telescope.builtin').grep_string({ search = vim.fn.input('Grep >' ) })<cr>
 " nmap <leader>g <cmd>lua require('telescope.builtin').live_grep()<cr>
 nm <leader>s <cmd>lua require('telescope.builtin').lsp_workspace_symbols({file_encoding='utf-8'})<cr>
-nm <leader>5 <cmd>lua require('telescope.builtin').buffers()<cr> 
+nm <leader>4 <cmd>Telescope scope buffers<cr>
+nm <leader>5 <cmd>Telescope scope buffers cwd_only=true<cr>
 nm <leader>6 <cmd>lua require('telescope.builtin').find_files({cwd= $HOME . '/Dropbox/personal/notes/'})<cr> 
 
 " jai 

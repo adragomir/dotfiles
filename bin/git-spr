@@ -9,10 +9,13 @@ if [[ "$OSTYPE" = darwin* ]]; then
 elif [[ "$OSTYPE" = linux* ]]; then
   export CURRENT=$(git symbolic-ref HEAD | sed -e "s#refs/heads/##")
 fi
-echo "Synchronising with origin/$CURRENT..."
+remote_and_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)
+remote_and_branch=${remote_and_branch:-origin/$CURRENT}
+remote=${remote_and_branch//\/*/}
+echo "Synchronising with ${remote_and_branch}..."
 
-git fetch -p origin
-git rebase origin/$CURRENT
+git fetch -p ${remote}
+git rebase ${remote_and_branch}
 
 if [ "x$NST" == "x$NNST" ]; then
   echo "No stash to pop..."

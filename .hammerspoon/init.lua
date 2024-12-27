@@ -119,3 +119,50 @@ hs.loadSpoon("WindowHalfsAndThirds")
 --     c.w = nw
 --   end)
 -- end)
+hs.hotkey.bind(mash, "d", function()
+  local _,url = hs.osascript.applescript('tell application "Google Chrome" to return URL of active tab of front window')
+  if string.match(url, "https://www.youtube.com/watch") then
+    local videoId = url:gsub(".*?v=", "")
+    hs.task.new("/usr/bin/find",
+      function(code, stdout, stderr)
+        if stdout == nil or stdout == '' then
+          hs.alert.show("NOT found !")
+        else
+          hs.alert.show("FOUND !")
+        end
+      end,
+      {"/Users/adragomi/Dropbox/Video/machining", "-iname", "*" .. videoId .. "*"}):start()
+  end
+end)
+
+function cycle_neovide_windows()
+  local current = hs.window.focusedWindow()
+
+  local items = hs.fnutils.imap({hs.application.find('com.neovide.neovide')}, function(app)
+    local title = app:title()
+    local status
+    local win = app:mainWindow()
+
+    if win ~= nil then
+      title = win:title()
+    end
+
+    if win == current then
+      status = '[CURRENT]'
+    end
+
+    return {
+      text = title,
+      subText = status,
+      pid = app:pid(),
+    }
+  end)
+
+  local callback = function(result)
+    hs.application.applicationForPID(result.pid):activate()
+  end
+
+  hs.chooser.new(callback):choices(items):show()
+end
+
+hs.hotkey.bind({'cmd', 'ctrl'}, '`', cycle_neovide_windows)

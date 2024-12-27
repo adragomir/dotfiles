@@ -112,6 +112,7 @@ highlight IndentBlanklineIndent1 guibg=#1f1f1f gui=nocombine
 highlight IndentBlanklineIndent2 guibg=#1a1a1a gui=nocombine
 
 highlight link Searchlight Incsearch
+hi link TabLineSel Incsearch
 
 " Legacy groups for official git.vim and diff.vim syntax
 hi! link diffAdded DiffAdd

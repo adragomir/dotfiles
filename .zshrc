@@ -1,3 +1,7 @@
+if [ -n "${GHOSTTY_RESOURCES_DIR}" ]; then
+    builtin source "${GHOSTTY_RESOURCES_DIR}/shell-integration/zsh/ghostty-integration"
+fi
+
 export LANG="en_US.UTF-8"
 export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
@@ -207,8 +211,8 @@ zle -N insert-selecta-path-in-command-line
 # Bind the key to the newly created widget
 bindkey -r "^T"
 bindkey "^T" "insert-selecta-path-in-command-line"
-
 autoload -Uz narrow-to-region
+#
 # http://qiita.com/uchiko/items/f6b1528d7362c9310da0
 function _selecta-select-history() {
     local selected_entry
@@ -225,23 +229,10 @@ function _selecta-select-history() {
 }
 zle -N _selecta-select-history
 bindkey -r "^R"
-bindkey "^R" _selecta-select-history
-
-function _hs-select-instance() {
-    local selected_instance
-    echo
-    selected_instance=$(aws --no-paginate --output json ec2 describe-instances --max-results 9999 --region eu-west-1 --query 'Reservations[*].Instances[*]' --filters 'Name=instance-state-code,Values=16' | ec2_instances_dump | sort | hs --filter-only) || return
-    selected_instance=$(echo $selected_instance |  gawk '{print gensub(/^.*=(.*)/, "\\1", "g", $NF);}')
-    eval 'LBUFFER="$LBUFFER$selected_instance"'
-    zle reset-prompt
-}
-zle -N _hs-select-instance
-bindkey '^q' _hs-select-instance
 
 bindkey -e
 bindkey '\ew' kill-region
-bindkey -M isearch "^r" history-incremental-pattern-search-backward
-#bindkey "^s" history-incremental-pattern-search-forward
+#bindkey -M isearch "^r" history-incremental-pattern-search-backward
 bindkey "^[[5~" up-line-or-history
 bindkey "^[[6~" down-line-or-history
 
@@ -419,22 +410,9 @@ prompt_pure_setup() {
 prompt_pure_setup "$@"
 
 source $ZSH/golang.plugin.zsh
-source $ZSH/url-tools.plugin.zsh
 source $ZSH/autoenv.plugin.zsh
 [[ -x "$(command -v kubectl)" ]] && source <(kubectl completion zsh)
 [[ -x "$(command -v jira)" ]] && eval "$(jira --completion-script-zsh)"
-
-function iplot {
-    cat <<EOF | gnuplot
-    set terminal pngcairo enhanced font 'Fira Sans,10'
-    set autoscale
-    set samples 1000
-    set output '|kitty +kitten icat --stdin yes'
-    set object 1 rectangle from screen 0,0 to screen 1,1 fillcolor rgb"#fdf6e3" behind
-    plot $@
-    set output '/dev/null'
-EOF
-}
 # }}}
 
 # program settings & paths {{{
@@ -452,7 +430,7 @@ export EDITOR=nvim
 export GIT_EDITOR=nvim
 export VISUAL=nvim
 export CLICOLOR=1
-export SSH_AUTH_SOCK=$HOME/.ssh/.ssh-agent.sock
+#export SSH_AUTH_SOCK=$HOME/.ssh/.ssh-agent.sock
 export LESS="-rX"
 export PAGER=less
 export INPUTRC=${HOME}/.inputrc
@@ -471,7 +449,7 @@ export XDG_CONFIG_HOME=$HOME/.config/
 export XDG_CACHE_HOME=$HOME/.cache/
 export XDG_DATA_HOME=$HOME/.local/share/
 export JAVA_HOME=/opt/homebrew/opt/openjdk@11/
-export CONDA_PREFIX=$HOME/.conda
+# export CONDA_PREFIX=$HOME/.conda
 export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
 export HOMEBREW_NO_INSTALL_FROM_API=1
 export HOMEBREW_NO_ENV_HINTS=1
@@ -483,6 +461,11 @@ fi
 
 export ZVM_PATH=$XDG_DATA_HOME/zvm
 export ZVM_INSTALL="$ZVM_PATH/self"
+
+export MODULAR_HOME="/Users/adragomi/.modular"
+export RUSTC_WRAPPER=/opt/homebrew/bin/sccache
+export SCCACHE_DIR=$HOME/.cache/sccache
+export SCCACHE_CACHE_SIZE="30G"
 
 export PATH=\
 /opt/blink/bin:\
@@ -502,16 +485,17 @@ $HOME/work/tools/jai/bin:\
 /opt/homebrew/sbin:\
 /usr/local/bin:\
 /opt/local/sbin:\
-$HOME/.platformio/penv/bin:\
 $HOME/.dotnet/tools:\
 /opt/X11/bin:\
 /opt/homebrew/share/dotnet:\
 /usr/bin:/bin:\
 /usr/sbin:\
 /sbin:\
+#$HOME/.platformio/penv/bin:\
 $PATH
 
 source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+bindkey "^R" _selecta-select-history
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"
 
@@ -519,24 +503,15 @@ alias tmux='tmux -2'
 alias history='fc -l 1'
 alias k="kubectl"
 alias 4ed="${HOME}/Applications/Development\ Tools/4coder/4ed &"
-
-[[ "$TERM" == "xterm-kitty" ]] && {
-  alias icat="kitty +kitten icat"
-  alias hg="kitty +kitten hyperlinked_grep"
-}
+alias icat="kitty +kitten icat"
+alias hg="kitty +kitten hyperlinked_grep"
+alias rg="rg --hyperlink-format=kitty"
 
 if [[ "$OSTYPE" = msys* ]]; then
   export PYTHONHOME=/c/tools/msys64/mingw64
   export PATH=$PATH:/c/tools/neovim-msys/bin:/mingw64/bin:/usr/bin
 fi
-# if [[ $OSTYPE = linux* ]]; then
-#   export JAVA_HOME=/home/linuxbrew/.linuxbrew/opt/openjdk/libexec/
-#   export GOPATH=$HOME/.golinux
-#   export CARGO_HOME=$HOME/.cargo-linux
-#   export RUSTUP_HOME=$HOME/.rustup-linux
-#   export PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
-# fi
-#
+
 conda() {
   __conda_setup="$('/opt/homebrew/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
   if [ $? -eq 0 ]; then
@@ -550,9 +525,11 @@ conda() {
   fi
   unset __conda_setup
 }
+
 export PIP_BREAK_SYSTEM_PACKAGES=1
-
 export VCPKG_ROOT="$HOME/.cache/vcpkg"
-
 export DOCKER_BUILDKIT=1
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
+export BUILDKIT_PROGRESS=plain
+
+export PATH="$PATH:/Users/adragomi/.modular/bin"
