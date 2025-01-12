@@ -479,6 +479,7 @@ $HOME/.cache/cargo/bin:\
 $ZVM_INSTALL:\
 $ZVM_PATH/bin:\
 $GOPATH/bin:\
+$HOME/work/tools/uxn:\
 $HOME/work/tools/jai/bin:\
 /opt/homebrew/share/dotnet:\
 /opt/homebrew/bin:\

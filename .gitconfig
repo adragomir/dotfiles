@@ -163,6 +163,7 @@
 [advice]
   statusHints = false
   skippedCherryPicks = false
+	detachedHead = false
 
 [gui]
 	fontdiff = -family Inconsolata-g -size 13 -weight normal -slant roman -underline 0 -overstrike 0
@@ -248,3 +249,5 @@
 	cookiefile = /Users/adragomi/.gitcookies
 [credential "https://dev.azure.com"]
 	useHttpPath = true
+[credential "https://git.casuallyblue.dev"]
+	provider = generic
