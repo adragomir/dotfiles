@@ -70,8 +70,8 @@ keybind = alt+left=esc:b
 keybind = alt+right=esc:f
 keybind = super+shift+r=reload_config
 keybind = super+shift+f=write_scrollback_file:open
-keybind = super+shift+up=jump_to_prompt:-1
-keybind = super+shift+down=jump_to_prompt:1
+#keybind = super+shift+up=jump_to_prompt:-1
+#keybind = super+shift+down=jump_to_prompt:1
 keybind = super+right=text:\x05
 keybind = super+left=text:\x01
 #keybind = super+alt+i=inspector:toggle

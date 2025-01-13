@@ -190,8 +190,8 @@ Plug 'https://git.sr.ht/~sircmpwn/hare.vim'
 Plug 'mrcjkb/rustaceanvim'
 Plug 'ray-x/guihua.lua'
 Plug 'ray-x/go.nvim'
-Plug 'rust-lang/rust.vim', { 'dir': stdpath('data') . '/bundle/rust', 'for': 'rust' }
-Plug 'sirtaj/vim-openscad', { 'dir': stdpath('data') . '/bundle/openscad' }
+Plug 'rust-lang/rust.vim', { 'for': 'rust' }
+Plug 'sirtaj/vim-openscad'
 Plug 'stephpy/vim-yaml', { 'for': 'yaml' }
 Plug 'rhysd/vim-clang-format'
 Plug 'hashivim/vim-terraform'
@@ -201,13 +201,13 @@ Plug 'urbit/hoon.vim'
 Plug 'karolbelina/uxntal.vim'
 Plug 'rluba/jai.vim'
 Plug 'Decodetalkers/csharpls-extended-lsp.nvim'
-" Plug 'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' }
+" Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 " Plug 'leafgarland/typescript-vim'
-" Plug 'neovimhaskell/haskell-vim', { 'dir': stdpath('data') . '/bundle/haskell-vim', 'for': 'haskell' }
-" Plug 'jdonaldson/vaxe', { 'dir': stdpath('data') . '/bundle/vaxe' }
-" Plug 'jansedivy/jai.vim', {'dir': stdpath('data') . '/bundle/jai' }
-" Plug 'elmcast/elm-vim', { 'dir': stdpath('data') . '/bundle/elm-vim', 'for': 'elm' }
-" Plug 'google/vim-jsonnet', {'dir': stdpath('data') . '/bundle/jsonnet', 'for': 'jsonnet' }
+" Plug 'neovimhaskell/haskell-vim', { 'for': 'haskell' }
+" Plug 'jdonaldson/vaxe'
+" Plug 'jansedivy/jai.vim'
+" Plug 'elmcast/elm-vim', { 'for': 'elm' }
+" Plug 'google/vim-jsonnet', { 'for': 'jsonnet' }
 " Plug 'edwinb/idris2-vim' 
 " Plug 'tomlion/vim-solidity'
 lua <<EOF
@@ -255,9 +255,9 @@ Plug 'kkharji/sqlite.lua'
 Plug 'gbprod/yanky.nvim'
 "Plug 'lambdalisue/suda.vim'
 Plug 'kyazdani42/nvim-tree.lua'
-Plug 'tpope/vim-fugitive', { 'dir': stdpath('data') . '/bundle/fugitive' }
+Plug 'tpope/vim-fugitive'
 Plug 'jremmen/vim-ripgrep'
-Plug 'vim-scripts/a.vim', { 'dir': stdpath('data') . '/bundle/a' }
+Plug 'vim-scripts/a.vim'
 Plug 'NMAC427/guess-indent.nvim'
 Plug 'tkmpypy/chowcho.nvim'
 Plug 'echasnovski/mini.nvim'

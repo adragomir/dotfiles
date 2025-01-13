@@ -33,8 +33,8 @@ if vim.regex("^screen"):match_str(vim.env.TERM) then
   vim.fn.execute("set <xLeft>=\\e[1;*D")
 end
 
-vim.g.do_filetype_lua = 1
-vim.g.did_load_filetypes = 1
+-- vim.g.do_filetype_lua = 1
+-- vim.g.did_load_filetypes = 1
 
 function GuiTabLabel(n)
   local win_num = vim.fn.tabpagewinnr(n)
@@ -76,9 +76,9 @@ elseif vim.fn.exists("g:neovide") == 1 then
   vim.g.neovide_cursor_trail_length=0.0
   vim.g.neovide_input_use_logo=1
   vim.cmd [[colorscheme jb]]
-  vim.keymap.set("c", "<D-v>", "<C-r>+", {silent = true, cnoremap = true})
-  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, inoremap = true})
-  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, inoremap = true})
+  vim.keymap.set("c", "<D-v>", "<C-r>+", {silent = true, noremap = true})
+  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
+  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
   vim.keymap.set("v", "<D-c>", "y", {silent = true})
   vim.o.guicursor="a:block-blinkon0-Cursor"
   vim.g.neovide_scroll_animation_far_lines = 9999
@@ -92,8 +92,8 @@ else
   vim.cmd [[colorscheme jb]]
   vim.o.guicursor="a:block-blinkon0-Cursor"
 end
-vim.cmd [[filetype on]]
-vim.cmd [[syntax on]]
+-- vim.cmd [[filetype on]]
+-- vim.cmd [[syntax on]]
 vim.o.termguicolors = true
 vim.o.shortmess= vim.o.shortmess .. "I"
 vim.o.mouse="a"
@@ -137,6 +137,7 @@ vim.o.switchbuf = "useopen"
 vim.o.grepprg = [[rg --no-ignore -H --no-heading --color never]]
 vim.o.grepformat="%f:%l:%m"
 vim.o.foldenable = false
+vim.g.vimsyn_folding = 0
 vim.o.smartindent = true
 vim.o.copyindent = true
 vim.o.preserveindent = true
@@ -158,12 +159,11 @@ vim.g.maplocalleader = ","
 -- vim.o.t_Co=256
 vim.o.background = "dark"
 
-vim.cmd [[syntax enable
-syntax on
-filetype on
-filetype indent on
-filetype plugin on
-]]
+vim.cmd [[syntax enable]]
+vim.cmd [[syntax on]]
+vim.cmd [[filetype on]]
+vim.cmd [[filetype indent on]]
+vim.cmd [[filetype plugin on]]
 vim.g.spell = false
 
 vim.g.loaded_ruby_provider = 0
@@ -179,6 +179,7 @@ vim.g.loaded_gzip=1
 vim.g.loaded_spellfile_plugin=1
 vim.g.loaded_shada_plugin = 1
 vim.g.loaded_vimballPlugin=1
+vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.g.netrw_banner=0
 vim.g.netrw_altv=1
@@ -192,7 +193,7 @@ vim.g.loaded_2html_plugin=1
 vim.g.loaded_xmlformat = 1
 
 local function bootstrap_pckr()
-  local pckr_path = vim.env.HOME .. "/.vim/autoload/pckr"
+  local pckr_path = vim.fs.joinpath(vim.fn.stdpath('config'), 'autoload/pckr')
 
   if not vim.uv.fs_stat(pckr_path) then
     vim.fn.system({
@@ -346,8 +347,17 @@ require('pckr').add {
 
     end
   },
-  'ray-x/guihua.lua',
-  'ray-x/go.nvim',
+  {
+    'ray-x/go.nvim',
+    requires = {
+      "ray-x/guihua.lua",
+      "neovim/nvim-lspconfig",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require('go').setup()
+    end
+  },
   {
     'rust-lang/rust.vim',
   },
@@ -360,7 +370,6 @@ require('pckr').add {
   'urbit/hoon.vim',
   'karolbelina/uxntal.vim',
   'rluba/jai.vim',
-  'Decodetalkers/csharpls-extended-lsp.nvim',
   --  'pangloss/vim-javascript', { 'dir': stdpath('data') . '/bundle/javascript', 'for': 'javascript' },
   --  'leafgarland/typescript-vim',
   --  'neovimhaskell/haskell-vim', { 'dir': stdpath('data') . '/bundle/haskell-vim', 'for': 'haskell' },
@@ -371,10 +380,26 @@ require('pckr').add {
   --  'edwinb/idris2-vim',
   --  'tomlion/vim-solidity'
   -- lsp
-  'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
-  'onsails/diaglist.nvim',
+  {
+    'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
+    -- config = function()
+    --   require("lsp_lines").setup()
+    -- end,
+  },
+  {
+    'onsails/diaglist.nvim',
+    config = function()
+      -- require("diaglist").init({
+      --     debug = false,
+      --     debounce_ms = 150,
+      -- })
+    end
+  },
   {
     'neovim/nvim-lspconfig',
+    requires = {
+      'Decodetalkers/csharpls-extended-lsp.nvim',
+    },
     config = function()
       local lspconfig = require'lspconfig'
       local configs = require'lspconfig.configs'
@@ -630,6 +655,7 @@ require('pckr').add {
         },
         handlers = {
           ["textDocument/definition"] = require('csharpls_extended').handler,
+          ["textDocument/typeDefinition"] = require('csharpls_extended').handler,
         },
       }
       -- lspconfig.omnisharp.setup {
@@ -655,12 +681,23 @@ require('pckr').add {
   -- {'scalameta/nvim-metals', {'branch': 'main'}},
   {
     'nvimdev/lspsaga.nvim',
-    branch='main'
+    branch='main',
+    requires = {
+      'nvim-treesitter/nvim-treesitter',
+    }
   },
   'nvim-lua/popup.nvim',
-  'nvim-lua/plenary.nvim',
+  -- 'nvim-lua/plenary.nvim',
   {
     'nvim-telescope/telescope.nvim',
+    requires = {
+      'nvim-lua/plenary.nvim',
+      {
+        'nvim-telescope/telescope-fzf-native.nvim',
+        run ='make',
+      },
+      'nvim-telescope/telescope-ui-select.nvim',
+    },
     config = function()
       require('telescope').setup{
         extensions = {
@@ -712,17 +749,21 @@ require('pckr').add {
           qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
         }
       }
+      require('telescope').load_extension('fzf')
+      require("telescope").load_extension("ui-select")
     end
   },
   {
-    'nvim-telescope/telescope-fzf-native.nvim',
-    run ='make',
+    'nvim-telescope/telescope-dap.nvim',
+    requires = {
+      'nvim-treesitter/nvim-treesitter',
+      'mfussenegger/nvim-dap',
+      'nvim-telescope/telescope.nvim',
+    },
     config = function()
-      require('telescope').load_extension('fzf')
+      require('telescope').load_extension('dap')
     end
   },
-  'nvim-telescope/telescope-ui-select.nvim',
-  'nvim-telescope/telescope-dap.nvim',
   {
     'ray-x/lsp_signature.nvim',
     config = function()
@@ -815,11 +856,22 @@ require('pckr').add {
 
     end
   },
-  'theHamsta/nvim-dap-virtual-text',
-  'nvim-neotest/nvim-nio',
+  {
+    'theHamsta/nvim-dap-virtual-text',
+    requires = {
+      'nvim-treesitter/nvim-treesitter',
+      'mfussenegger/nvim-dap',
+    },
+    config = function()
+      require("nvim-dap-virtual-text").setup()
+    end
+  },
   {
     'rcarriga/nvim-dap-ui',
-    requires = {"mfussenegger/nvim-dap", "nvim-neotest/nvim-nio"},
+    requires = {
+      "mfussenegger/nvim-dap",
+      "nvim-neotest/nvim-nio"
+    },
     config = function()
       require("dapui").setup()
       local dapui = require('dapui')
@@ -863,6 +915,9 @@ require('pckr').add {
   },
   {
     'leoluz/nvim-dap-go',
+    requires = {
+      'mfussenegger/nvim-dap',
+    },
     config = function()
       require('dap-go').setup()
     end
@@ -925,11 +980,20 @@ require('pckr').add {
       }
     end
   },
-  'nvim-treesitter/playground',
   --'nvim-treesitter/nvim-treesitter-context',
-  'RRethy/nvim-treesitter-textsubjects',
+  {
+    'RRethy/nvim-treesitter-textsubjects',
+    requires = {
+      'nvim-treesitter/nvim-treesitter',
+    }
+  },
   -- tools
-  'ej-shafran/compile-mode.nvim',
+  {
+    'ej-shafran/compile-mode.nvim',
+    requires = {
+      "nvim-lua/plenary.nvim",
+    }
+  },
   {
     'sourcegraph/sg.nvim',
     run = 'nvim -l build/init.lua',
@@ -941,6 +1005,9 @@ require('pckr').add {
   'rbgrouleff/bclose.vim',
   {
     'nvim-pack/nvim-spectre',
+    requires = {
+      "nvim-lua/plenary.nvim",
+    },
     config = function()
       require('spectre').setup()
     end
@@ -951,18 +1018,28 @@ require('pckr').add {
       require('maximizer').setup()
     end
   },
-  'tiagovla/scope.nvim',
+  {
+    'tiagovla/scope.nvim',
+    requires = {
+      'nvim-telescope/telescope.nvim',
+    },
+    config = function()
+      require("telescope").load_extension("scope")
+    end
+  },
   'mikesmithgh/kitty-scrollback.nvim',
-  'folke/neodev.nvim',
+  'folke/lazydev.nvim',
   {
     'tversteeg/registers.nvim',
     config = function()
       require('registers').setup()
     end
   },
-  'kkharji/sqlite.lua',
   {
     'gbprod/yanky.nvim',
+    requires = {
+      'kkharji/sqlite.lua',
+    },
     config = function()
       require('yanky').setup({
         ring = {
@@ -992,7 +1069,7 @@ require('pckr').add {
   },
   --'lambdalisue/suda.vim',
   {
-    'kyazdani42/nvim-tree.lua',
+    'nvim-tree/nvim-tree.lua',
     config = function()
       require("nvim-tree").setup({
         prefer_startup_root = true,
@@ -1488,7 +1565,8 @@ vim.keymap.set("n", "bd", ":Bclose", {silent = true, noremap = true})
 vim.keymap.set("", "<Space>", "m`", {noremap = true})
 
 -- mappings home/end
-vim.keymap.set({"i", "n"}, "<Home>", "<C-o>:lua HomeKey()", {silent = true, noremap = true})
+vim.keymap.set("i", "<Home>", "<C-o>:lua HomeKey()<cr>", {silent = true, noremap = true})
+vim.keymap.set("n", "<Home>", ":lua HomeKey()<cr>", {silent = true, noremap = true})
 vim.keymap.set("n", "<leader>/", ":Rg <cword><cr>", {silent = true, noremap = true})
 vim.keymap.set("n", "-", ":Chowcho<cr>", {})
 
@@ -1551,7 +1629,7 @@ end
 -- telescope
 vim.keymap.set("n", "<C-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", {})
 vim.keymap.set("n", "<C-f>", "<cmd>lua require('telescope.builtin').diagnostics()<cr>", {})
-vim.keymap.set("n", "<leader>1", ":NVimTreeFindFileToggle", {})
+vim.keymap.set("n", "<leader>1", ":NvimTreeToggle<cr>", {})
 vim.keymap.set("n", "<leader>s", "<cmd>lua require('telescope.builtin').lsp_workspace_symbols({file_encoding='utf-8'})<cr>", {})
 vim.keymap.set("n", "<leader>4", "<cmd>Telescope scope buffers<cr>", {})
 vim.keymap.set("n", "<leader>5", "<cmd>Telescope scope buffers cwd_only=true<cr>", {})
