@@ -28,14 +28,14 @@ else
         dir_or_file=$1
     fi
     dir_or_file=$(realpath $dir_or_file)
+    osascript -e 'tell application "Neovide" to activate' &>/dev/null
     if [[ -d "${dir_or_file}" ]]; then
-        #echo "Open dir ${dir_or_file}: <C-\><C-N>:\$tabnew | :tcd ${dir_or_file}<CR>"
-        nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew | :tcd ${dir_or_file}<CR>"
+        #echo "Open dir ${dir_or_file}: <C-\><C-N>:\$tabnew ${dir_or_file} | :tcd ${dir_or_file}<CR>"
+        nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew ${dir_or_file} | :tcd ${dir_or_file}<CR>"
     else
         file=$dir_or_file
         dir=$(dirname "$file")
         #echo "Open file ${dir_or_file} in dir ${dir}"
-        nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew | :tcd ${dir} | :e ${dir_or_file}<CR>"
+        nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew ${dir} | :tcd ${dir} | :e ${dir_or_file}<CR>"
     fi
-    osascript -e 'tell application "Neovide" to activate'
 fi

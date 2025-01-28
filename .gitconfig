@@ -247,7 +247,7 @@
 	required = true
 [http]
 	cookiefile = /Users/adragomi/.gitcookies
-[credential "https://dev.azure.com"]
-	useHttpPath = true
 [credential "https://git.casuallyblue.dev"]
 	provider = generic
+[credential "https://dev.azure.com"]
+	useHttpPath = true

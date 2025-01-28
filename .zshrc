@@ -532,5 +532,6 @@ export VCPKG_ROOT="$HOME/.cache/vcpkg"
 export DOCKER_BUILDKIT=1
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
 export BUILDKIT_PROGRESS=plain
+export OLLAMA_MODELS=$HOME/.cache/ollama
 
 export PATH="$PATH:/Users/adragomi/.modular/bin"

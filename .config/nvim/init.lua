@@ -35,22 +35,23 @@ end
 
 -- vim.g.do_filetype_lua = 1
 -- vim.g.did_load_filetypes = 1
-
 function GuiTabLabel(n)
+  local tab_num = n
   local win_num = vim.fn.tabpagewinnr(n)
-  return n .. ' ' .. vim.fn.fnamemodify(vim.fn.getwcd(win_num, n), ":t")
+  return tab_num .. ' ' .. vim.fn.fnamemodify(vim.fn.getcwd(win_num, tab_num), ':t')
 end
 
 function MyTabLine()
   local s = ""
-  for i = 0,vim.fn.tabpagenr("$") do
+  for i = 0,(vim.fn.tabpagenr("$") - 1) do
     if i + 1 == vim.fn.tabpagenr() then
       s = s .. '%#TabLineSel#'
     else
       s = s .. '%#TabLine#'
     end
     s = s .. '%' .. (i + 1) .. 'T'
-    s = s .. ' %{GuiTabLabel(' .. (i + 1) .. ')}'
+    s = s .. ' %{v:lua.GuiTabLabel(' .. (i + 1) .. ')}'
+
     if i + 1 == vim.fn.tabpagenr() then
       s = s .. ' *'
     else
@@ -684,7 +685,20 @@ require('pckr').add {
     branch='main',
     requires = {
       'nvim-treesitter/nvim-treesitter',
-    }
+    }, 
+    config = function()
+      require('lspsaga').setup({
+        lightbulb = {
+          enable = false
+        }, 
+        symbol_in_winbar = {
+          enable = false
+        }, 
+        beacon = {
+          enable = false
+        }, 
+      })
+    end
   },
   'nvim-lua/popup.nvim',
   -- 'nvim-lua/plenary.nvim',
@@ -961,6 +975,7 @@ require('pckr').add {
           -- url = "https://github.com/adragomir/tree-sitter-jai", -- local path or git repo
           url = "/Users/adragomi/temp/tree-sitter-jai-new", -- local path or git repo
           files = {"src/parser.c", "src/scanner.cc"},
+          cxx_standard = "c++14",
           -- optional entries:
           branch = "adragomi",
           generate_requires_npm = true,
@@ -1160,7 +1175,41 @@ require('pckr').add {
   --map <leader>m :AsyncRun -mode=term -pos=right -focus=0 -listed=0 ./build && jairun ./main<cr>
   'skywind3000/asyncrun.vim',
   -- 'github/copilot.vim'
-
+  {
+    'natecraddock/sessions.nvim',
+    config = function()
+      require('sessions').setup({
+          session_filepath = vim.fn.stdpath("data") .. '/sessions',
+          absolute = true,
+      })
+    end
+  },
+  {
+    'natecraddock/workspaces.nvim',
+    requires = {
+      'natecraddock/sessions.nvim',
+      'nvim-telescope/telescope.nvim',
+    },
+    config = function()
+      require("workspaces").setup({
+          path = vim.fn.stdpath("data") .. '/workspaces',
+          cd_type = "global",
+          sort = true,
+          mru_sort = true,
+          hooks = {
+              open_pre = {
+                  "SessionsSave",
+                  "silent %bdelete!",
+              },
+              open = {
+                  "SessionsLoad",
+                  "NvimTreeOpen",
+              },
+          }
+      })
+      require('telescope').load_extension("workspaces")
+    end
+  }
 }
 
 vim.api.nvim_create_autocmd('LspAttach', {
