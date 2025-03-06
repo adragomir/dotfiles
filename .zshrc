@@ -430,7 +430,6 @@ export EDITOR=nvim
 export GIT_EDITOR=nvim
 export VISUAL=nvim
 export CLICOLOR=1
-#export SSH_AUTH_SOCK=$HOME/.ssh/.ssh-agent.sock
 export LESS="-rX"
 export PAGER=less
 export INPUTRC=${HOME}/.inputrc
@@ -492,8 +491,8 @@ $HOME/.dotnet/tools:\
 /usr/bin:/bin:\
 /usr/sbin:\
 /sbin:\
-#$HOME/.platformio/penv/bin:\
 $PATH
+# $HOME/.platformio/penv/bin:\
 
 source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 bindkey "^R" _selecta-select-history
@@ -530,8 +529,11 @@ conda() {
 export PIP_BREAK_SYSTEM_PACKAGES=1
 export VCPKG_ROOT="$HOME/.cache/vcpkg"
 export DOCKER_BUILDKIT=1
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
 export BUILDKIT_PROGRESS=plain
 export OLLAMA_MODELS=$HOME/.cache/ollama
 
 export PATH="$PATH:/Users/adragomi/.modular/bin"
+export PIPENV_VENV_IN_PROJECT=1
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/adragomi/.lmstudio/bin"

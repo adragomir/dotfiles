@@ -362,6 +362,16 @@ require('pckr').add {
   {
     'rust-lang/rust.vim',
   },
+  {
+    'HealsCodes/vim-gas'
+  }, 
+  {
+    "https://git.sr.ht/~swaits/scratch.nvim",
+    config = function()
+      require("scratch").setup()
+    end
+  }, 
+  'compnerd/arm64asm-vim', 
   'sirtaj/vim-openscad',
   'stephpy/vim-yaml',
   'rhysd/vim-clang-format',
@@ -382,12 +392,6 @@ require('pckr').add {
   --  'tomlion/vim-solidity'
   -- lsp
   {
-    'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
-    -- config = function()
-    --   require("lsp_lines").setup()
-    -- end,
-  },
-  {
     'onsails/diaglist.nvim',
     config = function()
       -- require("diaglist").init({
@@ -396,6 +400,16 @@ require('pckr').add {
       -- })
     end
   },
+  {
+    'williamboman/mason-lspconfig.nvim', 
+    requires = {
+      'williamboman/mason.nvim', 
+    }, 
+    config = function()
+      require("mason").setup()
+      require("mason-lspconfig").setup()
+    end
+  }, 
   {
     'neovim/nvim-lspconfig',
     requires = {
@@ -488,112 +502,19 @@ require('pckr').add {
           },
         },
       }))
-      -- lspconfig.ccls.setup(make_lsp_config({
-      --   cmd = {
-      --     "ccls",
-      --     "--log-file=/tmp/ccls.out",
-      --     "-v=1",
-      --   },
-      --   init_options = {
-      --     index = {
-      --       initialBlackList = { '.*omtr_tmp.*' }
-      --     }
-      --   },
-      --   settings = {
-      --     ccls = {
-      --       clang = {
-      --         extraArgs = {
-      --           "-isystem/usr/local/include",
-      --           "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1",
-      --           "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include",
-      --           "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
-      --           "-isystem/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
-      --           "-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks}",
-      --         },
-      --         resourceDir = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3", 
-      --         client = {
-      --           snippetSupport = false,
-      --         },
-      --         index = {
-      --           comments = 0
-      --         }
-      --       }
-      --     }
-      --   }
-      -- }))
-      lspconfig.clojure_lsp.setup(make_lsp_config({}))
-      lspconfig.intelephense.setup(make_lsp_config({
-        settings = {
-          intelephense = {
-            files = {
-              maxSize = 10000000,
-            },
-            format = {
-              enable = true,
-              braces = "psr12",
-            },
-            environment = {
-              shortOpenTag = true,
-              phpVersion = "8.1.8",
-              includePaths = {
-              },
-            }
-          }
-        }
-      }))
       -- lspconfig.svls.setup(make_lsp_config({}))
-      lspconfig.pylsp.setup(make_lsp_config({
-        on_init = function(client)
-          client.config.settings = {
-            pylsp = {
-              plugins = {
-                pycodestyle = {
-                  enabled = false,
-                  select = {"E112", "E113", "E117", "E223", "E224", "E221" }
-                },
-                flake8 = {
-                  enabled = false,
-                  ignore = {"E261", "E221"}
-                },
-                mccabe = {
-                  enabled= false,
-                },
-                preload = {
-                  enabled= false,
-                },
-                pyflakes = {
-                  enabled= false,
-                },
-                yapf = {
-                  enabled= false,
-                },
+      lspconfig.basedpyright.setup(make_lsp_config({
+          settings = {
+            basedpyright = {
+              analysis = {
+                diagnosticSeverityOverrides = {
+                }
               }
             }
           }
-          client.notify('workspace/didChangeConfiguration')
-        end,
       }))
 
-      -- lspconfig.jdtls.setup(make_lsp_config({
-      --   root_dir = util.root_pattern("pom.xml", "build.xml"),
-      -- }))
-      lspconfig.ts_ls.setup(make_lsp_config({
-      }))
-
-      local system_name
-      if vim.fn.has("mac") == 1 then
-        system_name = "macOS"
-      elseif vim.fn.has("unix") == 1 then
-        system_name = "Linux"
-      elseif vim.fn.has('win32') == 1 then
-        system_name = "Windows"
-      else
-        print("Unsupported system for sumneko")
-      end
-      local sumneko_root_path = vim.fn.stdpath('data')..'/lspconfig/sumneko_lua/lua-language-server'
-      local sumneko_binary = sumneko_root_path.."/bin/"..system_name.."/lua-language-server"
       lspconfig.lua_ls.setup(make_lsp_config({
-        cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"},
         settings = {
           Lua = {
             runtime = {
@@ -613,70 +534,13 @@ require('pckr').add {
         },
       }))
 
-      -- lspconfig.sourcekit.setup(make_lsp_config({}))
-      -- lspconfig.solargraph.setup(make_lsp_config({
-      --   settings = {
-      --     solargraph = {
-      --       diagnostics = false,
-      --       formatting = true,
-      --       autoformat = false,
-      --     }
-      --   },
-      -- }))
-
-      lspconfig.terraformls.setup(make_lsp_config({
-      }))
-
-      -- local metals_config = require("metals").bare_config()
-      -- metals_config.settings = {
-      --   showImplicitArguments = true,
-      --   excludedPackages = {
-      --     "akka.actor.typed.javadsl",
-      --     "com.github.swagger.akka.javadsl"
-      --   },
-      -- }
-      -- metals_config.on_attach = function(client, bufnr)
-      --   require("metals").setup_dap()
-      -- end
-      -- lspconfig.elmls.setup(make_lsp_config({
-      -- }))
-      -- lspconfig.html.setup(make_lsp_config({
-      -- }))
-      -- lspconfig.yamlls.setup(make_lsp_config({
-      -- }))
+      --
       lspconfig.hoon_ls.setup(make_lsp_config({
       }))
 
       lspconfig.jails.setup(make_lsp_config({
       }))
 
-      lspconfig.csharp_ls.setup{
-        cmd = {
-          "/Users/adragomi/.dotnet/tools/csharp-ls"
-        },
-        handlers = {
-          ["textDocument/definition"] = require('csharpls_extended').handler,
-          ["textDocument/typeDefinition"] = require('csharpls_extended').handler,
-        },
-      }
-      -- lspconfig.omnisharp.setup {
-      --   cmd = {
-      --     "/Users/adragomi/work/tools/omnisharp/OmniSharp",
-      --     "--languageserver",
-      --     "--hostPID",
-      --     tostring(vim.fn.getpid())
-      --   },
-      --   handlers = {
-      --     ["textDocument/definition"] = require('omnisharp_extended').handler,
-      --   },
-      --   enable_editorconfig_support = true,
-      --   enable_ms_build_load_projects_on_demand = false,
-      --   enable_roslyn_analyzers = false,
-      --   organize_imports_on_format = false,
-      --   enable_import_completion = false,
-      --   sdk_include_prereleases = false,
-      --   analyze_open_documents_only = true,
-      -- }
     end
   },
   -- {'scalameta/nvim-metals', {'branch': 'main'}},
@@ -701,7 +565,6 @@ require('pckr').add {
     end
   },
   'nvim-lua/popup.nvim',
-  -- 'nvim-lua/plenary.nvim',
   {
     'nvim-telescope/telescope.nvim',
     requires = {
@@ -1009,13 +872,6 @@ require('pckr').add {
       "nvim-lua/plenary.nvim",
     }
   },
-  {
-    'sourcegraph/sg.nvim',
-    run = 'nvim -l build/init.lua',
-    config = function()
-      require('sg').setup()
-    end
-  },
   --{'gelguy/wilder.nvim', run = ':UpdateRemotePlugins' }
   'rbgrouleff/bclose.vim',
   {
@@ -1042,7 +898,6 @@ require('pckr').add {
       require("telescope").load_extension("scope")
     end
   },
-  'mikesmithgh/kitty-scrollback.nvim',
   'folke/lazydev.nvim',
   {
     'tversteeg/registers.nvim',
@@ -1082,7 +937,6 @@ require('pckr').add {
       })
     end
   },
-  --'lambdalisue/suda.vim',
   {
     'nvim-tree/nvim-tree.lua',
     config = function()
