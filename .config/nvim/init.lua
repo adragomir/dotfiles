@@ -364,14 +364,14 @@ require('pckr').add {
   },
   {
     'HealsCodes/vim-gas'
-  }, 
+  },
   {
     "https://git.sr.ht/~swaits/scratch.nvim",
     config = function()
       require("scratch").setup()
     end
-  }, 
-  'compnerd/arm64asm-vim', 
+  },
+  'compnerd/arm64asm-vim',
   'sirtaj/vim-openscad',
   'stephpy/vim-yaml',
   'rhysd/vim-clang-format',
@@ -401,15 +401,15 @@ require('pckr').add {
     end
   },
   {
-    'williamboman/mason-lspconfig.nvim', 
+    'williamboman/mason-lspconfig.nvim',
     requires = {
-      'williamboman/mason.nvim', 
-    }, 
+      'williamboman/mason.nvim',
+    },
     config = function()
       require("mason").setup()
       require("mason-lspconfig").setup()
     end
-  }, 
+  },
   {
     'neovim/nvim-lspconfig',
     requires = {
@@ -549,15 +549,15 @@ require('pckr').add {
     branch='main',
     requires = {
       'nvim-treesitter/nvim-treesitter',
-    }, 
+    },
     config = function()
       require('lspsaga').setup({
         lightbulb = {
           enable = false
-        }, 
+        },
         symbol_in_winbar = {
           enable = false
-        }, 
+        },
         beacon = {
           enable = false
         }, 
@@ -1077,21 +1077,22 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 vim.diagnostic.config({
   virtual_text = false,
-  virtual_lines = true
+  virtual_lines = true,
+  severity = vim.diagnostic.severity.WARNING
 })
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  vim.lsp.diagnostic.on_publish_diagnostics, {
-    signs = {
-      severity_limit = "Warning",
-    },
-    virtual_text = {
-      severity_limit = "Warning",
-    },
-    -- virtual_text = false,
-    virtual_lines = false,
-    update_in_insert = false,
-  }
-)
+-- vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+--   vim.lsp.diagnostic.on_publish_diagnostics, {
+--     signs = {
+--       severity_limit = "Warning",
+--     },
+--     virtual_text = {
+--       severity_limit = "Warning",
+--     },
+--     -- virtual_text = false,
+--     virtual_lines = false,
+--     update_in_insert = false,
+--   }
+-- )
 
 vim.g.compile_mode = {}
 
