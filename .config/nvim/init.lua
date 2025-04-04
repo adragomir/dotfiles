@@ -33,8 +33,6 @@ if vim.regex("^screen"):match_str(vim.env.TERM) then
   vim.fn.execute("set <xLeft>=\\e[1;*D")
 end
 
--- vim.g.do_filetype_lua = 1
--- vim.g.did_load_filetypes = 1
 function GuiTabLabel(n)
   local tab_num = n
   local win_num = vim.fn.tabpagewinnr(n)
@@ -65,14 +63,11 @@ function MyTabLine()
   return s
 end
 
-if vim.fn.has("gui_vimr") == 1 then
-  vim.cmd [[colorscheme jb]]
-  vim.o.guifont="Consolas:h12"
-  vim.o.guicursor="a:block-blinkon0-VimrDefaultCursor"
-  vim.o.tabline= "%!v:lua.MyTabLine()"
-elseif vim.fn.exists("g:neovide") == 1 then
+if vim.fn.exists("g:neovide") == 1 then
   vim.o.tabline= "%!v:lua.MyTabLine()"
   vim.o.guifont="Consolas:h12"
+  -- vim.o.guifont="Iosevka Custom:h11"
+  vim.o.linespace=-2
   vim.g.neovide_cursor_animation_length=0.0
   vim.g.neovide_cursor_trail_length=0.0
   vim.g.neovide_input_use_logo=1
@@ -93,8 +88,6 @@ else
   vim.cmd [[colorscheme jb]]
   vim.o.guicursor="a:block-blinkon0-Cursor"
 end
--- vim.cmd [[filetype on]]
--- vim.cmd [[syntax on]]
 vim.o.termguicolors = true
 vim.o.shortmess= vim.o.shortmess .. "I"
 vim.o.mouse="a"
@@ -109,17 +102,17 @@ vim.o.breakindent = true
 vim.o.breakindentopt="sbr"
 vim.o.showbreak="…"
 vim.o.statusline=[[%<%f (%{&ft},%{&ff}) (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}) %-4(%m%)%=%-19(%3l,%02c%03V,%o|%B%)]]
-vim.o.virtualedit = vim.o.virtualedit .. "block"
+vim.o.virtualedit = "block"
 vim.o.signcolumn = "yes"
 vim.o.visualbell = false
 vim.o.errorbells = false
 vim.o.writeany = true
 vim.o.iskeyword="@,-,>,48-57,128-167,224-235,_"
-vim.o.iskeyword = vim.o.iskeyword .. ',.'
+--vim.o.iskeyword = vim.o.iskeyword .. ',.'
 vim.o.showtabline = 1
 vim.o.matchtime=3
 vim.o.complete=".,w,b,u,t,i,d"
-vim.o.completeopt="menu,menuone,noselect" --set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
+vim.o.completeopt="menu,menuone,noselect,fuzzy" --set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
 vim.o.timeout = true
 vim.o.timeoutlen = 200
 vim.o.ttimeoutlen = 0
@@ -148,7 +141,7 @@ vim.o.expandtab = true
 vim.o.tabstop=2
 vim.o.shiftwidth=2
 vim.o.softtabstop=2
-vim.o. scrolloff=10
+vim.o.scrolloff=10
 vim.o.startofline = false
 vim.o.splitkeep="topline"
 vim.o.wildmode = "longest,list"
@@ -175,7 +168,6 @@ vim.g.loaded_manpageview = 1
 vim.g.loaded_manpageviewPlugin = 1
 vim.g.loaded_sql_completion=1
 vim.g.omni_sql_no_default_maps = 1
-vim.g.loaded_remote_plugins = 1
 vim.g.loaded_gzip=1
 vim.g.loaded_spellfile_plugin=1
 vim.g.loaded_shada_plugin = 1
@@ -190,7 +182,6 @@ vim.g.loaded_zipPlugin=1
 vim.g.loaded_zip=1
 vim.g.loaded_tarPlugin=1
 vim.g.loaded_2html_plugin=1
--- vim.g.loaded_matchparen = 1
 vim.g.loaded_xmlformat = 1
 
 local function bootstrap_pckr()
@@ -219,6 +210,7 @@ require('pckr').setup {
 }
 
 require('pckr').add {
+  --------------------------------
   -- lang
   'terrastruct/d2-vim',
   'https://git.sr.ht/~sircmpwn/hare.vim',
@@ -226,7 +218,6 @@ require('pckr').add {
     'mrcjkb/rustaceanvim',
     config = function()
       vim.g.rustaceanvim = {
-        -- Plugin configuration
         tools = {
           reload_workspace_from_cargo_toml = true,
           hover_actions = {
@@ -239,18 +230,14 @@ require('pckr').add {
             auto_focus = true
           }
         },
-        -- LSP configuration
         server = {
           on_attach = function(client, bufnr)
-            -- you can also put keymaps in here
             if client.server_capabilities.inlayHintProvider then
                 vim.g.inlay_hints_visible = true
                 vim.lsp.inlay_hint.enable(true, {bufnr = bufnr})
             end
           end,
-          -- logfile = '/Users/adragomi/rust-analyzer.log',
           default_settings = {
-            -- rust-analyzer language server configuration
             ['rust-analyzer'] = {
               server = {
                 -- path = ''
@@ -336,12 +323,10 @@ require('pckr').add {
                 },
                 implementations = { enable = true }
               },
-              -- for nightly
               checkOnSave = true,
             },
           },
         },
-        -- DAP configuration
         dap = {
         },
       }
@@ -352,7 +337,7 @@ require('pckr').add {
     'ray-x/go.nvim',
     requires = {
       "ray-x/guihua.lua",
-      "neovim/nvim-lspconfig",
+      -- "neovim/nvim-lspconfig",
       "nvim-treesitter/nvim-treesitter",
     },
     config = function()
@@ -388,8 +373,7 @@ require('pckr').add {
   --  'jansedivy/jai.vim', {'dir': stdpath('data') . '/bundle/jai' },
   --  'elmcast/elm-vim', { 'dir': stdpath('data') . '/bundle/elm-vim', 'for': 'elm' }.
   --  'google/vim-jsonnet', {'dir': stdpath('data') . '/bundle/jsonnet', 'for': 'jsonnet' },
-  --  'edwinb/idris2-vim',
-  --  'tomlion/vim-solidity'
+  ---------------------------------------
   -- lsp
   {
     'onsails/diaglist.nvim',
@@ -410,139 +394,6 @@ require('pckr').add {
       require("mason-lspconfig").setup()
     end
   },
-  {
-    'neovim/nvim-lspconfig',
-    requires = {
-      'Decodetalkers/csharpls-extended-lsp.nvim',
-    },
-    config = function()
-      local lspconfig = require'lspconfig'
-      local configs = require'lspconfig.configs'
-      local util = require'lspconfig.util'
-
-      if not configs.jails then
-        configs.jails = {
-          default_config = {
-            cmd = { '/Users/adragomi/temp/source/jai/Jails2/bin/jails' },
-            filetypes = { 'jai' },
-            root_dir = util.root_pattern('jails.json'),
-            single_file_support = true,
-          },
-        }
-      end
-
-      local function make_lsp_config(t)
-        local tmp = vim.deepcopy(t)
-        tmp.on_attach = function(client, bufnr)
-          if vim.fn.has('nvim-0.11') then
-          else
-            require'lsp_compl'.attach(client, bufnr, {})
-          end
-        end
-        return tmp
-      end
-
-      lspconfig.zls.setup(make_lsp_config({
-        cmd = { vim.env.HOME .. '/.local/share/zvm/bin/zls' },
-        flags = {
-          debounce_text_changes = 250,
-        },
-      }))
-
-      lspconfig.buf_ls.setup(make_lsp_config({
-      }))
-
-      require'go'.setup(make_lsp_config({
-        lsp_codelens = true,
-        lsp_inlay_hints = {
-          enable = true,
-          only_current_line = true,
-        },
-      }))
-
-      lspconfig.gopls.setup(make_lsp_config({
-        cmd = { vim.env.HOME .. '/.gocode/bin/gopls' },
-        root_dir = util.root_pattern("go.mod"),
-      }))
-
-      lspconfig.mojo.setup(make_lsp_config({
-        cmd = { vim.env.HOME .. '/.local/share/modular/pkg/packages.modular.com_mojo/bin/mojo-lsp-server' },
-      }))
-
-      -- lspconfig.denols.setup(make_lsp_config({
-      --   root_dir = util.root_pattern("deno.json"),
-      -- }))
-      -- lspconfig.haxe_language_server.setup(make_lsp_config({}))
-      -- lspconfig.leanls.setup(make_lsp_config({})).
-      -- lspconfig.solang.setup(make_lsp_config({}))
-      -- lspconfig.svls.setup(make_lsp_config({}))
-
-      -- lspconfig.rust_analyzer.setup(make_lsp_config({
-      -- }))
-      --
-      lspconfig.ols.setup({})
-      lspconfig.clangd.setup(make_lsp_config({
-        cmd = {
-          "/opt/homebrew/opt/llvm/bin/clangd",
-          -- "--background-index",
-          "--pch-storage=disk",
-          -- "--all-scopes-completion",
-          -- "--pretty",
-          "--header-insertion=never",
-          "-j=4",
-          "--function-arg-placeholders",
-          "--completion-style=detailed",
-          "--enable-config",
-          "--query-driver=**",
-        },
-        root_dir = util.root_pattern(".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git"),
-        init_option = {
-          fallbackFlags = {
-            "-std=c++2a"
-          },
-        },
-      }))
-      -- lspconfig.svls.setup(make_lsp_config({}))
-      lspconfig.basedpyright.setup(make_lsp_config({
-          settings = {
-            basedpyright = {
-              analysis = {
-                diagnosticSeverityOverrides = {
-                }
-              }
-            }
-          }
-      }))
-
-      lspconfig.lua_ls.setup(make_lsp_config({
-        settings = {
-          Lua = {
-            runtime = {
-              version = 'LuaJIT',
-              path = vim.split(package.path, ';'),
-            },
-            diagnostics = {
-              globals = {'vim'},
-            },
-            workspace = {
-              library = {
-                [vim.fn.expand('$VIMRUNTIME/lua')] = true,
-                [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
-              },
-            },
-          },
-        },
-      }))
-
-      --
-      lspconfig.hoon_ls.setup(make_lsp_config({
-      }))
-
-      lspconfig.jails.setup(make_lsp_config({
-      }))
-
-    end
-  },
   -- {'scalameta/nvim-metals', {'branch': 'main'}},
   {
     'nvimdev/lspsaga.nvim',
@@ -560,7 +411,7 @@ require('pckr').add {
         },
         beacon = {
           enable = false
-        }, 
+        },
       })
     end
   },
@@ -651,7 +502,7 @@ require('pckr').add {
       })
     end
   },
-  -- 'mfussenegger/nvim-lsp-compl'
+  ----------------------------------
   -- debug
   {
     'mfussenegger/nvim-dap',
@@ -800,6 +651,7 @@ require('pckr').add {
     end
   },
   -- 'mfussenegger/nvim-jdtls'
+  ---------------------------------
   -- syntax
   {
     'nvim-treesitter/nvim-treesitter',
@@ -833,18 +685,30 @@ require('pckr').add {
         }
       }
       local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+      -- parser_config.jai = {
+      --   install_info = {
+      --     -- url = "https://github.com/adragomir/tree-sitter-jai", -- local path or git repo
+      --     url = "/Users/adragomi/temp/tree-sitter-jai-new", -- local path or git repo
+      --     files = {"src/parser.c", "src/scanner.cc"},
+      --     cxx_standard = "c++14",
+      --     -- optional entries:
+      --     branch = "adragomi",
+      --     generate_requires_npm = true,
+      --     requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
+      --   },
+      --   filetype = "jai", -- if filetype does not match the parser name
+      -- }
       parser_config.jai = {
         install_info = {
-          -- url = "https://github.com/adragomir/tree-sitter-jai", -- local path or git repo
-          url = "/Users/adragomi/temp/tree-sitter-jai-new", -- local path or git repo
-          files = {"src/parser.c", "src/scanner.cc"},
+          url = "https://github.com/constantitus/tree-sitter-jai",
+          files = {"src/parser.c", "src/scanner.c"},
           cxx_standard = "c++14",
           -- optional entries:
-          branch = "adragomi",
+          branch = "master",
           generate_requires_npm = true,
-          requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
+          requires_generate_from_grammar = false, 
         },
-        filetype = "jai", -- if filetype does not match the parser name
+        filetype = "jai",
       }
       parser_config.mojo = {
         install_info = {
@@ -865,6 +729,7 @@ require('pckr').add {
       'nvim-treesitter/nvim-treesitter',
     }
   },
+  --------------------------------
   -- tools
   {
     'ej-shafran/compile-mode.nvim',
@@ -872,7 +737,6 @@ require('pckr').add {
       "nvim-lua/plenary.nvim",
     }
   },
-  --{'gelguy/wilder.nvim', run = ':UpdateRemotePlugins' }
   'rbgrouleff/bclose.vim',
   {
     'nvim-pack/nvim-spectre',
@@ -974,11 +838,11 @@ require('pckr').add {
     'tkmpypy/chowcho.nvim',
     config = function()
       require('chowcho').setup {
-        icon_enabled = false, -- required 'nvim-web-devicons' (default: false)
+        icon_enabled = false,
         text_color = '#FFFFFF',
         bg_color = '#555555',
         active_border_color = '#0A8BFF',
-        border_style = 'default', -- 'default', 'rounded',
+        border_style = 'default',
         use_exclude_default = false,
       }
     end
@@ -1019,7 +883,6 @@ require('pckr').add {
     end
   },
   'chrisbra/matchit',
-  --'andymass/vim-matchup',
   {
     'utilyre/sentiment.nvim',
     config = function()
@@ -1063,8 +926,277 @@ require('pckr').add {
       })
       require('telescope').load_extension("workspaces")
     end
+  },
+  {
+    'benlubas/molten-nvim',
+    config = function()
+    end
+  },
+  {
+    "GCBallesteros/NotebookNavigator.nvim",
+    keys = {
+      { "<leader>X", "<cmd>lua require('notebook-navigator').run_cell()<cr>" },
+    },
+    dependencies = {
+      "benlubas/molten-nvim"
+    },
+    config = function()
+      local nn = require "notebook-navigator"
+      nn.setup({
+        cell_markers = {
+          python = "# %%",
+        },
+        repl_provider = "auto",
+      })
+    end,
   }
 }
+
+vim.lsp.config.lua_ls = {
+  cmd = { 'lua-language-server' },
+  filetypes = { 'lua' },
+  root_markers = {
+    '.luarc.json',
+    '.luarc.jsonc',
+    '.luacheckrc',
+    '.stylua.toml',
+    'stylua.toml',
+    'selene.toml',
+    'selene.yml',
+    '.git',
+  },
+  settings = {
+    Lua = {
+      runtime = {
+        version = 'LuaJIT',
+        path = vim.split(package.path, ';'),
+      },
+      diagnostics = {
+        globals = {'vim'},
+      },
+      workspace = {
+        library = {
+          [vim.fn.expand('$VIMRUNTIME/lua')] = true,
+          [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
+        },
+      },
+    },
+  },
+}
+
+vim.lsp.config.jails = {
+  cmd = { '/Users/adragomi/temp/source/jai/Jails2/bin/jails' },
+  filetypes = { 'jai' },
+  root_markers = {'jails.json'},
+}
+
+vim.lsp.config.zls = {
+  cmd = { vim.env.HOME .. '/.local/share/zvm/bin/zls' },
+  on_new_config = function(new_config, new_root_dir)
+    if vim.fn.filereadable(vim.fs.joinpath(new_root_dir, 'zls.json')) ~= 0 then
+      new_config.cmd = { 'zls', '--config-path', 'zls.json' }
+    end
+  end,
+  flags = {
+    debounce_text_changes = 250
+  },
+  filetypes = { 'zig', 'zir' },
+  root_markers = {'zls.json', 'build.zig', '.git'},
+}
+
+vim.lsp.config.buf_ls = {
+  cmd = { 'buf', 'beta', 'lsp', '--timeout=0', '--log-format=text' },
+  filetypes = { 'proto' },
+  root_markers = {'buf.yaml', '.git'},
+}
+
+vim.lsp.config.gopls = {
+  cmd = { 'gopls' },
+  filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+  root_markers = {'go.work', 'go.mod', '.git'}
+}
+
+vim.lsp.config.mojo = {
+  cmd = { vim.env.HOME .. '/.local/share/modular/pkg/packages.modular.com_mojo/bin/mojo-lsp-server' },
+  filetypes = { 'mojo' },
+  root_markers = {'.git'},
+}
+
+vim.lsp.config.ols = {
+  cmd = { 'ols' },
+  filetypes = { 'odin' },
+  root_markers = {'ols.json', '.git', '*.odin'},
+}
+
+local function get_active_client_by_name(bufnr, servername)
+  for _, client in pairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+    if client.name == servername then
+      return client
+    end
+  end
+end
+
+
+vim.lsp.config.rust_analyzer = {
+  cmd = { 'rust-analyzer' },
+  filetypes = { 'rust' },
+  root_dir = function(fname)
+    local function is_library(fname)
+      local user_home = vim.fs.normalize(vim.env.HOME)
+      local cargo_home = os.getenv 'CARGO_HOME' or user_home .. '/.cargo'
+      local registry = cargo_home .. '/registry/src'
+      local git_registry = cargo_home .. '/git/checkouts'
+
+      local rustup_home = os.getenv 'RUSTUP_HOME' or user_home .. '/.rustup'
+      local toolchains = rustup_home .. '/toolchains'
+
+      for _, item in ipairs { toolchains, registry, git_registry } do
+        if vim.fs.relpath(item, fname) ~= nil then
+          local clients = vim.lsp.get_clients({ name = 'rust_analyzer' })
+          return #clients > 0 and clients[#clients].config.root_dir or nil
+        end
+      end
+    end
+    local reuse_active = is_library(fname)
+    if reuse_active then
+      return reuse_active
+    end
+
+    local cargo_crate_dir = util.root_pattern 'Cargo.toml'(fname)
+    local cargo_workspace_root
+
+    if cargo_crate_dir ~= nil then
+      local cmd = {
+        'cargo',
+        'metadata',
+        '--no-deps',
+        '--format-version',
+        '1',
+        '--manifest-path',
+        cargo_crate_dir .. '/Cargo.toml',
+      }
+
+      local result = async.run_command(cmd)
+
+      if result and result[1] then
+        result = vim.json.decode(table.concat(result, ''))
+        if result['workspace_root'] then
+          cargo_workspace_root = vim.fs.normalize(result['workspace_root'])
+        end
+      end
+    end
+
+    return cargo_workspace_root
+      or cargo_crate_dir
+      or vim.fs.dirname(vim.fs.find('.git', { path = fname, upward = true })[1])
+  end,
+  capabilities = {
+    experimental = {
+      serverStatusNotification = true,
+    },
+  },
+}
+
+vim.lsp.config.clangd = {
+  cmd = {
+    "/opt/homebrew/opt/llvm/bin/clangd",
+    -- "--background-index",
+    "--pch-storage=disk",
+    -- "--all-scopes-completion",
+    -- "--pretty",
+    "--header-insertion=never",
+    "-j=4",
+    "--function-arg-placeholders",
+    "--completion-style=detailed",
+    "--enable-config",
+    "--query-driver=**",
+  },
+  filetypes = {'c', 'cpp', 'objc', 'objcpp', 'cuda' },
+  root_markers = {".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", ".git"},
+  capabilities = {
+    textDocument = {
+      completion = {
+        editsNearCursor = true,
+      },
+    },
+    offsetEncoding = { 'utf-8', 'utf-16' },
+  },
+}
+
+vim.lsp.config.basedpyright = {
+  cmd = { 'basedpyright-langserver', '--stdio' },
+  filetypes = { 'python' },
+  root_markers = {
+    'pyproject.toml',
+    'setup.py',
+    'setup.cfg',
+    'requirements.txt',
+    'Pipfile',
+    'pyrightconfig.json',
+    '.git',
+  },
+  settings = {
+    basedpyright = {
+      analysis = {
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = 'openFilesOnly',
+        diagnosticSeverityOverrides = {
+          reportUnusedImport = false,
+          reportMissingTypeStubs = false,
+          reportUnknownMemberType = false,
+          reportUnknownVariableType = false,
+          reportUnknownParameterType = false,
+          reportUnknownArgumentType = false,
+          reportMissingParameterType = false,
+          reportUnannotatedClassAttribute = false,
+          reportUnusedCallResult = false,
+          reportAttributeAccessIssue = false,
+          reportImplicitOverride = false,
+          reportAny = false,
+          reportArgumentType = false,
+        }
+      }
+    }
+  },
+}
+
+vim.lsp.config.nim_langserver = {
+  cmd = { vim.fn.stdpath('data') .. '/mason/bin/nimlangserver' },
+  root_markers = { '.nimble', '.git' },
+  filetypes = { 'nim' },
+  settings = {
+    nim = {
+      nimSuggestPath = "/opt/homebrew/bin/nimsuggest",
+      logNimsuggest = true,
+      inlayHints = {
+        typeHints = {
+          enable = true
+        },
+        parameterHints = {
+          enable = true
+        },
+        exceptionHints = {
+          enable = true
+        }
+      },
+      notificationVerbosity = "warning",
+      useNimCheck = false,
+    }
+  }
+}
+
+vim.lsp.config.c3lsp = {
+  cmd = { vim.fn.stdpath('data') .. '/mason/bin/c3lsp' },
+  root_markers = { 'project.json', 'manifest.json', '.git' },
+  filetypes = { 'c3', 'c3i' },
+}
+
+vim.lsp.enable({
+  'lua_ls', 'jails', 'zls', 'buf_ls', 'gopls', 'mojo',
+  -- 'denols', 'haxe_language_server', 'leanls', 'solang', 'svls'
+  'ols', "clangd", "basedpyright", "c3lsp", "nim_langserver"
+})
 
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('UserLspConfig', {}),
@@ -1072,14 +1204,124 @@ vim.api.nvim_create_autocmd('LspAttach', {
     -- Enable completion triggered by <c-x><c-o>
     vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
     vim.bo[ev.buf].completefunc = 'v:lua.vim.lsp.omnifunc'
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if client.name == "basedpyright" then
+      vim.api.nvim_create_user_command("PyrightOrganizeImports", function()
+        local params = {
+          command = 'pyright.organizeimports',
+          arguments = { vim.uri_from_bufnr(0) },
+        }
+        client.request('workspace/executeCommand', params, nil, 0)
+      end,{
+        desc = 'Organize Imports'
+      })
+      vim.api.nvim_create_user_command("PyrightSetPythonPath", function(path)
+        if client.settings then
+          client.settings.python = vim.tbl_deep_extend('force', client.settings.python or {}, { pythonPath = path })
+        else
+          client.config.settings = vim.tbl_deep_extend('force', client.config.settings, { python = { pythonPath = path } })
+        end
+        client.notify('workspace/didChangeConfiguration', { settings = nil })
+      end,{
+        desc = 'Reconfigure basedpyright with the provided python path',
+        nargs = 1,
+        complete = 'file',
+      })
+    end
+    if client.name == "clangd" then
+      vim.api.nvim_create_user_command("ClangdSwitchSourceHeader", function()
+        local params = vim.lsp.util.make_text_document_params(bufnr)
+        client.request('textDocument/switchSourceHeader', params, function(err, result)
+          if err then
+            error(tostring(err))
+          end
+          if not result then
+            vim.notify('corresponding file cannot be determined')
+            return
+          end
+          vim.cmd.edit(vim.uri_to_fname(result))
+        end, bufnr)
+      end,{
+        desc = 'Organize Imports'
+      })
+      vim.api.nvim_create_user_command("ClangdShowSymbolInfo", function()
+        local win = vim.api.nvim_get_current_win()
+        local params = vim.lsp.util.make_position_params(win, clangd_client.offset_encoding)
+        clangd_client.request('textDocument/symbolInfo', params, function(err, res)
+          if err or #res == 0 then
+            -- Clangd always returns an error, there is not reason to parse it
+            return
+          end
+          local container = string.format('container: %s', res[1].containerName) ---@type string
+          local name = string.format('name: %s', res[1].name) ---@type string
+          vim.lsp.util.open_floating_preview({ name, container }, '', {
+            height = 2,
+            width = math.max(string.len(name), string.len(container)),
+            focusable = false,
+            focus = false,
+            border = 'single',
+            title = 'Symbol Info',
+          })
+        end, 0)
+      end,{
+        desc = 'Organize Imports'
+      })
+
+    end
+    if client.name == "rust_analyzer" then
+      vim.api.nvim_create_user_command("CargoReload", function()
+          vim.notify 'Reloading Cargo Workspace'
+          client.request('rust-analyzer/reloadWorkspace', nil, function(err)
+            if err then
+              error(tostring(err))
+            end
+            vim.notify 'Cargo workspace reloaded'
+          end, 0)
+      end,{
+        desc = 'Reload current cargo workspace'
+      })
+    end
+
+    if client:supports_method('textDocument/completion') then
+      vim.lsp.completion.enable(true, client.id, ev.buf, {
+        autotrigger = false
+      })
+    end
   end,
 })
 
 vim.diagnostic.config({
-  virtual_text = false,
-  virtual_lines = true,
+  virtual_text = {
+    current_line = true,
+    virt_text_pos = "eol_right_align" -- eol_right_align, inline, overlay, right_align
+  },
+  virtual_lines = false,
+  -- virtual_lines = {
+  --   current_line = true,
+  -- },
   severity = vim.diagnostic.severity.WARNING
 })
+-- vim.api.nvim_create_autocmd({ "CursorHold" }, {
+--   pattern = "*",
+--   callback = function()
+--       for _, winid in pairs(vim.api.nvim_tabpage_list_wins(0)) do
+--         if vim.api.nvim_win_get_config(winid).zindex then
+--           return
+--         end
+--       end
+--       vim.diagnostic.open_float({
+--         scope = "cursor",
+--         focusable = false,
+--         close_events = {
+--           "CursorMoved",
+--           "CursorMovedI",
+--           "BufHidden",
+--           "InsertCharPre",
+--           "WinLeave",
+--         },
+--       })
+--   end
+-- })
 -- vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
 --   vim.lsp.diagnostic.on_publish_diagnostics, {
 --     signs = {
@@ -1251,7 +1493,7 @@ end
 local function mark_on_changed()
   mark_on(change_ns, '.', 'hi_MarkChange')
 end
-function mark_on_insert_stop()
+local function mark_on_insert_stop()
   mark_on(insert_ns, '^', 'hi_MarkInsertStop')
 end
 
@@ -1497,7 +1739,7 @@ vim.keymap.set("n", "gt<space>", ":Lspsaga peek_type_definition<cr>", {noremap =
 vim.keymap.set("n", "<leader>da", "<cmd>lua require('diaglist').open_all_diagnostics()<cr>", {noremap = true, silent = true})
 vim.keymap.set("n", "<leader>dw", "<cmd>lua require('diaglist').open_all_diagnostics()<cr>", {noremap = true, silent = true})
 
-if vim.fn.has("gui_vimr") == true or vim.fn.exists("g:neovide") == 1 then
+if vim.fn.exists("g:neovide") == 1 then
   vim.keymap.set("n", "<D-t>", ":tabnew<cr>", {noremap = true, silent = true})
   vim.keymap.set("n", "<D-w>", ":tabclose<cr>", {noremap = true, silent = true})
   vim.keymap.set("n", "<D-]>", ":tabnext<cr>", {noremap = true, silent = true})
@@ -1537,7 +1779,6 @@ vim.keymap.set("n", "<leader>1", ":NvimTreeToggle<cr>", {})
 vim.keymap.set("n", "<leader>s", "<cmd>lua require('telescope.builtin').lsp_workspace_symbols({file_encoding='utf-8'})<cr>", {})
 vim.keymap.set("n", "<leader>4", "<cmd>Telescope scope buffers<cr>", {})
 vim.keymap.set("n", "<leader>5", "<cmd>Telescope scope buffers cwd_only=true<cr>", {})
-vim.keymap.set("n", "<leader>6", "<cmd>lua require('telescope.builtin').find_files({cwd= $HOME . '/Dropbox/personal/notes/'})<cr>", {})
 
 vim.g.godef_split = 0
 vim.g.go_play_open_browser = 0

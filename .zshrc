@@ -7,8 +7,8 @@ export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
 # fpath {{{
-export ZSH=$HOME/.zsh
-fpath=($ZSH $fpath)
+export ZDOTDIR=$HOME/.config/zsh
+fpath=($ZDOTDIR $fpath)
 fpath=(/opt/homebrew/share/zsh-completions $fpath)
 # }}}
 
@@ -29,8 +29,8 @@ zmodload zsh/regex
 
 # autoload {{{
 autoload add-zsh-hook
-autoload -U colors && colors  # Enables colours
-autoload -U compinit && compinit -u -d "$ZSH/cache/zcompdump-$HOST"
+autoload -U colors && colors
+autoload -U compinit && compinit -u -d $HOME/.cache/zsh/zcompdump
 autoload -U url-quote-magic
 autoload allopt
 autoload -U zcalc
@@ -78,7 +78,7 @@ WORDCHARS='*?[]~&;!$%^<>'
 WORDCHARS=${WORDCHARS//[&=\/;\!#?[]~&;!$%^<>%\{]}
 
 # history settings {{{
-HISTFILE=$HOME/.history/.zsh_history
+HISTFILE=$HOME/.cache/zsh/history
 HISTSIZE=10000
 SAVEHIST=10000
 
@@ -183,7 +183,7 @@ bindkey "^[[Z" complete-files
 
 autoload -U edit-command-line
 zle -N edit-command-line
-bindkey '^x^e' edit-command-line
+bindkey '^xe' edit-command-line
 
 _completeme() {
   zle -I
@@ -409,8 +409,8 @@ prompt_pure_setup() {
 }
 prompt_pure_setup "$@"
 
-source $ZSH/golang.plugin.zsh
-source $ZSH/autoenv.plugin.zsh
+source $ZDOTDIR/golang.plugin.zsh
+source $ZDOTDIR/autoenv.plugin.zsh
 [[ -x "$(command -v kubectl)" ]] && source <(kubectl completion zsh)
 [[ -x "$(command -v jira)" ]] && eval "$(jira --completion-script-zsh)"
 # }}}
@@ -492,7 +492,6 @@ $HOME/.dotnet/tools:\
 /usr/sbin:\
 /sbin:\
 $PATH
-# $HOME/.platformio/penv/bin:\
 
 source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 bindkey "^R" _selecta-select-history
@@ -537,3 +536,13 @@ export PIPENV_VENV_IN_PROJECT=1
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/adragomi/.lmstudio/bin"
+
+eval "$(_PIO_COMPLETE=zsh_source pio)"
+
+export CONAN_HOME=$HOME/.config/conan2
+
+export LUAROCKS_CONFIG="$HOME/.config/lua/luarocks-5.1.lua"
+export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?.lua"
+export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?/init.lua"
+export LUA_CPATH="$HOME/.local/lib/lua/lib/lua/5.1/?.so"
+export VSCODE_CLI_DATA_DIR=/Users/adragomi/Applications/DevelopmentTools/code-insiders-portable-data/data/cli
