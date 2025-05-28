@@ -81,6 +81,7 @@ WORDCHARS=${WORDCHARS//[&=\/;\!#?[]~&;!$%^<>%\{]}
 HISTFILE=$HOME/.cache/zsh/history
 HISTSIZE=10000
 SAVEHIST=10000
+export SHELL_SESSIONS_DISABLE=1
 
 setopt HIST_FIND_NO_DUPS
 setopt HIST_IGNORE_ALL_DUPS # ignore duplication command history list
@@ -266,10 +267,11 @@ bindkey "\e\e[A" physical-up-line
 bindkey "\e\e[B" physical-down-line
 
 foreground-vi() {
-  fg %vi
+  fg %nvim
 }
 zle -N foreground-vi
 bindkey '^Z' foreground-vi
+#bindkey -s '^Z' '\eqfg \n'
 
 # file rename magick
 bindkey "^[m" copy-prev-shell-word
@@ -442,6 +444,7 @@ export RUST_SRC_PATH=${RUSTUP_HOME}/toolchains/stable-aarch64-apple-darwin/lib/r
 export CARGO_HOME=$HOME/.cache/cargo
 export FNM_DIR=$HOME/.cache/fnm
 export npm_config_devdir=$HOME/.cache/node-gyp
+export npm_config_userconfig=$HOME/.config/npm/npmrc
 export BUNDLE_USER_HOME=$HOME/.cache/bundle
 export FRUM_DIR=$HOME/.cache/frum
 export XDG_CONFIG_HOME=$HOME/.config/
@@ -546,3 +549,4 @@ export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?.lua"
 export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?/init.lua"
 export LUA_CPATH="$HOME/.local/lib/lua/lib/lua/5.1/?.so"
 export VSCODE_CLI_DATA_DIR=/Users/adragomi/Applications/DevelopmentTools/code-insiders-portable-data/data/cli
+export LESSHISTFILE=-

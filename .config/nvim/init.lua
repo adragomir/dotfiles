@@ -287,20 +287,27 @@ require('pckr').add {
               },
               inlayHints = {
                 bindingModeHints = { enable = true },
-                closureStyle = 'rust_analyzer',
-                typeHints = { enable = true },
+                chainingHints = {enable = true },
+                closingBraceHints = { enable = false },
                 closureCaptureHints = { enable = true },
-                expressionAdjustmentHints = { enable = 'always', mode = 'postfix' },
-                reborrowHints = { enable = 'always' },
                 closureReturnTypeHints = { enable = true },
-                implicitDrops = { enable = true },
+                closureStyle = 'impl_fn',  --'rust_analyzer',
+                discriminantHints = { enable = 'fieldless' },
+                expressionAdjustmentHints = { enable = 'always', mode = 'postfix' },
+                genericParameterHints = {
+                  const = { enable = true },
+                  lifetime = { enable = true },
+                  type = { enable = true }
+                },
+                implicitDrops = { enable = false },
+                implicitSizedBoundHints = {enable = false},
                 lifetimeElisionHints = {
                   enable = 'always',
                   useParameterNames = true
                 },
                 parameterHints = { enable = false },
-                discriminantHints = { enable = 'fieldless' },
-                maxLength = nil,
+                typeHints = { enable = true },
+                maxLength = nil
               },
               interpret = {
                 tests = true
@@ -472,8 +479,9 @@ require('pckr').add {
           },
           file_ignore_patterns = {},
           use_less = true,
-          preview = false,
-          grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
+          preview = true,
+          -- grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
+          grep_previewer = require'telescope.previewers'.vimgrep.new,
           qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
         }
       }
@@ -880,6 +888,28 @@ require('pckr').add {
       require('mini.ai').setup({
         search_method = 'cover'
       })
+      -- local map_multistep = require('mini.keymap').map_multistep
+      -- map_multistep('i', '<Tab>',   { 'pmenu_next' })
+      -- map_multistep('i', '<S-Tab>', { 'pmenu_prev' })
+      -- map_multistep('i', '<CR>',    { 'pmenu_accept', 'minipairs_cr' })
+      -- map_multistep('i', '<BS>',    { 'minipairs_bs' })
+      -- require('mini.completion').setup({
+      --   lsp_completion = {
+      --     source_func = 'completefunc',
+      --     auto_setup = true, 
+      --     process_items = function(items)
+      --       return items
+      --     end, 
+      --     snippet_insert = nil
+      --   }, 
+      --   fallback_action = '<C-n>', 
+      --   mappings = {
+      --     force_twostep = '<C-Space>',
+      --     force_fallback = '<A-Space>',
+      --     scroll_down = '<C-f>',
+      --     scroll_up = '<C-b>',
+      --   }
+      -- })
     end
   },
   'chrisbra/matchit',
@@ -1028,14 +1058,147 @@ vim.lsp.config.ols = {
   root_markers = {'ols.json', '.git', '*.odin'},
 }
 
-local function get_active_client_by_name(bufnr, servername)
-  for _, client in pairs(vim.lsp.get_clients({ bufnr = bufnr })) do
-    if client.name == servername then
-      return client
+function lsp_server(opts)
+  opts = opts or {}
+  local capabilities = opts.capabilities or {}
+  local on_request = opts.on_request or function(_, _) end
+  local on_notify = opts.on_notify or function(_, _) end
+  local handlers = opts.handlers or {}
+
+  return function(dispatchers)
+    local closing = false
+    local srv = {}
+    local request_id = 0
+
+    function srv.request(method, params, callback)
+      pcall(on_request, method, params)
+      local handler = handlers[method]
+      if handler then
+        local response, err = handler(method, params)
+        callback(err, response)
+      elseif method == 'initialize' then
+        callback(nil, {
+          capabilities = capabilities
+        })
+      elseif method == 'shutdown' then
+        callback(nil, nil)
+      end
+      request_id = request_id + 1
+      return true, request_id
     end
+
+    function srv.notify(method, params)
+      pcall(on_notify, method, params)
+      if method == 'exit' then
+        dispatchers.on_exit(0, 15)
+      end
+    end
+
+    function srv.is_closing()
+      return closing
+    end
+
+    function srv.terminate()
+      closing = true
+    end
+
+    return srv
   end
 end
 
+local function get_word_before_cursor(position)
+  local cursor_row = position.line
+  local cursor_col = vim.lsp.util._get_line_byte_from_position(bufnr, position, 'utf-8')
+
+  local current_row = vim.api.nvim_buf_get_lines(0, cursor_row, cursor_row + 1, false)[1]
+  if not current_row or cursor_col == 0 then
+    return ""
+  end
+  local end_pos = cursor_col
+  local start_pos = end_pos
+  while start_pos > 0 do
+    local char = current_row:sub(start_pos, start_pos)
+    if char:match("%w") then
+      start_pos = start_pos - 1
+    else
+      break
+    end
+  end
+  start_pos = start_pos + 1
+  if start_pos > end_pos then
+    return ""
+  end
+  return current_row:sub(start_pos, end_pos)
+end
+
+local function get_words_from_current_buffer(base_string)
+  if not base_string or #base_string == 0 then
+    return {}
+  end
+
+  local words = {}
+  local seen = {}
+  local word_pattern = "%w+" -- word boundary followed by word characters
+  local line_count = vim.api.nvim_buf_line_count(0)
+  for i = 0, line_count - 1 do
+    local line = vim.api.nvim_buf_get_lines(0, i, i + 1, false)[1]
+    if line then
+      for word in line:gmatch(word_pattern) do
+        if #word >= #base_string and word:sub(1, #base_string) == base_string and word ~= base_string then
+          if not seen[word] then
+            table.insert(words, word)
+            seen[word] = true
+          end
+        end
+      end
+    end
+  end
+  table.sort(words)
+  return words
+end
+
+vim.lsp.config.all_keyword_lsp = {
+  cmd = lsp_server({
+    capabilities = {
+      completionProvider = {
+        triggerCharacters = {'.'}
+      }
+    }, 
+    handlers = {
+      ["textDocument/completion"] = function(method, params)
+        local bufnr = vim.api.nvim_get_current_buf()
+        local cursor_row = params.position.line
+        local cursor_col = vim.lsp.util._get_line_byte_from_position(bufnr, params.position, 'utf-8')
+        local word = get_word_before_cursor(params.position)
+        local similar_words = get_words_from_current_buffer(word)
+
+        local completion_result = {
+          isIncomplete = true,
+          items = { }
+        }
+
+        for _, word in ipairs(similar_words) do
+          table.insert(
+            completion_result.items, 
+            {
+              data = {
+                position = params.position, 
+                symbolLabel = word, 
+                uri = params.textDocument.uri
+              }, 
+              label = word,
+              kind = 1
+            }
+          )
+
+        end
+        return completion_result
+      end
+    }
+  }),
+  filetypes = {'python'}, 
+  root_markers = { '*' }
+}
 
 vim.lsp.config.rust_analyzer = {
   cmd = { 'rust-analyzer' },
@@ -1195,7 +1358,7 @@ vim.lsp.config.c3lsp = {
 vim.lsp.enable({
   'lua_ls', 'jails', 'zls', 'buf_ls', 'gopls', 'mojo',
   -- 'denols', 'haxe_language_server', 'leanls', 'solang', 'svls'
-  'ols', "clangd", "basedpyright", "c3lsp", "nim_langserver"
+  'ols', "clangd", "basedpyright", "c3lsp", "nim_langserver", 'all_keyword_lsp'
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -1574,6 +1737,8 @@ function RestoreMap(map)
   end
 end
 
+
+
 vim.keymap.set("n", "K", "<nop>", {noremap = true})
 vim.keymap.set("v", "u", "<nop>", {noremap = true})
 vim.keymap.set("n", "+", "<nop>", {noremap = true})
@@ -1640,7 +1805,7 @@ vim.keymap.set("v", "J", "j", {noremap = true})
 vim.keymap.set("v", "K", "k", {noremap = true})
 
 -- mapping cr
-vim.keymap.set("n", "<cr>", ":nohlsearch", {noremap = true})
+vim.keymap.set("n", "<cr>", ":nohlsearch<cr>", {noremap = true})
 SAVE_CR_MAP = {}
 local all_buffers_augroup_id = vim.api.nvim_create_augroup('all_buffers', { clear = true })
 vim.api.nvim_create_autocmd({ 'VimLeavePre' }, {
@@ -1775,6 +1940,7 @@ end
 -- telescope
 vim.keymap.set("n", "<C-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", {})
 vim.keymap.set("n", "<C-f>", "<cmd>lua require('telescope.builtin').diagnostics()<cr>", {})
+vim.keymap.set("n", "<C-S-f>", "<cmd>lua require('telescope.builtin').live_grep()<cr>", {})
 vim.keymap.set("n", "<leader>1", ":NvimTreeToggle<cr>", {})
 vim.keymap.set("n", "<leader>s", "<cmd>lua require('telescope.builtin').lsp_workspace_symbols({file_encoding='utf-8'})<cr>", {})
 vim.keymap.set("n", "<leader>4", "<cmd>Telescope scope buffers<cr>", {})
@@ -1894,5 +2060,4 @@ vim.api.nvim_create_autocmd({ 'Filetype' }, {
   group = lsp_augroup_id,
   command = "setlocal omnifunc=v:lua.vim.lsp.omnifunc"
 })
-
 
