@@ -1326,96 +1326,84 @@ vim.diagnostic.config({
 
 vim.g.compile_mode = {}
 
-local chainy_tab = function()
-  -- if vim.fn.pumvisible() ~= 0 then
-  --   if vim.fn.complete_info({ "selected" }).selected ~= -1 then
-  --     return "<c-y>"
-  --   else
-  --     return "<c-n><c-y><c-e>"
-  --   end
-  -- else
-  --   return "<tab>"
-  -- end
+local function is_visible_pmenu()
+  return vim.fn.pumvisible() == 1
+end
+local function is_selected_pmenu()
+  return vim.fn.complete_info({ 'selected' }).selected ~= -1
+end
 
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-n>", "n")]])
-    return
-  else
-    local col = vim.fn.col('.') - 1
-    if col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
-      vim.api.nvim_eval([[feedkeys("\<tab>", "n")]])
-      return
-    else
-      if vim.o.omnifunc == "" then
-        vim.api.nvim_eval([[feedkeys("\<c-n>", "n")]])
-      else
-        vim.api.nvim_eval([[feedkeys("\<c-x>\<c-o>", "n")]])
-      end
-      return
-    end
-  end
-end
-local chainy_esc = function()
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-e>", "n")]])
-    return
-  else
-    vim.api.nvim_eval([[feedkeys("\<Esc>", "n")]])
-    return
-  end
-end
-local chainy_cc = function()
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-e>\<c-c>", "n")]])
-    return
-  else
-    vim.api.nvim_eval([[feedkeys("\<c-c>", "n")]])
-    return
-  end
-end
-local chainy_bs = function()
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-e>\<BS>", "n")]])
-    return
-  else
-    vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
-    return
-  end
-end
-local chainy_cr = function()
-  if vim.fn.pumvisible() ~= 0 then
-    if vim.fn.complete_info() == -1 then
-      vim.api.nvim_eval([[feedkeys("\<c-e>\<CR>", "n")]])
-      return
-    else
-      vim.api.nvim_eval([[feedkeys("\<c-y>", "n")]])
-      return
-    end
-  else
-    vim.api.nvim_eval([[feedkeys("\<CR>", "n")]])
-    return
-  end
-end
-local chainy_stab = function()
-  if vim.fn.pumvisible() ~= 0 then
-    vim.api.nvim_eval([[feedkeys("\<c-p>", "n")]])
-    return
-  else
-    if vim.o.omnifunc == "" then
-      vim.api.nvim_eval([[feedkeys("\<c-p>", "n")]])
-    else
-      vim.api.nvim_eval([[feedkeys("\<c-x>\<c-o>", "n")]])
-      --vim.api.nvim_eval([[feedkeys("\<BS>", "n")]])
-    end
-    return
-  end
-end
-vim.keymap.set("i", "<Esc>", chainy_esc, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<C-c>", chainy_cc, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<BS>", chainy_bs, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<CR>", chainy_cr, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<Tab>", chainy_tab, { silent=true, expr = true, noremap = true })
-vim.keymap.set("i", "<S-Tab>", chainy_stab, { silent=true, expr = true, noremap = true })
+require('mini.keymap').map_multistep('i', '<Tab>', {
+  {
+    condition=function() return is_visible_pmenu()  end,
+    action=function() return "<C-n>" end,
+  },
+  {
+    condition=function()
+      local col = vim.fn.col('.') - 1
+      return col == 0 or vim.fn.getline('.'):sub(col, col):match('%s')
+    end,
+    action=function() return "<Tab>" end,
+  },
+  {
+    condition=function() return vim.o.omnifunc == "" end,
+    action=function() return "<C-n>" end,
+  },
+  {
+    condition=function() return true end,
+    action=function() return "<C-x><C-o>" end,
+  },
+})
+
+require('mini.keymap').map_multistep('i', '<S-Tab>', {
+  {
+    condition=function() return is_visible_pmenu()  end,
+    action=function() return "<C-p>" end,
+  },
+  {
+    condition=function() return vim.o.omnifunc == "" end,
+    action=function() return "<C-n>" end,
+  },
+  {
+    condition=function() return true end,
+    action=function() return "<C-x><C-o>" end,
+  },
+})
+
+require('mini.keymap').map_multistep('i', '<Esc>', {
+  {
+    condition=function() return is_visible_pmenu()  end,
+    action=function() return "<C-e>" end,
+  }
+})
+require('mini.keymap').map_multistep('i', '<C-c>', {
+  {
+    condition=function() return is_visible_pmenu()  end,
+    action=function() return "<C-e><C-c>" end,
+  }
+})
+require('mini.keymap').map_multistep('i', '<C-c>', {
+  {
+    condition=function() return is_visible_pmenu()  end,
+    action=function() return "<C-e><C-c>" end,
+  }
+})
+require('mini.keymap').map_multistep('i', '<BS>', {
+  {
+    condition=function() return is_visible_pmenu()  end,
+    action=function() return "<C-e><BS>" end,
+  }
+})
+require('mini.keymap').map_multistep('i', '<CR>', {
+  {
+    condition=function() return is_visible_pmenu() and is_selected_pmenu()  end,
+    action=function() return "<C-y>" end,
+  },
+  {
+    condition=function() return is_visible_pmenu() end,
+    action=function() return "<C-e><CR>" end,
+  },
+})
 
 local move_left = function()
   require("move").move(1)
