@@ -26,17 +26,15 @@ elseif vim.fn.has("win64") then
   end
 end
 
-if vim.regex("^screen"):match_str(vim.env.TERM) then
-  vim.fn.execute("set <xUp>=\\e[1;*A")
-  vim.fn.execute("set <xDown>=\\e[1;*B")
-  vim.fn.execute("set <xRight>=\\e[1;*C")
-  vim.fn.execute("set <xLeft>=\\e[1;*D")
-end
-
 function GuiTabLabel(n)
   local tab_num = n
   local win_num = vim.fn.tabpagewinnr(n)
-  return tab_num .. ' ' .. vim.fn.fnamemodify(vim.fn.getcwd(win_num, tab_num), ':t')
+  if tab_num == vim.fn.tabpagenr() then
+    return tab_num .. '* ' .. vim.fn.fnamemodify(vim.fn.getcwd(win_num, tab_num), ':t')
+  else
+    return tab_num .. '  ' .. vim.fn.fnamemodify(vim.fn.getcwd(win_num, tab_num), ':t')
+  end
+
 end
 
 function MyTabLine()
@@ -49,12 +47,6 @@ function MyTabLine()
     end
     s = s .. '%' .. (i + 1) .. 'T'
     s = s .. ' %{v:lua.GuiTabLabel(' .. (i + 1) .. ')}'
-
-    if i + 1 == vim.fn.tabpagenr() then
-      s = s .. ' *'
-    else
-      s = s .. ' '
-    end
   end
   s = s .. '%#TabLineFill#%T'
   if vim.fn.tabpagenr('$') > 1 then
@@ -88,7 +80,6 @@ else
   vim.cmd [[colorscheme jb]]
   vim.o.guicursor="a:block-blinkon0-Cursor"
 end
-vim.o.termguicolors = true
 vim.o.shortmess= vim.o.shortmess .. "I"
 vim.o.mouse="a"
 vim.o.swapfile = false
@@ -127,7 +118,7 @@ if vim.fn.has("wsl") or vim.fn.has("mac") then
 end
 vim.o.splitbelow = true
 vim.o.splitright = true
-vim.o.switchbuf = "useopen"
+vim.o.switchbuf = "useopen,uselast"
 vim.o.grepprg = [[rg --no-ignore -H --no-heading --color never]]
 vim.o.grepformat="%f:%l:%m"
 vim.o.foldenable = false
@@ -142,7 +133,6 @@ vim.o.tabstop=2
 vim.o.shiftwidth=2
 vim.o.softtabstop=2
 vim.o.scrolloff=10
-vim.o.startofline = false
 vim.o.splitkeep="topline"
 vim.o.wildmode = "longest,list"
 vim.o.suffixes=vim.o.suffixes .. ".lo,.moc,.la,.closure,.loT"
@@ -150,16 +140,9 @@ vim.g.is_bash = 1
 
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
--- vim.o.t_Co=256
-vim.o.background = "dark"
 
-vim.cmd [[syntax enable]]
-vim.cmd [[syntax on]]
-vim.cmd [[filetype on]]
-vim.cmd [[filetype indent on]]
-vim.cmd [[filetype plugin on]]
+-- disable plugins
 vim.g.spell = false
-
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_tutor_mode_plugin = 1
@@ -212,11 +195,12 @@ require('pckr').setup {
 require('pckr').add {
   --------------------------------
   -- lang
-  'terrastruct/d2-vim',
   'https://git.sr.ht/~sircmpwn/hare.vim',
   {
     'mrcjkb/rustaceanvim',
     config = function()
+      local codelldb_path = vim.fn.stdpath('data') .. '/mason/bin/codelldb'
+      local liblldb_path = vim.fn.stdpath('data') .. '/mason/packages/codelldb/extension/lldb/lib/liblldb.dylib'
       vim.g.rustaceanvim = {
         tools = {
           reload_workspace_from_cargo_toml = true,
@@ -266,6 +250,8 @@ require('pckr').add {
                 attributes = { enable = true }
               },
               completion = {
+                autoAwait = { enable = true },
+                autoIter = { enable = true },
                 autoself = { enable = true },
                 callable = { snippets = 'none' },
                 fullFunctionSignatures = { enable = true },
@@ -280,14 +266,12 @@ require('pckr').add {
                 actions = {
                   enable = true,
                   references = { enable = true },
-                  run = { enable = true },
                   gotoTypeDef = { enable = true },
                   implementations = { enable = true },
                 },
               },
               inlayHints = {
                 bindingModeHints = { enable = true },
-                chainingHints = {enable = true },
                 closingBraceHints = { enable = false },
                 closureCaptureHints = { enable = true },
                 closureReturnTypeHints = { enable = true },
@@ -335,6 +319,7 @@ require('pckr').add {
           },
         },
         dap = {
+          adapter = require('rustaceanvim.config').get_codelldb_adapter(codelldb_path, liblldb_path)
         },
       }
 
@@ -344,7 +329,6 @@ require('pckr').add {
     'ray-x/go.nvim',
     requires = {
       "ray-x/guihua.lua",
-      -- "neovim/nvim-lspconfig",
       "nvim-treesitter/nvim-treesitter",
     },
     config = function()
@@ -354,20 +338,12 @@ require('pckr').add {
   {
     'rust-lang/rust.vim',
   },
-  {
-    'HealsCodes/vim-gas'
-  },
-  {
-    "https://git.sr.ht/~swaits/scratch.nvim",
-    config = function()
-      require("scratch").setup()
-    end
-  },
+  'HealsCodes/vim-gas',
   'compnerd/arm64asm-vim',
+  'perillo/qbe.vim',
   'sirtaj/vim-openscad',
   'stephpy/vim-yaml',
   'rhysd/vim-clang-format',
-  'hashivim/vim-terraform',
   'ziglang/zig.vim',
   'fedorenchik/fasm.vim',
   'urbit/hoon.vim',
@@ -401,7 +377,6 @@ require('pckr').add {
       require("mason-lspconfig").setup()
     end
   },
-  -- {'scalameta/nvim-metals', {'branch': 'main'}},
   {
     'nvimdev/lspsaga.nvim',
     branch='main',
@@ -420,84 +395,6 @@ require('pckr').add {
           enable = false
         },
       })
-    end
-  },
-  'nvim-lua/popup.nvim',
-  {
-    'nvim-telescope/telescope.nvim',
-    requires = {
-      'nvim-lua/plenary.nvim',
-      {
-        'nvim-telescope/telescope-fzf-native.nvim',
-        run ='make',
-      },
-      'nvim-telescope/telescope-ui-select.nvim',
-    },
-    config = function()
-      require('telescope').setup{
-        extensions = {
-          fzy_native = {
-            override_generic_sorter = true,
-            override_file_sorter = true,
-          },
-          fzf = {
-            fuzzy = true,
-            override_generic_sorter = true,
-            override_file_sorter = true,
-            case_mode = "smart_case",
-          }
-        },
-        highlight = {
-          enable = false
-        },
-        defaults = {
-          mappings = {
-            n = {
-    	        ['<C-d>'] = require('telescope.actions').delete_buffer
-            },
-            i = {
-              ["<C-h>"] = "which_key",
-              ['<C-d>'] = require('telescope.actions').delete_buffer
-            }
-          },
-          vimgrep_arguments = {
-            'rg',
-            '--color=never',
-            '--no-heading',
-            '--with-filename',
-            '--line-number',
-            '--column',
-            '--smart-case'
-          },
-          selection_strategy = "reset",
-          sorting_strategy = "descending",
-          layout_strategy = "horizontal",
-          layout_config = {
-            width = 0.75,
-            prompt_position = "bottom",
-            preview_cutoff = 120,
-          },
-          file_ignore_patterns = {},
-          use_less = true,
-          preview = true,
-          -- grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
-          grep_previewer = require'telescope.previewers'.vimgrep.new,
-          qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
-        }
-      }
-      require('telescope').load_extension('fzf')
-      require("telescope").load_extension("ui-select")
-    end
-  },
-  {
-    'nvim-telescope/telescope-dap.nvim',
-    requires = {
-      'nvim-treesitter/nvim-treesitter',
-      'mfussenegger/nvim-dap',
-      'nvim-telescope/telescope.nvim',
-    },
-    config = function()
-      require('telescope').load_extension('dap')
     end
   },
   {
@@ -520,76 +417,35 @@ require('pckr').add {
         type = 'server',
         port = "${port}",
         executable = {
-          -- CHANGE THIS to your path!
-          command = '/Users/adragomi/work/tools/codelldb/adapter/codelldb',
+          command = vim.fn.stdpath('data') .. '/mason/bin/codelldb',
           args = {"--port", "${port}"},
-          -- On windows you may have to uncomment this:
-          -- detached = false,
         }
       }
       dap.adapters.lldb = {
         type = 'executable',
-        command = '/opt/homebrew/opt/llvm@16/bin/lldb-vscode',
+        command = '/opt/homebrew/opt/llvm@20/bin/lldb-dap',
         name = 'lldb'
       }
 
-      -- dap.configurations.cpp = {
-      --   {
-      --     name = "Launch file",
-      --     type = "codelldb",
-      --     request = "launch",
-      --     program = function()
-      --       return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-      --     end,
-      --     cwd = '${workspaceFolder}',
-      --     stopOnEntry = false,
-      --   },
-      -- }
-      -- dap.configurations.c = dap.configurations.cpp
-      -- dap.configurations.rust = dap.configurations.cpp
-      -- dap.configurations.rust.initCommands = function()
-      --   -- Find out where to look for the pretty printer Python module
-      --   local rustc_sysroot = vim.fn.trim(vim.fn.system('rustc --print sysroot'))
-      --   local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
-      --   local commands_file = rustc_sysroot .. '/lib/rustlib/etc/lldb_commands'
-      --   local commands = {}
-      --   local file = io.open(commands_file, 'r')
-      --   if file then
-      --     for line in file:lines() do
-      --       table.insert(commands, line)
-      --     end
-      --     file:close()
-      --   end
-      --   table.insert(commands, 1, script_import)
-      --   return commands
-      -- end
-      --
-      -- dap.configurations.jai = dap.configurations.cpp
-      -- dap.configurations.jai.initCommands = function()
-      --   local commands = {}
-      --   table.insert(commands, 1, 'command script import "' .. vim.env.HOME .. '/.config/lldb/jaitype.jai"')
-      --   return commands
-      -- end
-      -- dap.configurations.scala = {
-      --   {
-      --     type = "scala",
-      --     request = "launch",
-      --     name = "RunOrTest",
-      --     metals = {
-      --       runType = "runOrTestFile",
-      --       --args = { "firstArg", "secondArg", "thirdArg" }, -- here just as an example
-      --     },
-      --   },
-      --   {
-      --     type = "scala",
-      --     request = "launch",
-      --     name = "Test Target",
-      --     metals = {
-      --       runType = "testTarget",
-      --     },
-      --   },
-      -- }
-
+      dap.configurations.cpp = {
+        {
+          name = "Launch file",
+          type = "codelldb",
+          request = "launch",
+          program = function()
+            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+          end,
+          cwd = '${workspaceFolder}',
+          stopOnEntry = false,
+        },
+      }
+      dap.configurations.c = dap.configurations.cpp
+      dap.configurations.jai = dap.configurations.cpp
+      dap.configurations.jai.initCommands = function()
+        local commands = {}
+        table.insert(commands, 1, 'command script import "' .. vim.env.HOME .. '/.config/lldb/jaitype.jai"')
+        return commands
+      end
     end
   },
   {
@@ -658,7 +514,6 @@ require('pckr').add {
       require('dap-go').setup()
     end
   },
-  -- 'mfussenegger/nvim-jdtls'
   ---------------------------------
   -- syntax
   {
@@ -714,7 +569,7 @@ require('pckr').add {
           -- optional entries:
           branch = "master",
           generate_requires_npm = true,
-          requires_generate_from_grammar = false, 
+          requires_generate_from_grammar = false,
         },
         filetype = "jai",
       }
@@ -740,12 +595,17 @@ require('pckr').add {
   --------------------------------
   -- tools
   {
+    "https://git.sr.ht/~swaits/scratch.nvim",
+    config = function()
+      require("scratch").setup()
+    end
+  },
+  {
     'ej-shafran/compile-mode.nvim',
     requires = {
       "nvim-lua/plenary.nvim",
     }
   },
-  'rbgrouleff/bclose.vim',
   {
     'nvim-pack/nvim-spectre',
     requires = {
@@ -762,83 +622,11 @@ require('pckr').add {
     end
   },
   {
-    'tiagovla/scope.nvim',
-    requires = {
-      'nvim-telescope/telescope.nvim',
-    },
-    config = function()
-      require("telescope").load_extension("scope")
-    end
-  },
-  'folke/lazydev.nvim',
-  {
     'tversteeg/registers.nvim',
     config = function()
       require('registers').setup()
     end
   },
-  {
-    'gbprod/yanky.nvim',
-    requires = {
-      'kkharji/sqlite.lua',
-    },
-    config = function()
-      require('yanky').setup({
-        ring = {
-          history_length = 100,
-          storage = "sqlite",
-          sync_with_numbered_registers = true,
-          cancel_event = "update",
-          ignore_registers = { "_" },
-          update_register_on_cycle = false,
-        },
-        system_clipboard = {
-          sync_with_ring = true,
-        },
-        highlight = {
-          on_put = false,
-          on_yank = false,
-          timer = 50,
-        },
-        preserve_cursor_position = {
-          enabled = true,
-        },
-        textobj = {
-          enabled = true,
-        },
-      })
-    end
-  },
-  {
-    'nvim-tree/nvim-tree.lua',
-    config = function()
-      require("nvim-tree").setup({
-        prefer_startup_root = true,
-        sync_root_with_cwd = true,
-        respect_buf_cwd = true,
-        renderer = {
-          highlight_opened_files = "name",
-          icons = {
-            show = {
-              file = false,
-              folder = false,
-              folder_arrow = false,
-              git = false,
-            }
-          },
-        },
-        update_focused_file = {
-          enable = true,
-          update_root = false,
-          ignore_list = {
-              "fzf", "help", "qf",
-              "lspinfo", "undotree"
-          }
-        },
-      })
-    end
-  },
-  'tpope/vim-fugitive',
   'jremmen/vim-ripgrep',
   'vim-scripts/a.vim',
   'NMAC427/guess-indent.nvim',
@@ -888,6 +676,11 @@ require('pckr').add {
       require('mini.ai').setup({
         search_method = 'cover'
       })
+      require('mini.pick').setup()
+      require('mini.extra').setup()
+      require('mini.bufremove').setup()
+      require('mini.git').setup()
+      require('mini.keymap').setup()
       -- local map_multistep = require('mini.keymap').map_multistep
       -- map_multistep('i', '<Tab>',   { 'pmenu_next' })
       -- map_multistep('i', '<S-Tab>', { 'pmenu_prev' })
@@ -913,12 +706,6 @@ require('pckr').add {
     end
   },
   'chrisbra/matchit',
-  {
-    'utilyre/sentiment.nvim',
-    config = function()
-      require('sentiment').setup()
-    end
-  },
   --map <leader>m :AsyncRun -mode=term -pos=right -focus=0 -listed=0 ./build && jairun ./main<cr>
   'skywind3000/asyncrun.vim',
   -- 'github/copilot.vim'
@@ -935,12 +722,11 @@ require('pckr').add {
     'natecraddock/workspaces.nvim',
     requires = {
       'natecraddock/sessions.nvim',
-      'nvim-telescope/telescope.nvim',
     },
     config = function()
       require("workspaces").setup({
           path = vim.fn.stdpath("data") .. '/workspaces',
-          cd_type = "global",
+          cd_type = "tab",
           sort = true,
           mru_sort = true,
           hooks = {
@@ -948,37 +734,70 @@ require('pckr').add {
                   "SessionsSave",
                   "silent %bdelete!",
               },
-              open = {
-                  "SessionsLoad",
-                  "NvimTreeOpen",
-              },
+              open = function()
+                require("sessions").load(nil, { silent = true })
+              end,
           }
       })
-      require('telescope').load_extension("workspaces")
     end
   },
   {
-    'benlubas/molten-nvim',
-    config = function()
-    end
-  },
-  {
-    "GCBallesteros/NotebookNavigator.nvim",
-    keys = {
-      { "<leader>X", "<cmd>lua require('notebook-navigator').run_cell()<cr>" },
+    "yetone/avante.nvim",
+    requires = {
+      "nvim-lua/plenary.nvim",
+      "MunifTanjim/nui.nvim",
+      "MeanderingProgrammer/render-markdown.nvim",
     },
-    dependencies = {
-      "benlubas/molten-nvim"
-    },
+    run = 'make',
     config = function()
-      local nn = require "notebook-navigator"
-      nn.setup({
-        cell_markers = {
-          python = "# %%",
-        },
-        repl_provider = "auto",
+      local avante = require 'avante'
+      avante.setup({
+          -- add any opts here
+          -- for example
+          provider = "gemini",
+          providers = {
+            claude = {
+              endpoint = "https://api.anthropic.com",
+              model = "claude-sonnet-4-20250514",
+              timeout = 30000, -- Timeout in milliseconds
+                extra_request_body = {
+                  temperature = 0.75,
+                  max_tokens = 20480,
+                },
+            },
+            gemini = {
+              endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
+              model = "gemini-2.5-flash",
+              timeout = 30000, -- Timeout in milliseconds
+              context_window = 1048576,
+              use_ReAct_prompt = true,
+              extra_request_body = {
+                generationConfig = {
+                  temperature = 0.75,
+                  thinkingConfig = {
+                    thinkingBudget = 8000,
+                  },
+                },
+              },
+            },
+            ollama = {
+              endpoint = "http://localhost:11434",
+              model = "DeepSeek-R1-0528-Qwen3-11B-i1-GGUF:Q6_K"
+            }
+          },
+          behaviour = {
+            auto_suggestions = false, -- Experimental stage
+            auto_set_highlight_group = false,
+            auto_set_keymaps = false,
+            auto_apply_diff_after_generation = false,
+            support_paste_from_clipboard = false,
+            minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
+            enable_token_counting = true, -- Whether to enable token counting. Default to true.
+            auto_approve_tool_permissions = false, -- Default: show permission prompts for all tools
+          },
+          hints = { enabled = false },
       })
-    end,
+    end
   }
 }
 
@@ -1056,6 +875,12 @@ vim.lsp.config.ols = {
   cmd = { 'ols' },
   filetypes = { 'odin' },
   root_markers = {'ols.json', '.git', '*.odin'},
+}
+
+vim.lsp.config.ts_ls = {
+  cmd = { vim.fn.stdpath('data') .. '/mason/bin/typescript-language-server', '--stdio' },
+  filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx', 'typescript', 'typescriptreact', 'typescript.tsx', },
+  root_markers = { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' },
 }
 
 function lsp_server(opts)
@@ -1142,7 +967,7 @@ local function get_words_from_current_buffer(base_string)
   local line_count = vim.api.nvim_buf_line_count(0)
   for i = 0, line_count - 1 do
     local line = vim.api.nvim_buf_get_lines(0, i, i + 1, false)[1]
-    if line then
+    if line and string.find(line, base_string, 0, true) then
       for word in line:gmatch(word_pattern) do
         if #word >= #base_string and word:sub(1, #base_string) == base_string and word ~= base_string then
           if not seen[word] then
@@ -1163,7 +988,7 @@ vim.lsp.config.all_keyword_lsp = {
       completionProvider = {
         triggerCharacters = {'.'}
       }
-    }, 
+    },
     handlers = {
       ["textDocument/completion"] = function(method, params)
         local bufnr = vim.api.nvim_get_current_buf()
@@ -1179,13 +1004,13 @@ vim.lsp.config.all_keyword_lsp = {
 
         for _, word in ipairs(similar_words) do
           table.insert(
-            completion_result.items, 
+            completion_result.items,
             {
               data = {
-                position = params.position, 
-                symbolLabel = word, 
+                position = params.position,
+                symbolLabel = word,
                 uri = params.textDocument.uri
-              }, 
+              },
               label = word,
               kind = 1
             }
@@ -1196,7 +1021,7 @@ vim.lsp.config.all_keyword_lsp = {
       end
     }
   }),
-  filetypes = {'python'}, 
+  filetypes = {'python', 'rust', 'c', 'cpp', 'jai', 'zig', 'rust', 'sh', 'bash', 'asm', 'txt', 'md'},
   root_markers = { '*' }
 }
 
@@ -1358,7 +1183,7 @@ vim.lsp.config.c3lsp = {
 vim.lsp.enable({
   'lua_ls', 'jails', 'zls', 'buf_ls', 'gopls', 'mojo',
   -- 'denols', 'haxe_language_server', 'leanls', 'solang', 'svls'
-  'ols', "clangd", "basedpyright", "c3lsp", "nim_langserver", 'all_keyword_lsp'
+  'ols', "clangd", "basedpyright", "c3lsp", "nim_langserver", 'all_keyword_lsp', 'ts_ls'
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -1601,18 +1426,16 @@ end
 vim.keymap.set("n", "<M-h>", move_left, { silent=true, expr = true, noremap = true })
 vim.keymap.set("n", "<M-l>", move_right, { silent=true, expr = true, noremap = true })
 
-vim.keymap.set('n', '<F7>', function() require('dap').continue() end)
+vim.keymap.set('n', '<F9>', function() require('dap').continue() end)
 vim.keymap.set('n', '<S-F7>', function() require('dap').terminate() end)
 vim.keymap.set('n', '<C-F7>', function() require('dap').restart() end)
-vim.keymap.set('n', '<C-F10>', function() require('dap').run_to_cursor() end)
-vim.keymap.set('n', '<F10>', function() require('dap').step_over() end)
-vim.keymap.set('n', '<F11>', function() require('dap').step_into() end)
-vim.keymap.set('n', '<S-F11>', function() require('dap').step_out() end)
-vim.keymap.set('n', '<F9>', function() require('dap').toggle_breakpoint() end)
+vim.keymap.set('n', '<C-F9', function() require('dap').run_to_cursor() end)
+vim.keymap.set('n', '<F8>', function() require('dap').step_over() end)
+vim.keymap.set('n', '<F7>', function() require('dap').step_into() end)
+vim.keymap.set('n', '<S-F8>', function() require('dap').step_out() end)
+vim.keymap.set('n', '<C-b>', function() require('dap').toggle_breakpoint() end)
 vim.keymap.set('n', '<Leader>B', function() require('dap').set_breakpoint() end)
 vim.keymap.set('n', '<Leader>lp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
-vim.keymap.set('n', '<Leader>dr', function() require('dap').repl.open() end)
-vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
 vim.keymap.set({'n', 'v'}, '<Leader>dh', function()
   require('dap.ui.widgets').hover()
 end)
@@ -1706,39 +1529,6 @@ function EndKey()
   MoveCursor('e', '$g')
 end
 
-function SaveMap(key)
-  local output = {}
-  local buf = vim.api.nvim_get_current_buf()
-  local keymaps = vim.api.nvim_buf_get_keymap(buf, 'n')
-  for _, keymap in pairs(keymaps) do
-    if keymap.lhs == key  then
-      table.insert(output, keymap)
-      vim.api.nvim_buf_del_keymap(buf, 'n', 'K')
-    end
-  end
-  return output
-end
-
-function RestoreMap(map)
-  if not vim.fn.empty(map) then
-    local tmp = ""
-    if map.nnoremap then
-      tmp = tmp .. "nn"
-    else
-      tmp = tmp .. "nmap"
-    end
-    for _, v in pairs({'buffer', 'expr', 'nowait', 'silent'}) do
-      if v then
-        tmp = tmp .. "<" .. v .. ">"
-      end
-    end
-    tmp = tmp .. map.lhs
-    vim.cmd([[execute ]] .. tmp)
-  end
-end
-
-
-
 vim.keymap.set("n", "K", "<nop>", {noremap = true})
 vim.keymap.set("v", "u", "<nop>", {noremap = true})
 vim.keymap.set("n", "+", "<nop>", {noremap = true})
@@ -1774,14 +1564,6 @@ for i=1,24 do
   end
 end
 
--- kill / yank
-vim.keymap.set({"n","x"}, "p", "<Plug>(YankyPutAfter)")
-vim.keymap.set({"n","x"}, "P", "<Plug>(YankyPutBefore)")
-vim.keymap.set({"n","x"}, "gp", "<Plug>(YankyGPutAfter)")
-vim.keymap.set({"n","x"}, "gP", "<Plug>(YankyGPutBefore)")
-vim.keymap.set("n", "<c-q>", "<Plug>(YankyPreviousEntry)")
-vim.keymap.set("n", "<c-s-q>", "<Plug>(YankyNextEntry)")
-
 vim.keymap.set(
   'n', "<f2>",
   function()
@@ -1804,53 +1586,62 @@ vim.keymap.set("", "<down>", "gj", {noremap = true})
 vim.keymap.set("v", "J", "j", {noremap = true})
 vim.keymap.set("v", "K", "k", {noremap = true})
 
--- mapping cr
-vim.keymap.set("n", "<cr>", ":nohlsearch<cr>", {noremap = true})
-SAVE_CR_MAP = {}
-local all_buffers_augroup_id = vim.api.nvim_create_augroup('all_buffers', { clear = true })
-vim.api.nvim_create_autocmd({ 'VimLeavePre' }, {
-  pattern = '*',
-  group = all_buffers_augroup_id,
-  callback = function()
-    local bwstr = 'silent! 1,' .. vim.fn.bufnr('$') .. 'bwipeout!'
-    vim.cmd(bwstr)
+-- nohlsearch double escape 
+require('mini.keymap').map_combo(
+  { 'n','i','x','c' },
+  '<Esc><Esc>',
+  function()
+    vim.cmd('nohlsearch')
   end
-})
-vim.api.nvim_create_autocmd({ 'CmdwinEnter' }, {
-  pattern = '*',
-  group = all_buffers_augroup_id,
-  callback = function()
-    SAVE_CR_MAP = SaveMap('<cr>')
-    vim.cmd [[silent! :unmap <cr>]]
-  end
-})
-vim.api.nvim_create_autocmd({ 'CmdwinLeave' }, {
-  pattern = '*',
-  group = all_buffers_augroup_id,
-  callback = function() RestoreMap(SAVE_CR_MAP) end
-})
-vim.api.nvim_create_autocmd({ 'WinEnter', 'BufWinEnter' }, {
-  pattern = '*',
-  group = all_buffers_augroup_id,
-  callback = function()
-    if vim.bo.filetype == "qf" then
-      SAVE_CR_MAP = SaveMap('<cr>')
-      vim.cmd [[silent! :unmap <cr>]]
-    else
-      RestoreMap(SAVE_CR_MAP)
-    end
-  end
-})
+)
 
-vim.api.nvim_create_autocmd({ 'WinLeave' }, {
-  pattern = '*',
-  group = all_buffers_augroup_id,
-  callback = function()
-    if vim.bo.filetype == "qf" then
-      RestoreMap(SAVE_CR_MAP)
-    end
-  end
-})
+-- mapping cr
+-- vim.keymap.set("n", "<cr>", ":nohlsearch<cr>", {noremap = true})
+-- SAVE_CR_MAP = {}
+-- local all_buffers_augroup_id = vim.api.nvim_create_augroup('all_buffers', { clear = true })
+-- vim.api.nvim_create_autocmd({ 'VimLeavePre' }, {
+--   pattern = '*',
+--   group = all_buffers_augroup_id,
+--   callback = function()
+--     local bwstr = 'silent! 1,' .. vim.fn.bufnr('$') .. 'bwipeout!'
+--     vim.cmd(bwstr)
+--   end
+-- })
+-- vim.api.nvim_create_autocmd({ 'CmdwinEnter' }, {
+--   pattern = '*',
+--   group = all_buffers_augroup_id,
+--   callback = function()
+--     SAVE_CR_MAP = SaveMap('<cr>')
+--     vim.cmd [[silent! :unmap <cr>]]
+--   end
+-- })
+-- vim.api.nvim_create_autocmd({ 'CmdwinLeave' }, {
+--   pattern = '*',
+--   group = all_buffers_augroup_id,
+--   callback = function() RestoreMap(SAVE_CR_MAP) end
+-- })
+-- vim.api.nvim_create_autocmd({ 'WinEnter', 'BufWinEnter' }, {
+--   pattern = '*',
+--   group = all_buffers_augroup_id,
+--   callback = function()
+--     if vim.bo.filetype == "qf" then
+--       SAVE_CR_MAP = SaveMap('<cr>')
+--       vim.cmd [[silent! :unmap <cr>]]
+--     else
+--       RestoreMap(SAVE_CR_MAP)
+--     end
+--   end
+-- })
+--
+-- vim.api.nvim_create_autocmd({ 'WinLeave' }, {
+--   pattern = '*',
+--   group = all_buffers_augroup_id,
+--   callback = function()
+--     if vim.bo.filetype == "qf" then
+--       RestoreMap(SAVE_CR_MAP)
+--     end
+--   end
+-- })
 
 -- mapping resize
 vim.keymap.set("n", "<M-Right>", ":vertical resize +5<CR>", {noremap = true})
@@ -1862,6 +1653,9 @@ vim.keymap.set("n", "<C-j>", "<c-w>j", {noremap = true})
 vim.keymap.set("n", "<C-k>", "<c-w>k", {noremap = true})
 vim.keymap.set("n", "<C-l>", "<c-w>l", {noremap = true})
 
+-- mapping select
+vim.keymap.set("n", "gv", "`[v`]", {noremap = true})
+
 -- mapping jumps
 vim.keymap.set("n", "<S-D-Left>", "<C-o>", {})
 vim.keymap.set({"n", "x"}, "'", "`", {})
@@ -1872,7 +1666,7 @@ vim.keymap.set("", "<leader>]", "`]", {})
 vim.keymap.set("", "<leader>>", "`>", {})
 vim.keymap.set("", "<leader>`", "`^", {})
 
-vim.keymap.set("n", "bd", ":Bclose", {silent = true, noremap = true})
+vim.keymap.set("n", "bd", ":lua MiniBufremove.delete()", {silent = true, noremap = true})
 vim.keymap.set("", "<Space>", "m`", {noremap = true})
 
 -- mappings home/end
@@ -1892,8 +1686,6 @@ vim.keymap.set("n", "gi", vim.lsp.buf.implementation, {noremap = true, silent = 
 vim.keymap.set("n", "gr", vim.lsp.buf.references, {noremap = true, silent = true})
 vim.keymap.set("n", "gsd", vim.lsp.buf.document_symbol, {noremap = true, silent = true})
 vim.keymap.set("n", "gsw", vim.lsp.buf.workspace_symbol, {noremap = true, silent = true})
-vim.keymap.set("n", "<F12>", require('telescope.builtin').lsp_document_symbols, {noremap = true, silent = true})
-vim.keymap.set("n", "<C-F12>", require('telescope.builtin').lsp_workspace_symbols, {noremap = true, silent = true})
 vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {noremap = true, silent = true})
 vim.keymap.set("n", "<leader>f", vim.lsp.buf.format, {noremap = true, silent = true})
 vim.keymap.set("n", "<leader>d", "<cmd>lua vim.diagnostic.enable(not vim.diagnostic.is_enabled())<CR>", {noremap = true, silent = true})
@@ -1937,14 +1729,10 @@ if vim.fn.exists("g:neovide") == 1 then
   vim.keymap.set("i", "<D-{>", "<C-o>:tabprevious<cr>", {noremap = true, silent = true})
 end
 
--- telescope
-vim.keymap.set("n", "<C-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", {})
-vim.keymap.set("n", "<C-f>", "<cmd>lua require('telescope.builtin').diagnostics()<cr>", {})
-vim.keymap.set("n", "<C-S-f>", "<cmd>lua require('telescope.builtin').live_grep()<cr>", {})
-vim.keymap.set("n", "<leader>1", ":NvimTreeToggle<cr>", {})
-vim.keymap.set("n", "<leader>s", "<cmd>lua require('telescope.builtin').lsp_workspace_symbols({file_encoding='utf-8'})<cr>", {})
-vim.keymap.set("n", "<leader>4", "<cmd>Telescope scope buffers<cr>", {})
-vim.keymap.set("n", "<leader>5", "<cmd>Telescope scope buffers cwd_only=true<cr>", {})
+vim.keymap.set("n", "<C-p>", "<cmd>lua MiniPick.registry.files()<cr>", {})
+vim.keymap.set("n", "<C-f>", "<cmd>lua MiniExtra.pickers.diagnostics()<cr>", {})
+vim.keymap.set("n", "<leader>1", ":lua MiniExtra.pickers.explorer()<cr>", {})
+vim.keymap.set("n", "<leader>5", "<cmd>lua MiniPick.registry.buffers()<cr>", {})
 
 vim.g.godef_split = 0
 vim.g.go_play_open_browser = 0
@@ -1958,8 +1746,6 @@ vim.g.go_bin_path = vim.fn.expand("~/.gocode/bin")
 vim.g.go_diagnostics_enabled = 0
 vim.g.javaScript_fold=0
 vim.g.vim_json_syntax_conceal = 0
-vim.g.terraform_align = 1
-vim.g.terraform_fmt_on_save = 1
 
 vim.api.nvim_create_user_command('W', 'silent! exec "write !sudo tee % >/dev/null"  | silent! edit!', {bar = true})
 
