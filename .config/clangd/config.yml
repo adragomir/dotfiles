@@ -1,0 +1,14 @@
+CompileFlags:
+  Add: 
+  Compiler: clang
+Diagnostics:
+  UnusedIncludes: None
+Completion:
+  AllScopes: yes
+InlayHints:
+  Designators: Yes
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+Hover:
+  ShowAKA: Yes

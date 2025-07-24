@@ -5,12 +5,18 @@ fi
 export LANG="en_US.UTF-8"
 export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
+export XDG_CONFIG_HOME=$HOME/.config/
+export XDG_CACHE_HOME=$HOME/.cache/
+export XDG_DATA_HOME=$HOME/.local/share/
+export XDG_STATE_HOME=$HOME/.local/state/
 
 # fpath {{{
 export ZDOTDIR=$HOME/.config/zsh
 fpath=($ZDOTDIR $fpath)
 fpath=(/opt/homebrew/share/zsh-completions $fpath)
 # }}}
+
+export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc 
 
 # {{{ modules
 zmodload zsh/datetime
@@ -436,7 +442,6 @@ export VISUAL=nvim
 export CLICOLOR=1
 export LESS="-rX"
 export PAGER=less
-export INPUTRC=${HOME}/.inputrc
 export GOPATH=$HOME/.gocode
 export GOBIN=$HOME/.gocode/bin
 export GO111MODULE=on
@@ -449,10 +454,6 @@ export npm_config_devdir=$HOME/.cache/node-gyp
 export npm_config_userconfig=$HOME/.config/npm/npmrc
 export BUNDLE_USER_HOME=$HOME/.cache/bundle
 export FRUM_DIR=$HOME/.cache/frum
-export XDG_CONFIG_HOME=$HOME/.config/
-export XDG_CACHE_HOME=$HOME/.cache/
-export XDG_DATA_HOME=$HOME/.local/share/
-export XDG_STATE_HOME=$HOME/.local/state/
 export JAVA_HOME=/opt/homebrew/opt/openjdk@11/
 # export CONDA_PREFIX=$HOME/.conda
 export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"

@@ -1,6 +1,0 @@
---memcheck:leak-check=full
---show-reachable=yes
---track-origins=yes
---track-fds=yes
---dsymutil=yes
---suppressions=/Users/adr/.valgrind.suppress
