@@ -196,12 +196,15 @@
 	main-window-view = FileView
 	file-view-vpane-position = 443
 
-[url "https://github.com"]
-	insteadOf = git://github.com
+; [url "https://github.com"]
+; 	insteadOf = git://github.com
 
 [url "git@git.corp.adobe.com:"]
   insteadOf = https://git.corp.adobe.com/
 
+[url "github-adobe:AdobeAnalytics"]
+  insteadOf = git@github.com:AdobeAnalytics
+  
 [grep]
 	fullname = true
   extendRegexp = true

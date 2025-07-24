@@ -25,6 +25,8 @@ zmodload zsh/system
 zmodload zsh/attr
 zmodload zsh/pcre
 zmodload zsh/regex
+zmodload zsh/zle
+zmodload zsh/parameter
 # }}}
 
 # autoload {{{
@@ -35,7 +37,14 @@ autoload -U url-quote-magic
 autoload allopt
 autoload -U zcalc
 autoload -Uz zmv
+autoload -U edit-command-line
+autoload -Uz narrow-to-region
+autoload -Uz add-zsh-hook
+autoload -Uz vcs_info
+autoload -Uz async && async
 # }}}
+
+source $(/opt/homebrew/bin/brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 
 # settings {{{
 
@@ -78,6 +87,7 @@ WORDCHARS='*?[]~&;!$%^<>'
 WORDCHARS=${WORDCHARS//[&=\/;\!#?[]~&;!$%^<>%\{]}
 
 # history settings {{{
+export LESSHISTFILE=-
 HISTFILE=$HOME/.cache/zsh/history
 HISTSIZE=10000
 SAVEHIST=10000
@@ -182,19 +192,17 @@ zle -N backward-kill-default-word _backward_kill_default_word
 bindkey '\e=' backward-kill-default-word   # = is next to backspace
 bindkey "^[[Z" complete-files
 
-autoload -U edit-command-line
 zle -N edit-command-line
-bindkey '^xe' edit-command-line
 
-_completeme() {
-  zle -I
-  TMPFILE=`mktemp 2> /dev/null || mktemp -t completeme 2> /dev/null`
-  completeme $TMPFILE
-  test -e $TMPFILE
-  source $TMPFILE
-  rm -f $TMPFILE
-}
-zle -N _completeme
+# _completeme() {
+#   zle -I
+#   TMPFILE=`mktemp 2> /dev/null || mktemp -t completeme 2> /dev/null`
+#   completeme $TMPFILE
+#   test -e $TMPFILE
+#   source $TMPFILE
+#   rm -f $TMPFILE
+# }
+# zle -N _completeme
 
 function insert-selecta-path-in-command-line() {
     local selected_path
@@ -212,7 +220,6 @@ zle -N insert-selecta-path-in-command-line
 # Bind the key to the newly created widget
 bindkey -r "^T"
 bindkey "^T" "insert-selecta-path-in-command-line"
-autoload -Uz narrow-to-region
 #
 # http://qiita.com/uchiko/items/f6b1528d7362c9310da0
 function _selecta-select-history() {
@@ -260,10 +267,11 @@ bindkey '^[[5C' forward-word
 bindkey '^[[3~' delete-char
 
 _physical_up_line()   { zle backward-char -n $COLUMNS }
-_physical_down_line() { zle forward-char  -n $COLUMNS }
 zle -N physical-up-line _physical_up_line
-zle -N physical-down-line _physical_down_line
 bindkey "\e\e[A" physical-up-line
+
+_physical_down_line() { zle forward-char  -n $COLUMNS }
+zle -N physical-down-line _physical_down_line
 bindkey "\e\e[B" physical-down-line
 
 foreground-vi() {
@@ -399,12 +407,6 @@ prompt_pure_setup() {
 	if [[ -z $prompt_newline ]]; then
 		typeset -g prompt_newline=$'\n%{\r%}'
   fi
-	zmodload zsh/datetime
-	zmodload zsh/zle
-	zmodload zsh/parameter
-	autoload -Uz add-zsh-hook
-	autoload -Uz vcs_info
-  autoload -Uz async && async
   add-zsh-hook precmd prompt_pure_precmd
   PROMPT='%(12V.%F{242}%12v%f .)'
   PROMPT='%(?.%F{magenta}.%F{red})❯%f '
@@ -450,6 +452,7 @@ export FRUM_DIR=$HOME/.cache/frum
 export XDG_CONFIG_HOME=$HOME/.config/
 export XDG_CACHE_HOME=$HOME/.cache/
 export XDG_DATA_HOME=$HOME/.local/share/
+export XDG_STATE_HOME=$HOME/.local/state/
 export JAVA_HOME=/opt/homebrew/opt/openjdk@11/
 # export CONDA_PREFIX=$HOME/.conda
 export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
@@ -468,6 +471,23 @@ export MODULAR_HOME="/Users/adragomi/.modular"
 export RUSTC_WRAPPER=/opt/homebrew/bin/sccache
 export SCCACHE_DIR=$HOME/.cache/sccache
 export SCCACHE_CACHE_SIZE="30G"
+export KLAYOUT_HOME=$XDG_CONFIG_HOME/klayout
+export GNUPGHOME=$XDG_DATA_HOME/gnupg
+export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc 
+export PLATFORMIO_CORE_DIR=$XDG_DATA_HOME/platformio 
+export AWS_SHARED_CREDENTIALS_FILE=$XDG_CONFIG_HOME/aws/credentials
+export AWS_CONFIG_FILE=$XDG_CONFIG_HOME/aws/config
+export AZURE_CONFIG_DIR=$XDG_DATA_HOME/azure 
+export PYTHON_HISTORY=$XDG_STATE_HOME/python_history
+export PYTHONPYCACHEPREFIX=$XDG_CACHE_HOME/python
+export PYTHONUSERBASE=$XDG_DATA_HOME/python 
+export MAVEN_OPTS="-Dmaven.repo.local=\"$XDG_DATA_HOME/maven/repository\""
+export MAVEN_ARGS="--settings $XDG_CONFIG_HOME/maven/settings.xml"
+export MPLCONFIGDIR=$XDG_DATA_HOME/matplotlib
+export SQLITE_HISTORY=$XDG_STATE_HOME/sqlite_history
+
+# for prost-build crate
+export PROTOC=/opt/homebrew/bin/protoc
 
 export PATH=\
 /opt/blink/bin:\
@@ -496,8 +516,8 @@ $HOME/.dotnet/tools:\
 /sbin:\
 $PATH
 
-source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 bindkey "^R" _selecta-select-history
+bindkey '^xe' edit-command-line
 
 [[ -s "$HOME/.secrets/.zshrc_secret" ]] && . "$HOME/.secrets/.zshrc_secret"
 
@@ -514,39 +534,20 @@ if [[ "$OSTYPE" = msys* ]]; then
   export PATH=$PATH:/c/tools/neovim-msys/bin:/mingw64/bin:/usr/bin
 fi
 
-conda() {
-  __conda_setup="$('/opt/homebrew/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-  if [ $? -eq 0 ]; then
-      eval "$__conda_setup"
-  else
-      if [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
-          . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh"
-      else
-          export PATH="/opt/homebrew/Caskroom/miniconda/base/bin:$PATH"
-      fi
-  fi
-  unset __conda_setup
-}
-
 export PIP_BREAK_SYSTEM_PACKAGES=1
 export VCPKG_ROOT="$HOME/.cache/vcpkg"
 export DOCKER_BUILDKIT=1
 export BUILDKIT_PROGRESS=plain
 export OLLAMA_MODELS=$HOME/.cache/ollama
-
 export PATH="$PATH:/Users/adragomi/.modular/bin"
 export PIPENV_VENV_IN_PROJECT=1
-
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/adragomi/.lmstudio/bin"
 
 eval "$(_PIO_COMPLETE=zsh_source pio)"
-
 export CONAN_HOME=$HOME/.config/conan2
-
 export LUAROCKS_CONFIG="$HOME/.config/lua/luarocks-5.1.lua"
 export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?.lua"
 export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?/init.lua"
 export LUA_CPATH="$HOME/.local/lib/lua/lib/lua/5.1/?.so"
 export VSCODE_CLI_DATA_DIR=/Users/adragomi/Applications/DevelopmentTools/code-insiders-portable-data/data/cli
-export LESSHISTFILE=-

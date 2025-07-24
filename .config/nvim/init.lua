@@ -3,6 +3,8 @@ if vim.fn.has("mac") == 1 then
   vim.g.python3_host_prog = '/opt/homebrew/opt/python@3.12/bin/python3.12'
   vim.g.ruby_host_prog = '/opt/homebrew/lib/ruby/gems/3.3.0/bin/neovim-ruby-host'
   vim.g.node_host_prog = '/opt/homebrew/lib/node_modules/neovim/bin/cli.js'
+  vim.o.shell = "/opt/homebrew/bin/zsh"
+  vim.o.shellcmdflag="-lc"
 elseif vim.fn.has("wsl") then
   vim.g.os_bin_path = "linux"
   vim.g.python2_host_prog = '/usr/local/bin/python'
@@ -57,7 +59,7 @@ end
 
 if vim.fn.exists("g:neovide") == 1 then
   vim.o.tabline= "%!v:lua.MyTabLine()"
-  vim.o.guifont="Consolas:h12"
+  vim.o.guifont="Consolas:h11.5"
   -- vim.o.guifont="Iosevka Custom:h11"
   vim.o.linespace=-2
   vim.g.neovide_cursor_animation_length=0.0
@@ -112,10 +114,6 @@ if vim.fn.has("mac") then
 else
   vim.o.clipboard = "unnamedplus"
 end
-if vim.fn.has("wsl") or vim.fn.has("mac") then
-  vim.o.shell="bash"
-  vim.o.shellcmdflag="-lc"
-end
 vim.o.splitbelow = true
 vim.o.splitright = true
 vim.o.switchbuf = "useopen,uselast"
@@ -136,6 +134,7 @@ vim.o.scrolloff=10
 vim.o.splitkeep="topline"
 vim.o.wildmode = "longest,list"
 vim.o.suffixes=vim.o.suffixes .. ".lo,.moc,.la,.closure,.loT"
+vim.o.exrc = true
 vim.g.is_bash = 1
 
 vim.g.mapleader = ","
@@ -186,7 +185,7 @@ end
 bootstrap_pckr()
 
 vim.opt.runtimepath:append(',~/.config/nvim/lua')
-vim.lsp.set_log_level('error')
+vim.lsp.set_log_level('info')
 
 require('pckr').setup {
   pack_dir = vim.fs.joinpath(vim.fn.stdpath('data'), 'bundle-pckr'),
@@ -604,7 +603,14 @@ require('pckr').add {
     'ej-shafran/compile-mode.nvim',
     requires = {
       "nvim-lua/plenary.nvim",
-    }
+      "m00qek/baleia.nvim",
+    }, 
+    config = function()
+      vim.g.compile_mode = {
+        baleia_setup = true,
+        bang_expansion = true,
+      }
+    end
   },
   {
     'nvim-pack/nvim-spectre',
@@ -613,12 +619,6 @@ require('pckr').add {
     },
     config = function()
       require('spectre').setup()
-    end
-  },
-  {
-    '0x00-ketsu/maximizer.nvim',
-    config = function()
-      require('maximizer').setup()
     end
   },
   {
@@ -681,6 +681,8 @@ require('pckr').add {
       require('mini.bufremove').setup()
       require('mini.git').setup()
       require('mini.keymap').setup()
+      require('mini.misc').setup()
+
       -- local map_multistep = require('mini.keymap').map_multistep
       -- map_multistep('i', '<Tab>',   { 'pmenu_next' })
       -- map_multistep('i', '<S-Tab>', { 'pmenu_prev' })
@@ -741,6 +743,9 @@ require('pckr').add {
       })
     end
   },
+  {
+    'rebelot/terminal.nvim'
+  }, 
   {
     "yetone/avante.nvim",
     requires = {
@@ -822,6 +827,11 @@ vim.lsp.config.lua_ls = {
       },
       diagnostics = {
         globals = {'vim'},
+        disable = {
+          'unused', 'codestyle-check', 'spell-check', 'lowercase-global',
+          'unused-function', 'unused-label', 'unused-local', 'unused-vararg', 
+          'trailing-space'
+        }
       },
       workspace = {
         library = {
@@ -1180,10 +1190,31 @@ vim.lsp.config.c3lsp = {
   filetypes = { 'c3', 'c3i' },
 }
 
+vim.lsp.config.atopile_lsp = {
+  cmd = { '/opt/homebrew/bin/python3.13', '/opt/homebrew/bin/ato', 'lsp', 'start' },
+  root_markers = { 'ato.yaml', '.git' },
+  filetypes = { 'ato' },
+  settings = {
+    atopile = {
+    }
+  }
+}
+
+vim.lsp.config.pasls = {
+  cmd = { 'pasls' },
+  filetypes = { 'pascal' },
+  root_markers = { 'ato.yaml', '.git' },
+  settings = {
+    pasls = {
+    }
+  }
+}
+
 vim.lsp.enable({
   'lua_ls', 'jails', 'zls', 'buf_ls', 'gopls', 'mojo',
   -- 'denols', 'haxe_language_server', 'leanls', 'solang', 'svls'
-  'ols', "clangd", "basedpyright", "c3lsp", "nim_langserver", 'all_keyword_lsp', 'ts_ls'
+  'ols', "clangd", "basedpyright", "c3lsp", "nim_langserver", 'all_keyword_lsp', 'ts_ls', 
+  'atopile_lsp', 'pasls'
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -1323,6 +1354,63 @@ vim.diagnostic.config({
 --     update_in_insert = false,
 --   }
 -- )
+--
+local function toggle_window()
+  if vim.t.is_maximized then
+    vim.cmd(vim.t.mx_sizes)
+
+    if next(vim.t.mx_win_settings) then
+      -- Restore window(buffer) options before maximize
+      for winnr, options in pairs(vim.t.mx_win_settings) do
+        local winnr_num = tonumber(winnr, 10)
+        if vim.api.nvim_win_is_valid(winnr_num) then
+        for name, value in pairs(options) do
+          vim.api.nvim_win_set_option(winnr_num, name, value)
+        end
+        end
+      end
+    end
+
+    vim.t.is_maximized = false
+    vim.t.mx_win_settings = nil
+  else
+    -- Do nothing if only one window
+    if vim.fn.winnr('$') == 1 then
+      vim.t.is_maximized = false
+      return
+    end
+
+    vim.t.mx_sizes = vim.fn.winrestcmd()
+    vim.cmd('vert resize | resize')
+
+    local win_settings = {}
+    local wins = vim.api.nvim_tabpage_list_wins(0)
+    for _, win in ipairs(wins) do
+      win_settings[tostring(win)] = {
+        signcolumn = vim.api.nvim_win_get_option(win, 'signcolumn'),
+        number = vim.api.nvim_win_get_option(win, 'number'),
+        relativenumber = vim.api.nvim_win_get_option(win, 'relativenumber'),
+      }
+    end
+
+    vim.t.mx_win_settings = win_settings
+
+    if next(win_settings) then
+      local cur_win = vim.fn.win_getid()
+      for win, _ in pairs(vim.t.mx_win_settings) do
+        local winnr = tonumber(win, 10)
+        if cur_win ~= winnr then
+          vim.api.nvim_win_set_option(winnr, 'number', false)
+          vim.api.nvim_win_set_option(winnr, 'relativenumber', false)
+          vim.api.nvim_win_set_option(winnr, 'signcolumn', 'no')
+        end
+      end
+      vim.t.is_maximized = true
+    else
+      vim.t.is_maximized = false
+    end
+  end
+end
 
 vim.g.compile_mode = {}
 
@@ -1663,7 +1751,7 @@ vim.keymap.set("n", "<Home>", ":lua HomeKey()<cr>", {silent = true, noremap = tr
 vim.keymap.set("n", "<leader>/", ":Rg <cword><cr>", {silent = true, noremap = true})
 vim.keymap.set("n", "-", ":Chowcho<cr>", {})
 
-vim.keymap.set("n", "<D-F12>", function() require('maximizer').toggle() end, {noremap = true, silent = true})
+vim.keymap.set("n", "<D-F12>", function() toggle_window() end, {noremap = true, silent = true})
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, {noremap = true, silent = true})
 vim.keymap.set("n", "<D-S-b>", vim.lsp.buf.declaration, {noremap = true, silent = true})
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, {noremap = true, silent = true})
@@ -1781,6 +1869,11 @@ vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
   pattern = '*.Jenkinsfile',
   group = settings_augroup_id,
   command = "set filetype=groovy"
+})
+vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+  pattern = '*.ato',
+  group = settings_augroup_id,
+  command = "set filetype=ato"
 })
 vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
   pattern = '*.jai',
