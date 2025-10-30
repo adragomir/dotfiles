@@ -1,3 +1,9 @@
+if $TERM == "xterm-kitty"
+    set termguicolors
+    let &t_ut=''
+    colorscheme default
+endif
+
 set background=dark
 hi clear
 if exists("syntax_on")

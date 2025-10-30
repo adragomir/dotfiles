@@ -59,8 +59,8 @@ end
 
 if vim.fn.exists("g:neovide") == 1 then
   vim.o.tabline= "%!v:lua.MyTabLine()"
-  vim.o.guifont="Consolas:h11.5"
-  -- vim.o.guifont="Iosevka Custom:h11"
+  -- vim.o.guifont="Consolas:h11.5"
+  vim.o.guifont="Iosevka Custom:h11:w1:#e-antialias:#h-full"
   vim.o.linespace=-2
   vim.g.neovide_cursor_animation_length=0.0
   vim.g.neovide_cursor_trail_length=0.0
@@ -78,10 +78,14 @@ if vim.fn.exists("g:neovide") == 1 then
   vim.g.neovide_cursor_trail_size = 0.0
   vim.g.neovide_cursor_animate_in_insert_mode = false
   vim.g.neovide_cursor_animate_command_line = false
+  vim.keymap.set({ "n", "v" }, "<D-+>", ":lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + 0.1<CR>")
+  vim.keymap.set({ "n", "v" }, "<D-_>", ":lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor - 0.1<CR>")
+  vim.keymap.set({ "n", "v" }, "<D-)>", ":lua vim.g.neovide_scale_factor = 1<CR>")
 else
   vim.cmd [[colorscheme jb]]
   vim.o.guicursor="a:block-blinkon0-Cursor"
 end
+vim.o.syntax = "off"
 vim.o.shortmess= vim.o.shortmess .. "I"
 vim.o.mouse="a"
 vim.o.swapfile = false
@@ -136,6 +140,7 @@ vim.o.wildmode = "longest,list"
 vim.o.suffixes=vim.o.suffixes .. ".lo,.moc,.la,.closure,.loT"
 vim.o.exrc = true
 vim.g.is_bash = 1
+vim.o.relativenumber = true
 
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
@@ -146,6 +151,7 @@ vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_tutor_mode_plugin = 1
 vim.g.loaded_man = 1
+vim.g.loaded_matchparen = 1
 vim.g.loaded_manpageview = 1
 vim.g.loaded_manpageviewPlugin = 1
 vim.g.loaded_sql_completion=1
@@ -192,7 +198,9 @@ require('pckr').setup {
 }
 
 require('pckr').add {
-  --------------------------------
+  --###########################################################
+  --###########################################################
+  --###########################################################
   -- lang
   'https://git.sr.ht/~sircmpwn/hare.vim',
   {
@@ -202,6 +210,7 @@ require('pckr').add {
       local liblldb_path = vim.fn.stdpath('data') .. '/mason/packages/codelldb/extension/lldb/lib/liblldb.dylib'
       vim.g.rustaceanvim = {
         tools = {
+          enable_clippy = true, 
           reload_workspace_from_cargo_toml = true,
           hover_actions = {
             replace_builtin_hover = true
@@ -222,6 +231,9 @@ require('pckr').add {
           end,
           default_settings = {
             ['rust-analyzer'] = {
+              assist = {
+                preferSelf = true
+              }, 
               server = {
                 -- path = ''
                 ['extraEnv'] = {
@@ -238,15 +250,11 @@ require('pckr').add {
                 },
               },
               check = {
-                ignore = {
-                  "dead_code",
-                  "unused_imports",
-                  "unused_mut",
-                }
-              },
-              procMacro = {
-                enable = true,
-                attributes = { enable = true }
+                command = 'clippy', 
+                overrideCommand = {
+                  "cargo", 
+                  "clippy", "--all-targets", "--message-format=json", 
+                }, 
               },
               completion = {
                 autoAwait = { enable = true },
@@ -254,12 +262,21 @@ require('pckr').add {
                 autoself = { enable = true },
                 callable = { snippets = 'none' },
                 fullFunctionSignatures = { enable = true },
-                privateEditable = { enable = true },
                 postfix = { enable = false },
+                privateEditable = { enable = false },
                 termSearch = { enable = true }
               },
-              imports = {
-                group = { enable = false }
+              diagnostics = {
+                disabled = {
+                  'incorrect-ident-case',
+                  'replace-filter-map-next-with-find-map'
+                },
+                experimental = {
+                  enable = true
+                }, 
+                styleLints = {
+                  enable = true
+                }
               },
               hover = {
                 actions = {
@@ -268,6 +285,10 @@ require('pckr').add {
                   gotoTypeDef = { enable = true },
                   implementations = { enable = true },
                 },
+                maxSubstitutionLength = 100
+              },
+              imports = {
+                group = { enable = true }
               },
               inlayHints = {
                 bindingModeHints = { enable = true },
@@ -276,14 +297,17 @@ require('pckr').add {
                 closureReturnTypeHints = { enable = true },
                 closureStyle = 'impl_fn',  --'rust_analyzer',
                 discriminantHints = { enable = 'fieldless' },
-                expressionAdjustmentHints = { enable = 'always', mode = 'postfix' },
+                expressionAdjustmentHints = {
+                  enable = 'always',
+                  mode = 'postfix'
+                },
                 genericParameterHints = {
                   const = { enable = true },
                   lifetime = { enable = true },
                   type = { enable = true }
                 },
                 implicitDrops = { enable = false },
-                implicitSizedBoundHints = {enable = false},
+                implicitSizedBoundHints = {enable = true},
                 lifetimeElisionHints = {
                   enable = 'always',
                   useParameterNames = true
@@ -295,15 +319,6 @@ require('pckr').add {
               interpret = {
                 tests = true
               },
-              diagnostics = {
-                disabled = {
-                  'incorrect-ident-case',
-                  'replace-filter-map-next-with-find-map'
-                },
-                experimental = {
-                  enable = true
-                }
-              },
               lens = {
                 enable = true,
                 references = {
@@ -312,6 +327,10 @@ require('pckr').add {
                   trait = { enable = true },
                 },
                 implementations = { enable = true }
+              },
+              procMacro = {
+                enable = true,
+                attributes = { enable = true }
               },
               checkOnSave = true,
             },
@@ -324,6 +343,23 @@ require('pckr').add {
 
     end
   },
+  -- {
+  --   'cordx56/rustowl',
+  --   build = 'cargo binstall rustowl',
+  --   config = function()
+  --     require('rustowl').setup({
+  --       opts = {
+  --         client = {
+  --           on_attach = function(_, buffer)
+  --             vim.keymap.set('n', '<leader>ro', function()
+  --               require('rustowl').toggle(buffer)
+  --             end, { buffer = buffer, desc = 'Toggle RustOwl' })
+  --           end
+  --         },
+  --       },
+  --     })
+  --   end
+  -- }, 
   {
     'ray-x/go.nvim',
     requires = {
@@ -356,7 +392,10 @@ require('pckr').add {
   --  'elmcast/elm-vim', { 'dir': stdpath('data') . '/bundle/elm-vim', 'for': 'elm' }.
   --  'google/vim-jsonnet', {'dir': stdpath('data') . '/bundle/jsonnet', 'for': 'jsonnet' },
   ---------------------------------------
-  -- lsp
+  --###########################################################
+  --###########################################################
+  --###########################################################
+  --lsp
   {
     'onsails/diaglist.nvim',
     config = function()
@@ -366,6 +405,7 @@ require('pckr').add {
       -- })
     end
   },
+  -- mason for executable installation
   {
     'williamboman/mason-lspconfig.nvim',
     requires = {
@@ -406,7 +446,9 @@ require('pckr').add {
       })
     end
   },
-  ----------------------------------
+  --###########################################################
+  --###########################################################
+  --###########################################################
   -- debug
   {
     'mfussenegger/nvim-dap',
@@ -513,7 +555,9 @@ require('pckr').add {
       require('dap-go').setup()
     end
   },
-  ---------------------------------
+  --###########################################################
+  --###########################################################
+  --###########################################################
   -- syntax
   {
     'nvim-treesitter/nvim-treesitter',
@@ -547,19 +591,6 @@ require('pckr').add {
         }
       }
       local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-      -- parser_config.jai = {
-      --   install_info = {
-      --     -- url = "https://github.com/adragomir/tree-sitter-jai", -- local path or git repo
-      --     url = "/Users/adragomi/temp/tree-sitter-jai-new", -- local path or git repo
-      --     files = {"src/parser.c", "src/scanner.cc"},
-      --     cxx_standard = "c++14",
-      --     -- optional entries:
-      --     branch = "adragomi",
-      --     generate_requires_npm = true,
-      --     requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
-      --   },
-      --   filetype = "jai", -- if filetype does not match the parser name
-      -- }
       parser_config.jai = {
         install_info = {
           url = "https://github.com/constantitus/tree-sitter-jai",
@@ -591,7 +622,9 @@ require('pckr').add {
       'nvim-treesitter/nvim-treesitter',
     }
   },
-  --------------------------------
+  --###########################################################
+  --###########################################################
+  --###########################################################
   -- tools
   {
     "https://git.sr.ht/~swaits/scratch.nvim",
@@ -609,9 +642,50 @@ require('pckr').add {
       vim.g.compile_mode = {
         baleia_setup = true,
         bang_expansion = true,
+        environment = {
+          CLICOLOR_FORCE = "yes",
+          TERM = "xterm-256color",
+          CARGO_TERM_COLOR = "always",
+        }, 
+        auto_jump_to_first_error = true, 
+        debug = false, 
+        error_regexp_table = {
+          jai = {
+            regex = "^\\(.\\+\\):\\([1-9][0-9]*\\),\\([1-9][0-9]*\\): Error: ",
+            filename = 1,
+            row = 2,
+            col = 3,
+          }, 
+          -- cargo check --format short
+          rust = {
+            -- regex = "^error\\[\\(.\\+\\)\\].*\n\\s\\+--> \\(.\\+\\):\\([1-9][0-9]*\\):\\([1-9][0-9]*\\)",
+            regex = "^\\(.\\+\\):\\([1-9][0-9]*\\):\\([1-9][0-9]*\\): \\(error\\|warning\\)\\[\\(\\)\\]",
+            filename = 1,
+            row = 2,
+            col = 3, 
+            type = 4,
+          }
+        }
       }
     end
   },
+  -- {
+  --   'pohlrabi404/compile.nvim', 
+  --   config = function() 
+  --     require('compile').setup({
+  --       patterns = {
+  --       rust = { "(%S+%.%a+):(%d+):(%d+)", "123" },
+  --       csharp = { "(%S+%.%a+)%((%d+),(%d+)%)", "123" },
+  --       Makefile = { "%[(%S+):(%d+):.+%]", "12" },
+  --         jai = { "(%S+):(%d+),(%d+): Error: .+", "123" },
+  --       },
+  --     })
+  --   end
+  -- }, 
+  {
+    'rebelot/terminal.nvim'
+  }, 
+  -- search / replace multi files
   {
     'nvim-pack/nvim-spectre',
     requires = {
@@ -621,15 +695,37 @@ require('pckr').add {
       require('spectre').setup()
     end
   },
+  -- show registers
   {
     'tversteeg/registers.nvim',
     config = function()
       require('registers').setup()
     end
   },
-  'jremmen/vim-ripgrep',
-  'vim-scripts/a.vim',
-  'NMAC427/guess-indent.nvim',
+  -- ripgrep command
+  {
+    'jremmen/vim-ripgrep',
+  }, 
+  -- switch c / h
+  {
+    'vim-scripts/a.vim',
+  }, 
+  -- detect the indentation
+  {
+    'NMAC427/guess-indent.nvim',
+    config = function()
+      require('guess-indent').setup({
+        auto_cmd = false,
+        on_space_options = {
+          ["expandtab"] = true,
+          ["tabstop"] = "detected",
+          ["softtabstop"] = "detected",
+          ["shiftwidth"] = "detected",
+        },
+      })
+    end
+  }, 
+  -- select window
   {
     'tkmpypy/chowcho.nvim',
     config = function()
@@ -643,8 +739,12 @@ require('pckr').add {
       }
     end
   },
+  -- crap, utilities
   {
     'echasnovski/mini.nvim',
+    requires = {
+      'famiu/bufdelete.nvim'
+    }, 
     config = function()
       require('mini.comment').setup()
       require('mini.bracketed').setup({
@@ -671,46 +771,156 @@ require('pckr').add {
         search_method = 'cover',
       })
       require('mini.align').setup({
+        modifiers = {
+          [':'] = function(steps, opts)
+            opts.split_pattern = ':+[<>~]*'
+            table.insert(steps.pre_justify, MiniAlign.gen_step.trim())
+            table.insert(steps.pre_justify, MiniAlign.gen_step.pair())
+            opts.merge_delimiter = ' '
+          end,
+          ['='] = function(steps, opts)
+            opts.split_pattern = '=+[<>~]*'
+            --table.insert(steps.pre_justify, MiniAlign.gen_step.filter("col == 2"))
+            table.insert(steps.pre_justify, MiniAlign.gen_step.trim())
+            table.insert(steps.pre_justify, MiniAlign.new_step(
+              'spaceop',
+              function(parts, opts)
+                for i, row in ipairs(parts) do
+                  if string.sub(parts[i][2], 1, 2) == "=" then
+                    parts[i][2] = ' ' .. parts[i][2]
+                  end
+                end
+              end
+            ))
+            table.insert(steps.pre_justify, MiniAlign.gen_step.pair())
+            opts.merge_delimiter = ' '
+          end,
+        }
       })
       require('mini.bufremove').setup()
       require('mini.ai').setup({
         search_method = 'cover'
       })
+      local MiniPick = require('mini.pick')
+      MiniPick.setup({
+        delay = {
+          async = 300, 
+          busy = 50
+        }
+      })
+      MiniPick.registry.multigrep = (function()
+        return function(local_opts, opts)
+          local_opts = vim.tbl_extend('force', { roots = {}, symbol = "::", max_count = 10000 }, local_opts or {})
+          local process
+          local set_items_opts = { do_match = false }
+          local spawn_opts = { cwd = vim.uv.cwd() }
+
+          local match = function(_, _, query)
+            pcall(vim.loop.process_kill, process)
+            local actually_execute = (#local_opts.roots == 0 and #query > 0) or (#local_opts.roots > 0 and #query >= 4)
+            if not actually_execute then return MiniPick.set_picker_items({}, set_items_opts) end
+            local full_query = table.concat(query)
+            -- Split on symbol
+            local search_pattern, file_pattern =
+            ---@diagnostic disable-next-line: deprecated
+            unpack(vim.split(full_query, local_opts.symbol, { plain = true }))
+
+            -- Build command
+            local command = {
+              "rg",
+              "--column",
+              "--line-number",
+              "--no-heading",
+              "--field-match-separator", '\\x00', 
+              "--color=never",
+            }
+
+            if search_pattern and search_pattern ~= "" then
+              table.insert(command, "-e")
+              table.insert(command, search_pattern)
+            end
+
+            if file_pattern and file_pattern ~= "" then
+              table.insert(command, "-g")
+              table.insert(command, file_pattern)
+            end
+            
+            table.insert(command, vim.uv.cwd())
+            if #local_opts.roots > 0 then
+              for _, r in ipairs(local_opts.roots) do
+                table.insert(command, r)
+              end
+            end
+            
+            print("command len: " .. #command)
+
+            process = MiniPick.set_picker_items_from_cli(command, {
+              -- postprocess = function(lines)
+              --   local results = {}
+              --   for _, line in ipairs(lines) do
+              --     if line ~= "" then
+              --       -- I had nightmare doing this line, I hope there will be a better way
+              --       local file, lnum, col, text = line:match("([^:]+):(%d+):(%d+):(.*)")
+              --       if file then
+              --         -- Format the item in a way that default_choose can handle - yay
+              --         results[#results + 1] = {
+              --           path = file,
+              --           lnum = tonumber(lnum),
+              --           col = tonumber(col),
+              --           text = line,
+              --         }
+              --       end
+              --     end
+              --   end
+              --   return results
+              -- end,
+              set_items_opts = set_items_opts,
+              spawn_opts = spawn_opts,
+            })
+          end
+
+          return MiniPick.start({
+            source = {
+              items = {},
+              name = "Multi Grep",
+              match = match,
+            },
+        })
+        end
+      end)()
       require('mini.pick').setup()
       require('mini.extra').setup()
-      require('mini.bufremove').setup()
       require('mini.git').setup()
       require('mini.keymap').setup()
       require('mini.misc').setup()
-
-      -- local map_multistep = require('mini.keymap').map_multistep
-      -- map_multistep('i', '<Tab>',   { 'pmenu_next' })
-      -- map_multistep('i', '<S-Tab>', { 'pmenu_prev' })
-      -- map_multistep('i', '<CR>',    { 'pmenu_accept', 'minipairs_cr' })
-      -- map_multistep('i', '<BS>',    { 'minipairs_bs' })
-      -- require('mini.completion').setup({
-      --   lsp_completion = {
-      --     source_func = 'completefunc',
-      --     auto_setup = true, 
-      --     process_items = function(items)
-      --       return items
-      --     end, 
-      --     snippet_insert = nil
-      --   }, 
-      --   fallback_action = '<C-n>', 
+      -- require('mini.pairs').setup({
       --   mappings = {
-      --     force_twostep = '<C-Space>',
-      --     force_fallback = '<A-Space>',
-      --     scroll_down = '<C-f>',
-      --     scroll_up = '<C-b>',
+      --     ['('] = { action = 'open', pair = '()', neigh_pattern = '[^()\\].' },
+      --     ['['] = { action = 'open', pair = '[]', neigh_pattern = '[^[]\\].' },
+      --     ['{'] = { action = 'open', pair = '{}', neigh_pattern = '[^{}\\].' },
+      --
+      --     [')'] = { action = 'close', pair = '()', neigh_pattern = '[^()\\].' },
+      --     [']'] = { action = 'close', pair = '[]', neigh_pattern = '[^[]\\].' },
+      --     ['}'] = { action = 'close', pair = '{}', neigh_pattern = '[^{}\\].' },
+      --
+      --     ['"'] = { action = 'closeopen', pair = '""', neigh_pattern = '[^"\'\\].',   register = { cr = false } },
+      --     ["'"] = { action = 'closeopen', pair = "''", neigh_pattern = '[^%a\'"\\].', register = { cr = false } },
+      --     ['`'] = { action = 'closeopen', pair = '``', neigh_pattern = '[^`\\].',   register = { cr = false } },
       --   }
       -- })
     end
   },
-  'chrisbra/matchit',
+  -- 'chrisbra/matchit',
+  {
+    'andymass/vim-matchup', 
+    config = function()
+      vim.g.matchup_matchparen_offscreen = {}
+      vim.g.matchup_matchparen_enabled = 0
+      vim.g.matchup_delim_noskips = 2
+    end
+  }, 
   --map <leader>m :AsyncRun -mode=term -pos=right -focus=0 -listed=0 ./build && jairun ./main<cr>
   'skywind3000/asyncrun.vim',
-  -- 'github/copilot.vim'
   {
     'natecraddock/sessions.nvim',
     config = function()
@@ -743,65 +953,70 @@ require('pckr').add {
       })
     end
   },
+  -- disabled, shows vertical line for indentation level
   {
-    'rebelot/terminal.nvim'
+    'nvimdev/indentmini.nvim', 
+    config = function()
+      -- require('indentmini').setup({
+      --   exclude = {'markdown', 'lua'}, 
+      --   only_current = true
+      -- })
+    end
   }, 
   {
-    "yetone/avante.nvim",
-    requires = {
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
-      "MeanderingProgrammer/render-markdown.nvim",
-    },
-    run = 'make',
+    'Apeiros-46B/qalc.nvim', 
     config = function()
-      local avante = require 'avante'
-      avante.setup({
-          -- add any opts here
-          -- for example
-          provider = "gemini",
-          providers = {
-            claude = {
-              endpoint = "https://api.anthropic.com",
-              model = "claude-sonnet-4-20250514",
-              timeout = 30000, -- Timeout in milliseconds
-                extra_request_body = {
-                  temperature = 0.75,
-                  max_tokens = 20480,
-                },
-            },
-            gemini = {
-              endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
-              model = "gemini-2.5-flash",
-              timeout = 30000, -- Timeout in milliseconds
-              context_window = 1048576,
-              use_ReAct_prompt = true,
-              extra_request_body = {
-                generationConfig = {
-                  temperature = 0.75,
-                  thinkingConfig = {
-                    thinkingBudget = 8000,
-                  },
-                },
-              },
-            },
-            ollama = {
-              endpoint = "http://localhost:11434",
-              model = "DeepSeek-R1-0528-Qwen3-11B-i1-GGUF:Q6_K"
-            }
-          },
-          behaviour = {
-            auto_suggestions = false, -- Experimental stage
-            auto_set_highlight_group = false,
-            auto_set_keymaps = false,
-            auto_apply_diff_after_generation = false,
-            support_paste_from_clipboard = false,
-            minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
-            enable_token_counting = true, -- Whether to enable token counting. Default to true.
-            auto_approve_tool_permissions = false, -- Default: show permission prompts for all tools
-          },
-          hints = { enabled = false },
+      require('qalc').setup({})
+    end
+  }, 
+  {
+    'NeogitOrg/neogit', 
+    config = function()
+      require('neogit').setup({
+        disable_hint = true, 
+        disable_context_highlighting = true, 
+        disable_signs = true, 
+        filewatcher = {
+          enabled = true,
+        }, 
+        auto_show_console = false, 
+        auto_close_console = false, 
+        kind = 'replace'
       })
+    end
+  }, 
+  {
+    'rachartier/tiny-inline-diagnostic.nvim', 
+    config = function()
+      require("tiny-inline-diagnostic").setup({
+        show_source = {
+          enabled = true,
+          if_many = true,
+        },
+        use_icons_from_diagnostic = true,
+        add_messages = {
+          messages = true,
+          display_count = false,
+          use_max_severity = true,
+          show_multiple_glyphs = true,
+        },
+        multilines = {
+          enabled = true,
+          always_show = true,
+          trim_whitespaces = true,
+          tabstop = 4,
+        },
+        show_related = {
+          enabled = true,
+          max_count = 3,
+        },
+        severity = {
+          vim.diagnostic.severity.ERROR,
+          vim.diagnostic.severity.WARN,
+        },
+        override_open_float = true,
+      })
+      vim.diagnostic.config({ virtual_text = false })
     end
   }
 }
@@ -906,20 +1121,22 @@ function lsp_server(opts)
     local request_id = 0
 
     function srv.request(method, params, callback)
-      pcall(on_request, method, params)
-      local handler = handlers[method]
-      if handler then
-        local response, err = handler(method, params)
-        callback(err, response)
-      elseif method == 'initialize' then
-        callback(nil, {
-          capabilities = capabilities
-        })
-      elseif method == 'shutdown' then
-        callback(nil, nil)
-      end
-      request_id = request_id + 1
-      return true, request_id
+      vim.schedule_wrap(function()
+        pcall(on_request, method, params)
+        local handler = handlers[method]
+        if handler then
+          local response, err = handler(method, params)
+          callback(err, response)
+        elseif method == 'initialize' then
+          callback(nil, {
+            capabilities = capabilities
+          })
+        elseif method == 'shutdown' then
+          callback(nil, nil)
+        end
+        request_id = request_id + 1
+        return true, request_id
+      end)
     end
 
     function srv.notify(method, params)
@@ -1102,7 +1319,6 @@ vim.lsp.config.clangd = {
     "--pch-storage=disk",
     -- "--all-scopes-completion",
     -- "--pretty",
-    "--header-insertion=never",
     "-j=4",
     "--function-arg-placeholders",
     "--completion-style=detailed",
@@ -1309,17 +1525,17 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
-vim.diagnostic.config({
-  virtual_text = {
-    current_line = true,
-    virt_text_pos = "eol_right_align" -- eol_right_align, inline, overlay, right_align
-  },
-  virtual_lines = false,
-  -- virtual_lines = {
-  --   current_line = true,
-  -- },
-  severity = vim.diagnostic.severity.WARNING
-})
+vim.diagnostic.open_float = require("tiny-inline-diagnostic.override").open_float
+-- commented because of tiny-inline-diagnostics
+-- vim.diagnostic.config({
+--   virtual_text = {
+--     current_line = true,
+--     virt_text_pos = "eol_right_align" -- eol_right_align, inline, overlay, right_align
+--   },
+--   virtual_lines = false,
+--   severity = vim.diagnostic.severity.WARNING
+-- })
+
 -- vim.api.nvim_create_autocmd({ "CursorHold" }, {
 --   pattern = "*",
 --   callback = function()
@@ -1411,8 +1627,6 @@ local function toggle_window()
     end
   end
 end
-
-vim.g.compile_mode = {}
 
 local function is_visible_pmenu()
   return vim.fn.pumvisible() == 1
@@ -1559,52 +1773,6 @@ local function mark_on_insert_stop()
   mark_on(insert_ns, '^', 'hi_MarkInsertStop')
 end
 
-function MoveCursor(move, mode)
-  if move == 'h' then
-    if mode == '0' then
-      vim.cmd [[normal 0]]
-    elseif vim.regex('^\\^'):match_str(mode) then
-      if mode == '^g' then
-        vim.cmd [[normal g^]]
-      elseif mode == '^n' then
-        vim.cmd [[normal ^]]
-      end
-    end
-  elseif move == 'e' then
-    if vim.regex('^\\$'):match_str(mode) then
-      if mode == '$g' then
-        vim.cmd [[normal g$]]
-      elseif mode == '$n' then
-        vim.cmd [[normal $]]
-      end
-    end
-  end
-end
-
-function HomeKey()
-  local oldcol = vim.fn.col('.')
-  MoveCursor('h', '^n')
-  local newcol = vim.fn.col('.')
-  if oldcol == newcol then
-    if vim.o.wrap ~= 1 or  newcol <= (vim.fn.winwidth(0) - 20) then
-      MoveCursor('h', '0')
-      if newcol == vim.fn.col('.') then
-        if newcol == oldcol then
-          vim.cmd [[normal i]]
-        else
-          MoveCursor('h', '^n')
-        end
-      else
-        MoveCursor('h', '0')
-      end
-    end
-  end
-end
-
-function EndKey()
-  MoveCursor('e', '$g')
-end
-
 vim.keymap.set("n", "K", "<nop>", {noremap = true})
 vim.keymap.set("v", "u", "<nop>", {noremap = true})
 vim.keymap.set("n", "+", "<nop>", {noremap = true})
@@ -1671,54 +1839,6 @@ require('mini.keymap').map_combo(
   end
 )
 
--- mapping cr
--- vim.keymap.set("n", "<cr>", ":nohlsearch<cr>", {noremap = true})
--- SAVE_CR_MAP = {}
--- local all_buffers_augroup_id = vim.api.nvim_create_augroup('all_buffers', { clear = true })
--- vim.api.nvim_create_autocmd({ 'VimLeavePre' }, {
---   pattern = '*',
---   group = all_buffers_augroup_id,
---   callback = function()
---     local bwstr = 'silent! 1,' .. vim.fn.bufnr('$') .. 'bwipeout!'
---     vim.cmd(bwstr)
---   end
--- })
--- vim.api.nvim_create_autocmd({ 'CmdwinEnter' }, {
---   pattern = '*',
---   group = all_buffers_augroup_id,
---   callback = function()
---     SAVE_CR_MAP = SaveMap('<cr>')
---     vim.cmd [[silent! :unmap <cr>]]
---   end
--- })
--- vim.api.nvim_create_autocmd({ 'CmdwinLeave' }, {
---   pattern = '*',
---   group = all_buffers_augroup_id,
---   callback = function() RestoreMap(SAVE_CR_MAP) end
--- })
--- vim.api.nvim_create_autocmd({ 'WinEnter', 'BufWinEnter' }, {
---   pattern = '*',
---   group = all_buffers_augroup_id,
---   callback = function()
---     if vim.bo.filetype == "qf" then
---       SAVE_CR_MAP = SaveMap('<cr>')
---       vim.cmd [[silent! :unmap <cr>]]
---     else
---       RestoreMap(SAVE_CR_MAP)
---     end
---   end
--- })
---
--- vim.api.nvim_create_autocmd({ 'WinLeave' }, {
---   pattern = '*',
---   group = all_buffers_augroup_id,
---   callback = function()
---     if vim.bo.filetype == "qf" then
---       RestoreMap(SAVE_CR_MAP)
---     end
---   end
--- })
-
 -- mapping resize
 vim.keymap.set("n", "<M-Right>", ":vertical resize +5<CR>", {noremap = true})
 vim.keymap.set("n", "<M-Left>", ":vertical resize -5<CR>", {noremap = true})
@@ -1742,16 +1862,35 @@ vim.keymap.set("", "<leader>]", "`]", {})
 vim.keymap.set("", "<leader>>", "`>", {})
 vim.keymap.set("", "<leader>`", "`^", {})
 
-vim.keymap.set("n", "bd", ":lua MiniBufremove.delete()", {silent = true, noremap = true})
+vim.keymap.set("n", "bd", ":lua MiniBufremove.delete()<CR>", {silent = true, noremap = true})
 vim.keymap.set("", "<Space>", "m`", {noremap = true})
 
+local function home_key()
+  local oldcol = vim.fn.col('.')
+  vim.cmd [[normal ^]]
+  local newcol = vim.fn.col('.')
+  if oldcol == newcol then
+    if vim.o.wrap ~= 1 or  newcol <= (vim.fn.winwidth(0) - 20) then
+      vim.cmd [[normal 0]]
+      if newcol == vim.fn.col('.') then
+        if newcol == oldcol then
+          vim.cmd [[normal i]]
+        else
+          vim.cmd [[normal ^]]
+        end
+      else
+        vim.cmd [[normal 0]]
+      end
+    end
+  end
+end
 -- mappings home/end
-vim.keymap.set("i", "<Home>", "<C-o>:lua HomeKey()<cr>", {silent = true, noremap = true})
-vim.keymap.set("n", "<Home>", ":lua HomeKey()<cr>", {silent = true, noremap = true})
+vim.keymap.set("i", "<Home>", home_key, {silent = true, noremap = true})
+vim.keymap.set("n", "<Home>", home_key, {silent = true, noremap = true})
 vim.keymap.set("n", "<leader>/", ":Rg <cword><cr>", {silent = true, noremap = true})
 vim.keymap.set("n", "-", ":Chowcho<cr>", {})
 
-vim.keymap.set("n", "<D-F12>", function() toggle_window() end, {noremap = true, silent = true})
+vim.keymap.set("n", "<D-F12>", toggle_window, {noremap = true, silent = true})
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, {noremap = true, silent = true})
 vim.keymap.set("n", "<D-S-b>", vim.lsp.buf.declaration, {noremap = true, silent = true})
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, {noremap = true, silent = true})
@@ -1805,10 +1944,101 @@ if vim.fn.exists("g:neovide") == 1 then
   vim.keymap.set("i", "<D-{>", "<C-o>:tabprevious<cr>", {noremap = true, silent = true})
 end
 
-vim.keymap.set("n", "<C-p>", "<cmd>lua MiniPick.registry.files()<cr>", {})
-vim.keymap.set("n", "<C-f>", "<cmd>lua MiniExtra.pickers.diagnostics()<cr>", {})
-vim.keymap.set("n", "<leader>1", ":lua MiniExtra.pickers.explorer()<cr>", {})
-vim.keymap.set("n", "<leader>5", "<cmd>lua MiniPick.registry.buffers()<cr>", {})
+local function read_file(path)
+  local file_fd, open_err = vim.uv.fs_open(path, 'r', 438)
+  if open_err then
+    return false, ""
+  end
+  local stat, stat_err = vim.uv.fs_fstat(file_fd)
+  if stat_err then
+    return false, ""
+  end
+  local data, read_err = vim.uv.fs_read(file_fd, stat.size, 0)
+  if read_err then
+    return false, ""
+  end
+  return true, data
+end
+
+vim.keymap.set("n", "<leader>ga", function()
+  local ok, extra_dep_paths = read_file(vim.fn.getcwd() .. "/extra-dep-paths.txt")
+  local local_opts = {}
+  if ok then 
+    local roots = {};
+    for line in string.gmatch(extra_dep_paths, "(.-)\n") do
+      table.insert(roots, line)
+    end
+    local_opts.roots = roots
+  end
+  MiniPick.registry.multigrep(local_opts)
+end, {})
+
+function do_in_tab(dir, file)
+  local all_tabs = vim.api.nvim_list_tabpages()
+  local found_tab_number = -1
+  for _, tab_handle in ipairs(all_tabs) do
+    local tab_number = vim.api.nvim_tabpage_get_number(tab_handle)
+    local tab_cwd = vim.fn.getcwd(-1, tab_number)
+    if tab_cwd == dir then
+      found_tab_number = tab_number
+    end
+  end
+  if found_tab_number >= 0 then
+    vim.cmd("tabnext " .. found_tab_number)
+    vim.cmd("tcd " .. dir)
+    if file ~= "" then
+      vim.cmd("e " .. file)
+    end
+  else
+    vim.cmd[[tabnew]]
+    vim.cmd("tcd " .. dir)
+    if file ~= "" then
+      vim.cmd("e " .. file)
+    end
+  end
+end
+
+vim.keymap.set("n", "<leader>g", function()
+  MiniPick.registry.multigrep()
+end, {})
+vim.keymap.set("n", "<C-p>", function()
+  MiniPick.registry.files()
+end, {})
+vim.keymap.set("n", "<C-f>", function()
+  MiniExtra.pickers.diagnostics()
+end, {})
+vim.keymap.set("n", "<leader>1", function()
+  MiniExtra.pickers.explorer()
+end, {})
+
+local pick_buffers_extra_opts = {
+  mappings = {
+    wipeout = {
+      char = '<C-d>',
+      func = function()
+        local matches = MiniPick.get_picker_matches()
+        if vim.tbl_count(matches.marked) == 0 then
+          local buf_id = matches.current.bufnr
+          print(vim.inspect(buf_id))
+          require('bufdelete').bufdelete(buf_id, true)
+        else
+          for _, buf in pairs(matches.marked) do
+            local buf_id = buf.bufnr
+            require('bufdelete').bufdelete(buf_id, true)
+          end
+        end
+        MiniPick.refresh()
+        -- MiniPick.stop()
+        -- MiniPick.builtin.resume()
+      end
+    }
+  }
+}
+
+vim.keymap.set("n", "<leader>5", function()
+  -- MiniPick.builtin.buffers(local_opts, pick_buffers_extra_opts)
+  MiniPick.builtin.buffers({}, pick_buffers_extra_opts)
+end, {})
 
 vim.g.godef_split = 0
 vim.g.go_play_open_browser = 0
@@ -1858,7 +2088,6 @@ vim.api.nvim_create_autocmd({ "VimLeave" }, {
   end,
 })
 
-
 local settings_augroup_id = vim.api.nvim_create_augroup('settings', { clear = true })
 vim.api.nvim_create_autocmd({ 'ModeChanged' }, {
   pattern = '*:[iiI]*',
@@ -1903,12 +2132,12 @@ vim.api.nvim_create_autocmd({ 'Filetype' }, {
 vim.api.nvim_create_autocmd({ 'Filetype' }, {
   pattern = {'python', 'java', 'ruby', 'javascript'},
   group = settings_augroup_id,
-  command = "setlocal et ts=4 sw=4 sts=4"
+  command = "setlocal et ts=4 sw=4 sts=4 | silent GuessIndent"
 })
 vim.api.nvim_create_autocmd({ 'Filetype' }, {
   pattern = {'c', 'cpp'},
   group = settings_augroup_id,
-  command = "setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\\ %s"
+  command = "setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\\ %s | silent GuessIndent"
 })
 vim.api.nvim_create_autocmd({ 'Filetype' }, {
   pattern = {'go'},
@@ -1928,3 +2157,18 @@ vim.api.nvim_create_autocmd({ 'Filetype' }, {
   command = "setlocal omnifunc=v:lua.vim.lsp.omnifunc"
 })
 
+local au_opts = { pattern = 'MiniGitCommandSplit', callback = align_blame }
+vim.api.nvim_create_autocmd('User', {
+  pattern = 'MiniGitCommandSplit', 
+  callback = function(au_data)
+    if au_data.data.git_subcommand ~= 'blame' then return end
+    -- Align blame output with source
+    local win_src = au_data.data.win_source
+    vim.wo.wrap = false
+    vim.fn.winrestview({ topline = vim.fn.line('w0', win_src) })
+    vim.api.nvim_win_set_cursor(0, { vim.fn.line('.', win_src), 0 })
+
+    -- Bind both windows so that they scroll together
+    vim.wo[win_src].scrollbind, vim.wo.scrollbind = true, true
+  end
+})

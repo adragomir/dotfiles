@@ -454,7 +454,7 @@ export npm_config_devdir=$HOME/.cache/node-gyp
 export npm_config_userconfig=$HOME/.config/npm/npmrc
 export BUNDLE_USER_HOME=$HOME/.cache/bundle
 export FRUM_DIR=$HOME/.cache/frum
-export JAVA_HOME=/opt/homebrew/opt/openjdk@11/
+export JAVA_HOME=/opt/homebrew/opt/openjdk@17/
 # export CONDA_PREFIX=$HOME/.conda
 export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
 export HOMEBREW_NO_INSTALL_FROM_API=1
@@ -469,7 +469,7 @@ export ZVM_PATH=$XDG_DATA_HOME/zvm
 export ZVM_INSTALL="$ZVM_PATH/self"
 
 export MODULAR_HOME="/Users/adragomi/.modular"
-export RUSTC_WRAPPER=/opt/homebrew/bin/sccache
+#export RUSTC_WRAPPER=/opt/homebrew/bin/sccache
 export SCCACHE_DIR=$HOME/.cache/sccache
 export SCCACHE_CACHE_SIZE="30G"
 export KLAYOUT_HOME=$XDG_CONFIG_HOME/klayout
@@ -482,13 +482,15 @@ export AZURE_CONFIG_DIR=$XDG_DATA_HOME/azure
 export PYTHON_HISTORY=$XDG_STATE_HOME/python_history
 export PYTHONPYCACHEPREFIX=$XDG_CACHE_HOME/python
 export PYTHONUSERBASE=$XDG_DATA_HOME/python 
-export MAVEN_OPTS="-Dmaven.repo.local=\"$XDG_DATA_HOME/maven/repository\""
+export MAVEN_OPTS="-Dmaven.repo.local=$XDG_DATA_HOME/maven/repository"
 export MAVEN_ARGS="--settings $XDG_CONFIG_HOME/maven/settings.xml"
 export MPLCONFIGDIR=$XDG_DATA_HOME/matplotlib
 export SQLITE_HISTORY=$XDG_STATE_HOME/sqlite_history
 
 # for prost-build crate
 export PROTOC=/opt/homebrew/bin/protoc
+
+export SDK=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
 
 export PATH=\
 /opt/blink/bin:\

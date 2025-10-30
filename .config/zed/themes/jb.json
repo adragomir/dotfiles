@@ -1,0 +1,128 @@
+{
+  "name": "jb",
+  "author": "Andrei Dragomir",
+  "themes": [
+    {
+      "name": "jb",
+      "appearance": "dark",
+      "style": {
+        "background": "#072626",
+        "syntax": {
+          "comment": {
+            "color": "#6bc267",
+            "font_style": null,
+            "font_weight": null
+          },
+          "punctuation": {
+            "color": "#8cde94",
+            "font_style": null,
+            "font_weight": null
+          },
+          "keyword": {
+            "color": "#ffffff",
+            "font_style": null,
+            "font_weight": null
+          },
+          "boolean": {
+            "color": "#ffffff",
+            "font_style": null,
+            "font_weight": null
+          },
+          "variable": {
+            "color": "#c8d4ec",
+            "font_style": null,
+            "font_weight": null
+          },
+          "variable.special": {
+            "color": "#c8d4ec",
+            "font_style": null,
+            "font_weight": null
+          },
+          "function.method": {
+            "color": "#c1d1e3",
+            "font_style": null,
+            "font_weight": null
+          },
+          "function": {
+            "color": "#ffffff",
+            "font_style": null,
+            "font_weight": null
+          },
+          "string": {
+            "color": "#0fdfaf",
+            "font_style": null,
+            "font_weight": null
+          },
+          "string.escape": {
+            "color": "#0fdfaf",
+            "font_style": null,
+            "font_weight": null
+          },
+          "string.regex": {
+            "color": "#0fdfaf",
+            "font_style": null,
+            "font_weight": null
+          },
+          "string.special": {
+            "color": "#0fdfaf",
+            "font_style": null,
+            "font_weight": null
+          },
+          "number": {
+            "color": "#7ad0c6",
+            "font_style": null,
+            "font_weight": null
+          },
+          "punctuation.bracket": {
+            "color": "#8cde94",
+            "font_style": null,
+            "font_weight": null
+          },
+          "punctuation.delimiter": {
+            "color": "#8cde94",
+            "font_style": null,
+            "font_weight": null
+          },
+          "punctuation.list_marker": {
+            "color": "#8cde94",
+            "font_style": null,
+            "font_weight": null
+          },
+          "punctuation.special": {
+            "color": "#8cde94",
+            "font_style": null,
+            "font_weight": null
+          },
+          "text.literal": {
+            "color": "#d1b897",
+            "font_style": null,
+            "font_weight": null
+          },
+          "operator": {
+            "color": "#ffffff",
+            "font_style": null,
+            "font_weight": null
+          }
+        },
+        "players": [
+          {
+            "background": "transparent",
+            "cursor": "#9ceda3",
+            "selection": "#0e01d9"
+          }
+        ],
+        "text": "#d1b897",
+        "search.match_background": "#000000",
+        "editor.gutter.background": "#062329",
+        "editor.line_number": "#126367",
+        "error": "#ff0000",
+        "warning": "#ffaa00",
+        "editor.active_line_number": "#ffffff",
+        "editor.background": "#072626",
+        "surface.background": "#072626",
+        "tab.active_foreground": "#ffffff",
+        "text.accent": ""
+      }
+    }
+  ]
+}

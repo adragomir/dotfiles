@@ -1,4 +1,89 @@
 #!/bin/bash
+# socket_name=""
+#
+# target=""
+# if [[ $# -eq 0 ]]; then
+#   target=$(pwd)
+# else
+#   target="${1}"
+# fi
+#
+# # Get absolute path
+# if [ -e "$target" ]; then
+# 	target=$(cd "$(dirname "$target")" 2>/dev/null && pwd -P)/"$(basename "$target")"
+# fi
+#
+# # Get git root or fallback to target directory - use dirname if target is a file
+# target_dir=$([ -f "$target" ] && dirname "$target" || echo "$target")
+#
+# git_root=$(cd "$target_dir" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null)
+#
+# # Determine socket name and working directory
+# if [ -n "$git_root" ]; then
+# 	# We're in a git repo
+# 	socket_name="neovide-git-$(printf "%s" "$git_root" | md5 -q)"
+# 	working_dir="$git_root"
+# elif [ "$target" = "$HOME" ]; then
+# 	# We're in HOME
+# 	socket_name="neovide-home"
+# 	working_dir="$HOME"
+# else
+# 	# We're in a regular directory
+# 	socket_name="neovide-dir-$(printf "%s" "$target_dir" | md5 -q)"
+# 	working_dir="$target_dir"
+# fi
+#
+# socket_path="/tmp/$socket_name.sock"
+# echo $socket_path
+# if [ -e "$socket_path" ] && [ -S "$socket_path" ] && nvim --server "$socket_path" --remote-expr '1' >/dev/null 2>&1; then
+#   echo "EXISTS !"
+# 	if [ -f "$target" ]; then
+# 		if [ -n "$git_root" ] && echo "$target" | grep -q "^$git_root/"; then
+# 			rel_path="${target#$git_root/}"
+# 		else
+# 			rel_path="$target"
+# 		fi
+# 		nvim --server "$socket_path" --remote-send "<C-\\><C-N>:e $rel_path<CR>:NeovideFocus<CR>"
+# 	else
+# 		nvim --server "$socket_path" --remote-send "<C-\\><C-N>:cd $target<CR>:NeovideFocus<CR>"
+# 	fi
+# else
+#   echo $working_dir
+# 	#NVIM_LISTEN_ADDRESS="$socket_path" /Users/adragomi/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide -- --cmd "cd $working_dir" 2>/dev/null &
+#   /Users/adragomi/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide \
+#     --fork \
+#     -- --listen ${socket_path} --cmd "cd $working_dir" 2>/dev/null
+# fi
+
+# # Get git root or fallback to target directory - use dirname if target is a file
+# target_dir=$([ -f "$target" ] && dirname "$target" || echo "$target")
+#
+# git_root=$(cd "$target_dir" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null)
+#
+# git_root=$(git rev-parse --show-toplevel 2>/dev/null)
+# if [[ $? != 0 ]]; then
+#   pwd=$(pwd)
+#   if [[ "${pwd}" == "${HOME}" ]]; then
+#     socket_name="neovide-home"
+#   else
+#     hash=$(echo "$pwd" | md5)
+#     socket_name="neovide-dir-${hash}"
+#   fi
+# else
+#   hash=$(echo "$pwd" | md5)
+#   socket_name="neovide-git-root-${hash}"
+# fi
+#
+# while getopts "n:" flag; do
+#     case "${flag}" in
+#         n) optname=${OPTARG};;
+#     esac
+# done
+#
+# if test ${optname}; then
+#   shift 2
+# fi
+
 
 while getopts "n:" flag; do
     case "${flag}" in
@@ -6,36 +91,73 @@ while getopts "n:" flag; do
     esac
 done
 
-if test ${optname}; then
-  shift 2
-fi
+log() {
+  echo "${1}" >/dev/null
+}
 
 name=${optname:-App}
+socket_path="/tmp/neovide${name}"
 
-NVIM_SOCKET="/tmp/neovide${name}.socket"
-if [ ! -S $NVIM_SOCKET ]; then
+neovide_is_running=$(osascript -e "application id (\"com.neovide.neovide\") is running")
+if [[ "$neovide_is_running" == "false" ]]; then
+  if [ -S $socket_path ]; then
+    rm -f $socket_path
+  fi
+fi
+
+if [ ! -S $socket_path ]; then
     /Users/adragomi/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide \
     --fork \
-    --neovim-bin=/opt/homebrew/bin/nvim \
-    --maximized \
-    --frame buttonless \
-    --no-vsync --no-multigrid \
-    -- --listen ${NVIM_SOCKET} "$@"
+    -- --listen ${socket_path} "$@"
 else
-    if [[ "$#" -eq 0 ]]; then
-        dir_or_file=$(pwd)
+    target=""
+    if [[ $# -eq 0 ]]; then
+      target=$(pwd)
     else
-        dir_or_file=$1
+      target="${1}"
     fi
-    dir_or_file=$(realpath $dir_or_file)
+    # Get absolute path
+    if [ -e "$target" ]; then
+  	  target=$(cd "$(dirname "$target")" 2>/dev/null && pwd -P)/"$(basename "$target")"
+    fi
+    # Get git root or fallback to target directory - use dirname if target is a file
+    target_dir=$([ -f "$target" ] && dirname "$target" || echo "$target")
+    git_root=$(cd "$target_dir" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null)
+    # Determine socket name and working directory
+    if [ -n "$git_root" ]; then
+  	  # We're in a git repo
+  	  working_dir="$git_root"
+    elif [ "$target" = "$HOME" ]; then
+  	  # We're in HOME
+  	  working_dir="$HOME"
+    else
+  	  # We're in a regular directory
+  	  working_dir="$target_dir"
+    fi
+	  if [ -f "$target" ]; then
+		  if [ -n "$git_root" ] && echo "$target" | grep -q "^$git_root/"; then
+			  rel_path="${target#${git_root}/}"
+		  else
+			  rel_path="$target"
+		  fi
+		  # find tab
+		  #nvim --server "$socket_path" --remote-send "<C-\\><C-N>:e $rel_path<CR>:NeovideFocus<CR>"
+	  else
+		  #nvim --server "$socket_path" --remote-send "<C-\\><C-N>:cd $target<CR>:NeovideFocus<CR>"
+		  echo ""
+	  fi
+	  echo "git_root=${git_root} working=${working_dir} target=${target} rel_path=${rel_path}"
+
     osascript -e 'tell application "Neovide" to activate' &>/dev/null
-    if [[ -d "${dir_or_file}" ]]; then
-        #echo "Open dir ${dir_or_file}: <C-\><C-N>:\$tabnew ${dir_or_file} | :tcd ${dir_or_file}<CR>"
-        nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew ${dir_or_file} | :tcd ${dir_or_file}<CR>"
-    else
-        file=$dir_or_file
-        dir=$(dirname "$file")
-        #echo "Open file ${dir_or_file} in dir ${dir}"
-        nvim --server $NVIM_SOCKET --remote-send "<C-\><C-N>:\$tabnew ${dir} | :tcd ${dir} | :e ${dir_or_file}<CR>"
-    fi
+    nvim --server $socket_path --remote-send "<C-\><C-N>:lua do_in_tab('${working_dir}', '${rel_path}')<cr>"
+    # if [[ -d "${dir_or_file}" ]]; then
+    #     log "Open dir ${dir_or_file}: <C-\><C-N>:\$tabnew ${dir_or_file} | :tcd ${dir_or_file}<CR>"
+    #     nvim --server $socket_path --remote-send "<C-\><C-N>:\$tabnew ${dir_or_file} | :tcd ${dir_or_file}<CR>"
+    # else
+    #     file=$dir_or_file
+    #     dir=$(dirname "$file")
+    #     log "Open file ${dir_or_file} in dir ${dir}"
+    #     nvim --server $socket_path --remote-send "<C-\><C-N>:\$tabnew ${dir} | :tcd ${dir} | :e ${dir_or_file}<CR>"
+    # fi
 fi
+log "DONE"

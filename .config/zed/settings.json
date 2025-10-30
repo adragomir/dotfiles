@@ -1,0 +1,289 @@
+{
+  "theme": "jb",
+  "git": {
+    "branch_picker": {
+      "show_author_name": false
+    },
+    "blame": {
+      "show_avatar": false
+    },
+    "inline_blame": {
+      "enabled": false
+    }
+  },
+  "git_panel": {
+    "button": false,
+    "default_width": 0
+  },
+  "collaboration_panel": {
+    "button": false,
+    // Where to dock the collaboration panel. Can be 'left' or 'right'.
+    "dock": "left",
+    // Default width of the collaboration panel.
+    "default_width": 0
+  },
+  "message_editor": {
+    "auto_replace_emoji_shortcode": false
+  },
+  "notification_panel": {
+    "button": false,
+    // Where to dock the notification panel. Can be 'left' or 'right'.
+    "dock": "right",
+    // Default width of the notification panel.
+    "default_width": 0
+  },
+  "outline_panel": {
+    "button": false,
+    "default_width": 0
+  },
+  "project_panel": {
+    "button": true,
+    "hide_gitignore": true,
+    "entry_spacing": "standard",
+    "git_status": false,
+    "drag_and_drop": false
+  },
+  "allow_rewrap": "anywhere",
+  "auto_signature_help": true,
+  "diagnostics_max_severity": "warning",
+  "show_diagnostics": "warning",
+  "rounded_selection": false,
+  "git_diff": false,
+  "disable_ai": true,
+  "agent": {
+    "enabled": false,
+    "expand_terminal_card": false,
+    "expand_edit_card": false,
+    "enable_feedback": false,
+    "single_file_review": false,
+    "model_parameters": []
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "tab_bar": {
+    "show": true,
+    "show_nav_history_buttons": false,
+    "show_tab_bar_buttons": false
+  },
+  "vim_mode": true,
+  "cursor_blink": false,
+  "base_keymap": "None",
+  "buffer_font_size": 11,
+  "buffer_font_family": "Iosevka Custom",
+  "buffer_line_height": "standard",
+  "buffer_font_features": {
+    // Disable ligatures:
+    "calt": false
+  },
+  "ui_font_size": 13,
+  "show_copilot_suggestions": false,
+  "features": {
+    "edit_prediction_provider": "none"
+  },
+  "formatter": "language_server",
+  "inlay_hints": {
+    "enabled": true,
+    "show_type_hints": true,
+    "show_parameter_hints": true,
+    "show_other_hints": true,
+    "show_background": false,
+    "edit_debounce_ms": 700,
+    "scroll_debounce_ms": 50,
+    "toggle_on_modifiers_press": null
+  },
+  "preview_tabs": {
+    "enabled": false
+  },
+  "use_smartcase_search": true,
+  "show_call_status_icon": false,
+  "tasks": {
+    "variables": {},
+    "enabled": false,
+    "prefer_lsp": false
+  },
+  "metrics": false,
+  "global_lsp_settings": {
+    "button": true
+  },
+  "diagnostics": {
+    "inline": {
+      "enabled": true,
+      "update_debounce_ms": 150,
+      "padding": 4,
+      "min_column": 0,
+      // The minimum severity of the diagnostics to show inline.
+      // Inherits editor's diagnostics' max severity settings when `null`.
+      "max_severity": null
+    }
+  },
+  "log": {
+    "client": "warn"
+  },
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "assist": {
+          "preferSelf": true
+        },
+        "server": {
+          // path = ''
+          "extraEnv": {
+            "RA_LOG": "error"
+          }
+        },
+        "cargo": {
+          "allFeatures": true,
+          "buildScripts": {
+            "enable": true
+          }
+        },
+        "check": {
+          "command": "clippy",
+          "overrideCommand": [
+            "cargo",
+            "clippy",
+            "--all-targets",
+            "--message-format=json"
+          ]
+        },
+        "completion": {
+          "autoAwait": {
+            "enable": true
+          },
+          "autoIter": {
+            "enable": true
+          },
+          "autoself": {
+            "enable": true
+          },
+          "callable": {
+            "enable": true
+          },
+          "fullFunctionSignatures": {
+            "enable": true
+          },
+          "postfix": {
+            "enable": true
+          },
+          "privateEditable": {
+            "enable": true
+          },
+          "termSearch": {
+            "enable": true
+          }
+        },
+        "diagnostics": {
+          "disabled": [
+            "incorrect-ident-case",
+            "replace-filter-map-next-with-find-map"
+          ],
+          "experimental": {
+            "enable": true
+          },
+          "styleLints": {
+            "enable": true
+          }
+        },
+        "hover": {
+          "actions": {
+            "enable": true,
+            "references": {
+              "enable": true
+            },
+            "gotoTypeDef": {
+              "enable": true
+            },
+            "implementations": {
+              "enable": true
+            }
+          },
+          "maxSubstitutionLength": 100
+        },
+        "imports": {
+          "group": {
+            "enable": true
+          }
+        },
+        "inlayHints": {
+          "bindingModeHints": {
+            "enable": true
+          },
+          "closingBraceHints": {
+            "enable": true
+          },
+          "closureCaptureHints": {
+            "enable": true
+          },
+          "closureReturnTypeHints": {
+            "enable": true
+          },
+          "closureStyle": "impl_fn",
+          "discriminantHints": {
+            "enable": "fieldless"
+          },
+          "expressionAdjustmentHints": {
+            "enable": "always",
+            "mode": "postfix"
+          },
+          "genericParameterHints": {
+            "const": {
+              "enable": true
+            },
+            "lifetime": {
+              "enable": true
+            },
+            "type": {
+              "enable": true
+            }
+          },
+          "implicitDrops": {
+            "enable": false
+          },
+          "implicitSizedBoundHints": {
+            "enable": true
+          },
+          "lifetimeElisionHints": {
+            "enable": "always",
+            "useParameterNames": true
+          },
+          "parameterHints": {
+            "enable": false
+          },
+          "typeHints": {
+            "enable": true
+          },
+          "maxLength": null
+        },
+        "interpret": {
+          "tests": true
+        },
+        "lens": {
+          "enable": true,
+          "references": {
+            "adt": {
+              "enable": true
+            },
+            "method": {
+              "enable": true
+            },
+            "trait": {
+              "enable": true
+            }
+          },
+          "implementations": {
+            "enable": true
+          }
+        },
+        "procMacro": {
+          "enable": true,
+          "attributes": {
+            "enable": true
+          }
+        },
+        "checkOnSave": true
+      }
+    }
+  }
+}

@@ -29,60 +29,37 @@
   singlekey = true
 
 [alias]
-  news = log -p @{1}..
   st = status
-  change-commits = "!f() { VAR=$1; OLD=$2; NEW=$3; shift 3; git filter-branch --env-filter \"if [[ \\\"$`echo $VAR`\\\" = '$OLD' ]]; then export $VAR='$NEW'; fi\" $@; }; f "  snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
-  snapshots = !git stash list --grep snapshot
-  cleanup = !git remote prune origin && git gc && git clean -df && git stash clear
-  recent-branches = !git for-each-ref --count=15 --sort=-committerdate refs/heads/ --format='%(refname:short)'
-  unreachable = "!git fsck --unreachable | grep commit | cut -d \\  -f3 | xargs git log --merges --no-walk"
   st2 = "ls-files --exclude-per-directory=.gitignore  --exclude-from=.git/info/exclude  -t -o -u -s -m -d"
   sts = status -sb --ignore-submodules=all -unormal
+  cleanup = !git remote prune origin && git gc && git clean -df && git stash clear
+  unreachable = "!git fsck --unreachable | grep commit | cut -d \\  -f3 | xargs git log --merges --no-walk"
   cat = -p cat-file -p
   ci = commit
   root = rev-parse --show-toplevel
   id = rev-parse
-  cp = cherry-pick               # grab a change from a branch
   this = rev-parse --abbrev-ref HEAD
   co = checkout
-  di = diff
-  d = diff  --ignore-submodule                         # diff unstaged changes
-  dc = diff --cached --ignore-submodules
+  d = diff --ignore-submodules=all                         # diff unstaged changes
+  dc = diff --cached --ignore-submodules=all
   amend = commit --amend
-  aa = add --all
-  au = add -pu
   cu = checkout -p
-  ff = merge --ff-only
-  pl = pull
-  pullff = pull --ff-only
-  # Divergence (commits we added and commits remote added)
-  div = divergence
   # Goodness (summary of diff lines added/removed/total)
   gn = goodness
   gnc = goodness --cached
   fa = fetch --all --prune
   f = fetch -p --tags
-  un = rm --cached
   head = !git l -1
   b = branch -v
   ba = branch -av
-  bd = "!git branch -D $1; git push origin \":${1}\""
   h = !git head
   hp = "!source ~/bin/githelpers && show_git_head"
   l = "!source ~/bin/githelpers && pretty_git_log"
-  la = !git l --all
-  r = !git l -30
-  ra = !git r --all
-  w = !git branch -a && git log --branches --oneline --graph --decorate --simplify-by-decoration --since='2 months ago'
   log1 = log --pretty=oneline --abbrev-commit --decorate
 	llog = log --graph --pretty=format:'%C(yellow)%h%Creset %C(bold blue)%an%Creset -%C(bold cyan)%d%Creset %s %C(green)(%cr)%Creset' --abbrev-commit --date=relative
 	lg = log --pretty=format:'%C(yellow)%h %C(green)%ar %C(bold blue)%an%Creset\n%s' --abbrev-commit --date=relative	
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
-  file-blame = !git ls-files | xargs -n1 -i{} git log -1 --pretty=format:\"%ci {}\" -- {}
   pr = ! export CURRENT=$(git symbolic-ref HEAD | gsed -e "s#refs/heads/##")  && echo \"Synchronising with origin/$CURRENT...\" && git fetch origin && git rebase -p origin/$CURRENT
-  last = rev-list -n 1 HEAD -- "$1"
-  restore = ! FILE=$1 && git checkout $(git rev-list -n 1 HEAD -- "$FILE")^ -- "$FILE"
-  rc = rebase --continue            # continue rebase
   prb = "!rebase() { \
          LOCAL_BRANCH=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && \
          echo $LOCAL_BRANCH && \
@@ -105,10 +82,14 @@
          git rebase -p $REMOTE_NAME/$REMOTE_BRANCH && \
          git stash pop; };\
          rebase"
-  rbi = ! export LOCAL_BRANCH=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && echo $LOCAL_BRANCH && export REMOTE_BRANCH=$(git config branch.${LOCAL_BRANCH}.merge | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && REMOTE_NAME=$(git config branch.${LOCAL_BRANCH}.remote) && git rebase -i $REMOTE_NAME/$REMOTE_BRANCH
+  rbi = ! export LOCAL_BRANCH=$(git symbolic-ref HEAD | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && \
+    echo $LOCAL_BRANCH && \
+    export REMOTE_BRANCH=$(git config branch.${LOCAL_BRANCH}.merge | sed -e \"s?.*/\\([^/]*\\)?\\1?\") && \
+    REMOTE_NAME=$(git config branch.${LOCAL_BRANCH}.remote) && \
+    git rebase -i $REMOTE_NAME/$REMOTE_BRANCH
   rb = "!fn() { git stash && git rebase -i HEAD~$1 && git stash pop; }; fn"
   cos = "!fn() { git stash && git co $1 && git stash pop; }; fn"
-	webui = !/Users/adragomir/.git-webui/release/libexec/git-core/git-webui
+  stash-rename = "!_() { rev=$(git rev-parse $1) && git stash drop $1 || exit 1 ; git diff-index --quiet HEAD; s=$?; [ $s != 0 ] && git stash save "tmp stash from stash-rename"; git stash apply $rev && shift && git stash save "$@" && [ $s != 0 ] && git stash pop stash@{1}; }; _"
 
 [format]
   pretty = format:%C(blue)%ad%Creset %C(yellow)%h%C(green)%d%Creset %C(blue)%s %C(magenta) [%an]%Creset
@@ -141,9 +122,9 @@
 [merge] 
   summary = true
   #tool = smerge
-  tool = bcomp
   #tool = araxis
   #tool = opendiff
+  tool = bcomp
 
 [core]
   legacyheaders = false
@@ -153,6 +134,8 @@
 	pager = less -+F -+X -R -K
 	autocrlf = input
 	filemode = false
+[pager]
+  log = false
 
 [apply]
 	whitespace = nowarn
@@ -204,7 +187,10 @@
 
 [url "github-adobe:AdobeAnalytics"]
   insteadOf = git@github.com:AdobeAnalytics
-  
+
+[url "github-adobe:OneAdobe"]
+  insteadOf = git@github.com:OneAdobe
+
 [grep]
 	fullname = true
   extendRegexp = true

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cargo metadata \
+  | jq -r '.packages[] | .manifest_path '  \
+  | grep -v "\/windows_" \
+  | grep -v "\/windows\\-" \
+  | gsed "s/\/Cargo\.toml$//" #\
+  # | gtr "\n" " "

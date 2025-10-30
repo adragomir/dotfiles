@@ -1,9 +1,0 @@
-#!/bin/bash
-
-pid=$(pgrep -f 8001)
-echo "Found pid ${pid}, killing..."
-[[ "${pid}" != "" ]] && {
-  kill -9 $pid
-}
-kubectl --kubeconfig ${HOME}/.kube/ethos-dev.yml proxy -p 8001 &>/dev/null &
-open "http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy"

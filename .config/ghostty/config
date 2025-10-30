@@ -20,15 +20,17 @@ cursor-color = ffb473
 selection-background = 454d95
 selection-foreground = f4f4f4
 
-font-family = Consolas
-font-family-bold = Consolas Bold
-font-family-italic = Consolas Italic
-font-family-bold-italic = Consolas Bold Italic
+font-family = Iosevka Custom
+font-family-bold = Iosevka Custom Bold
+font-family-italic = Iosevka Custom Italic
+font-family-bold-italic = Iosevka Custom Bold Italic
 font-size = 11.0
 font-feature = -calt
 font-feature = -liga
 font-feature = -dlig
 font-thicken = true
+adjust-cell-width = 1
+adjust-cell-height = -2
 
 cursor-style = block
 cursor-style-blink = false
