@@ -1,0 +1,30 @@
+#!/bin/bash
+# ABOUTME: Batch resize PNG and JPG images in parallel using ImageMagick
+# ABOUTME: Resizes images in place to a maximum resolution while preserving aspect ratio
+
+set -euo pipefail
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <directory> <max_resolution>"
+    echo "Example: $0 ./images 1920x1080"
+    exit 1
+fi
+
+DIR="$1"
+MAX_RES="$2"
+NUM_PROCS=$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)
+
+if [ ! -d "$DIR" ]; then
+    echo "Error: Directory '$DIR' does not exist"
+    exit 1
+fi
+
+echo "Resizing images in $DIR to max $MAX_RES using $NUM_PROCS parallel processes..."
+
+# find "$DIR" -type f \( -iname "*.gif" \) -print0 | pv -p | \
+#     xargs -0 -n 1 -P "$NUM_PROCS" optipng -clobber -snip
+
+find "$DIR" -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) -print0 | pv -p | \
+    xargs -0 -n 1 -P "$NUM_PROCS" mogrify -resize "${MAX_RES}>"
+
+echo "Done!"

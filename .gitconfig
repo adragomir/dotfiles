@@ -121,10 +121,8 @@
 
 [merge] 
   summary = true
-  #tool = smerge
-  #tool = araxis
-  #tool = opendiff
   tool = bcomp
+  conflictStyle = "diff3"
 
 [core]
   legacyheaders = false
@@ -200,43 +198,39 @@
 	required = true
 	clean = git media clean %f
 	smudge = git media smudge %f
-[difftool "araxis"]
-  path = C:\\Program Files\\Araxis\\Araxis Merge\\compare.exe
-[mergetool "araxis"]
-  path = C:\\Program Files\\Araxis\\Araxis Merge\\compare.exe
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
-[mergetool "sourcetree"]
-	cmd = /Users/adragomir/Applications/Development Tools/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
-[mergetool "smerge"]
-	cmd = /Users/adragomi/bin/smerge mergetool \"$BASE\" \"$LOCAL\" \"$REMOTE\" -o \"$MERGED\"
-	trustExitCode = true
-[difftool "bcomp"]
-  trustExitCode = true
-  cmd = "/usr/local/bin/bcomp" \"$LOCAL\" \"$REMOTE\"
+
 [mergetool "bcomp"]
   trustExitCode = true
   cmd = "/usr/local/bin/bcomp" \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\"
-[commit]
-	template = /Users/adragomir/.stCommitMsg
+
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
+
 [cola]
 	spellcheck = false
+
 [webui]
 	autoupdate = true
+
 [credential]
 	helper = manager
 	helper = 
 	helper = /usr/local/share/gcm-core/git-credential-manager
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+
 [http]
 	cookiefile = /Users/adragomi/.gitcookies
 [credential "https://git.casuallyblue.dev"]
 	provider = generic
 [credential "https://dev.azure.com"]
 	useHttpPath = true
+[credential "https://codeberg.org"]
+	provider = generic
+[credential "https://git.rfleury.com"]
+	provider = generic
