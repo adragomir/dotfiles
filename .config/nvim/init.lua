@@ -1173,44 +1173,6 @@ vim.lsp.config('ty', {
   }
 })
 
-vim.lsp.config.basedpyright = {
-  cmd = { 'basedpyright-langserver', '--stdio' },
-  filetypes = { 'python' },
-  root_markers = {
-    'pyproject.toml',
-    'setup.py',
-    'setup.cfg',
-    'requirements.txt',
-    'Pipfile',
-    'pyrightconfig.json',
-    '.git',
-  },
-  settings = {
-    basedpyright = {
-      analysis = {
-        autoSearchPaths = true,
-        useLibraryCodeForTypes = true,
-        diagnosticMode = 'openFilesOnly',
-        diagnosticSeverityOverrides = {
-          reportUnusedImport = false,
-          reportMissingTypeStubs = false,
-          reportUnknownMemberType = false,
-          reportUnknownVariableType = false,
-          reportUnknownParameterType = false,
-          reportUnknownArgumentType = false,
-          reportMissingParameterType = false,
-          reportUnannotatedClassAttribute = false,
-          reportUnusedCallResult = false,
-          reportAttributeAccessIssue = false,
-          reportImplicitOverride = false,
-          reportAny = false,
-          reportArgumentType = false,
-        }
-      }
-    }
-  },
-}
-
 vim.lsp.config.nim_langserver = {
   cmd = { vim.fn.stdpath('data') .. '/mason/bin/nimlangserver' },
   root_markers = { '.nimble', '.git' },
@@ -1278,29 +1240,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.bo[ev.buf].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
 
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if client.name == "basedpyright" then
-      vim.api.nvim_create_user_command("PyrightOrganizeImports", function()
-        local params = {
-          command = 'pyright.organizeimports',
-          arguments = { vim.uri_from_bufnr(0) },
-        }
-        client.request('workspace/executeCommand', params, nil, 0)
-      end,{
-        desc = 'Organize Imports'
-      })
-      vim.api.nvim_create_user_command("PyrightSetPythonPath", function(path)
-        if client.settings then
-          client.settings.python = vim.tbl_deep_extend('force', client.settings.python or {}, { pythonPath = path })
-        else
-          client.config.settings = vim.tbl_deep_extend('force', client.config.settings, { python = { pythonPath = path } })
-        end
-        client.notify('workspace/didChangeConfiguration', { settings = nil })
-      end,{
-        desc = 'Reconfigure basedpyright with the provided python path',
-        nargs = 1,
-        complete = 'file',
-      })
-    end
     local buf = ev.buf
     if client.name == "clangd" then
       vim.api.nvim_create_user_command("ClangdSwitchSourceHeader", function()
