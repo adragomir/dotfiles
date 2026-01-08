@@ -22,6 +22,15 @@ bin/svnup.yaml
 .irssi/*.log
 bin/binary/*
 .zsh/cache
+.config/claude/.claude.json*
+.config/claude/stats-cache.json
+.config/claude/cache
+.config/claude/debug
+.config/claude/plugins
+.config/claude/projects
+.config/claude/shell-snapshots
+.config/claude/todos
+.config/karabiner/automatic_backups
 .config/tmux/resurrect/*
 .config/ranger/*.pyo
 .config/ranger/history
@@ -31,6 +40,8 @@ bin/binary/*
 .config/joplin-desktop
 .config/tmux/plugins*
 .config/tmux/resurrect
+.config/zed/prompts
+.config/zed/embeddings
 .config/zsh/.zcompdump
 .config/zsh/.zsh_history
 .vim/bundle
