@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json", 
+  "provider": {
+    "amazon-bedrock": {
+      "options": {
+        "region": "us-west-2",
+        "apiKey": "{env:AWS_BEARER_TOKEN_BEDROCK}"
+      },
+      "models": {
+        "anthropic.claude-sonnet-4-5-20250929-v1:0": {}, 
+        "anthropic.claude-opus-4-5-20251101-v1:0": {}
+      }
+    }
+  },
+  "model": "amazon-bedrock/anthropic.claude-opus-4-5-20251101-v1:0"
+}
+
