@@ -1155,6 +1155,15 @@ vim.lsp.config.clangd = {
   },
 }
 
+vim.lsp.config('ty', {
+  cmd = { vim.fn.stdpath('data') .. '/mason/bin/ty', 'server' },
+  filetypes = { 'python' }, 
+  settings = {
+    ty = {
+    }
+  }
+})
+
 vim.lsp.config.basedpyright = {
   cmd = { 'basedpyright-langserver', '--stdio' },
   filetypes = { 'python' },
@@ -1247,7 +1256,7 @@ vim.lsp.config.pasls = {
 vim.lsp.enable({
   'lua_ls', 'jails', 'zls', 'buf_ls', 'gopls', 'mojo',
   -- 'denols', 'haxe_language_server', 'leanls', 'solang', 'svls'
-  'ols', "clangd", "basedpyright", "c3lsp", "nim_langserver", 'all_keyword_lsp', 'ts_ls', 
+  'ols', "clangd", "ty", "c3lsp", "nim_langserver", 'all_keyword_lsp', 'ts_ls', 
   'atopile_lsp', 'pasls'
 })
 
@@ -1283,9 +1292,10 @@ vim.api.nvim_create_autocmd('LspAttach', {
         complete = 'file',
       })
     end
+    local buf = ev.buf
     if client.name == "clangd" then
       vim.api.nvim_create_user_command("ClangdSwitchSourceHeader", function()
-        local params = vim.lsp.util.make_text_document_params(bufnr)
+        local params = vim.lsp.util.make_text_document_params(buf)
         client.request('textDocument/switchSourceHeader', params, function(err, result)
           if err then
             error(tostring(err))
@@ -1295,14 +1305,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
             return
           end
           vim.cmd.edit(vim.uri_to_fname(result))
-        end, bufnr)
+        end, buf)
       end,{
         desc = 'Organize Imports'
       })
       vim.api.nvim_create_user_command("ClangdShowSymbolInfo", function()
         local win = vim.api.nvim_get_current_win()
-        local params = vim.lsp.util.make_position_params(win, clangd_client.offset_encoding)
-        clangd_client.request('textDocument/symbolInfo', params, function(err, res)
+        local params = vim.lsp.util.make_position_params(win, client.offset_encoding)
+        client.request('textDocument/symbolInfo', params, function(err, res)
           if err or #res == 0 then
             -- Clangd always returns an error, there is not reason to parse it
             return
@@ -1401,7 +1411,7 @@ local function toggle_window()
         local winnr_num = tonumber(winnr, 10)
         if vim.api.nvim_win_is_valid(winnr_num) then
         for name, value in pairs(options) do
-          vim.api.nvim_win_set_option(winnr_num, name, value)
+          vim.api.nvim_set_option_value(name, value, {win=winnr_num})
         end
         end
       end
@@ -1423,9 +1433,9 @@ local function toggle_window()
     local wins = vim.api.nvim_tabpage_list_wins(0)
     for _, win in ipairs(wins) do
       win_settings[tostring(win)] = {
-        signcolumn = vim.api.nvim_win_get_option(win, 'signcolumn'),
-        number = vim.api.nvim_win_get_option(win, 'number'),
-        relativenumber = vim.api.nvim_win_get_option(win, 'relativenumber'),
+        signcolumn = vim.api.nvim_get_option_value('signcolumn', {win=win}),
+        number = vim.api.nvim_get_option_value('number', {win=win}),
+        relativenumber = vim.api.nvim_get_option_value('relativenumber', {win=win}),
       }
     end
 
@@ -1436,9 +1446,9 @@ local function toggle_window()
       for win, _ in pairs(vim.t.mx_win_settings) do
         local winnr = tonumber(win, 10)
         if cur_win ~= winnr then
-          vim.api.nvim_win_set_option(winnr, 'number', false)
-          vim.api.nvim_win_set_option(winnr, 'relativenumber', false)
-          vim.api.nvim_win_set_option(winnr, 'signcolumn', 'no')
+          vim.api.nvim_set_option_value('number', false, {win=winnr})
+          vim.api.nvim_set_option_value('relativenumber', false, {win=winnr})
+          vim.api.nvim_set_option_value('signcolumn', 'no', {win=winnr})
         end
       end
       vim.t.is_maximized = true
@@ -1921,64 +1931,58 @@ vim.api.nvim_create_autocmd({ 'ModeChanged' }, {
   group = settings_augroup_id,
   command = "hi ModeMsg guifg=#ff0000"
 })
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-  pattern = '*.Jenkinsfile',
-  group = settings_augroup_id,
-  command = "set filetype=groovy"
-})
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-  pattern = '*.ato',
-  group = settings_augroup_id,
-  command = "set filetype=ato"
-})
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-  pattern = '*.jai',
-  group = settings_augroup_id,
-  command = "set filetype=jai"
-})
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-  pattern = '*.ino',
-  group = settings_augroup_id,
-  command = "set filetype=cpp"
-})
-vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
-  pattern = '*.pde',
-  group = settings_augroup_id,
-  command = "set filetype=cpp"
-})
-vim.api.nvim_create_autocmd({ 'Filetype' }, {
-  pattern = 'qf',
-  group = settings_augroup_id,
-  command = "wincmd J"
-})
-vim.api.nvim_create_autocmd({ 'Filetype' }, {
-  pattern = 'jai',
-  group = settings_augroup_id,
-  command = "setlocal et ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\\ %s | compiler jai"
-})
-vim.api.nvim_create_autocmd({ 'Filetype' }, {
-  pattern = {'python', 'java', 'ruby', 'javascript'},
-  group = settings_augroup_id,
-  command = "setlocal et ts=4 sw=4 sts=4 | silent GuessIndent"
-})
-vim.api.nvim_create_autocmd({ 'Filetype' }, {
-  pattern = {'c', 'cpp'},
-  group = settings_augroup_id,
-  command = "setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\\ %s | silent GuessIndent"
-})
-vim.api.nvim_create_autocmd({ 'Filetype' }, {
-  pattern = {'go'},
-  group = settings_augroup_id,
-  command = "setlocal noexpandtab ts=4 sw=4 sts=4"
-})
-vim.api.nvim_create_autocmd({ 'Filetype' }, {
-  pattern = {'sh'},
-  group = settings_augroup_id,
-  command = "setlocal iskeyword=35,36,45,46,48-57,64,65-90,97-122,_"
-})
+
+-- file types
+for k, v in pairs({
+  Jenkinsfile = 'groovy', 
+  ato = 'ato', 
+  jai = 'jai', 
+  ino = 'cpp', 
+  pde = 'cpp', 
+}) do
+  vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+    pattern = '*.' .. k,
+    group = settings_augroup_id,
+    command = "set filetype=" .. v
+  })
+end
+
+-- per file settings
+for _, st in pairs({
+  {
+    pattern = 'qf', 
+    command = 'wincmd J'
+  }, 
+  {
+    pattern = 'jai', 
+    command = "setlocal et ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\\ %s | compiler jai"
+  }, 
+  {
+    pattern = {'python', 'java', 'ruby', 'javascript'},
+    command = "setlocal et ts=4 sw=4 sts=4 | silent GuessIndent"
+  }, 
+  {
+    pattern = {'c', 'cpp'},
+    command = "setlocal ts=4 sw=4 sts=4 isk=a-z,A-Z,48-57,_ commentstring=//\\ %s | silent GuessIndent"
+  }, 
+  {
+    pattern = {'go'}, 
+    command = "setlocal noexpandtab ts=4 sw=4 sts=4"
+  }, 
+  {
+    pattern = {'sh'}, 
+    command = "setlocal iskeyword=35,36,45,46,48-57,64,65-90,97-122,_"
+  }, 
+}) do
+  vim.api.nvim_create_autocmd({ 'FileType' }, {
+    pattern = st.pattern,
+    group = settings_augroup_id,
+    command = st.command
+  })
+end
 
 local lsp_augroup_id = vim.api.nvim_create_augroup('lsp', { clear = true })
-vim.api.nvim_create_autocmd({ 'Filetype' }, {
+vim.api.nvim_create_autocmd({ 'FileType' }, {
   pattern = {'c', 'cpp', 'python', 'ruby', 'haskell', 'php', 'java', 'rust', 'javascript', 'typescript', 'go'},
   group = lsp_augroup_id,
   command = "setlocal omnifunc=v:lua.vim.lsp.omnifunc"
