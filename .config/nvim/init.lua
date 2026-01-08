@@ -1820,9 +1820,89 @@ local pick_buffers_extra_opts = {
   }
 }
 
+function minipick_per_tab_buffers(local_opts, opts)
+  local_opts = vim.tbl_deep_extend('force', { include_current = true, include_unlisted = false }, local_opts or {})
+
+  local include_current = local_opts.include_current
+
+  local tabpages = vim.api.nvim_list_tabpages()
+  local tabnr_to_cwd = {}
+  local tabpage_to_cwd = {}
+  for _,tabpage in ipairs(tabpages) do
+      local winids = vim.api.nvim_tabpage_list_wins(tabpage)
+      for _, winid in ipairs(winids) do
+        local tabwin = vim.fn.win_id2tabwin(winid)
+        local tabnr = tabwin[1]
+        local winnr = tabwin[2]
+        local winbuf = vim.api.nvim_win_get_buf(winid)
+        cwd = vim.fn.getcwd(winnr, tabnr)
+        tabnr_to_cwd[tabnr] = cwd
+        tabpage_to_cwd[tabnr] = cwd
+        -- print("cwd tabpage=" .. tabpage .. " tabnr=" .. tabnr .. " cwd=" .. cwd .. " winnr=" .. winnr .. " winid=" .. winid .. " buf=" .. winbuf)
+      end
+  end
+
+  local buffers_output = vim.api.nvim_exec('buffers!', true)
+  local cur_buf_id = vim.api.nvim_get_current_buf()
+  local buffers = {}
+  local tabpage_to_buffers = {}
+  local buffers_with_unknown_tabpage = {}
+  for _, l in ipairs(vim.split(buffers_output, '\n')) do
+    local buf_str, name = l:match('^%s*%d+'), l:match('"(.*)"')
+    local buf_id = tonumber(buf_str)
+    if vim.api.nvim_buf_is_valid(buf_id) then
+      local is_loaded = vim.api.nvim_buf_is_loaded(buf_id)
+      local path = vim.api.nvim_buf_get_name(buf_id)
+      local stat = vim.uv.fs_stat(path)
+      local modifiable = vim.api.nvim_get_option_value('modifiable', {buf = buf_id})
+      local buffer = { bufnr = buf_id, path = path, loaded = is_loaded, modifiable = modifiable }
+      table.insert(buffers, buffer)
+      if ((stat ~= nil and stat.type == 'file') or stat == nil) and modifiable then
+        local max_match_len = 0
+        local found_tabpage_for_buffer = -1
+        for tabpage, cwd in ipairs(tabpage_to_cwd) do
+          if path:sub(1, #cwd) == cwd and #cwd >= max_match_len then
+            max_match_len = #cwd
+            found_tabpage_for_buffer = tabpage
+          end
+        end
+        -- print("found tabpage: " .. found_tabpage_for_buffer .. ", path=" .. path)
+        if found_tabpage_for_buffer >= 0 then
+          if tabpage_to_buffers[found_tabpage_for_buffer] == nil then
+            tabpage_to_buffers[found_tabpage_for_buffer] = {}
+          end
+          table.insert(tabpage_to_buffers[found_tabpage_for_buffer], buffer)
+        else
+          table.insert(buffers_with_unknown_tabpage, buffer)
+        end
+        -- print("found tabpage=".. found_tabpage_for_buffer .. " , cwd=" .. tabpage_to_cwd[found_tabpage_for_buffer] .. " buf path=" .. path)
+      end
+    end
+  end
+  local current_tabpage = vim.api.nvim_get_current_tabpage()
+  local current_tabpage_cwd = tabpage_to_cwd[current_tabpage]
+  local bufs_to_select_from = tabpage_to_buffers[current_tabpage]
+
+  local items = {}
+  for _, bs in ipairs(bufs_to_select_from) do
+    local item = { text = bs.path:sub(#current_tabpage_cwd + 2), bufnr = bs.bufnr }
+    table.insert(items, item)
+  end
+
+  local config = vim.tbl_deep_extend('force', MiniPick.config, vim.b.minipick_config or {}, {})
+  local show_with_icons = function(buf_id, items, query)
+    MiniPick.default_show(buf_id, items, query, { show_icons = true })
+  end
+  local show = config.source.show or show_with_icons
+  local default_opts = { source = { name = 'Buffers', show = show } }
+  opts = vim.tbl_deep_extend('force', default_opts, opts or {}, { source = { items = items } })
+  return MiniPick.start(opts)
+
+end
+
 vim.keymap.set("n", "<leader>5", function()
   -- MiniPick.builtin.buffers(local_opts, pick_buffers_extra_opts)
-  MiniPick.builtin.buffers({}, pick_buffers_extra_opts)
+  minipick_per_tab_buffers({}, pick_buffers_extra_opts)
 end, {})
 
 vim.g.godef_split = 0
