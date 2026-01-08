@@ -57,130 +57,139 @@ function MyTabLine()
   return s
 end
 
-if vim.fn.exists("g:neovide") == 1 then
-  vim.o.tabline= "%!v:lua.MyTabLine()"
-  -- vim.o.guifont="Consolas:h11.5"
-  vim.o.guifont="Iosevka Custom:h11:w1:#e-antialias:#h-full"
-  vim.o.linespace=-2
-  vim.g.neovide_cursor_animation_length=0.0
-  vim.g.neovide_cursor_trail_length=0.0
-  vim.g.neovide_input_use_logo=1
-  vim.cmd [[colorscheme jb]]
-  vim.keymap.set("c", "<D-v>", "<C-r>+", {silent = true, noremap = true})
-  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
-  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
-  vim.keymap.set("v", "<D-c>", "y", {silent = true})
-  vim.o.guicursor="a:block-blinkon0-Cursor"
-  vim.g.neovide_scroll_animation_far_lines = 9999
-  vim.g.neovide_scroll_animation_length = 0.0
-  vim.g.neovide_hide_mouse_when_typing = false
-  vim.g.neovide_cursor_animation_length = 0.0
-  vim.g.neovide_cursor_trail_size = 0.0
-  vim.g.neovide_cursor_animate_in_insert_mode = false
-  vim.g.neovide_cursor_animate_command_line = false
-  vim.keymap.set({ "n", "v" }, "<D-+>", ":lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + 0.1<CR>")
-  vim.keymap.set({ "n", "v" }, "<D-_>", ":lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor - 0.1<CR>")
-  vim.keymap.set({ "n", "v" }, "<D-)>", ":lua vim.g.neovide_scale_factor = 1<CR>")
-else
-  vim.cmd [[colorscheme jb]]
-  vim.o.guicursor="a:block-blinkon0-Cursor"
-end
-vim.o.syntax = "off"
-vim.o.shortmess= vim.o.shortmess .. "I"
-vim.o.mouse="a"
-vim.o.swapfile = false
-vim.o.number = true
-vim.o.whichwrap="<,>,h,l,b,s,~,[,]"
-vim.o.ignorecase = true
-vim.o.smartcase = true
-vim.o.gdefault = true
-vim.o.linebreak = true
-vim.o.breakindent = true
-vim.o.breakindentopt="sbr"
-vim.o.showbreak="…"
-vim.o.statusline=[[%<%f (%{&ft},%{&ff}) (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}) %-4(%m%)%=%-19(%3l,%02c%03V,%o|%B%)]]
-vim.o.virtualedit = "block"
-vim.o.signcolumn = "yes"
-vim.o.visualbell = false
-vim.o.errorbells = false
-vim.o.writeany = true
-vim.o.iskeyword="@,-,>,48-57,128-167,224-235,_"
---vim.o.iskeyword = vim.o.iskeyword .. ',.'
-vim.o.showtabline = 1
-vim.o.matchtime=3
-vim.o.complete=".,w,b,u,t,i,d"
-vim.o.completeopt="menu,menuone,noselect,fuzzy" --set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview
-vim.o.timeout = true
-vim.o.timeoutlen = 200
-vim.o.ttimeoutlen = 0
-if vim.fn.has("mac") then
-  vim.o.clipboard = "unnamed" -- unnamed,unnamedplus,autoselect
-else
-  vim.o.clipboard = "unnamedplus"
-end
-vim.o.splitbelow = true
-vim.o.splitright = true
-vim.o.switchbuf = "useopen,uselast"
-vim.o.grepprg = [[rg --no-ignore -H --no-heading --color never]]
-vim.o.grepformat="%f:%l:%m"
-vim.o.foldenable = false
-vim.g.vimsyn_folding = 0
-vim.o.smartindent = true
-vim.o.copyindent = true
-vim.o.preserveindent = true
-vim.o.autoindent = true
-vim.o.shiftround = true
-vim.o.expandtab = true
-vim.o.tabstop=2
-vim.o.shiftwidth=2
-vim.o.softtabstop=2
-vim.o.scrolloff=10
-vim.o.splitkeep="topline"
-vim.o.wildmode = "longest,list"
-vim.o.suffixes=vim.o.suffixes .. ".lo,.moc,.la,.closure,.loT"
-vim.o.exrc = true
-vim.g.is_bash = 1
-vim.o.relativenumber = true
+options = {
+  guicursor="a:block-blinkon0-Cursor", 
+  syntax = "off", 
+  shortmess= 'ltToOCFIc', 
+  mouse="a", 
+  swapfile = false, 
+  number = true, 
+  whichwrap="<,>,h,l,b,s,~,[,]", 
+  ignorecase = true, 
+  smartcase = true, 
+  gdefault = true, 
+  linebreak = true, 
+  breakindent = true, 
+  breakindentopt="sbr", 
+  showbreak="…", 
+  statusline=[[%<%f (%{&ft},%{&ff}) (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}) %-4(%m%)%=%-19(%3l,%02c%03V,%o|%B%)]], 
+  virtualedit = "block", 
+  signcolumn = "yes", 
+  visualbell = false, 
+  errorbells = false, 
+  writeany = true, 
+  iskeyword="@,-,>,48-57,128-167,224-235,_", 
+  showtabline = 1, 
+  matchtime=3, 
+  complete=".,w,b,u,t,i,d", 
+  completeopt="menu,menuone,noselect,fuzzy", --[[set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview]]
+  timeout = true, 
+  timeoutlen = 200, 
+  ttimeoutlen = 0, 
+  clipboard = "unnamed,unnamedplus", 
+  splitbelow = true, 
+  splitright = true, 
+  switchbuf = "useopen,uselast", 
+  grepprg = [[rg --no-ignore -H --no-heading --color never]], 
+  grepformat="%f:%l:%m", 
+  foldenable = false, 
+  smartindent = true, 
+  copyindent = true, 
+  preserveindent = true, 
+  autoindent = true, 
+  shiftround = true, 
+  expandtab = true, 
+  tabstop=2, 
+  shiftwidth=2, 
+  softtabstop=2, 
+  scrolloff=10, 
+  splitkeep="topline", 
+  wildmode = "longest,list", 
+  suffixes=vim.o.suffixes .. ".lo,.moc,.la,.closure,.loT", 
+  exrc = true, 
+  relativenumber = true, 
+}
 
-vim.g.mapleader = ","
-vim.g.maplocalleader = ","
+neovide_options = {
+  tabline= "%!v:lua.MyTabLine()", 
+  guifont="Iosevka Custom:h11:w1:#e-antialias:#h-full", 
+  linespace=-2, 
+}
+if vim.fn.exists("g:neovide") == 1 then
+  options = vim.tbl_extend('force', options, neovide_options)
+end
+
+for k, v in pairs(options) do
+  vim.opt[k] = v
+end
+
+vim.cmd [[colorscheme jb]]
+
+global_vars = {
+  is_bash = 1, 
+  mapleader = ",", 
+  maplocalleader = ",", 
+}
+
+global_vars_neovide = {
+  neovide_cursor_animation_length=0.0, 
+  neovide_cursor_trail_length=0.0, 
+  neovide_input_use_logo=1, 
+  neovide_scroll_animation_far_lines = 9999, 
+  neovide_scroll_animation_length = 0.0, 
+  neovide_hide_mouse_when_typing = false, 
+  neovide_cursor_trail_size = 0.0, 
+  neovide_cursor_animate_in_insert_mode = false, 
+  neovide_cursor_animate_command_line = false, 
+}
+
+if vim.fn.exists("g:neovide") == 1 then
+  global_vars = vim.tbl_extend('force', global_vars, global_vars_neovide)
+end
 
 -- disable plugins
-vim.g.spell = false
-vim.g.loaded_ruby_provider = 0
-vim.g.loaded_perl_provider = 0
-vim.g.loaded_tutor_mode_plugin = 1
-vim.g.loaded_man = 1
-vim.g.loaded_matchparen = 1
-vim.g.loaded_manpageview = 1
-vim.g.loaded_manpageviewPlugin = 1
-vim.g.loaded_sql_completion=1
-vim.g.omni_sql_no_default_maps = 1
-vim.g.loaded_gzip=1
-vim.g.loaded_spellfile_plugin=1
-vim.g.loaded_shada_plugin = 1
-vim.g.loaded_vimballPlugin=1
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
-vim.g.netrw_banner=0
-vim.g.netrw_altv=1
-vim.g.netrw_browse_split=4
-vim.g.loaded_netrwFileHandlers = 1
-vim.g.loaded_zipPlugin=1
-vim.g.loaded_zip=1
-vim.g.loaded_tarPlugin=1
-vim.g.loaded_2html_plugin=1
-vim.g.loaded_xmlformat = 1
+disabled_plugins_vars = {
+  spell = false, 
+  loaded_ruby_provider = 0, 
+  loaded_perl_provider = 0, 
+  loaded_tutor_mode_plugin = 1, 
+  loaded_man = 1, 
+  loaded_matchparen = 1, 
+  loaded_manpageview = 1, 
+  loaded_manpageviewPlugin = 1, 
+  loaded_sql_completion=1, 
+  omni_sql_no_default_maps = 1, 
+  loaded_gzip=1, 
+  loaded_spellfile_plugin=1, 
+  loaded_shada_plugin = 1, 
+  loaded_vimballPlugin=1, 
+  loaded_netrw = 1, 
+  loaded_netrwPlugin = 1, 
+  netrw_banner=0, 
+  netrw_altv=1, 
+  netrw_browse_split=4, 
+  loaded_netrwFileHandlers = 1, 
+  loaded_zipPlugin=1, 
+  loaded_zip=1, 
+  loaded_tarPlugin=1, 
+  loaded_2html_plugin=1, 
+  loaded_xmlformat = 1, 
+}
+global_vars = vim.tbl_extend('force', global_vars, disabled_plugins_vars)
+
+for k, v in pairs(global_vars) do
+  vim.g[k] = v
+end
 
 vim.opt.runtimepath:append(',~/.config/nvim/lua')
-vim.lsp.set_log_level('info')
+vim.lsp.log.set_level('info')
 
 vim.pack.add({
   -- utils
   'https://github.com/nvim-neotest/nvim-nio', 
   'https://github.com/nvim-lua/plenary.nvim',
   'https://github.com/m00qek/baleia.nvim',
-  'https://github.com/skywind3000/asyncrun.vim',
+  -- 'https://github.com/skywind3000/asyncrun.vim',
   -- treesitter
   'https://github.com/nvim-treesitter/nvim-treesitter',
   'https://github.com/RRethy/nvim-treesitter-textsubjects', 
@@ -204,10 +213,12 @@ vim.pack.add({
   'https://github.com/urbit/hoon.vim',
   'https://github.com/karolbelina/uxntal.vim',
   'https://github.com/rluba/jai.vim',
-  'https://github.com/onsails/diaglist.nvim', 
   -- lsp
   {src = 'https://github.com/nvimdev/lspsaga.nvim', version = 'main'}, 
   'https://github.com/ray-x/lsp_signature.nvim',
+  -- diagnostics
+  'https://github.com/rachartier/tiny-inline-diagnostic.nvim', 
+  'https://github.com/onsails/diaglist.nvim', 
   -- debug
   'https://github.com/mfussenegger/nvim-dap',
   'https://github.com/leoluz/nvim-dap-go', 
@@ -235,8 +246,8 @@ vim.pack.add({
   'https://github.com/natecraddock/workspaces.nvim',
   'https://github.com/Apeiros-46B/qalc.nvim', 
   'https://github.com/NeogitOrg/neogit', 
-  'https://github.com/rachartier/tiny-inline-diagnostic.nvim', 
   'https://github.com/altermo/ultimate-autopair.nvim', 
+  -- ai
   'https://github.com/olimorris/codecompanion.nvim', 
 })
 
@@ -572,6 +583,29 @@ require('chowcho').setup {
   border_style = 'default',
   use_exclude_default = false,
 }
+
+-- @@minicompletion
+require('mini.completion').setup({
+  delay = { completion = 100, info = 100, signature = 50 },
+  window = {
+    info = { height = 25, width = 80, border = nil },
+    signature = { height = 25, width = 80, border = nil },
+  },
+  lsp_completion = {
+    -- `source_func` should be one of 'completefunc' or 'omnifunc'.
+    source_func = 'omnifunc',
+    auto_setup = false,
+    process_items = nil,
+    snippet_insert = nil,
+  },
+  fallback_action = '<C-n>',
+  mappings = {
+    force_twostep = '<C-Space>',
+    force_fallback = '<A-Space>',
+    scroll_down = '<C-f>',
+    scroll_up = '<C-b>',
+  },
+})
 
 require('mini.comment').setup()
 require('mini.bracketed').setup({
@@ -1220,9 +1254,11 @@ vim.lsp.enable({
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('UserLspConfig', {}),
   callback = function(ev)
-    -- Enable completion triggered by <c-x><c-o>
-    vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-    vim.bo[ev.buf].completefunc = 'v:lua.vim.lsp.omnifunc'
+    -- vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+    -- vim.bo[ev.buf].completefunc = 'v:lua.vim.lsp.omnifunc'
+    -- @@minicompletion
+    vim.bo[ev.buf].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
+
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
     if client.name == "basedpyright" then
       vim.api.nvim_create_user_command("PyrightOrganizeImports", function()
@@ -1696,6 +1732,13 @@ vim.keymap.set("n", "<leader>da", "<cmd>lua require('diaglist').open_all_diagnos
 vim.keymap.set("n", "<leader>dw", "<cmd>lua require('diaglist').open_all_diagnostics()<cr>", {noremap = true, silent = true})
 
 if vim.fn.exists("g:neovide") == 1 then
+  vim.keymap.set("c", "<D-v>", "<C-r>+", {silent = true, noremap = true})
+  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
+  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
+  vim.keymap.set("v", "<D-c>", "y", {silent = true})
+  vim.keymap.set({ "n", "v" }, "<D-+>", ":lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + 0.1<CR>")
+  vim.keymap.set({ "n", "v" }, "<D-_>", ":lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor - 0.1<CR>")
+  vim.keymap.set({ "n", "v" }, "<D-)>", ":lua vim.g.neovide_scale_factor = 1<CR>")
   vim.keymap.set("n", "<D-t>", ":tabnew<cr>", {noremap = true, silent = true})
   vim.keymap.set("n", "<D-w>", ":tabclose<cr>", {noremap = true, silent = true})
   vim.keymap.set("n", "<D-]>", ":tabnext<cr>", {noremap = true, silent = true})
