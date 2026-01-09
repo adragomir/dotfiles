@@ -1,0 +1,48 @@
+CompileFlags:
+  Add: 
+    - "-I/opt/homebrew/include"
+    - "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+    - "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
+  Compiler: /opt/homebrew/opt/llvm/bin/clang
+  BuiltinHeaders: Clangd # QueryDriver
+  # CompilationDatabase: path | Ancestors | None
+Index:
+  StandardLibrary: true
+  # Background: Build | Skip
+  # External: 
+  #   File: path
+Diagnostics:
+  # Suppress:
+  ClangTidy:
+    # Add: 
+    Remove:
+      - "modernize*"
+      - "performance*"
+    # CheckOptions:
+    #   k: v
+    FastCheckFilter: Strict
+  UnusedIncludes: None
+  # Includes:
+  #   IgnoreHeader: list of regex
+  MissingIncludes: None # Strict
+Completion:
+  AllScopes: Yes
+  ArgumentLists: None
+  HeaderInsertion: IWYU
+  CodePatterns: All
+InlayHints:
+  Enabled: true
+  ParameterNames: true
+  DeducedTypes: true
+  Designators: true
+  BlockEnd: true
+  DefaultArguments: true
+  TypeNameLimit: 50
+Hover:
+  ShowAKA: Yes
+  MacroContentsLimit: 2048
+SemanticTokens:
+  DisabledKinds: []
+  DisabledModifiers: []
+Documentation:
+  CommentFormat: Plaintext

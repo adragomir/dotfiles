@@ -86,7 +86,8 @@ options = {
   iskeyword="@,-,>,48-57,128-167,224-235,_", 
   showtabline = 1, 
   matchtime=3, 
-  complete=".,w,b,u,i,d", 
+  complete=".,w,b,u", 
+  -- complete=".,w,b,u,i,d", 
   -- @@minicompletion
   completeopt="menuone,noselect", --[[set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview]]
   -- completeopt="menuone,noselect", --[[set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview]]
@@ -635,7 +636,7 @@ require('mini.completion').setup({
     end,
     snippet_insert = nil,
   },
-  fallback_action = '',
+  fallback_action = nil,
   mappings = {
     force_twostep = '<C-Space>',
     force_fallback = '<A-Space>',
@@ -923,8 +924,8 @@ vim.lsp.config.lua_ls = {
       },
       workspace = {
         library = {
-          [vim.fn.expand('$VIMRUNTIME/lua')] = true,
-          [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
+          -- [vim.fn.expand('$VIMRUNTIME/lua')] = true,
+          -- [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
         },
       },
     },
@@ -2088,6 +2089,19 @@ vim.api.nvim_create_autocmd({ 'FileType' }, {
   command = "setlocal omnifunc=v:lua.vim.lsp.omnifunc"
 })
 
+local align_blame = function(au_data)
+  if au_data.data.git_subcommand ~= 'blame' then return end
+
+  -- Align blame output with source
+  local win_src = au_data.data.win_source
+  vim.wo.wrap = false
+  vim.fn.winrestview({ topline = vim.fn.line('w0', win_src) })
+  vim.api.nvim_win_set_cursor(0, { vim.fn.line('.', win_src), 0 })
+
+  -- Bind both windows so that they scroll together
+  vim.wo[win_src].scrollbind, vim.wo.scrollbind = true, true
+end
+
 local au_opts = { pattern = 'MiniGitCommandSplit', callback = align_blame }
 vim.api.nvim_create_autocmd('User', {
   pattern = 'MiniGitCommandSplit', 
@@ -2103,3 +2117,4 @@ vim.api.nvim_create_autocmd('User', {
     vim.wo[win_src].scrollbind, vim.wo.scrollbind = true, true
   end
 })
+vim.api.nvim_create_autocmd('User', au_opts)
