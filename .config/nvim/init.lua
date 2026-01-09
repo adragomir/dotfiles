@@ -1,6 +1,8 @@
+-- set finish in nvim/runtime/syntax/synload.vim
+-- loaded by nvim/runtime/lua/vim/treesitter/highlighter.lua
 if vim.fn.has("mac") == 1 then
   vim.g.os_bin_path = "darwin"
-  vim.g.python3_host_prog = '/opt/homebrew/opt/python@3.12/bin/python3.12'
+  vim.g.python3_host_prog = '/opt/homebrew/opt/python@3.14/bin/python3.14'
   vim.g.ruby_host_prog = '/opt/homebrew/lib/ruby/gems/3.3.0/bin/neovim-ruby-host'
   vim.g.node_host_prog = '/opt/homebrew/lib/node_modules/neovim/bin/cli.js'
   vim.o.shell = "/opt/homebrew/bin/zsh"
@@ -36,7 +38,6 @@ function GuiTabLabel(n)
   else
     return tab_num .. '  ' .. vim.fn.fnamemodify(vim.fn.getcwd(win_num, tab_num), ':t')
   end
-
 end
 
 function MyTabLine()
@@ -56,6 +57,10 @@ function MyTabLine()
   end
   return s
 end
+
+syntax = 1
+vim.g.syntax_on = 1
+vim.cmd [[syntax off]]
 
 options = {
   guicursor="a:block-blinkon0-Cursor", 
@@ -81,8 +86,11 @@ options = {
   iskeyword="@,-,>,48-57,128-167,224-235,_", 
   showtabline = 1, 
   matchtime=3, 
-  complete=".,w,b,u,t,i,d", 
-  completeopt="menu,menuone,noselect,fuzzy", --[[set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview]]
+  complete=".,w,b,u,i,d", 
+  -- @@minicompletion
+  completeopt="menuone,noselect", --[[set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview]]
+  -- completeopt="menuone,noselect", --[[set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview]]
+  --completeopt="menu,menuone,noselect,fuzzy", --[[set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview]]
   timeout = true, 
   timeoutlen = 200, 
   ttimeoutlen = 0, 
@@ -174,6 +182,7 @@ disabled_plugins_vars = {
   loaded_tarPlugin=1, 
   loaded_2html_plugin=1, 
   loaded_xmlformat = 1, 
+  load_doxygen_syntax = 0
 }
 global_vars = vim.tbl_extend('force', global_vars, disabled_plugins_vars)
 
@@ -182,7 +191,7 @@ for k, v in pairs(global_vars) do
 end
 
 vim.opt.runtimepath:append(',~/.config/nvim/lua')
-vim.lsp.log.set_level('info')
+vim.lsp.log.set_level('error')
 
 vim.pack.add({
   -- utils
@@ -196,7 +205,8 @@ vim.pack.add({
   -- mason
   'https://github.com/williamboman/mason.nvim',
   'https://github.com/williamboman/mason-lspconfig.nvim',
-  -- lsp, lang
+  -- lang
+  'https://github.com/vim-scripts/a.vim',
   'https://git.sr.ht/~sircmpwn/hare.vim',
   'https://github.com/mrcjkb/rustaceanvim',
   'https://github.com/rust-lang/rust.vim',
@@ -234,50 +244,30 @@ vim.pack.add({
   'https://github.com/MagicDuck/grug-far.nvim', 
   -- registers
   'https://github.com/tversteeg/registers.nvim',
+  -- grep
   'https://github.com/jremmen/vim-ripgrep',
-  'https://github.com/vim-scripts/a.vim',
+  -- indentation
   'https://github.com/NMAC427/guess-indent.nvim',
   'https://github.com/nvimdev/indentmini.nvim', 
+  -- switch window
   'https://github.com/tkmpypy/chowcho.nvim',
+  -- buffer delete
   'https://github.com/famiu/bufdelete.nvim', 
+  -- mini
   'https://github.com/echasnovski/mini.nvim',
+  -- pairs
   'https://github.com/andymass/vim-matchup', 
+  -- 'https://github.com/altermo/ultimate-autopair.nvim', 
   'https://github.com/natecraddock/sessions.nvim',
   'https://github.com/natecraddock/workspaces.nvim',
+  -- calculator
   'https://github.com/Apeiros-46B/qalc.nvim', 
+  -- gut clinet
   'https://github.com/NeogitOrg/neogit', 
-  'https://github.com/altermo/ultimate-autopair.nvim', 
   -- ai
   'https://github.com/olimorris/codecompanion.nvim', 
 })
 
-require'nvim-treesitter.configs'.setup {
-  textsubjects = {
-    enable = true,
-    prev_selection = ',',
-    keymaps = {
-      ['.'] = 'textsubjects-smart',
-    }
-  },
-}
-require'nvim-treesitter.install'.compilers = { "clang" }
-require'nvim-treesitter.configs'.setup {
-  highlight = {
-    enable = true,
-    disable = {},
-    additional_vim_regex_highlighting = true,
-  },
-  force_unix_shell = true,
-  incremental_selection = {
-    enable = true,
-    keymaps = {
-      init_selection = "<C-s>",
-      node_incremental = "<C-s>",
-      scope_incremental = "grc",
-      node_decremental = "grm"
-    }
-  }
-}
 local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
 parser_config.jai = {
   install_info = {
@@ -301,6 +291,46 @@ parser_config.mojo = {
   },
   filetype = "mojo", -- if filetype does not match the parser name
 }
+
+require'nvim-treesitter.configs'.setup {
+  textsubjects = {
+    enable = true,
+    prev_selection = ',',
+    keymaps = {
+      ['.'] = 'textsubjects-smart',
+    }
+  },
+}
+require'nvim-treesitter.install'.compilers = { "clang" }
+require'nvim-treesitter.configs'.setup({
+  ensure_installed = {
+    'ada', 'agda', 'arduino', 'asm', 'awk', 'bash', 'bibtex', 'c', 
+    'c_sharp', 'clojure', 'cmake', 'cpp', 'css', 'csv', 'cuda', 
+    'd', 'devicetree', 'diff', 'dockerfile', 'dot', 'doxygen', 'elm', 
+    'erlang', 'fennel', 'forth', 'fortran', 'gitcommit', 'gitignore', 'go', 
+    'gomod', 'gosum', 'gotmpl', 'hare', 'hcl', 'helm', 'html', 'idris', 'jai', 
+    'java', 'javadoc', 'javascript', 'jinja', 'jq', 'json', 'json5', 'jsonc', 'jsonnet', 
+    'latex', 'linkerscript', 'lua', 'make', 'markdown', 'nasm', 'nginx', 'ninja', 
+    'pascal', 'perl', 'php', 'php_only', 'pioasm', 'proto', 'python', 'regex', 
+    'ruby', 'rust', 'scala', 'scss', 'sql', 'ssh_config', 'tcl', 'templ', 'toml', 
+    'typescript', 'uxntal', 'verilog', 'vhdl', 'vim', 'vimdoc', 'yaml', 'zig', 
+  }, 
+  highlight = {
+    enable = true,
+    disable = {},
+    additional_vim_regex_highlighting = true,
+  },
+  force_unix_shell = true,
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = "<C-s>",
+      node_incremental = "<C-s>",
+      scope_incremental = "grc",
+      node_decremental = "grm"
+    }
+  }
+})
 
 vim.g.rustaceanvim = {
   tools = {
@@ -468,7 +498,7 @@ dap.adapters.codelldb = {
 }
 dap.adapters.lldb = {
   type = 'executable',
-  command = '/opt/homebrew/opt/llvm@20/bin/lldb-dap',
+  command = '/opt/homebrew/opt/llvm@21/bin/lldb-dap',
   name = 'lldb'
 }
 
@@ -595,10 +625,17 @@ require('mini.completion').setup({
     -- `source_func` should be one of 'completefunc' or 'omnifunc'.
     source_func = 'omnifunc',
     auto_setup = false,
-    process_items = nil,
+    process_items = function(items, base)
+      -- disable snippets
+      return MiniCompletion.default_process_items(items, base, {
+        kind_priority = {
+          Snippet = -1
+        }
+      })
+    end,
     snippet_insert = nil,
   },
-  fallback_action = '<C-n>',
+  fallback_action = '',
   mappings = {
     force_twostep = '<C-Space>',
     force_fallback = '<A-Space>',
@@ -839,6 +876,24 @@ require("tiny-inline-diagnostic").setup({
 })
 vim.diagnostic.config({ virtual_text = false })
 
+vim.lsp.config('*', {
+  capabilities = vim.tbl_extend(
+    'force',
+    require('mini.completion').get_lsp_capabilities(),
+    {
+      capabilities = {
+        textDocument = {
+          completion = {
+            completionItem = {
+              snippetSupport = false,
+            },
+          },
+        },
+      },
+    }
+  )
+})
+
 vim.lsp.config.lua_ls = {
   cmd = { 'lua-language-server' },
   filetypes = { 'lua' },
@@ -976,7 +1031,7 @@ function lsp_server(opts)
   end
 end
 
-local function get_word_before_cursor(position)
+local function get_word_before_cursor(position, bufnr)
   local cursor_row = position.line
   local cursor_col = vim.lsp.util._get_line_byte_from_position(bufnr, position, 'utf-8')
 
@@ -1039,7 +1094,7 @@ vim.lsp.config.all_keyword_lsp = {
         local bufnr = vim.api.nvim_get_current_buf()
         local cursor_row = params.position.line
         local cursor_col = vim.lsp.util._get_line_byte_from_position(bufnr, params.position, 'utf-8')
-        local word = get_word_before_cursor(params.position)
+        local word = get_word_before_cursor(params.position, bufnr)
         local similar_words = get_words_from_current_buffer(word)
 
         local completion_result = {
@@ -1095,7 +1150,7 @@ vim.lsp.config.rust_analyzer = {
       return reuse_active
     end
 
-    local cargo_crate_dir = util.root_pattern 'Cargo.toml'(fname)
+    local cargo_crate_dir = vim.lsp.util.root_pattern 'Cargo.toml'
     local cargo_workspace_root
 
     if cargo_crate_dir ~= nil then
@@ -1109,7 +1164,7 @@ vim.lsp.config.rust_analyzer = {
         cargo_crate_dir .. '/Cargo.toml',
       }
 
-      local result = async.run_command(cmd)
+      local result = vim.async.run_command(cmd)
 
       if result and result[1] then
         result = vim.json.decode(table.concat(result, ''))
@@ -1349,6 +1404,23 @@ vim.diagnostic.open_float = require("tiny-inline-diagnostic.override").open_floa
 --   }
 -- )
 --
+require("codecompanion").setup({
+  adapters = {
+    acp = {
+      opencode = function()
+        return require("codecompanion.adapters").extend("opencode", {
+          commands = {
+            default = {
+              "/opt/homebrew/bin/opencode",
+              "acp",
+            },
+          },
+        })
+      end,
+    },
+  },
+})
+
 local function toggle_window()
   if vim.t.is_maximized then
     vim.cmd(vim.t.mx_sizes)
