@@ -258,7 +258,7 @@ vim.pack.add({
   'https://github.com/echasnovski/mini.nvim',
   -- pairs
   'https://github.com/andymass/vim-matchup', 
-  -- 'https://github.com/altermo/ultimate-autopair.nvim', 
+  'https://github.com/windwp/nvim-autopairs', 
   'https://github.com/natecraddock/sessions.nvim',
   'https://github.com/natecraddock/workspaces.nvim',
   -- calculator
@@ -811,6 +811,14 @@ require('mini.misc').setup()
 vim.g.matchup_matchparen_offscreen = {}
 vim.g.matchup_matchparen_enabled = 0
 vim.g.matchup_delim_noskips = 2
+
+require("nvim-autopairs").setup({
+  check_ts = true, 
+  ignored_next_char = "[%w%.]", --[[will ignore alphanumeric and `.` symbol]]
+  fast_wrap = {},
+  map_cr = false, 
+  map_bs = false
+})
 
 require('sessions').setup({
     session_filepath = vim.fn.stdpath("data") .. '/sessions',
@@ -1486,11 +1494,81 @@ local function is_selected_pmenu()
   return vim.fn.complete_info({ 'selected' }).selected ~= -1
 end
 
+-- require('mini.keymap').map_multistep('i', '<Tab>', {
+--   {
+--     condition=function() return is_visible_pmenu()  end,
+--     action=function() return "<C-n>" end,
+--   },
+--   {
+--     condition=function()
+--       local col = vim.fn.col('.') - 1
+--       return col == 0 or vim.fn.getline('.'):sub(col, col):match('%s')
+--     end,
+--     action=function() return "<Tab>" end,
+--   },
+--   {
+--     condition=function() return vim.o.omnifunc == "" end,
+--     action=function() return "<C-n>" end,
+--   },
+--   {
+--     condition=function() return true end,
+--     action=function() return "<C-x><C-o>" end,
+--   },
+-- })
+--
+-- require('mini.keymap').map_multistep('i', '<S-Tab>', {
+--   {
+--     condition=function() return is_visible_pmenu()  end,
+--     action=function() return "<C-p>" end,
+--   },
+--   {
+--     condition=function() return vim.o.omnifunc == "" end,
+--     action=function() return "<C-n>" end,
+--   },
+--   {
+--     condition=function() return true end,
+--     action=function() return "<C-x><C-o>" end,
+--   },
+-- })
+--
+-- require('mini.keymap').map_multistep('i', '<Esc>', {
+--   {
+--     condition=function() return is_visible_pmenu()  end,
+--     action=function() return "<C-e>" end,
+--   }
+-- })
+-- require('mini.keymap').map_multistep('i', '<C-c>', {
+--   {
+--     condition=function() return is_visible_pmenu()  end,
+--     action=function() return "<C-e><C-c>" end,
+--   }
+-- })
+-- require('mini.keymap').map_multistep('i', '<C-c>', {
+--   {
+--     condition=function() return is_visible_pmenu()  end,
+--     action=function() return "<C-e><C-c>" end,
+--   }
+-- })
+-- require('mini.keymap').map_multistep('i', '<BS>', {
+--   {
+--     condition=function() return is_visible_pmenu()  end,
+--     action=function() return "<C-e><BS>" end,
+--   }
+-- })
+-- require('mini.keymap').map_multistep('i', '<CR>', {
+--   {
+--     condition=function() return is_visible_pmenu() and is_selected_pmenu()  end,
+--     action=function() return "<C-y>" end,
+--   },
+--   {
+--     condition=function() return is_visible_pmenu() end,
+--     action=function() return "<C-e><CR>" end,
+--   },
+-- })
+
+-- @@minicompletion
 require('mini.keymap').map_multistep('i', '<Tab>', {
-  {
-    condition=function() return is_visible_pmenu()  end,
-    action=function() return "<C-n>" end,
-  },
+  'pmenu_next',
   {
     condition=function()
       local col = vim.fn.col('.') - 1
@@ -1498,29 +1576,10 @@ require('mini.keymap').map_multistep('i', '<Tab>', {
     end,
     action=function() return "<Tab>" end,
   },
-  {
-    condition=function() return vim.o.omnifunc == "" end,
-    action=function() return "<C-n>" end,
-  },
-  {
-    condition=function() return true end,
-    action=function() return "<C-x><C-o>" end,
-  },
 })
 
 require('mini.keymap').map_multistep('i', '<S-Tab>', {
-  {
-    condition=function() return is_visible_pmenu()  end,
-    action=function() return "<C-p>" end,
-  },
-  {
-    condition=function() return vim.o.omnifunc == "" end,
-    action=function() return "<C-n>" end,
-  },
-  {
-    condition=function() return true end,
-    action=function() return "<C-x><C-o>" end,
-  },
+  'pmenu_prev',
 })
 
 require('mini.keymap').map_multistep('i', '<Esc>', {
@@ -1542,21 +1601,13 @@ require('mini.keymap').map_multistep('i', '<C-c>', {
   }
 })
 require('mini.keymap').map_multistep('i', '<BS>', {
-  {
-    condition=function() return is_visible_pmenu()  end,
-    action=function() return "<C-e><BS>" end,
-  }
+  'minipairs_bs'
 })
 require('mini.keymap').map_multistep('i', '<CR>', {
-  {
-    condition=function() return is_visible_pmenu() and is_selected_pmenu()  end,
-    action=function() return "<C-y>" end,
-  },
-  {
-    condition=function() return is_visible_pmenu() end,
-    action=function() return "<C-e><CR>" end,
-  },
+  'pmenu_accept',
+  'minipairs_cr'
 })
+
 
 local move_left = function()
   require("move").move(1)
@@ -2118,3 +2169,28 @@ vim.api.nvim_create_autocmd('User', {
   end
 })
 vim.api.nvim_create_autocmd('User', au_opts)
+
+function remote_tab_cwds()
+  local tabpages = vim.api.nvim_list_tabpages()
+  local tabnr_to_cwd = {}
+  local tabpage_to_cwd = {}
+  for _,tabpage in ipairs(tabpages) do
+      local winids = vim.api.nvim_tabpage_list_wins(tabpage)
+      for _, winid in ipairs(winids) do
+        local tabwin = vim.fn.win_id2tabwin(winid)
+        local tabnr = tabwin[1]
+        local winnr = tabwin[2]
+        local winbuf = vim.api.nvim_win_get_buf(winid)
+        cwd = vim.fn.getcwd(winnr, tabnr)
+        tabnr_to_cwd[tabnr] = cwd
+        tabpage_to_cwd[tabnr] = cwd
+        -- print("cwd tabpage=" .. tabpage .. " tabnr=" .. tabnr .. " cwd=" .. cwd .. " winnr=" .. winnr .. " winid=" .. winid .. " buf=" .. winbuf)
+      end
+  end
+  for nr, cwd in tabnr_to_cwd do 
+    print(nr .. " " .. cwd)
+  end
+  for page, cwd in tabnr_to_cwd do 
+    print(page .. " " .. cwd)
+  end
+end
