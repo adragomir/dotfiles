@@ -201,8 +201,8 @@ vim.pack.add({
   'https://github.com/m00qek/baleia.nvim',
   -- 'https://github.com/skywind3000/asyncrun.vim',
   -- treesitter
-  'https://github.com/nvim-treesitter/nvim-treesitter',
-  'https://github.com/RRethy/nvim-treesitter-textsubjects', 
+  { src='https://github.com/nvim-treesitter/nvim-treesitter', version='master' },
+  -- 'https://github.com/RRethy/nvim-treesitter-textsubjects', 
   -- mason
   'https://github.com/williamboman/mason.nvim',
   'https://github.com/williamboman/mason-lspconfig.nvim',
@@ -1882,25 +1882,53 @@ vim.keymap.set("n", "<leader>ga", function()
   MiniPick.registry.multigrep(local_opts)
 end, {})
 
-function do_in_tab(dir, file)
+-- if file is full path - don't actually know, should search the tab
+-- if file is '' - open new tab
+function remote_do_in_tab(dir, file, first)
+  print("remote do in tab " .. dir .. " " .. file)
+  local use_fuzzy_tab_search = false
+  if file ~= "" then
+    if file:sub(1, 1) == "/" then
+      -- full path - candidate for tab search
+      use_fuzzy_tab_search = true
+    else
+      -- relative path 
+    end
+  end
+
   local all_tabs = vim.api.nvim_list_tabpages()
   local found_tab_number = -1
+  local longest_match = 0
   for _, tab_handle in ipairs(all_tabs) do
     local tab_number = vim.api.nvim_tabpage_get_number(tab_handle)
     local tab_cwd = vim.fn.getcwd(-1, tab_number)
-    if tab_cwd == dir then
-      found_tab_number = tab_number
+    if use_fuzzy_tab_search == true then
+      if file:sub(1, #tab_cwd) == tab_cwd then
+        if longest_match < #tab_cwd then
+          longest_match = #tab_cwd
+          found_tab_number = tab_number
+        end
+      end
+    else
+      -- non fuzzy match
+      if tab_cwd == dir then
+        found_tab_number = tab_number
+      end
     end
   end
+
   if found_tab_number >= 0 then
     vim.cmd("tabnext " .. found_tab_number)
-    vim.cmd("tcd " .. dir)
+    if first ~= nil then
+      vim.cmd("tcd " .. dir)
+    end
     if file ~= "" then
       vim.cmd("e " .. file)
     end
   else
     vim.cmd[[tabnew]]
     vim.cmd("tcd " .. dir)
+    print("AAAAAAAAAAAAAAAAAAA")
     if file ~= "" then
       vim.cmd("e " .. file)
     end
@@ -2170,27 +2198,3 @@ vim.api.nvim_create_autocmd('User', {
 })
 vim.api.nvim_create_autocmd('User', au_opts)
 
-function remote_tab_cwds()
-  local tabpages = vim.api.nvim_list_tabpages()
-  local tabnr_to_cwd = {}
-  local tabpage_to_cwd = {}
-  for _,tabpage in ipairs(tabpages) do
-      local winids = vim.api.nvim_tabpage_list_wins(tabpage)
-      for _, winid in ipairs(winids) do
-        local tabwin = vim.fn.win_id2tabwin(winid)
-        local tabnr = tabwin[1]
-        local winnr = tabwin[2]
-        local winbuf = vim.api.nvim_win_get_buf(winid)
-        cwd = vim.fn.getcwd(winnr, tabnr)
-        tabnr_to_cwd[tabnr] = cwd
-        tabpage_to_cwd[tabnr] = cwd
-        -- print("cwd tabpage=" .. tabpage .. " tabnr=" .. tabnr .. " cwd=" .. cwd .. " winnr=" .. winnr .. " winid=" .. winid .. " buf=" .. winbuf)
-      end
-  end
-  for nr, cwd in tabnr_to_cwd do 
-    print(nr .. " " .. cwd)
-  end
-  for page, cwd in tabnr_to_cwd do 
-    print(page .. " " .. cwd)
-  end
-end
