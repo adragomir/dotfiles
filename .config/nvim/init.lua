@@ -201,8 +201,7 @@ vim.pack.add({
   'https://github.com/m00qek/baleia.nvim',
   -- 'https://github.com/skywind3000/asyncrun.vim',
   -- treesitter
-  { src='https://github.com/nvim-treesitter/nvim-treesitter', version='master' },
-  -- 'https://github.com/RRethy/nvim-treesitter-textsubjects', 
+  { src='https://github.com/nvim-treesitter/nvim-treesitter', version='main' },
   -- mason
   'https://github.com/williamboman/mason.nvim',
   'https://github.com/williamboman/mason-lspconfig.nvim',
@@ -269,68 +268,54 @@ vim.pack.add({
   'https://github.com/olimorris/codecompanion.nvim', 
 })
 
-local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-parser_config.jai = {
-  install_info = {
-    url = "https://github.com/constantitus/tree-sitter-jai",
-    files = {"src/parser.c", "src/scanner.c"},
-    cxx_standard = "c++14",
-    -- optional entries:
-    branch = "master",
-    generate_requires_npm = true,
-    requires_generate_from_grammar = false,
-  },
-  filetype = "jai",
-}
-parser_config.mojo = {
-  install_info = {
-    url = "https://github.com/HerringtonDarkholme/tree-sitter-mojo", -- local path or git repo
-    files = {"src/parser.c", "src/scanner.cc"},
-    -- optional entries:
-    generate_requires_npm = true,
-    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
-  },
-  filetype = "mojo", -- if filetype does not match the parser name
-}
+vim.api.nvim_create_autocmd("User", {
+  pattern = "TSUpdate",
+  callback = function()
+    require("nvim-treesitter.parsers").jai = {
+      install_info = {
+        url = "https://github.com/constantitus/tree-sitter-jai",
+        branch = "master",
+        queries = "queries"
+      },
+    }
+    vim.treesitter.language.register('jai', { 'jai' })
+  end
+})
 
-require'nvim-treesitter.configs'.setup {
-  textsubjects = {
-    enable = true,
-    prev_selection = ',',
-    keymaps = {
-      ['.'] = 'textsubjects-smart',
-    }
-  },
-}
-require'nvim-treesitter.install'.compilers = { "clang" }
-require'nvim-treesitter.configs'.setup({
-  ensure_installed = {
-    'ada', 'agda', 'arduino', 'asm', 'awk', 'bash', 'bibtex', 'c', 
-    'c_sharp', 'clojure', 'cmake', 'cpp', 'css', 'csv', 'cuda', 
-    'd', 'devicetree', 'diff', 'dockerfile', 'dot', 'doxygen', 'elm', 
-    'erlang', 'fennel', 'forth', 'fortran', 'gitcommit', 'gitignore', 'go', 
-    'gomod', 'gosum', 'gotmpl', 'hare', 'hcl', 'helm', 'html', 'idris', 'jai', 
-    'java', 'javadoc', 'javascript', 'jinja', 'jq', 'json', 'json5', 'jsonc', 'jsonnet', 
-    'latex', 'linkerscript', 'lua', 'make', 'markdown', 'nasm', 'nginx', 'ninja', 
-    'pascal', 'perl', 'php', 'php_only', 'pioasm', 'proto', 'python', 'regex', 
-    'ruby', 'rust', 'scala', 'scss', 'sql', 'ssh_config', 'tcl', 'templ', 'toml', 
-    'typescript', 'uxntal', 'verilog', 'vhdl', 'vim', 'vimdoc', 'yaml', 'zig', 
-  }, 
-  highlight = {
-    enable = true,
-    disable = {},
-    additional_vim_regex_highlighting = true,
-  },
-  force_unix_shell = true,
-  incremental_selection = {
-    enable = true,
-    keymaps = {
-      init_selection = "<C-s>",
-      node_incremental = "<C-s>",
-      scope_incremental = "grc",
-      node_decremental = "grm"
-    }
-  }
+require('nvim-treesitter').install({
+  'ada', 'agda', 'arduino', 'asm', 'awk', 'bash', 'bibtex', 'c', 
+  'c3', 'c_sharp', 'clojure', 'cmake', 'cpp', 'css', 'csv', 'cuda', 
+  'd', 'devicetree', 'diff', 'dockerfile', 'dot', 'doxygen', 'ebnf', 'ecma', 'elm', 
+  'erlang', 'embedded_template', 'fennel', 'fish', 'forth', 'fortran', 'fsharp',
+  'gdscript', 'gdshader', 'git_config', 'git_rebase', 'gitattributes', 
+  'gitcommit', 'gitignore', 'glsl', 'gnuplot', 'go', 
+  'gomod', 'gosum', 'gotmpl', 'gowork', 'graphql', 'groovy', 'hare', 'haskell',
+  'haskell_persistent', 'hcl', 'helm', 'hjson', 'html', 'hocon', 'hoon', 'idris', 'ini', 
+  'jai', 
+  'java', 'javadoc', 'javascript', 'jinja', 'jinja_inline', 'jq', 'json', 'json5', 'jsonnet', 
+  'latex', 'linkerscript', 'lua', 'luau', 'luap', 'make', 'markdown', 'markdown_inline',
+  'mermaid', 'mlir', 
+  'nasm', 'nginx', 'nim', 'ninja', 'odin', 
+  'pascal', 'perl', 'php', 'php_only', 'pioasm', 'powershell', 'printf', 
+  'proto', 'python', 'regex', 'slang', 
+  'ruby', 'rust', 'scala', 'scss', 'sql', 'ssh_config', 'tcl', 'templ', 'textproto', 'toml', 
+  'tlaplus', 'tsv', 
+  'typescript', 'uxntal', 'systemverilog', 'vhdl', 'vim', 'vimdoc', 'yaml', 'zig', 'xml', 
+  'wgsl', 'zsh'
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+  callback = function(args)
+    local nvim_treesitter = require('nvim-treesitter')
+    local lang = vim.treesitter.language.get_lang(args.match)
+    if vim.list_contains(nvim_treesitter.get_available(), lang) then
+      if not vim.list_contains(nvim_treesitter.get_installed(), lang) then
+        nvim_treesitter.install(lang):wait()
+      end
+      vim.treesitter.start(args.buf)
+      vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    end
+  end,
 })
 
 vim.g.rustaceanvim = {
@@ -705,88 +690,17 @@ MiniPick.setup({
   delay = {
     async = 300, 
     busy = 50
+  }, 
+  options = {
+    use_cache = true,
+  }, 
+  window = {
+    config = {
+      width = 200
+    }
   }
 })
-MiniPick.registry.multigrep = (function()
-  return function(local_opts, opts)
-    local_opts = vim.tbl_extend('force', { roots = {}, symbol = "::", max_count = 10000 }, local_opts or {})
-    local process
-    local set_items_opts = { do_match = false }
-    local spawn_opts = { cwd = vim.uv.cwd() }
 
-    local match = function(_, _, query)
-      pcall(vim.loop.process_kill, process)
-      local actually_execute = (#local_opts.roots == 0 and #query > 0) or (#local_opts.roots > 0 and #query >= 4)
-      if not actually_execute then return MiniPick.set_picker_items({}, set_items_opts) end
-      local full_query = table.concat(query)
-      -- Split on symbol
-      local search_pattern, file_pattern =
-      ---@diagnostic disable-next-line: deprecated
-      unpack(vim.split(full_query, local_opts.symbol, { plain = true }))
-
-      -- Build command
-      local command = {
-        "rg",
-        "--column",
-        "--line-number",
-        "--no-heading",
-        "--field-match-separator", '\\x00', 
-        "--color=never",
-      }
-
-      if search_pattern and search_pattern ~= "" then
-        table.insert(command, "-e")
-        table.insert(command, search_pattern)
-      end
-
-      if file_pattern and file_pattern ~= "" then
-        table.insert(command, "-g")
-        table.insert(command, file_pattern)
-      end
-      
-      table.insert(command, vim.uv.cwd())
-      if #local_opts.roots > 0 then
-        for _, r in ipairs(local_opts.roots) do
-          table.insert(command, r)
-        end
-      end
-      
-      print("command len: " .. #command)
-
-      process = MiniPick.set_picker_items_from_cli(command, {
-        -- postprocess = function(lines)
-        --   local results = {}
-        --   for _, line in ipairs(lines) do
-        --     if line ~= "" then
-        --       -- I had nightmare doing this line, I hope there will be a better way
-        --       local file, lnum, col, text = line:match("([^:]+):(%d+):(%d+):(.*)")
-        --       if file then
-        --         -- Format the item in a way that default_choose can handle - yay
-        --         results[#results + 1] = {
-        --           path = file,
-        --           lnum = tonumber(lnum),
-        --           col = tonumber(col),
-        --           text = line,
-        --         }
-        --       end
-        --     end
-        --   end
-        --   return results
-        -- end,
-        set_items_opts = set_items_opts,
-        spawn_opts = spawn_opts,
-      })
-    end
-
-    return MiniPick.start({
-      source = {
-        items = {},
-        name = "Multi Grep",
-        match = match,
-      },
-  })
-  end
-end)()
 require('mini.pick').setup()
 require('mini.extra').setup()
 require('mini.git').setup()
@@ -1869,23 +1783,9 @@ local function read_file(path)
   return true, data
 end
 
-vim.keymap.set("n", "<leader>ga", function()
-  local ok, extra_dep_paths = read_file(vim.fn.getcwd() .. "/extra-dep-paths.txt")
-  local local_opts = {}
-  if ok then 
-    local roots = {};
-    for line in string.gmatch(extra_dep_paths, "(.-)\n") do
-      table.insert(roots, line)
-    end
-    local_opts.roots = roots
-  end
-  MiniPick.registry.multigrep(local_opts)
-end, {})
-
 -- if file is full path - don't actually know, should search the tab
 -- if file is '' - open new tab
 function remote_do_in_tab(dir, file, first)
-  print("remote do in tab " .. dir .. " " .. file)
   local use_fuzzy_tab_search = false
   if file ~= "" then
     if file:sub(1, 1) == "/" then
@@ -1928,15 +1828,104 @@ function remote_do_in_tab(dir, file, first)
   else
     vim.cmd[[tabnew]]
     vim.cmd("tcd " .. dir)
-    print("AAAAAAAAAAAAAAAAAAA")
     if file ~= "" then
       vim.cmd("e " .. file)
     end
   end
 end
 
+-- MiniPick.builtin.multi_grep_live = function(local_opts, opts)
+--   local tool = '/opt/homebrew/bin/rg'
+--   local_opts = vim.tbl_extend('force', { tool=tool, globs = {}, symbol = '::', roots = {}, max_count = 10000 }, local_opts or {})
+--
+--   local globs = H.is_array_of(local_opts.globs, 'string') and local_opts.globs or {}
+--   local name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
+--   local show = H.get_config().source.show or H.show_with_icons
+--   local default_source = { name = string.format('Multi Grep live (%s%s)', tool, name_suffix), show = show }
+--   opts = vim.tbl_deep_extend('force', { source = default_source }, opts or {})
+--
+--   local cwd = H.full_path(opts.source.cwd or vim.fn.getcwd())
+--   local set_items_opts, spawn_opts = { do_match = false, querytick = H.querytick }, { cwd = cwd }
+--   local process
+--   local match = function(_, _, query)
+--     pcall(vim.loop.process_kill, process)
+--     if H.querytick == set_items_opts.querytick then return end
+--
+--     local actually_execute = (#local_opts.roots == 0 and #query > 0) or (#local_opts.roots > 0 and #query >= 4)
+--     if not actually_execute then return MiniPick.set_picker_items({}, set_items_opts) end
+--
+--     set_items_opts.querytick = H.querytick
+--
+--     -- Build command
+--     local command = {
+--       "/opt/homebrew/bin/rg",
+--       "--column",
+--       "--line-number",
+--       "--no-heading",
+--       "--field-match-separator", '\\x00', 
+--       "--color=never",
+--     }
+--     for _, g in ipairs(globs) do
+--       table.insert(command, '--glob')
+--       table.insert(command, g)
+--     end
+--
+--     local full_query = table.concat(query)
+--     local search_pattern, file_pattern = unpack(vim.split(full_query, local_opts.symbol, { plain = true }))
+--
+--     if search_pattern and search_pattern ~= "" then
+--       table.insert(command, "-e")
+--       table.insert(command, search_pattern)
+--     end
+--
+--     if file_pattern and file_pattern ~= "" then
+--       table.insert(command, "-g")
+--       table.insert(command, file_pattern)
+--     end
+--
+--     table.insert(command, vim.uv.cwd())
+--     if #local_opts.roots > 0 then
+--       for _, r in ipairs(local_opts.roots) do
+--         table.insert(command, r)
+--       end
+--     end
+--
+--     process = MiniPick.set_picker_items_from_cli(
+--       command,
+--       {
+--         set_items_opts = set_items_opts,
+--         spawn_opts = spawn_opts
+--       }
+--     )
+--   end
+--
+--   local add_glob = function()
+--     local ok, glob = pcall(vim.fn.input, 'Glob pattern: ')
+--     if ok then table.insert(globs, glob) end
+--     name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
+--     MiniPick.set_picker_opts({ source = { name = string.format('Grep live (%s%s)', tool, name_suffix) } })
+--     MiniPick.set_picker_query(MiniPick.get_picker_query())
+--   end
+--   local mappings = { add_glob = { char = '<C-o>', func = add_glob } }
+--
+--   opts = vim.tbl_deep_extend('force', opts or {}, { source = { items = {}, match = match }, mappings = mappings })
+--   return MiniPick.start(opts)
+-- end
+
+vim.keymap.set("n", "<leader>ga", function()
+  local ok, extra_dep_paths = read_file(vim.fn.getcwd() .. "/extra-dep-paths.txt")
+  local local_opts = {}
+  if ok then 
+    local roots = {};
+    for line in string.gmatch(extra_dep_paths, "(.-)\n") do
+      table.insert(roots, line)
+    end
+    local_opts.roots = roots
+  end
+  MiniPick.builtin.multi_grep_live(local_opts)
+end, {})
 vim.keymap.set("n", "<leader>g", function()
-  MiniPick.registry.multigrep()
+  MiniPick.builtin.multi_grep_live()
 end, {})
 vim.keymap.set("n", "<C-p>", function()
   MiniPick.registry.files()
@@ -2033,11 +2022,15 @@ function minipick_per_tab_buffers(local_opts, opts)
   end
   local current_tabpage = vim.api.nvim_get_current_tabpage()
   local current_tabpage_cwd = tabpage_to_cwd[current_tabpage]
-  local bufs_to_select_from = tabpage_to_buffers[current_tabpage]
+  local bufs_to_select_from = tabpage_to_buffers[current_tabpage] or {}
 
   local items = {}
   for _, bs in ipairs(bufs_to_select_from) do
     local item = { text = bs.path:sub(#current_tabpage_cwd + 2), bufnr = bs.bufnr }
+    table.insert(items, item)
+  end
+  for _, bs in ipairs(buffers_with_unknown_tabpage) do
+    local item = { text = bs.path, bufnr = bs.bufnr }
     table.insert(items, item)
   end
 

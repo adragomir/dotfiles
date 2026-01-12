@@ -47,7 +47,7 @@ if [ -f "$target" ]; then
 else
 	rel_path=""
 fi
-echo "git_root=${git_root} working=${working_dir} target=${target} rel_path=${rel_path}"
+log "git_root=${git_root} working=${working_dir} target=${target} rel_path=${rel_path}"
 
 name=${optname:-App}
 socket_path="/tmp/neovide${name}.sock"
@@ -62,10 +62,11 @@ fi
 if [ ! -S $socket_path ]; then
   /Users/adragomi/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide \
   --fork \
-  -- --listen ${socket_path} -c "lua do_in_tab('${working_dir}', '${rel_path}')"
+  --chdir ${working_dir}\
+  -- --listen ${socket_path} -c "lua remote_do_in_tab('${working_dir}', '${rel_path}', true)"
 else
   /usr/bin/osascript -e 'tell application "Neovide" to activate' &>/dev/null
-  log "lua do_in_tab('${working_dir}', '${rel_path}')"
-  /opt/homebrew/bin/nvim --server $socket_path --remote-send "<C-\><C-N>:lua do_in_tab('${working_dir}', '${rel_path}')<cr>"
+  log "lua remote_do_in_tab('${working_dir}', '${rel_path}')"
+  /opt/homebrew/bin/nvim --server $socket_path --remote-send "<C-\><C-N>:lua remote_do_in_tab('${working_dir}', '${rel_path}')<cr>"
 fi
 
