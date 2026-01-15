@@ -1,0 +1,25 @@
+{
+  "lastChangelogVersion": "0.46.0",
+  "compaction": {
+    "enabled": true
+  },
+  "terminal": {
+    "showImages": true
+  },
+  "images": {
+    "autoResize": true,
+    "blockImages": false
+  },
+  "skills": {
+    "enableSkillCommands": true
+  },
+  "steeringMode": "one-at-a-time",
+  "followUpMode": "one-at-a-time",
+  "hideThinkingBlock": false,
+  "collapseChangelog": false,
+  "doubleEscapeAction": "tree",
+  "defaultThinkingLevel": "high",
+  "theme": "dark",
+  "defaultProvider": "amazon-bedrock",
+  "defaultModel": "global.anthropic.claude-opus-4-5-20251101-v1:0"
+}

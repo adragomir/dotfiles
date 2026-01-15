@@ -63,6 +63,7 @@ vim.g.syntax_on = 1
 vim.cmd [[syntax off]]
 
 options = {
+  laststatus = 3, 
   guicursor="a:block-blinkon0-Cursor", 
   syntax = "off", 
   shortmess= 'ltToOCFIc', 
@@ -252,7 +253,7 @@ vim.pack.add({
   -- switch window
   'https://github.com/tkmpypy/chowcho.nvim',
   -- buffer delete
-  'https://github.com/famiu/bufdelete.nvim', 
+  -- https://github.com/kazhala/close-buffers.nvim ???
   -- mini
   'https://github.com/echasnovski/mini.nvim',
   -- pairs
@@ -262,8 +263,10 @@ vim.pack.add({
   'https://github.com/natecraddock/workspaces.nvim',
   -- calculator
   'https://github.com/Apeiros-46B/qalc.nvim', 
-  -- gut clinet
+  -- git
+  --https://github.com/dinhhuy258/git.nvim ???
   'https://github.com/NeogitOrg/neogit', 
+  'https://github.com/pabloariasal/webify.nvim', 
   -- ai
   'https://github.com/olimorris/codecompanion.nvim', 
 })
@@ -562,6 +565,7 @@ vim.g.compile_mode = {
   debug = false, 
   error_regexp_table = {
     jai = {
+      pattern = '^jai.*', 
       regex = "^\\(.\\+\\):\\([1-9][0-9]*\\),\\([1-9][0-9]*\\): Error: ",
       filename = 1,
       row = 2,
@@ -569,8 +573,9 @@ vim.g.compile_mode = {
     }, 
     -- cargo check --format short
     rust = {
+      pattern = '^cargo.*', 
       -- regex = "^error\\[\\(.\\+\\)\\].*\n\\s\\+--> \\(.\\+\\):\\([1-9][0-9]*\\):\\([1-9][0-9]*\\)",
-      regex = "^\\(.\\+\\):\\([1-9][0-9]*\\):\\([1-9][0-9]*\\): \\(error\\|warning\\)\\[\\(\\)\\]",
+      regex = '^\\(.\\+\\):\\([1-9][0-9]*\\):\\([1-9][0-9]*\\): \\(error\\|warning\\): \\(.*\\)',
       filename = 1,
       row = 2,
       col = 3, 
@@ -1946,11 +1951,11 @@ local pick_buffers_extra_opts = {
         if vim.tbl_count(matches.marked) == 0 then
           local buf_id = matches.current.bufnr
           print(vim.inspect(buf_id))
-          require('bufdelete').bufdelete(buf_id, true)
+          require('mini.bufremove').delete(buf_id, true)
         else
           for _, buf in pairs(matches.marked) do
             local buf_id = buf.bufnr
-            require('bufdelete').bufdelete(buf_id, true)
+            require('mini.bufremove').delete(buf_id, true)
           end
         end
         MiniPick.refresh()

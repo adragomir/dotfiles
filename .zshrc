@@ -200,33 +200,6 @@ bindkey "^[[Z" complete-files
 
 zle -N edit-command-line
 
-# _completeme() {
-#   zle -I
-#   TMPFILE=`mktemp 2> /dev/null || mktemp -t completeme 2> /dev/null`
-#   completeme $TMPFILE
-#   test -e $TMPFILE
-#   source $TMPFILE
-#   rm -f $TMPFILE
-# }
-# zle -N _completeme
-
-function insert-selecta-path-in-command-line() {
-    local selected_path
-    # Print a newline or we'll clobber the old prompt.
-    echo
-    # Find the path; abort if the user doesn't select anything.
-    selected_path=$(find * -type f | fzy) || return
-    # Append the selection to the current command buffer.
-    eval 'LBUFFER="$LBUFFER$selected_path"'
-    # Redraw the prompt since Selecta has drawn several new lines of text.
-    zle reset-prompt
-}
-# Create the zle widget
-zle -N insert-selecta-path-in-command-line
-# Bind the key to the newly created widget
-bindkey -r "^T"
-bindkey "^T" "insert-selecta-path-in-command-line"
-#
 # http://qiita.com/uchiko/items/f6b1528d7362c9310da0
 function _selecta-select-history() {
     local selected_entry
@@ -506,6 +479,7 @@ $ZVM_PATH/bin:\
 $GOPATH/bin:\
 $HOME/work/tools/uxn:\
 $HOME/work/tools/jai/bin:\
+$HOME/.local/share/npm/bin:\
 /opt/homebrew/share/dotnet:\
 /opt/homebrew/bin:\
 /opt/homebrew/sbin:\
@@ -554,3 +528,6 @@ export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?.lua"
 export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?/init.lua"
 export LUA_CPATH="$HOME/.local/lib/lua/lib/lua/5.1/?.so"
 export VSCODE_CLI_DATA_DIR=/Users/adragomi/Applications/DevelopmentTools/code-insiders-portable-data/data/cli
+
+export CLAUDE_CODE=$HOME/.config/claude
+export CLAUDE_CONFIG_DIR=$HOME/.config/claude
