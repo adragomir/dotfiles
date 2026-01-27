@@ -1,4 +1,4 @@
-Resumes work from a previous handoff session which are stored in `.claude/handoffs`.
+Resumes work from a previous handoff session which are stored in `.agent/handoffs`.
 
 The handoff folder might not exist if there are none.
 
@@ -14,7 +14,7 @@ If no handoff file was provided, list them all.  Eg:
 ```
 echo "## Available Handoffs"
 echo ""
-for file in .claude/handoffs/*.md; do
+for file in .agent/handoffs/*.md; do
   if [ -f "$file" ]; then
     title=$(grep -m 1 "^# " "$file" | sed 's/^# //')
     basename=$(basename "$file")
@@ -27,5 +27,5 @@ echo "To pickup a handoff, use: /pickup <filename>"
 
 ### 2. List handoff file
 
-If a handoff file was provided locate it in `.claude/handoffs` and read it.  Note that this file might be misspelled or the user might have only partially listed it.  If there are multiple matches, ask the user which one they want to continue with.  The file contains the instructions for how you should continue.
+If a handoff file was provided locate it in `.agent/handoffs` and read it.  Note that this file might be misspelled or the user might have only partially listed it.  If there are multiple matches, ask the user which one they want to continue with.  The file contains the instructions for how you should continue.
 

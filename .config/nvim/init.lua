@@ -445,7 +445,7 @@ vim.g.rustaceanvim = {
           enable = true,
           attributes = { enable = true }
         },
-        checkOnSave = true,
+        checkOnSave = false,
       },
     },
   },
@@ -822,6 +822,25 @@ vim.lsp.config('*', {
   )
 })
 
+
+
+vim.lsp.config.elmls = {
+  cmd = { 'elm-language-server' },
+  filetypes = { 'elm' }, 
+  root_markers = {
+    'elm.json', 
+    '.git'
+  }, 
+  settings = {
+    elmLS = {
+      elmReviewDiagnostics = 'off',
+      skipInstallPackageConfirmation = false,
+      disableElmLSDiagnostics = false,
+      onlyUpdateDiagnosticsOnSave = false,
+    }
+  }
+}
+
 vim.lsp.config.lua_ls = {
   cmd = { 'lua-language-server' },
   filetypes = { 'lua' },
@@ -1188,7 +1207,7 @@ vim.lsp.config.c3lsp = {
 }
 
 vim.lsp.config.atopile_lsp = {
-  cmd = { '/opt/homebrew/bin/python3.13', '/opt/homebrew/bin/ato', 'lsp', 'start' },
+  cmd = { '/opt/homebrew/bin/python3.14', '/opt/homebrew/bin/ato', 'lsp', 'start' },
   root_markers = { 'ato.yaml', '.git' },
   filetypes = { 'ato' },
   settings = {
@@ -1335,18 +1354,25 @@ vim.diagnostic.open_float = require("tiny-inline-diagnostic.override").open_floa
 require("codecompanion").setup({
   adapters = {
     acp = {
-      opencode = function()
-        return require("codecompanion.adapters").extend("opencode", {
+      pi = function()
+        return require("codecompanion.adapters.acp").extend("pi", {
           commands = {
             default = {
-              "/opt/homebrew/bin/opencode",
-              "acp",
+              "/Users/adragomi/.local/share/npm/bin/pi",
+              "--mode", "acp"
             },
           },
         })
       end,
     },
   },
+	interactions = {
+		chat = { adapter = "pi" },
+		inline = { adapter = "pi" },
+	},
+	opts = {
+		log_level = "DEBUG",
+	},
 })
 
 local function toggle_window()

@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.46.0",
+  "lastChangelogVersion": "0.50.0",
   "compaction": {
     "enabled": true
   },
@@ -10,9 +10,6 @@
     "autoResize": true,
     "blockImages": false
   },
-  "skills": {
-    "enableSkillCommands": true
-  },
   "steeringMode": "one-at-a-time",
   "followUpMode": "one-at-a-time",
   "hideThinkingBlock": false,
@@ -21,5 +18,8 @@
   "defaultThinkingLevel": "high",
   "theme": "dark",
   "defaultProvider": "amazon-bedrock",
-  "defaultModel": "global.anthropic.claude-opus-4-5-20251101-v1:0"
+  "defaultModel": "global.anthropic.claude-opus-4-5-20251101-v1:0",
+  "quietStartup": false,
+  "enableSkillCommands": true,
+  "skills": []
 }

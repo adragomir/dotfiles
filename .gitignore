@@ -22,6 +22,9 @@ bin/svnup.yaml
 .irssi/*.log
 bin/binary/*
 .zsh/cache
+node_modules
+package-lock.json
+.config/pi/agent/sessions
 .config/claude/.claude.json*
 .config/claude/stats-cache.json
 .config/claude/cache

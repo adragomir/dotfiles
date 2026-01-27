@@ -531,3 +531,4 @@ export VSCODE_CLI_DATA_DIR=/Users/adragomi/Applications/DevelopmentTools/code-in
 
 export CLAUDE_CODE=$HOME/.config/claude
 export CLAUDE_CONFIG_DIR=$HOME/.config/claude
+export PI_CODING_AGENT_DIR=$HOME/.config/pi/agent
