@@ -20,6 +20,7 @@ import {
 	Key,
 	matchesKey,
 	truncateToWidth,
+	type TUI,
 	visibleWidth,
 	wrapTextWithAnsi,
 } from "@mariozechner/pi-tui";
@@ -66,10 +67,11 @@ Example output:
   ]
 }`;
 
+const CODEX_MODEL_ID = "gpt-5.1-codex-mini";
 const HAIKU_MODEL_ID = "claude-haiku-4-5";
 
 /**
- * Prefer haiku for extraction when available, otherwise use the fast model.
+ * Prefer Codex mini for extraction when available, otherwise fallback to haiku or the current model.
  */
 async function selectExtractionModel(
 	currentModel: Model<Api>,
@@ -78,8 +80,12 @@ async function selectExtractionModel(
 		getApiKey: (model: Model<Api>) => Promise<string | undefined>;
 	},
 ): Promise<Model<Api>> {
-	if (currentModel.provider !== "anthropic") {
-		return currentModel;
+	const codexModel = modelRegistry.find("openai-codex", CODEX_MODEL_ID);
+	if (codexModel) {
+		const apiKey = await modelRegistry.getApiKey(codexModel);
+		if (apiKey) {
+			return codexModel;
+		}
 	}
 
 	const haikuModel = modelRegistry.find("anthropic", HAIKU_MODEL_ID);
@@ -127,7 +133,7 @@ class QnAComponent implements Component {
 	private answers: string[];
 	private currentIndex: number = 0;
 	private editor: Editor;
-	private tui: { requestRender: () => void };
+	private tui: TUI;
 	private onDone: (result: string | null) => void;
 	private showingConfirmation: boolean = false;
 
@@ -145,7 +151,7 @@ class QnAComponent implements Component {
 
 	constructor(
 		questions: ExtractedQuestion[],
-		tui: { requestRender: () => void },
+		tui: TUI,
 		onDone: (result: string | null) => void,
 	) {
 		this.questions = questions;
@@ -163,7 +169,7 @@ class QnAComponent implements Component {
 			},
 		};
 
-		this.editor = new Editor(editorTheme);
+		this.editor = new Editor(tui, editorTheme);
 		// Disable the editor's built-in submit (which clears the editor)
 		// We'll handle Enter ourselves to preserve the text
 		this.editor.disableSubmit = true;
@@ -442,7 +448,7 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
-			// Select the best model for extraction (prefer haiku for cost efficiency)
+			// Select the best model for extraction (prefer Codex mini, then haiku)
 			const extractionModel = await selectExtractionModel(ctx.model, ctx.modelRegistry);
 
 			// Run extraction with loader UI

@@ -108,6 +108,7 @@
   ignoresubmodules = all
   mnemonicprefix = true
   renameLimit = 4000
+	tool = bcomp
 
 [mergetool]
   prompt = false
@@ -129,9 +130,10 @@
 	excludesfile = /Users/adr/.gitignore_global
 	editor = vim --noplugin
 	quotepath = false
-	pager = less -+F -+X -R -K
+	pager = /opt/homebrew/bin/less -+F -+X -R -K
 	autocrlf = input
 	filemode = false
+	fsmonitor = false
 [pager]
   log = false
 
@@ -148,7 +150,7 @@
 
 [gui]
 	fontdiff = -family Inconsolata-g -size 13 -weight normal -slant roman -underline 0 -overstrike 0
-	editor = mvim
+	editor = nvim
 	fontui = -family \"Noto Sans\" -size 12 -weight normal -slant roman -underline 0 -overstrike 0
 	tabsize = 2
 
@@ -209,12 +211,19 @@
 
 [cola]
 	spellcheck = false
+	textwidth = 88
+	tabwidth = 4
+	fontdiff = Monaco,11,-1,5,50,0,0,0,0,0
+	fontsize = 11
+	theme = macos-aqua-light
+	icontheme = light
 
 [webui]
 	autoupdate = true
 
 [credential]
 	helper = manager
+	gitHubAccountFiltering = false
 	helper = 
 	helper = /usr/local/share/gcm-core/git-credential-manager
 
@@ -228,9 +237,9 @@
 	cookiefile = /Users/adragomi/.gitcookies
 [credential "https://git.casuallyblue.dev"]
 	provider = generic
-[credential "https://dev.azure.com"]
-	useHttpPath = true
 [credential "https://codeberg.org"]
 	provider = generic
 [credential "https://git.rfleury.com"]
 	provider = generic
+[credential "https://dev.azure.com"]
+	useHttpPath = true

@@ -594,7 +594,7 @@ export default function lspExtension(pi: ExtensionAPI) {
 			character: Type.Optional(Type.Number({ description: "Optional: character position (0-indexed) where the symbol starts" })),
 		}),
 
-		async execute(_toolCallId, params, _onUpdate, ctx, _signal) {
+		async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
 			const { symbol, file, line, character } = params;
 
 			const server = await ensureServer(ctx.cwd);

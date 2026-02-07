@@ -44,7 +44,7 @@ export default function (pi: ExtensionAPI) {
 		description: "Read a range of lines from a text file. Returns lines from startLine to endLine (both 1-indexed, inclusive).",
 		parameters: readlinesSchema,
 
-		async execute(_toolCallId, params, _onUpdate, ctx, signal) {
+		async execute(_toolCallId, params, signal, _onUpdate, ctx) {
 			const { path, startLine, endLine } = params as { path: string; startLine: number; endLine: number };
 
 			if (signal?.aborted) {

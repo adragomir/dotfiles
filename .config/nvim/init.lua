@@ -118,6 +118,7 @@ options = {
   suffixes=vim.o.suffixes .. ".lo,.moc,.la,.closure,.loT", 
   exrc = true, 
   relativenumber = true, 
+  sessionoptions = "blank,folds,help,tabpages,winsize,terminal"
 }
 
 neovide_options = {
@@ -259,8 +260,6 @@ vim.pack.add({
   -- pairs
   'https://github.com/andymass/vim-matchup', 
   'https://github.com/windwp/nvim-autopairs', 
-  'https://github.com/natecraddock/sessions.nvim',
-  'https://github.com/natecraddock/workspaces.nvim',
   -- calculator
   'https://github.com/Apeiros-46B/qalc.nvim', 
   -- git
@@ -268,7 +267,14 @@ vim.pack.add({
   'https://github.com/NeogitOrg/neogit', 
   'https://github.com/pabloariasal/webify.nvim', 
   -- ai
-  'https://github.com/olimorris/codecompanion.nvim', 
+  -- 'https://github.com/adragomir/pi.nvim', 
+})
+
+vim.opt.runtimepath:append("~/work/personal/pi.nvim")
+require('pi-nvim').setup({
+  keymaps = {
+    visual_prompt = "<leader>a"
+  }
 })
 
 vim.api.nvim_create_autocmd("User", {
@@ -737,27 +743,6 @@ require("nvim-autopairs").setup({
   fast_wrap = {},
   map_cr = false, 
   map_bs = false
-})
-
-require('sessions').setup({
-    session_filepath = vim.fn.stdpath("data") .. '/sessions',
-    absolute = true,
-})
-
-require("workspaces").setup({
-    path = vim.fn.stdpath("data") .. '/workspaces',
-    cd_type = "tab",
-    sort = true,
-    mru_sort = true,
-    hooks = {
-        open_pre = {
-            "SessionsSave",
-            "silent %bdelete!",
-        },
-        open = function()
-          require("sessions").load(nil, { silent = true })
-        end,
-    }
 })
 
 require('qalc').setup({})
@@ -1351,30 +1336,6 @@ vim.diagnostic.open_float = require("tiny-inline-diagnostic.override").open_floa
 --   }
 -- )
 --
-require("codecompanion").setup({
-  adapters = {
-    acp = {
-      pi = function()
-        return require("codecompanion.adapters.acp").extend("pi", {
-          commands = {
-            default = {
-              "/Users/adragomi/.local/share/npm/bin/pi",
-              "--mode", "acp"
-            },
-          },
-        })
-      end,
-    },
-  },
-	interactions = {
-		chat = { adapter = "pi" },
-		inline = { adapter = "pi" },
-	},
-	opts = {
-		log_level = "DEBUG",
-	},
-})
-
 local function toggle_window()
   if vim.t.is_maximized then
     vim.cmd(vim.t.mx_sizes)
@@ -1759,13 +1720,32 @@ vim.keymap.set("n", "<leader>da", "<cmd>lua require('diaglist').open_all_diagnos
 vim.keymap.set("n", "<leader>dw", "<cmd>lua require('diaglist').open_all_diagnostics()<cr>", {noremap = true, silent = true})
 
 if vim.fn.exists("g:neovide") == 1 then
-  vim.keymap.set("c", "<D-v>", "<C-r>+", {silent = true, noremap = true})
-  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
-  vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
-  vim.keymap.set("v", "<D-c>", "y", {silent = true})
+  -- local function save() vim.cmd.write() end
+  -- local function copy() vim.api.nvim_cmd({ cmd = "yank", reg = "+" }, {}) end
+  -- local function paste() vim.api.nvim_paste(vim.fn.getreg("+"), true, -1) end
+  -- vim.keymap.set({ "n", "i", "v" }, "<D-s>", save, { desc = "Save" })
+  -- vim.keymap.set("v", "<D-c>", copy, { silent = true, desc = "Copy" })
+  -- vim.keymap.set({ "n", "i", "v", "c", "t" }, "<D-v>", paste, { silent = true, desc = "Paste" })
+  vim.keymap.set('v', '<D-c>', '"+y') -- Copy
+  vim.keymap.set('n', '<D-v>', '"+P') -- Paste normal mode
+  vim.keymap.set('v', '<D-v>', '"+P') -- Paste visual mode
+  vim.keymap.set('c', '<D-v>', '<C-R>+') -- Paste command mode
+  vim.keymap.set('i', '<D-v>', '<ESC>l"+Pli') -- Paste insert mode
+  vim.api.nvim_set_keymap('', '<D-v>', '+p<CR>', { noremap = true, silent = true})
+  vim.api.nvim_set_keymap('!', '<D-v>', '<C-R>+', { noremap = true, silent = true})
+  vim.api.nvim_set_keymap('t', '<D-v>', '<C-R>+', { noremap = true, silent = true})
+  vim.api.nvim_set_keymap('v', '<D-v>', '<C-R>+', { noremap = true, silent = true})
+  --
+
+  -- vim.keymap.set("c", "<D-v>", "<C-r>+", {silent = true, noremap = true})
+  -- vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
+  -- vim.keymap.set("i", "<D-v>", "<C-r>+", {silent = true, noremap = true})
+  -- vim.keymap.set("v", "<D-c>", "y", {silent = true})
+
   vim.keymap.set({ "n", "v" }, "<D-+>", ":lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + 0.1<CR>")
   vim.keymap.set({ "n", "v" }, "<D-_>", ":lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor - 0.1<CR>")
   vim.keymap.set({ "n", "v" }, "<D-)>", ":lua vim.g.neovide_scale_factor = 1<CR>")
+
   vim.keymap.set("n", "<D-t>", ":tabnew<cr>", {noremap = true, silent = true})
   vim.keymap.set("n", "<D-w>", ":tabclose<cr>", {noremap = true, silent = true})
   vim.keymap.set("n", "<D-]>", ":tabnext<cr>", {noremap = true, silent = true})
@@ -2026,10 +2006,16 @@ function minipick_per_tab_buffers(local_opts, opts)
       local is_loaded = vim.api.nvim_buf_is_loaded(buf_id)
       local path = vim.api.nvim_buf_get_name(buf_id)
       local stat = vim.uv.fs_stat(path)
-      local modifiable = vim.api.nvim_get_option_value('modifiable', {buf = buf_id})
-      local buffer = { bufnr = buf_id, path = path, loaded = is_loaded, modifiable = modifiable }
+      local is_new_or_existing_file = ((stat ~= nil and stat.type == 'file') or stat == nil) 
+      local is_modifiable = vim.api.nvim_get_option_value('modifiable', {buf = buf_id})
+      local is_listed = vim.api.nvim_get_option_value('buflisted', {buf = buf_id})
+      local is_unlisted_and_unloaded = (not is_listed) and (not is_loaded)
+      if stat == nil then
+        path = string.format("[No Name] %d", buf_id)
+      end
+      local buffer = { bufnr = buf_id, path = path, loaded = is_loaded, modifiable = is_modifiable, new = stat == nil }
       table.insert(buffers, buffer)
-      if ((stat ~= nil and stat.type == 'file') or stat == nil) and modifiable then
+      if is_new_or_existing_file and is_modifiable and (not is_unlisted_and_unloaded) then
         local max_match_len = 0
         local found_tabpage_for_buffer = -1
         for tabpage, cwd in ipairs(tabpage_to_cwd) do
@@ -2057,7 +2043,13 @@ function minipick_per_tab_buffers(local_opts, opts)
 
   local items = {}
   for _, bs in ipairs(bufs_to_select_from) do
-    local item = { text = bs.path:sub(#current_tabpage_cwd + 2), bufnr = bs.bufnr }
+    local text = ""
+    if bs.new then
+      text = bs.path
+    else
+      text = bs.path:sub(#current_tabpage_cwd + 2)
+    end
+    local item = { text = text, bufnr = bs.bufnr }
     table.insert(items, item)
   end
   for _, bs in ipairs(buffers_with_unknown_tabpage) do

@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.50.0",
+  "lastChangelogVersion": "0.52.8",
   "compaction": {
     "enabled": true
   },
@@ -17,9 +17,19 @@
   "doubleEscapeAction": "tree",
   "defaultThinkingLevel": "high",
   "theme": "dark",
-  "defaultProvider": "amazon-bedrock",
-  "defaultModel": "global.anthropic.claude-opus-4-5-20251101-v1:0",
+  "defaultProvider": "github-copilot",
+  "defaultModel": "gpt-5.2-codex",
   "quietStartup": false,
   "enableSkillCommands": true,
-  "skills": []
+  "skills": [],
+  "packages": [],
+  "enabledModels": [
+    "global.anthropic.claude-opus-4-6*",
+    "*claude-sonnet-4.5*",
+    "*claude-opus-4.5*",
+    "*claude-opus-4.6*",
+    "*gpt-5.2-codex*",
+    "*gpt-5.3-codex*",
+    "*gemini-3-pro*"
+  ]
 }

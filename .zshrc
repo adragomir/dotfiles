@@ -413,8 +413,8 @@ export EDITOR=nvim
 export GIT_EDITOR=nvim
 export VISUAL=nvim
 export CLICOLOR=1
-export LESS="-rX"
-export PAGER=less
+export LESS="-RX"
+export PAGER=/opt/homebrew/bin/less
 export GOPATH=$HOME/.gocode
 export GOBIN=$HOME/.gocode/bin
 export GO111MODULE=on
@@ -480,6 +480,8 @@ $GOPATH/bin:\
 $HOME/work/tools/uxn:\
 $HOME/work/tools/jai/bin:\
 $HOME/.local/share/npm/bin:\
+$HOME/.local/tomo/bin:\
+$HOME/Applications/Documents/calibre.app/Contents/MacOS:\
 /opt/homebrew/share/dotnet:\
 /opt/homebrew/bin:\
 /opt/homebrew/sbin:\

@@ -1,3 +1,186 @@
-#!/bin/bash
-find . -type d -name .git -exec echo {} \; -exec git --git-dir={} --work-tree=$PWD/{}/.. pull \;
+#!/usr/bin/env python3.14
 
+import argparse
+import os
+import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
+import sys
+from datetime import datetime
+from pathlib import Path
+
+@dataclass
+class UpdateResult:
+    path: str
+    commits_added: int
+    error: str | None = None
+    untouched: bool = False
+
+def find_git_repos(root: Path) -> list[Path]:
+    repos = []
+    for dirpath, dirnames, _ in os.walk(root):
+        if ".git" in dirnames:
+            repos.append(Path(dirpath))
+            dirnames.clear()  # don't recurse into this repo
+    return repos
+
+
+def run_git(repo: Path, *args: str) -> tuple[str, int]:
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    env["GIT_ASKPASS"] = ""
+    result = subprocess.run(
+        ["git", "-c", "credential.helper=", *args],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    return result.stdout.strip(), result.returncode
+
+
+def get_commit_count(repo: Path) -> int:
+    out, rc = run_git(repo, "rev-list", "--count", "HEAD")
+    return int(out) if rc == 0 else 0
+
+
+def find_target_branch(repo: Path) -> str | None:
+    """Find best branch: main > master > most recently updated."""
+    _, rc = run_git(repo, "rev-parse", "--verify", "origin/main")
+    if rc == 0:
+        return "main"
+
+    _, rc = run_git(repo, "rev-parse", "--verify", "origin/master")
+    if rc == 0:
+        return "master"
+
+    out, rc = run_git(repo, "for-each-ref", "--sort=-committerdate",
+                      "--format=%(refname:short)", "refs/remotes/origin/")
+    if rc == 0 and out:
+        for line in out.split('\n'):
+            if line and line.startswith("origin/") and line != "origin/HEAD":
+                return line[7:]
+
+    return None
+
+
+def save_local_changes(repo: Path) -> str | None:
+    """Save local changes to a branch. Returns branch name or None if no changes."""
+    status, _ = run_git(repo, "status", "--porcelain")
+    if not status:
+        return None
+
+    branch_name = "adrsaved"
+    _, rc = run_git(repo, "checkout", "-b", branch_name)
+    if rc != 0:
+        date_suffix = datetime.now().strftime("%Y%m%d")
+        branch_name = f"adrsaved_{date_suffix}"
+        _, rc = run_git(repo, "checkout", "-b", branch_name)
+        if rc != 0:
+            time_suffix = datetime.now().strftime("%Y%m%d_%H%M%S")
+            branch_name = f"adrsaved_{time_suffix}"
+            _, rc = run_git(repo, "checkout", "-b", branch_name)
+            if rc != 0:
+                return None
+
+    run_git(repo, "add", "-A")
+    _, rc = run_git(repo, "commit", "-m", "Auto-saved local changes")
+    if rc != 0:
+        return None
+
+    return branch_name
+
+
+def update_repo(repo: Path) -> UpdateResult:
+    try:
+        for f in repo.iterdir():
+            if f.is_file() and f.name.startswith("do-not-touch"):
+                return UpdateResult(str(repo), 0, untouched=True)
+
+        _, rc = run_git(repo, "ls-remote", "--exit-code", "origin", "HEAD")
+        if rc != 0:
+            return UpdateResult(str(repo), 0, "remote not accessible (no auth or missing)")
+
+        before = get_commit_count(repo)
+
+        run_git(repo, "rebase", "--abort")
+        run_git(repo, "merge", "--abort")
+
+        save_local_changes(repo)
+
+        run_git(repo, "reset", "--hard")
+        run_git(repo, "clean", "-fd")
+
+        _, rc = run_git(repo, "fetch", "origin")
+        if rc != 0:
+            return UpdateResult(str(repo), 0, "fetch failed")
+
+        target = find_target_branch(repo)
+        if not target:
+            return UpdateResult(str(repo), 0, "no suitable branch found")
+
+        _, rc = run_git(repo, "checkout", "-B", target, f"origin/{target}")
+        if rc != 0:
+            return UpdateResult(str(repo), 0, f"checkout {target} failed")
+
+        run_git(repo, "branch", "--set-upstream-to", f"origin/{target}", target)
+
+        after = get_commit_count(repo)
+        return UpdateResult(str(repo), after - before)
+
+    except Exception as e:
+        return UpdateResult(str(repo), 0, str(e))
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Update all git repos in a directory")
+    parser.add_argument("directory", nargs="?", default=".", help="Root directory to search")
+    default_jobs = max(1, (os.cpu_count() or 4) - 2)
+    parser.add_argument("-j", "--jobs", type=int, default=default_jobs, help=f"Parallel jobs (default: {default_jobs})")
+    args = parser.parse_args()
+
+    root = Path(args.directory).resolve()
+    if not root.is_dir():
+        print(f"Error: {root} is not a directory")
+        return 1
+
+    print(f"Searching for git repos in {root}...")
+    repos = find_git_repos(root)
+
+    if not repos:
+        return 0
+
+    results: list[UpdateResult] = []
+    total = len(repos)
+    processed = 0
+    with ThreadPoolExecutor(max_workers=args.jobs) as executor:
+        futures = {executor.submit(update_repo, repo): repo for repo in repos}
+        for future in as_completed(futures):
+            results.append(future.result())
+            processed += 1
+            print(f"\rFound {total} repositories / Processed {processed} repositories", end="", flush=True)
+    print()  # newline after progress
+
+    # Filter to only changed repos
+    changed = [r for r in results if r.commits_added > 0 or r.error or r.untouched]
+    
+    if not changed:
+        print("\nNo repositories were updated.")
+        return 0
+
+    print("\n" + "=" * 60)
+    print("SUMMARY")
+    print("=" * 60)
+    
+    for r in sorted(changed, key=lambda x: x.path):
+        if r.untouched:
+            print(f"  UNTOUCHED  {r.path}")
+        elif r.error:
+            print(f"  ERROR  {r.path}: {r.error}")
+        else:
+            print(f"  +{r.commits_added:4d}  {r.path}")
+
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())
