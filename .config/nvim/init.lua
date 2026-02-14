@@ -118,7 +118,9 @@ options = {
   suffixes=vim.o.suffixes .. ".lo,.moc,.la,.closure,.loT", 
   exrc = true, 
   relativenumber = true, 
-  sessionoptions = "blank,folds,help,tabpages,winsize,terminal"
+  sessionoptions = "blank,folds,help,tabpages,winsize,terminal", 
+  title = true, 
+  titlestring = vim.fn.getcwd()
 }
 
 neovide_options = {
@@ -201,6 +203,8 @@ vim.pack.add({
   'https://github.com/nvim-neotest/nvim-nio', 
   'https://github.com/nvim-lua/plenary.nvim',
   'https://github.com/m00qek/baleia.nvim',
+  -- 'https://github.com/esmuellert/codediff.nvim/', 
+  -- 'https://github.com/diegok/live-autoread.nvim', 
   -- 'https://github.com/skywind3000/asyncrun.vim',
   -- treesitter
   { src='https://github.com/nvim-treesitter/nvim-treesitter', version='main' },
@@ -233,8 +237,9 @@ vim.pack.add({
   'https://github.com/onsails/diaglist.nvim', 
   -- debug
   'https://github.com/mfussenegger/nvim-dap',
+  'https://github.com/ldelossa/nvim-dap-projects',
   'https://github.com/leoluz/nvim-dap-go', 
-  'https://github.com/rcarriga/nvim-dap-ui',
+  'https://github.com/igorlfs/nvim-dap-view', 
   'https://github.com/theHamsta/nvim-dap-virtual-text',
   -- scratch
   'https://git.sr.ht/~swaits/scratch.nvim',
@@ -264,7 +269,6 @@ vim.pack.add({
   'https://github.com/Apeiros-46B/qalc.nvim', 
   -- git
   --https://github.com/dinhhuy258/git.nvim ???
-  'https://github.com/NeogitOrg/neogit', 
   'https://github.com/pabloariasal/webify.nvim', 
   -- ai
   -- 'https://github.com/adragomir/pi.nvim', 
@@ -517,20 +521,36 @@ dap.configurations.jai.initCommands = function()
   return commands
 end
 require("nvim-dap-virtual-text").setup()
+require('nvim-dap-projects').search_project_config()
 
-require("dapui").setup()
-local dapui = require('dapui')
-local dap = require('dap')
+-- require("dapui").setup()
+-- local dapui = require('dapui')
+-- local dap = require('dap')
+-- dap.listeners.after.event_initialized["dapui_config"] = function()
+--   dapui.open()
+-- end
+-- dap.listeners.before.event_terminated["dapui_config"] = function()
+--   dapui.close()
+-- end
+-- dap.listeners.before.event_exited["dapui_config"] = function()
+--   dapui.close()
+-- end
+require("dap-view").setup({
+  -- auto_toggle = true,
+})
+
+local dap_view =require("dap-view")
+dap.listeners.after.event_initialized["dap-view-config"] = function()
+    dap_view.open()
+end
+dap.listeners.before.event_terminated["dap-view-config"] = function()
+    dap_view.close()
+end
+dap.listeners.before.event_exited["dap-view-config"] = function()
+    dap_view.close()
+end
+
 local keymap_restore = {}
-dap.listeners.after.event_initialized["dapui_config"] = function()
-  dapui.open()
-end
-dap.listeners.before.event_terminated["dapui_config"] = function()
-  dapui.close()
-end
-dap.listeners.before.event_exited["dapui_config"] = function()
-  dapui.close()
-end
 dap.listeners.after.event_initialized['me'] = function()
   for _, buf in pairs(vim.api.nvim_list_bufs()) do
     local keymaps = vim.api.nvim_buf_get_keymap(buf, 'n')
@@ -746,18 +766,6 @@ require("nvim-autopairs").setup({
 })
 
 require('qalc').setup({})
-
-require('neogit').setup({
-  disable_hint = true, 
-  disable_context_highlighting = true, 
-  disable_signs = true, 
-  filewatcher = {
-    enabled = true,
-  }, 
-  auto_show_console = false, 
-  auto_close_console = false, 
-  kind = 'replace'
-})
 
 require("tiny-inline-diagnostic").setup({
   show_source = {
@@ -1947,6 +1955,9 @@ end, {})
 vim.keymap.set("n", "<leader>1", function()
   MiniExtra.pickers.explorer()
 end, {})
+vim.keymap.set("n", "<F12>", function()
+  MiniExtra.pickers.lsp({ scope = 'document_symbol' })
+end, {})
 
 local pick_buffers_extra_opts = {
   mappings = {
@@ -1956,7 +1967,6 @@ local pick_buffers_extra_opts = {
         local matches = MiniPick.get_picker_matches()
         if vim.tbl_count(matches.marked) == 0 then
           local buf_id = matches.current.bufnr
-          print(vim.inspect(buf_id))
           require('mini.bufremove').delete(buf_id, true)
         else
           for _, buf in pairs(matches.marked) do
@@ -2214,3 +2224,9 @@ vim.api.nvim_create_autocmd('User', {
 })
 vim.api.nvim_create_autocmd('User', au_opts)
 
+vim.api.nvim_create_autocmd("DirChanged", {
+  callback = function()
+    vim.opt.title = true
+    vim.opt.titlestring = vim.fn.getcwd()
+  end,
+})

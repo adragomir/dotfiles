@@ -29,7 +29,8 @@ def work(commits: list[Commit]):
     markers_messages:list[tuple[str, int]] = []
     for ci in marker_ids:
         m = re.search(regex, commits[ci].message)
-        markers_messages.append((m.group(0), ci))
+        if m:
+            markers_messages.append((m.group(0), ci))
     markers_messages_grouped = [[i, list(v)] for i, v in groupby(markers_messages, lambda x: x[0])]
 
     markers:list[int] = []
