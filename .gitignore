@@ -27,15 +27,7 @@ package-lock.json
 .config/pi/agent/sessions
 .config/pi/agent/settings.json
 .config/pi/agent/auth.json
-.config/claude/.claude.json*
-.config/claude/stats-cache.json
-.config/claude/cache
-.config/claude/debug
-.config/claude/plugins
-.config/claude/projects
-.config/claude/shell-snapshots
-.config/claude/todos
-.config/claude/history.jsonl
+.config/claude
 .config/karabiner/automatic_backups
 .config/tmux/resurrect/*
 .config/ranger/*.pyo
