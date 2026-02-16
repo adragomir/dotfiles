@@ -1,0 +1,27 @@
+neovim-bin = "/opt/homebrew/bin/nvim"
+frame = "buttonless"
+maximized = true
+vsync = false
+no-multigrid = true
+tabs = false
+macos-native-tabs = false
+# macos-native-tabs = true
+# macos-pinned-hotkey = "ctrl+shift+z" # macOS only
+# macos-switcher-hotkey = "ctrl+shift+n" # macOS only, requires macos-native-tabs = true
+# macos-tab-prev-hotkey = "cmd+shift+[" # macOS only
+# macos-tab-next-hotkey = "cmd+shift+]" # macOS only
+title-hidden = true
+
+[font]
+normal = "Iosevka Custom"
+size = 11
+hinting = "full"
+edging = "antialias"
+
+[font.features]
+"0xProto" = ["-calt", "-liga", "-dlig"]
+"Iosevka Custom" = ["-calt", "-liga", "-dlig", "+NWID"]
+
+[box-drawing]
+# "font-glyph", "native" or "selected-native"
+mode = "font-glyph"

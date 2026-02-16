@@ -49,6 +49,18 @@ else
 fi
 log "git_root=${git_root} working=${working_dir} target=${target} rel_path=${rel_path}"
 
+if [[ $(basename "$0") == "neovim" ]]; then
+  pid=$(kitty @ ls -m 'var:IS_NVIM' | jq -r '.[] as $os | $os.tabs[0].windows[0]["user_vars"]["IS_NVIM"]')
+  if [[ "${pid}" != "" ]]; then
+    socket_path="/tmp/nvim${pid}.sock"
+    echo "$socket_path"
+    if [ -S $socket_path ]; then
+      /opt/homebrew/bin/nvim --server $socket_path --remote-send "<C-\><C-N>:lua remote_do_in_tab('${working_dir}', '${rel_path}')<cr>"
+    fi
+  fi
+  exit 0
+fi
+
 name=${optname:-App}
 socket_path="/tmp/neovide${name}.sock"
 

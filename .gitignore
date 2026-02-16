@@ -25,6 +25,8 @@ bin/binary/*
 node_modules
 package-lock.json
 .config/pi/agent/sessions
+.config/pi/agent/settings.json
+.config/pi/agent/auth.json
 .config/claude/.claude.json*
 .config/claude/stats-cache.json
 .config/claude/cache
@@ -33,6 +35,7 @@ package-lock.json
 .config/claude/projects
 .config/claude/shell-snapshots
 .config/claude/todos
+.config/claude/history.jsonl
 .config/karabiner/automatic_backups
 .config/tmux/resurrect/*
 .config/ranger/*.pyo
@@ -47,5 +50,6 @@ package-lock.json
 .config/zed/embeddings
 .config/zsh/.zcompdump
 .config/zsh/.zsh_history
+.config/nvim/nvim-pack-lock.json
 .vim/bundle
 .metals

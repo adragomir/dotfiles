@@ -39,7 +39,7 @@ if (useProfile) {
 
 // Start Chrome in background (detached so Node can exit)
 spawn(
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  `${process.env["HOME"]}/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`,
   [
     "--remote-debugging-port=9222",
     `--user-data-dir=${process.env["HOME"]}/.cache/scraping`,

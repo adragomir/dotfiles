@@ -269,6 +269,8 @@ vim.pack.add({
   'https://github.com/Apeiros-46B/qalc.nvim', 
   -- git
   --https://github.com/dinhhuy258/git.nvim ???
+  'https://github.com/tpope/vim-fugitive', 
+  'https://github.com/tanvirtin/vgit.nvim', 
   'https://github.com/pabloariasal/webify.nvim', 
   -- ai
   -- 'https://github.com/adragomir/pi.nvim', 
@@ -796,6 +798,8 @@ require("tiny-inline-diagnostic").setup({
   override_open_float = true,
 })
 vim.diagnostic.config({ virtual_text = false })
+
+require("vgit").setup()
 
 vim.lsp.config('*', {
   capabilities = vim.tbl_extend(
@@ -1707,16 +1711,24 @@ vim.keymap.set("n", "<leader>/", ":Rg <cword><cr>", {silent = true, noremap = tr
 vim.keymap.set("n", "-", ":Chowcho<cr>", {})
 
 vim.keymap.set("n", "<D-F12>", toggle_window, {noremap = true, silent = true})
-vim.keymap.set("n", "gD", vim.lsp.buf.declaration, {noremap = true, silent = true})
+vim.keymap.set("n", "gD",      vim.lsp.buf.declaration, {noremap = true, silent = true})
 vim.keymap.set("n", "<D-S-b>", vim.lsp.buf.declaration, {noremap = true, silent = true})
-vim.keymap.set("n", "gd", vim.lsp.buf.definition, {noremap = true, silent = true})
+vim.keymap.set("n", "gd",    vim.lsp.buf.definition, {noremap = true, silent = true})
 vim.keymap.set("n", "<D-b>", vim.lsp.buf.definition, {noremap = true, silent = true})
 vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<cr>", {noremap = true, silent = true})
 vim.keymap.set("n", "K", vim.lsp.buf.signature_help, {noremap = true, silent = true})
-vim.keymap.set("n", "gi", vim.lsp.buf.implementation, {noremap = true, silent = true})
-vim.keymap.set("n", "gr", vim.lsp.buf.references, {noremap = true, silent = true})
-vim.keymap.set("n", "gsd", vim.lsp.buf.document_symbol, {noremap = true, silent = true})
-vim.keymap.set("n", "gsw", vim.lsp.buf.workspace_symbol, {noremap = true, silent = true})
+vim.keymap.set("n", "gi", function()
+  MiniExtra.pickers.lsp({ scope = 'implementation' })
+end, {noremap = true, silent = true})
+vim.keymap.set("n", "gr", function()
+  MiniExtra.pickers.lsp({ scope = 'references' })
+end, {noremap = true, silent = true})
+vim.keymap.set("n", "gsd", function()
+  MiniExtra.pickers.lsp({ scope = 'document_symbol' })
+end, {noremap = true, silent = true})
+vim.keymap.set("n", "gsw", function()
+  MiniExtra.pickers.lsp({ scope = 'workspace_symbol_live' })
+end, {noremap = true, silent = true})
 vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {noremap = true, silent = true})
 vim.keymap.set("n", "<leader>f", vim.lsp.buf.format, {noremap = true, silent = true})
 vim.keymap.set("n", "<leader>d", "<cmd>lua vim.diagnostic.enable(not vim.diagnostic.is_enabled())<CR>", {noremap = true, silent = true})
@@ -2117,6 +2129,18 @@ function append_make_diagnostics()
   vim.diagnostic.set(make_diagnostics_ns, bufnr, dqlb)
 end
 
+function set_kitty_is_nvim()
+  local id = os.getenv("KITTY_WINDOW_ID")
+  if not id then return end
+
+  vim.fn.jobstart({
+    "kitty", "@", "set-user-vars",
+    "--match", "id:" .. id,
+    "IS_NVIM=" .. tostring(vim.fn.getpid()),
+  })
+end
+set_kitty_is_nvim()
+
 vim.api.nvim_create_autocmd({ "VimEnter" }, {
   group = vim.api.nvim_create_augroup("KittySetVarVimEnter", { clear = true }),
   callback = function()
@@ -2230,3 +2254,16 @@ vim.api.nvim_create_autocmd("DirChanged", {
     vim.opt.titlestring = vim.fn.getcwd()
   end,
 })
+
+function start_server_if_unset()
+  local servername = vim.v.servername or ""
+  if string.find(servername, "^/var/folders") then
+    if servername ~= "" then
+      vim.fn.serverstop(vim.v.servername)
+    end
+    local pid = vim.fn.getpid()
+    local path = "/tmp/nvim" .. pid .. ".sock"
+    vim.fn.serverstart(path)
+  end
+end
+start_server_if_unset()

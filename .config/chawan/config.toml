@@ -1,0 +1,17 @@
+[buffer]
+scripting = true
+images = true
+cookie = "save"
+
+[external]
+download-dir = "~/Downloads"
+copy-cmd = "pbcopy"
+paste-cmd = "pbpaste"
+
+[omnirule.ddg]
+match = '^ddg:'
+substitute-url = '(x) => "https://lite.duckduckgo.com/lite/?kp=-1&kd=-1&q=" + encodeURIComponent(x.split(":").slice(1).join(":"))'
+
+[[omnirule]]
+match = '^@wikipedia'
+substitute-url = '(x) => "https://en.wikipedia.org/wiki/Special:Search?search=" + encodeURIComponent(x.replace(/@wikipedia/, ""))'
