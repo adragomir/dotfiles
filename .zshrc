@@ -1,3 +1,10 @@
+export ZDOTDIR=$HOME/.config/zsh
+fpath=(
+  $ZDOTDIR
+  /opt/homebrew/share/zsh-completions
+  $fpath
+)
+
 if [ -n "${GHOSTTY_RESOURCES_DIR}" ]; then
     builtin source "${GHOSTTY_RESOURCES_DIR}/shell-integration/zsh/ghostty-integration"
 fi
@@ -10,11 +17,27 @@ export XDG_CACHE_HOME=$HOME/.cache/
 export XDG_DATA_HOME=$HOME/.local/share/
 export XDG_STATE_HOME=$HOME/.local/state/
 
-# fpath {{{
-export ZDOTDIR=$HOME/.config/zsh
-fpath=($ZDOTDIR $fpath)
-fpath=(/opt/homebrew/share/zsh-completions $fpath)
-# }}}
+autoload -Uz compinit
+_zcd=$HOME/.cache/zsh/zcompdump
+_zcd_stale=( $_zcd(Nmh+24) )
+if (( $#_zcd_stale )) || [[ ! -s $_zcd ]]; then
+  compinit -d "$_zcd"
+else
+  compinit -C -d "$_zcd"
+fi
+unset _zcd _zcd_stale
+
+_zsh_cache_completion() {
+  emulate -L zsh
+  local key=$1; shift
+  local f="$HOME/.cache/zsh/comp_${key}.zsh"
+  local -a stale=( $f(N.mh+168) )          # >168h old? works regardless of extended_glob
+  if [[ ! -s $f ]] || (( $#stale )); then
+    mkdir -p "${f:h}"
+    "$@" 2>/dev/null | grep -vE 'compinit' > "$f"
+  fi
+  [[ -s $f ]] && source "$f"
+}
 
 export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc 
 
@@ -32,13 +55,11 @@ zmodload zsh/attr
 zmodload zsh/pcre
 zmodload zsh/regex
 zmodload zsh/zle
-zmodload zsh/parameter
 # }}}
 
 # autoload {{{
 autoload add-zsh-hook
 autoload -U colors && colors
-autoload -U compinit && compinit -u -d $HOME/.cache/zsh/zcompdump
 autoload -U url-quote-magic
 autoload allopt
 autoload -U zcalc
@@ -394,8 +415,8 @@ prompt_pure_setup "$@"
 
 source $ZDOTDIR/golang.plugin.zsh
 source $ZDOTDIR/autoenv.plugin.zsh
-[[ -x "$(command -v kubectl)" ]] && source <(kubectl completion zsh)
-[[ -x "$(command -v jira)" ]] && eval "$(jira --completion-script-zsh)"
+[[ -x "$(command -v kubectl)" ]] && _zsh_cache_completion kubectl kubectl completion zsh
+[[ -x "$(command -v docker)" ]] && _zsh_cache_completion docker docker completion zsh
 # }}}
 
 # program settings & paths {{{
@@ -419,19 +440,24 @@ export GOPATH=$HOME/.gocode
 export GOBIN=$HOME/.gocode/bin
 export GO111MODULE=on
 export SOLARGRAPH_CACHE=$HOME/.cache/solargraph
+
 export RUSTUP_HOME=$HOME/.cache/rustup
-export RUST_SRC_PATH=${RUSTUP_HOME}/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust
+export RUST_SRC_PATH=${RUSTUP_HOME}/toolchains/nightly-2026-02-27-aarch64-apple-darwin/lib/rustlib/src/rust
+export RUSTFLAGS="-Z threads=40 -C link-arg=-fuse-ld=/opt/homebrew/opt/lld/bin/ld64.lld"
+export RUSTUP_TOOLCHAIN=nightly-2026-02-27
+export CARGO_Z=build-dir-new-layout
+
 export CARGO_HOME=$HOME/.cache/cargo
 export FNM_DIR=$HOME/.cache/fnm
-export npm_config_devdir=$HOME/.cache/node-gyp
 export npm_config_userconfig=$HOME/.config/npm/npmrc
 export BUNDLE_USER_HOME=$HOME/.cache/bundle
 export FRUM_DIR=$HOME/.cache/frum
-export JAVA_HOME=/opt/homebrew/opt/openjdk@17/
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/
 # export CONDA_PREFIX=$HOME/.conda
 export HOMEBREW_CASK_OPTS="--appdir=${HOME}/Applications"
 export HOMEBREW_NO_INSTALL_FROM_API=1
 export HOMEBREW_NO_ENV_HINTS=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
 if [[ $(arch) == "arm64" ]]; then
   eval $(/opt/homebrew/bin/brew shellenv)
 else
@@ -442,7 +468,6 @@ export ZVM_PATH=$XDG_DATA_HOME/zvm
 export ZVM_INSTALL="$ZVM_PATH/self"
 
 export MODULAR_HOME="/Users/adragomi/.modular"
-#export RUSTC_WRAPPER=/opt/homebrew/bin/sccache
 export SCCACHE_DIR=$HOME/.cache/sccache
 export SCCACHE_CACHE_SIZE="30G"
 export KLAYOUT_HOME=$XDG_CONFIG_HOME/klayout
@@ -473,6 +498,7 @@ $HOME/bin:\
 $HOME/bin/$OS:\
 $HOME/.krew/bin:\
 $HOME/.local/bin:\
+/opt/homebrew/opt/rustup/bin:\
 $HOME/.cache/cargo/bin:\
 $ZVM_INSTALL:\
 $ZVM_PATH/bin:\
@@ -523,14 +549,26 @@ export PIPENV_VENV_IN_PROJECT=1
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/adragomi/.lmstudio/bin"
 
-eval "$(_PIO_COMPLETE=zsh_source pio)"
+[[ -x "$(command -v pio)" ]]     && _zsh_cache_completion pio     env _PIO_COMPLETE=zsh_source pio
+
 export CONAN_HOME=$HOME/.config/conan2
 export LUAROCKS_CONFIG="$HOME/.config/lua/luarocks-5.1.lua"
 export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?.lua"
 export LUA_PATH="$LUA_PATH;$HOME/.local/lib/lua/share/lua/5.1/?/init.lua"
 export LUA_CPATH="$HOME/.local/lib/lua/lib/lua/5.1/?.so"
 export VSCODE_CLI_DATA_DIR=/Users/adragomi/Applications/DevelopmentTools/code-insiders-portable-data/data/cli
+export JFROG_CLI_HOME_DIR=$XDG_STATE_HOME/jfrog
 
 export CLAUDE_CODE=$HOME/.config/claude
 export CLAUDE_CONFIG_DIR=$HOME/.config/claude
 export PI_CODING_AGENT_DIR=$HOME/.config/pi/agent
+
+export SCOUT_DATA_DIR=$HOME/.cache/scout/data
+export SCOUT_EMBEDDING_DATA_DIR=$HOME/.cache/scout/data
+export SCOUT_MODEL_DIR=$HOME/.cache/scout/models
+export SCOUT_ROOT=$HOME/.cache/scout
+
+export BROWSER_BIN="$HOME/Applications/Browsers/Google Chrome.app/Contents/MacOS/Google Chrome"
+export WEB_BROWSE_BROWSER_BIN="$HOME/Applications/Browsers/Google Chrome.app/Contents/MacOS/Google Chrome"
+export KACHE_CONFIG=$XDG_CONFIG_HOME/kache/config.toml
+export KACHE_CACHE_DIR=$XDG_CACHE_HOME/kache

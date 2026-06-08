@@ -78,7 +78,8 @@ options = {
   breakindent = true, 
   breakindentopt="sbr", 
   showbreak="…", 
-  statusline=[[%<%f (%{&ft},%{&ff}) (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'}) %-4(%m%)%=%-19(%3l,%02c%03V,%o|%B%)]], 
+  statusline=[[%<%f (%{&ft},%{&ff}) (%{&ts},%{&sts},%{&sw},%{&et?'et':'noet'})(%{% &busy > 0 ? '◐ ' : '' %})(%{% luaeval('(package.loaded[''vim.diagnostic''] and next(vim.diagnostic.count()) and vim.diagnostic.status() .. '' '') or '''' ') %}) %-4(%m%)%=%-19(%3l,%02c%03V,%o|%B%)]], 
+  --statusline=%<%f %h%w%m%r %{% v:lua.require('vim._core.util').term_exitcode() %}%=%{% luaeval('(package.loaded[''vim.ui''] and vim.api.nvim_get_current_win() == tonumber(vim.g.actual_curwin or -1) and vim.ui.progress_status()) or '''' ')%}%{% &showcmdloc == 'statusline' ? '%-10.S ' : '' %}%{% exists('b:keymap_name') ? '<'..b:keymap_name..'> ' : '' %}%{% &busy > 0 ? '◐ ' : '' %}%{% luaeval('(package.loaded[''vim.diagnostic''] and next(vim.diagnostic.count()) and vim.diagnostic.status() .. '' '') or '''' ') %}%{% &ruler ? ( &rulerformat == '' ? '%-14.(%l,%c%V%) %P' : &rulerformat ) : '' %}
   virtualedit = "block", 
   signcolumn = "yes", 
   visualbell = false, 
@@ -87,7 +88,7 @@ options = {
   iskeyword="@,-,>,48-57,128-167,224-235,_", 
   showtabline = 1, 
   matchtime=3, 
-  complete=".,w,b,u", 
+  complete=".,w,b", 
   -- complete=".,w,b,u,i,d", 
   -- @@minicompletion
   completeopt="menuone,noselect", --[[set completeopt=longest,menu,noinsert,noselect,menuone "sjl: set completeopt=longest,menuone,preview]]
@@ -120,7 +121,9 @@ options = {
   relativenumber = true, 
   sessionoptions = "blank,folds,help,tabpages,winsize,terminal", 
   title = true, 
-  titlestring = vim.fn.getcwd()
+  titlestring = vim.fn.getcwd(), 
+  autocomplete = false, 
+  pummaxwidth = 60, 
 }
 
 neovide_options = {
@@ -195,12 +198,16 @@ for k, v in pairs(global_vars) do
   vim.g[k] = v
 end
 
+
+require('vim._core.ui2').enable({})
+
+
 vim.opt.runtimepath:append(',~/.config/nvim/lua')
 vim.lsp.log.set_level('error')
 
 vim.pack.add({
   -- utils
-  'https://github.com/nvim-neotest/nvim-nio', 
+  -- 'https://github.com/nvim-neotest/nvim-nio', 
   'https://github.com/nvim-lua/plenary.nvim',
   'https://github.com/m00qek/baleia.nvim',
   -- 'https://github.com/esmuellert/codediff.nvim/', 
@@ -214,7 +221,7 @@ vim.pack.add({
   -- lang
   'https://github.com/vim-scripts/a.vim',
   'https://git.sr.ht/~sircmpwn/hare.vim',
-  'https://github.com/mrcjkb/rustaceanvim',
+  { src='https://github.com/mrcjkb/rustaceanvim', version='main'},
   'https://github.com/rust-lang/rust.vim',
   'https://github.com/ray-x/guihua.lua',
   'https://github.com/ray-x/go.nvim',
@@ -234,6 +241,7 @@ vim.pack.add({
   'https://github.com/ray-x/lsp_signature.nvim',
   -- diagnostics
   'https://github.com/rachartier/tiny-inline-diagnostic.nvim', 
+  -- live update diags in quickfix loclist
   'https://github.com/onsails/diaglist.nvim', 
   -- debug
   'https://github.com/mfussenegger/nvim-dap',
@@ -273,15 +281,15 @@ vim.pack.add({
   'https://github.com/tanvirtin/vgit.nvim', 
   'https://github.com/pabloariasal/webify.nvim', 
   -- ai
-  -- 'https://github.com/adragomir/pi.nvim', 
+  'https://github.com/pablopunk/pi.nvim',
 })
 
-vim.opt.runtimepath:append("~/work/personal/pi.nvim")
-require('pi-nvim').setup({
-  keymaps = {
-    visual_prompt = "<leader>a"
-  }
-})
+-- vim.opt.runtimepath:append("~/work/personal/pi.nvim")
+-- require('pi-nvim').setup({
+--   keymaps = {
+--     visual_prompt = "<leader>a"
+--   }
+-- })
 
 vim.api.nvim_create_autocmd("User", {
   pattern = "TSUpdate",
@@ -369,6 +377,9 @@ vim.g.rustaceanvim = {
         --   server = 'verbose'
         -- },
         cargo = {
+          extraEnv = {
+            CARGO_TARGET_DIR = "target/rust-analyzer",
+          }, 
           allFeatures = true,
           buildScripts = {
             enable = true
@@ -469,7 +480,12 @@ vim.g.rustaceanvim = {
   },
 }
 require('go').setup()
-require("mason").setup()
+require("mason").setup({
+  registries = {
+    "github:mason-org/mason-registry",
+    "github:Crashdummyy/mason-registry",
+  },
+})
 require("mason-lspconfig").setup()
 require('lspsaga').setup({
   lightbulb = {
@@ -522,7 +538,10 @@ dap.configurations.jai.initCommands = function()
   table.insert(commands, 1, 'command script import "' .. vim.env.HOME .. '/.config/lldb/jaitype.jai"')
   return commands
 end
-require("nvim-dap-virtual-text").setup()
+require("nvim-dap-virtual-text").setup({
+  all_references = true,
+  virt_text_pos = 'eol',
+})
 require('nvim-dap-projects').search_project_config()
 
 -- require("dapui").setup()
@@ -716,7 +735,13 @@ require('mini.align').setup({
 })
 require('mini.bufremove').setup()
 require('mini.ai').setup({
-  search_method = 'cover'
+  search_method = 'cover', 
+  mappings = {
+    around = 'a', 
+    inside = 'i', 
+    around_next = '', 
+    inside_next = ''
+  }
 })
 local MiniPick = require('mini.pick')
 MiniPick.setup({
@@ -919,10 +944,160 @@ vim.lsp.config.ols = {
   root_markers = {'ols.json', '.git', '*.odin'},
 }
 
+vim.lsp.config.jdtls = {
+  cmd = {
+    vim.fn.stdpath('data') .. '/mason/bin/jdtls',
+    '--jvm-arg=-javaagent:' .. vim.fn.expand('~/.local/share/maven/repository/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar')
+  },
+  filetypes = { 'java' },
+  root_markers = { { '.git' }, {'build.gradle', 'build.gradle.kts', 'pom.xml', 'settings.gradle'}}, 
+  init_options = {
+    extendedClientCapabilities = {
+      classFileContentsSupport = true,
+    },
+    settings = {
+      java = {
+        configuration = {
+          maven = {
+            userSettings = '/Users/adragomi/.config/maven/settings.xml',
+            globalSettings = nil,
+          },
+        },
+      },
+    },
+  },
+  settings = {
+    java = {
+      configuration = {
+        maven = {
+          userSettings = '/Users/adragomi/.config/maven/settings.xml',
+          globalSettings = nil,
+        },
+        runtimes = {
+          {
+            name = "JavaSE-21",
+            path = "/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home/",
+            default = true
+          },
+          {
+            name = "JavaSE-17",
+            path = "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home",
+          },
+        },
+      }
+    }
+  }
+}
+
+vim.lsp.config.roslyn = {
+  cmd = {
+    vim.fn.stdpath('data') .. '/mason/bin/roslyn-language-server',
+  }, 
+  filetypes = { 'csharp' }, 
+  root_markers = { { '.git'} }, 
+  init_options = {
+    settings = {
+      roslyn = {
+        ["csharp|inlay_hints"] = {
+            csharp_enable_inlay_hints_for_implicit_object_creation = true,
+            csharp_enable_inlay_hints_for_implicit_variable_types = true,
+        },
+        ["csharp|code_lens"] = {
+            dotnet_enable_references_code_lens = true,
+        },
+      },
+    }
+  }
+}
+
+vim.api.nvim_create_autocmd('BufReadCmd', {
+  group = vim.api.nvim_create_augroup('JdtlsClassFileContents', { clear = true }),
+  pattern = 'jdt://*',
+  callback = function(args)
+    local bufnr = args.buf
+    local uri = args.file  -- full jdt:// URI preserved as buffer name
+
+    local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+    if not client then
+      vim.schedule(function()
+        vim.notify('jdtls not running; open a .java file first', vim.log.levels.ERROR)
+      end)
+      return
+    end
+
+    vim.bo[bufnr].buftype   = 'nofile'
+    vim.bo[bufnr].swapfile  = false
+    vim.bo[bufnr].bufhidden = 'hide'
+
+    client:request('java/classFileContents', { uri = uri }, function(err, result)
+      if err then
+        vim.schedule(function()
+          vim.notify('classFileContents: ' .. vim.inspect(err), vim.log.levels.ERROR)
+        end)
+        return
+      end
+      local content = result or '// (no source attached; jdtls returned nil)'
+      local lines = vim.split(content, '\n', { plain = true })
+      vim.bo[bufnr].modifiable = true
+      vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+      vim.bo[bufnr].modifiable = false
+      vim.bo[bufnr].modified   = false
+      vim.bo[bufnr].filetype   = 'java'
+      -- attach client so hover/refs work inside the decompiled buffer
+      vim.lsp.buf_attach_client(bufnr, client.id)
+    end, bufnr)
+  end,
+})
+-- require('jdtls').start_or_attach({
+--   cmd = {
+--     vim.fn.stdpath('data') .. '/mason/bin/jdtls',
+--     '--jvm-arg=-javaagent:' .. vim.fn.expand('~/.m2/repository/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar')
+--   },
+--   root_dir = vim.fs.root(0, { '.git', 'mvnw', 'pom.xml' }),
+--   settings = { java = { configuration = { runtimes = {
+--     { name = 'JavaSE-21', path = '/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home/', default
+-- = true },
+--     { name = 'JavaSE-17', path = '/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home' },
+--   }}}},
+-- })
+
 vim.lsp.config.ts_ls = {
   cmd = { vim.fn.stdpath('data') .. '/mason/bin/typescript-language-server', '--stdio' },
   filetypes = { 'javascript', 'javascriptreact', 'javascript.jsx', 'typescript', 'typescriptreact', 'typescript.tsx', },
   root_markers = { 'tsconfig.json', 'jsconfig.json', 'package.json', '.git' },
+  settings = {
+    typescript = {
+      inlayHints = {
+        includeInlayEnumMemberValueHints = true, 
+        includeInlayFunctionLikeReturnTypeHints = true, 
+        includeInlayFunctionParameterTypeHints = true, 
+        includeInlayParameterNameHints=  'all';
+        includeInlayParameterNameHintsWhenArgumentMatchesName = true, 
+        includeInlayPropertyDeclarationTypeHints = true, 
+        includeInlayVariableTypeHints = true, 
+        includeInlayVariableTypeHintsWhenTypeMatchesName = true, 
+      },
+      implementationsCodeLens = {
+        enabled = true
+      }, 
+      referencesCodeLens = {
+        enabled = true, 
+        showOnAllFunctions = true
+      }, 
+    },
+    javascript = {
+      inlayHints = {
+        includeInlayEnumMemberValueHints = true, 
+        includeInlayFunctionLikeReturnTypeHints = true, 
+        includeInlayFunctionParameterTypeHints = true, 
+        includeInlayParameterNameHints=  'all';
+        includeInlayParameterNameHintsWhenArgumentMatchesName = true, 
+        includeInlayPropertyDeclarationTypeHints = true, 
+        includeInlayVariableTypeHints = true, 
+        includeInlayVariableTypeHintsWhenTypeMatchesName = true, 
+      },
+    }
+  },
 }
 
 function lsp_server(opts)
@@ -1226,8 +1401,29 @@ vim.lsp.config.pasls = {
 vim.lsp.enable({
   'lua_ls', 'jails', 'zls', 'buf_ls', 'gopls', 'mojo',
   -- 'denols', 'haxe_language_server', 'leanls', 'solang', 'svls'
-  'ols', "clangd", "ty", "c3lsp", "nim_langserver", 'all_keyword_lsp', 'ts_ls', 
+  'ols', 'jdtls', 'roslyn', "clangd", "ty", "c3lsp", "nim_langserver", 'all_keyword_lsp', 'ts_ls', 
   'atopile_lsp', 'pasls'
+})
+
+require('pi').setup({
+  binary = vim.env.HOME .. "/.local/share/npm/bin/pi",
+  provider = "anthropic",
+  model = "claude-opus-4-7",
+  thinking = "xhigh", -- be careful, thinking is time-consuming, it's not a great experience if you want simplicity
+  context = {
+    max_bytes = 24000,
+    ask = {
+      surrounding_lines = 80,
+    },
+    selection = {
+      surrounding_lines = 40,
+    },
+    diagnostics = {
+      enabled = false,
+    },
+  },
+  skills = true,
+  extensions = true,
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -1593,6 +1789,8 @@ local function mark_on_insert_stop()
   mark_on(insert_ns, '^', 'hi_MarkInsertStop')
 end
 
+vim.keymap.set({"n", "v", "i"}, "<S-Up>", "<nop>", {noremap = true})
+vim.keymap.set({"n", "v", "i"}, "<S-Down>", "<nop>", {noremap = true})
 vim.keymap.set("n", "K", "<nop>", {noremap = true})
 vim.keymap.set("v", "u", "<nop>", {noremap = true})
 vim.keymap.set("n", "+", "<nop>", {noremap = true})
@@ -1781,15 +1979,15 @@ if vim.fn.exists("g:neovide") == 1 then
   vim.keymap.set("", "<D-7>", "7gt", {noremap = true, silent = true})
   vim.keymap.set("", "<D-8>", "8gt", {noremap = true, silent = true})
   vim.keymap.set("", "<D-9>", "9gt", {noremap = true, silent = true})
-  vim.keymap.set("i", "<D-1>", "1gt", {noremap = true, silent = true})
-  vim.keymap.set("i", "<D-2>", "2gt", {noremap = true, silent = true})
-  vim.keymap.set("i", "<D-3>", "3gt", {noremap = true, silent = true})
-  vim.keymap.set("i", "<D-4>", "4gt", {noremap = true, silent = true})
-  vim.keymap.set("i", "<D-5>", "5gt", {noremap = true, silent = true})
-  vim.keymap.set("i", "<D-6>", "6gt", {noremap = true, silent = true})
-  vim.keymap.set("i", "<D-7>", "7gt", {noremap = true, silent = true})
-  vim.keymap.set("i", "<D-8>", "8gt", {noremap = true, silent = true})
-  vim.keymap.set("i", "<D-9>", "9gt", {noremap = true, silent = true})
+  vim.keymap.set("i", "<D-1>", "<C-o>1gt", {noremap = true, silent = true})
+  vim.keymap.set("i", "<D-2>", "<C-o>2gt", {noremap = true, silent = true})
+  vim.keymap.set("i", "<D-3>", "<C-o>3gt", {noremap = true, silent = true})
+  vim.keymap.set("i", "<D-4>", "<C-o>4gt", {noremap = true, silent = true})
+  vim.keymap.set("i", "<D-5>", "<C-o>5gt", {noremap = true, silent = true})
+  vim.keymap.set("i", "<D-6>", "<C-o>6gt", {noremap = true, silent = true})
+  vim.keymap.set("i", "<D-7>", "<C-o>7gt", {noremap = true, silent = true})
+  vim.keymap.set("i", "<D-8>", "<C-o>8gt", {noremap = true, silent = true})
+  vim.keymap.set("i", "<D-9>", "<C-o>9gt", {noremap = true, silent = true})
   vim.keymap.set("i", "<D-t>", "<C-o>:tabnew<cr>", {noremap = true, silent = true})
   vim.keymap.set("i", "<D-w>", "<C-o>:tabclose<cr>", {noremap = true, silent = true})
   vim.keymap.set("i", "<D-]>", "<C-o>:tabnext<cr>", {noremap = true, silent = true})
@@ -1914,7 +2112,27 @@ end
 --       table.insert(command, file_pattern)
 --     end
 --
---     table.insert(command, vim.uv.cwd())
+--     local tabpages = vim.api.nvim_list_tabpages()
+--     local tabnr_to_cwd = {}
+--     local tabpage_to_cwd = {}
+--     for _,tabpage in ipairs(tabpages) do
+--         local winids = vim.api.nvim_tabpage_list_wins(tabpage)
+--         for _, winid in ipairs(winids) do
+--           local tabwin = vim.fn.win_id2tabwin(winid)
+--           local tabnr = tabwin[1]
+--           local winnr = tabwin[2]
+--           local winbuf = vim.api.nvim_win_get_buf(winid)
+--           cwd = vim.fn.getcwd(winnr, tabnr)
+--           tabnr_to_cwd[tabnr] = cwd
+--           tabpage_to_cwd[tabnr] = cwd
+--           -- print("cwd tabpage=" .. tabpage .. " tabnr=" .. tabnr .. " cwd=" .. cwd .. " winnr=" .. winnr .. " winid=" .. winid .. " buf=" .. winbuf)
+--         end
+--     end
+--     local current_tabpage = vim.api.nvim_get_current_tabpage()
+--     local current_tabid = vim.api.nvim_tabpage_get_number(current_tabpage)
+--     local current_tabpage_cwd = tabpage_to_cwd[current_tabid]
+--
+--     table.insert(command, current_tabpage_cwd)
 --     if #local_opts.roots > 0 then
 --       for _, r in ipairs(local_opts.roots) do
 --         table.insert(command, r)
@@ -2060,8 +2278,10 @@ function minipick_per_tab_buffers(local_opts, opts)
     end
   end
   local current_tabpage = vim.api.nvim_get_current_tabpage()
-  local current_tabpage_cwd = tabpage_to_cwd[current_tabpage]
-  local bufs_to_select_from = tabpage_to_buffers[current_tabpage] or {}
+  local current_tabid = vim.api.nvim_tabpage_get_number(current_tabpage)
+
+  local current_tabpage_cwd = tabpage_to_cwd[current_tabid]
+  local bufs_to_select_from = tabpage_to_buffers[current_tabid] or {}
 
   local items = {}
   for _, bs in ipairs(bufs_to_select_from) do
@@ -2109,6 +2329,10 @@ vim.g.javaScript_fold=0
 vim.g.vim_json_syntax_conceal = 0
 
 vim.api.nvim_create_user_command('W', 'silent! exec "write !sudo tee % >/dev/null"  | silent! edit!', {bar = true})
+vim.api.nvim_create_user_command('BD', function()
+  require('mini.bufremove').wipeout(0)
+end, {})
+
 
 vim.cmd [[hi default hi_MarkInsertStop ctermbg=128 ctermfg=white cterm=bold]]
 vim.cmd [[hi default hi_MarkChange ctermbg=160 ctermfg=154 cterm=underdashed]]
