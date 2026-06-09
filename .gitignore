@@ -27,6 +27,7 @@ package-lock.json
 .config/pi/agent/sessions
 .config/pi/agent/settings.json
 .config/pi/agent/auth.json
+.config/pi/agent/extensions
 .config/claude
 .config/karabiner/automatic_backups
 .config/tmux/resurrect/*
