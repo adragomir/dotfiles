@@ -1,0 +1,43 @@
+#!/usr/bin/env zsh
+# , — describe what you want and get a shell command suggestion
+#
+# Usage:  , <description>
+# Example:  , find the 5 largest files
+#
+# Generates one command, prints it, copies to clipboard (Cmd+V).
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: , <description of what you want to do>" >&2
+  exit 1
+fi
+
+local desc="$*"
+
+# Ensure the questions working directory exists
+local qdir="$XDG_CACHE_HOME/questions"
+[[ -d "$qdir" ]] || mkdir -p "$qdir"
+cd "$qdir"
+
+local system_prompt="You are a shell command suggestion engine running in a ZSH terminal on macOS. Given the user's description of what they want to do, output exactly one shell command — the best one — with no numbering, no explanation, no markdown, no backticks. Just the raw command on a single line."
+
+print -P ""
+print -P "%F{cyan}│ Generating command for:%f %F{yellow}$desc%f"
+print -P ""
+
+local command
+command=$(pi --print -p --no-tools --thinking off \
+  --system-prompt "$system_prompt" "$desc" 2>/dev/null)
+
+if [[ $? -ne 0 || -z "$command" ]]; then
+  echo "✗ Failed." >&2
+  exit 1
+fi
+
+# Strip backticks just in case
+command="${command//\`/}"
+# Strip leading/trailing whitespace
+command="${command## }"
+command="${command%% }"
+
+echo -n "$command" | pbcopy
+echo "$command"

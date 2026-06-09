@@ -1,3 +1,0 @@
-bin/darwin/haskell-language-server filter=lfs diff=lfs merge=lfs -text
-.vimrc text=auto
-.zshrc text=auto
