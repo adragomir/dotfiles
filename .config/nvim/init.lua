@@ -234,7 +234,7 @@ vim.pack.add({
   'https://github.com/ziglang/zig.vim',
   'https://github.com/fedorenchik/fasm.vim',
   'https://github.com/urbit/hoon.vim',
-  'https://github.com/karolbelina/uxntal.vim',
+  'git://167.235.19.20/uxntal.vim',
   'https://github.com/rluba/jai.vim',
   -- lsp
   {src = 'https://github.com/nvimdev/lspsaga.nvim', version = 'main'}, 
@@ -243,6 +243,7 @@ vim.pack.add({
   'https://github.com/rachartier/tiny-inline-diagnostic.nvim', 
   -- live update diags in quickfix loclist
   'https://github.com/onsails/diaglist.nvim', 
+  'https://github.com/j-hui/fidget.nvim', 
   -- debug
   'https://github.com/mfussenegger/nvim-dap',
   'https://github.com/ldelossa/nvim-dap-projects',
@@ -258,12 +259,13 @@ vim.pack.add({
   -- search replace
   'https://github.com/MagicDuck/grug-far.nvim', 
   -- registers
-  'https://github.com/tversteeg/registers.nvim',
+  'https://codeberg.org/fosk/registers.nvim.git',
   -- grep
   'https://github.com/jremmen/vim-ripgrep',
   -- indentation
   'https://github.com/NMAC427/guess-indent.nvim',
   'https://github.com/nvimdev/indentmini.nvim', 
+  -- 'https://github.com/lukas-reineke/indent-blankline.nvim', 
   -- switch window
   'https://github.com/tkmpypy/chowcho.nvim',
   -- buffer delete
@@ -282,14 +284,21 @@ vim.pack.add({
   'https://github.com/pabloariasal/webify.nvim', 
   -- ai
   'https://github.com/pablopunk/pi.nvim',
+  --'https://github.com/alex35mil/pi.nvim'
 })
 
--- vim.opt.runtimepath:append("~/work/personal/pi.nvim")
--- require('pi-nvim').setup({
---   keymaps = {
---     visual_prompt = "<leader>a"
---   }
--- })
+vim.opt.runtimepath:append("~/temp/source/99")
+local _99 = require('99')
+_99.setup({
+	logger = {
+	  type = "file", 
+		level = _99.DEBUG,
+		path = "/tmp/99.debug",
+		print_on_error = true,
+	},
+  provider = require('99').Providers.PiProvider, 
+  tmp_dir = "/tmp", 
+})
 
 vim.api.nvim_create_autocmd("User", {
   pattern = "TSUpdate",
@@ -370,7 +379,8 @@ vim.g.rustaceanvim = {
         server = {
           -- path = ''
           ['extraEnv'] = {
-            ['RA_LOG'] = 'error'
+            ['RA_LOG'] = 'error', 
+            ['RUSTUP_TOOLCHAIN'] = 'nightly-2026-04-10'
           },
         },
         -- trace = {
@@ -390,6 +400,7 @@ vim.g.rustaceanvim = {
           overrideCommand = {
             "cargo", 
             "clippy", "--all-targets", "--message-format=json", 
+            "--target-dir", "target/rust-analyzer"
           }, 
         },
         completion = {
@@ -538,6 +549,8 @@ dap.configurations.jai.initCommands = function()
   table.insert(commands, 1, 'command script import "' .. vim.env.HOME .. '/.config/lldb/jaitype.jai"')
   return commands
 end
+require('fidget').setup({
+})
 require("nvim-dap-virtual-text").setup({
   all_references = true,
   virt_text_pos = 'eol',
@@ -610,6 +623,7 @@ vim.g.compile_mode = {
   }, 
   auto_jump_to_first_error = true, 
   debug = false, 
+  max_lines = 1000, 
   error_regexp_table = {
     jai = {
       pattern = '^jai.*', 
@@ -901,7 +915,7 @@ vim.lsp.config.lua_ls = {
 }
 
 vim.lsp.config.jails = {
-  cmd = { '/Users/adragomi/temp/source/jai/Jails2/bin/jails' },
+  cmd = { vim.env.HOME .. '/temp/source/jai/Jails-trangius/bin/jails' },
   filetypes = { 'jai' },
   root_markers = {'jails.json'},
 }
@@ -941,6 +955,10 @@ vim.lsp.config.mojo = {
 vim.lsp.config.ols = {
   cmd = { 'ols' },
   filetypes = { 'odin' },
+	init_options = {
+		checker_args = "-strict-style",
+		collections = { },
+	},
   root_markers = {'ols.json', '.git', '*.odin'},
 }
 
@@ -1245,7 +1263,7 @@ vim.lsp.config.all_keyword_lsp = {
 }
 
 vim.lsp.config.rust_analyzer = {
-  cmd = { 'rust-analyzer' },
+  cmd = { '~/.cache/rustup/toolchains/nightly-2026-02-27-aarch64-apple-darwin/bin/rust-analyzer' },
   filetypes = { 'rust' },
   root_dir = function(fname)
     local function is_library(fname)
@@ -2063,103 +2081,103 @@ function remote_do_in_tab(dir, file, first)
   end
 end
 
--- MiniPick.builtin.multi_grep_live = function(local_opts, opts)
---   local tool = '/opt/homebrew/bin/rg'
---   local_opts = vim.tbl_extend('force', { tool=tool, globs = {}, symbol = '::', roots = {}, max_count = 10000 }, local_opts or {})
---
---   local globs = H.is_array_of(local_opts.globs, 'string') and local_opts.globs or {}
---   local name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
---   local show = H.get_config().source.show or H.show_with_icons
---   local default_source = { name = string.format('Multi Grep live (%s%s)', tool, name_suffix), show = show }
---   opts = vim.tbl_deep_extend('force', { source = default_source }, opts or {})
---
---   local cwd = H.full_path(opts.source.cwd or vim.fn.getcwd())
---   local set_items_opts, spawn_opts = { do_match = false, querytick = H.querytick }, { cwd = cwd }
---   local process
---   local match = function(_, _, query)
---     pcall(vim.loop.process_kill, process)
---     if H.querytick == set_items_opts.querytick then return end
---
---     local actually_execute = (#local_opts.roots == 0 and #query > 0) or (#local_opts.roots > 0 and #query >= 4)
---     if not actually_execute then return MiniPick.set_picker_items({}, set_items_opts) end
---
---     set_items_opts.querytick = H.querytick
---
---     -- Build command
---     local command = {
---       "/opt/homebrew/bin/rg",
---       "--column",
---       "--line-number",
---       "--no-heading",
---       "--field-match-separator", '\\x00', 
---       "--color=never",
---     }
---     for _, g in ipairs(globs) do
---       table.insert(command, '--glob')
---       table.insert(command, g)
---     end
---
---     local full_query = table.concat(query)
---     local search_pattern, file_pattern = unpack(vim.split(full_query, local_opts.symbol, { plain = true }))
---
---     if search_pattern and search_pattern ~= "" then
---       table.insert(command, "-e")
---       table.insert(command, search_pattern)
---     end
---
---     if file_pattern and file_pattern ~= "" then
---       table.insert(command, "-g")
---       table.insert(command, file_pattern)
---     end
---
---     local tabpages = vim.api.nvim_list_tabpages()
---     local tabnr_to_cwd = {}
---     local tabpage_to_cwd = {}
---     for _,tabpage in ipairs(tabpages) do
---         local winids = vim.api.nvim_tabpage_list_wins(tabpage)
---         for _, winid in ipairs(winids) do
---           local tabwin = vim.fn.win_id2tabwin(winid)
---           local tabnr = tabwin[1]
---           local winnr = tabwin[2]
---           local winbuf = vim.api.nvim_win_get_buf(winid)
---           cwd = vim.fn.getcwd(winnr, tabnr)
---           tabnr_to_cwd[tabnr] = cwd
---           tabpage_to_cwd[tabnr] = cwd
---           -- print("cwd tabpage=" .. tabpage .. " tabnr=" .. tabnr .. " cwd=" .. cwd .. " winnr=" .. winnr .. " winid=" .. winid .. " buf=" .. winbuf)
---         end
---     end
---     local current_tabpage = vim.api.nvim_get_current_tabpage()
---     local current_tabid = vim.api.nvim_tabpage_get_number(current_tabpage)
---     local current_tabpage_cwd = tabpage_to_cwd[current_tabid]
---
---     table.insert(command, current_tabpage_cwd)
---     if #local_opts.roots > 0 then
---       for _, r in ipairs(local_opts.roots) do
---         table.insert(command, r)
---       end
---     end
---
---     process = MiniPick.set_picker_items_from_cli(
---       command,
---       {
---         set_items_opts = set_items_opts,
---         spawn_opts = spawn_opts
---       }
---     )
---   end
---
---   local add_glob = function()
---     local ok, glob = pcall(vim.fn.input, 'Glob pattern: ')
---     if ok then table.insert(globs, glob) end
---     name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
---     MiniPick.set_picker_opts({ source = { name = string.format('Grep live (%s%s)', tool, name_suffix) } })
---     MiniPick.set_picker_query(MiniPick.get_picker_query())
---   end
---   local mappings = { add_glob = { char = '<C-o>', func = add_glob } }
---
---   opts = vim.tbl_deep_extend('force', opts or {}, { source = { items = {}, match = match }, mappings = mappings })
---   return MiniPick.start(opts)
--- end
+MiniPick.builtin.multi_grep_live = function(local_opts, opts)
+  local tool = '/opt/homebrew/bin/rg'
+  local_opts = vim.tbl_extend('force', { tool=tool, globs = {}, symbol = '::', roots = {}, max_count = 10000 }, local_opts or {})
+
+  local globs = MiniPick.H.is_array_of(local_opts.globs, 'string') and local_opts.globs or {}
+  local name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
+  local show = MiniPick.H.get_config().source.show or MiniPick.H.show_with_icons
+  local default_source = { name = string.format('Multi Grep live (%s%s)', tool, name_suffix), show = show }
+  opts = vim.tbl_deep_extend('force', { source = default_source }, opts or {})
+
+  local cwd = MiniPick.H.full_path(opts.source.cwd or vim.fn.getcwd())
+  local set_items_opts, spawn_opts = { do_match = false, querytick = MiniPick.H.querytick }, { cwd = cwd }
+  local process
+  local match = function(_, _, query)
+    pcall(vim.loop.process_kill, process)
+    if MiniPick.H.querytick == set_items_opts.querytick then return end
+
+    local actually_execute = (#local_opts.roots == 0 and #query > 0) or (#local_opts.roots > 0 and #query >= 4)
+    if not actually_execute then return MiniPick.set_picker_items({}, set_items_opts) end
+
+    set_items_opts.querytick = MiniPick.H.querytick
+
+    -- Build command
+    local command = {
+      "/opt/homebrew/bin/rg",
+      "--column",
+      "--line-number",
+      "--no-heading",
+      "--field-match-separator", '\\x00', 
+      "--color=never",
+    }
+    for _, g in ipairs(globs) do
+      table.insert(command, '--glob')
+      table.insert(command, g)
+    end
+
+    local full_query = table.concat(query)
+    local search_pattern, file_pattern = unpack(vim.split(full_query, local_opts.symbol, { plain = true }))
+
+    if search_pattern and search_pattern ~= "" then
+      table.insert(command, "-e")
+      table.insert(command, search_pattern)
+    end
+
+    if file_pattern and file_pattern ~= "" then
+      table.insert(command, "-g")
+      table.insert(command, file_pattern)
+    end
+
+    local tabpages = vim.api.nvim_list_tabpages()
+    local tabnr_to_cwd = {}
+    local tabpage_to_cwd = {}
+    for _,tabpage in ipairs(tabpages) do
+        local winids = vim.api.nvim_tabpage_list_wins(tabpage)
+        for _, winid in ipairs(winids) do
+          local tabwin = vim.fn.win_id2tabwin(winid)
+          local tabnr = tabwin[1]
+          local winnr = tabwin[2]
+          local winbuf = vim.api.nvim_win_get_buf(winid)
+          cwd = vim.fn.getcwd(winnr, tabnr)
+          tabnr_to_cwd[tabnr] = cwd
+          tabpage_to_cwd[tabnr] = cwd
+          -- print("cwd tabpage=" .. tabpage .. " tabnr=" .. tabnr .. " cwd=" .. cwd .. " winnr=" .. winnr .. " winid=" .. winid .. " buf=" .. winbuf)
+        end
+    end
+    local current_tabpage = vim.api.nvim_get_current_tabpage()
+    local current_tabid = vim.api.nvim_tabpage_get_number(current_tabpage)
+    local current_tabpage_cwd = tabpage_to_cwd[current_tabid]
+
+    table.insert(command, current_tabpage_cwd)
+    if #local_opts.roots > 0 then
+      for _, r in ipairs(local_opts.roots) do
+        table.insert(command, r)
+      end
+    end
+
+    process = MiniPick.set_picker_items_from_cli(
+      command,
+      {
+        set_items_opts = set_items_opts,
+        spawn_opts = spawn_opts
+      }
+    )
+  end
+
+  local add_glob = function()
+    local ok, glob = pcall(vim.fn.input, 'Glob pattern: ')
+    if ok then table.insert(globs, glob) end
+    name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
+    MiniPick.set_picker_opts({ source = { name = string.format('Grep live (%s%s)', tool, name_suffix) } })
+    MiniPick.set_picker_query(MiniPick.get_picker_query())
+  end
+  local mappings = { add_glob = { char = '<C-o>', func = add_glob } }
+
+  opts = vim.tbl_deep_extend('force', opts or {}, { source = { items = {}, match = match }, mappings = mappings })
+  return MiniPick.start(opts)
+end
 
 vim.keymap.set("n", "<leader>ga", function()
   local ok, extra_dep_paths = read_file(vim.fn.getcwd() .. "/extra-dep-paths.txt")
@@ -2221,17 +2239,31 @@ function minipick_per_tab_buffers(local_opts, opts)
   local tabnr_to_cwd = {}
   local tabpage_to_cwd = {}
   for _,tabpage in ipairs(tabpages) do
-      local winids = vim.api.nvim_tabpage_list_wins(tabpage)
-      for _, winid in ipairs(winids) do
-        local tabwin = vim.fn.win_id2tabwin(winid)
-        local tabnr = tabwin[1]
-        local winnr = tabwin[2]
-        local winbuf = vim.api.nvim_win_get_buf(winid)
-        cwd = vim.fn.getcwd(winnr, tabnr)
-        tabnr_to_cwd[tabnr] = cwd
-        tabpage_to_cwd[tabnr] = cwd
-        -- print("cwd tabpage=" .. tabpage .. " tabnr=" .. tabnr .. " cwd=" .. cwd .. " winnr=" .. winnr .. " winid=" .. winid .. " buf=" .. winbuf)
+    local winids = vim.api.nvim_tabpage_list_wins(tabpage)
+    for _, winid in ipairs(winids) do
+      local tabwin = vim.fn.win_id2tabwin(winid)
+      local tabnr = tabwin[1]
+      local winnr = tabwin[2]
+      local winbuf = vim.api.nvim_win_get_buf(winid)
+      cwd = vim.fn.getcwd(winnr, tabnr)
+      tabnr_to_cwd[tabnr] = cwd
+      tabpage_to_cwd[tabnr] = cwd
+      -- print("cwd tabpage=" .. tabpage .. " tabnr=" .. tabnr .. " cwd=" .. cwd .. " winnr=" .. winnr .. " winid=" .. winid .. " buf=" .. winbuf)
+    end
+  end
+
+  local function is_special_ui_buffer(bufnr)
+    local buf_name = vim.api.nvim_buf_get_name(bufnr)
+    for _, pattern in ipairs({ "%[Cmd%]", "%[Dialog%]", "%[Msg%]", "%[Pager%]" }) do
+      if string.find(buf_name, pattern) then
+        return true
       end
+    end
+    local ft = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
+    if ft == "noice" or ft == "vim" then
+      return true
+    end
+    return false
   end
 
   local buffers_output = vim.api.nvim_exec('buffers!', true)
@@ -2242,7 +2274,7 @@ function minipick_per_tab_buffers(local_opts, opts)
   for _, l in ipairs(vim.split(buffers_output, '\n')) do
     local buf_str, name = l:match('^%s*%d+'), l:match('"(.*)"')
     local buf_id = tonumber(buf_str)
-    if vim.api.nvim_buf_is_valid(buf_id) then
+    if vim.api.nvim_buf_is_valid(buf_id) and not is_special_ui_buffer(buf_id) then
       local is_loaded = vim.api.nvim_buf_is_loaded(buf_id)
       local path = vim.api.nvim_buf_get_name(buf_id)
       local stat = vim.uv.fs_stat(path)
