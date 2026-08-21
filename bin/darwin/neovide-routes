@@ -1,0 +1,186 @@
+#!/opt/homebrew/bin/python3.14
+
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+NEOVIDE = Path("/Users/adragomi/Applications/DevelopmentTools/neovide.app/Contents/MacOS/neovide")
+NVIM = "/opt/homebrew/bin/nvim"
+GIT = "/opt/homebrew/bin/git"
+SOCKET_DIR = Path(f"/tmp/neovide-routes-{os.getuid()}")
+LOG_FILE = Path.home() / "Library/Logs/neovide-routes.log"
+
+def debug(message):
+    return
+    try:
+        LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().astimezone().isoformat(timespec="milliseconds")
+        with LOG_FILE.open("a", encoding="utf-8") as log:
+            print(f"{timestamp} pid={os.getpid()} {message}", file=log)
+    except OSError:
+        pass
+
+def fail(message):
+    debug(f"error={message!r}")
+    print(f"neovide-routes: {message}", file=sys.stderr)
+    return 1
+
+def resolve_target(value):
+    path = Path(value).expanduser()
+    if not path.is_absolute():
+        path = Path.cwd() / path
+
+    if path.is_dir():
+        return path.resolve(), True
+
+    try:
+        parent = path.parent.resolve(strict=True)
+    except FileNotFoundError:
+        raise ValueError(f"parent directory does not exist: {path.parent}") from None
+
+    if not parent.is_dir():
+        raise ValueError(f"parent is not a directory: {parent}")
+
+    return (path.resolve() if path.exists() else parent / path.name), False
+
+
+def project_root(directory):
+    result = subprocess.run(
+        [GIT, "-C", str(directory), "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode == 0:
+        return Path(result.stdout.strip()).resolve(), True
+    return directory, False
+
+
+def route_state(state_file):
+    try:
+        state = json.loads(state_file.read_text())
+        pid = int(state["pid"])
+        socket = Path(state["socket"])
+        os.kill(pid, 0)
+        if not socket.is_socket():
+            return None
+        return socket, Path(state["cwd"]).resolve(), int(state["last_focus"])
+    except (KeyError, OSError, ValueError, json.JSONDecodeError):
+        return None
+
+
+def find_route(target, root, is_directory, is_git):
+    best = None
+    for state_file in SOCKET_DIR.glob("route-*.json"):
+        state = route_state(state_file)
+        if state is None:
+            continue
+        socket, cwd, last_focus = state
+
+        if is_directory or is_git:
+            if cwd != root:
+                continue
+        else:
+            try:
+                target.relative_to(cwd)
+            except ValueError:
+                continue
+
+        rank = (len(cwd.parts), last_focus)
+        if best is None or rank > best[0]:
+            best = (rank, socket)
+
+    return None if best is None else best[1]
+
+
+def focus_route(socket, target, is_directory):
+    if not is_directory:
+        opened = subprocess.run([NVIM, "--server", str(socket), "--remote", str(target)])
+        if opened.returncode != 0:
+            return fail(f"could not open {target} in {socket}")
+
+    focused = subprocess.run(
+        [NVIM, "--server", str(socket), "--remote-expr", "execute('NeovideFocus')"],
+        stdout=subprocess.DEVNULL,
+    )
+    if focused.returncode != 0:
+        return fail(f"could not focus route at {socket}")
+    return 0
+
+
+def route_setup_command():
+    directory = json.dumps(str(SOCKET_DIR))
+    return (
+        f"lua local d={directory};vim.fn.mkdir(d,'p');"
+        "local pid=vim.fn.getpid();local base=string.format('%s/route-%d',d,pid);"
+        "local socket=base..'.sock';local state=base..'.json';local tmp=state..'.tmp';"
+        "pcall(vim.fn.delete,socket);vim.fn.serverstart(socket);"
+        "local focused=string.format('%.0f',vim.uv.hrtime());"
+        "local function write() local data=vim.json.encode({pid=pid,socket=socket,"
+        "cwd=vim.fn.getcwd(-1,-1),last_focus=focused});vim.fn.writefile({data},tmp);"
+        "vim.uv.fs_rename(tmp,state) end;"
+        "local function mark() focused=string.format('%.0f',vim.uv.hrtime());write() end;"
+        "local g=vim.api.nvim_create_augroup('NeovideRoutes',{clear=true});"
+        "vim.api.nvim_create_autocmd('DirChanged',{group=g,callback=write});"
+        "vim.api.nvim_create_autocmd('FocusGained',{group=g,callback=mark});"
+        "vim.api.nvim_create_autocmd('VimLeavePre',{group=g,callback=function() "
+        "pcall(vim.uv.fs_unlink,state);pcall(vim.uv.fs_unlink,tmp) end});write()"
+    )
+
+
+def create_route(target, root, is_directory):
+    command = [
+        str(NEOVIDE),
+        "--fork",
+        "--reuse-instance",
+        "--new-window",
+        "--chdir",
+        str(root),
+    ]
+    if not is_directory:
+        command.append(str(target))
+    command.extend(["--", "--cmd", route_setup_command()])
+    return subprocess.run(command).returncode
+
+
+def main(argv):
+    debug(f"invoked cwd={os.getcwd()!r} argv={argv!r}")
+
+    if len(argv) == 2 and argv[1] in {"-h", "--help"}:
+        print("usage: neovide-routes [FILE|DIRECTORY]")
+        return 0
+    if len(argv) > 2:
+        return fail("expected at most one file or directory")
+    if not NEOVIDE.is_file():
+        return fail(f"Neovide binary not found: {NEOVIDE}")
+
+    try:
+        target, is_directory = resolve_target(argv[1] if len(argv) == 2 else Path.cwd())
+    except ValueError as error:
+        return fail(str(error))
+
+    base = target if is_directory else target.parent
+    root, is_git = project_root(base)
+    debug(
+        f"resolved target={str(target)!r} is_directory={is_directory} "
+        f"root={str(root)!r} is_git={is_git}"
+    )
+
+    SOCKET_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    SOCKET_DIR.chmod(0o700)
+
+    socket = find_route(target, root, is_directory, is_git)
+    if socket is not None:
+        debug(f"reusing socket={str(socket)!r}")
+        return focus_route(socket, target, is_directory)
+
+    debug(f"creating route root={str(root)!r}")
+    result = create_route(target, root, is_directory)
+    debug(f"create route exit_status={result}")
+    return result
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))
