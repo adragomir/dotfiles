@@ -19,7 +19,7 @@ export XDG_STATE_HOME=$HOME/.local/state/
 
 autoload -Uz compinit
 _zcd=$HOME/.cache/zsh/zcompdump
-_zcd_stale=( $_zcd(Nmh+24) )
+_zcd_stale=($_zcd(Nmh+24))
 if (( $#_zcd_stale )) || [[ ! -s $_zcd ]]; then
   compinit -d "$_zcd"
 else
@@ -441,11 +441,10 @@ export GOBIN=$HOME/.gocode/bin
 export GO111MODULE=on
 export SOLARGRAPH_CACHE=$HOME/.cache/solargraph
 
+# allow -Z shit
+export RUSTC_BOOTSTRAP=1
 export RUSTUP_HOME=$HOME/.cache/rustup
-export RUST_SRC_PATH=${RUSTUP_HOME}/toolchains/nightly-2026-02-27-aarch64-apple-darwin/lib/rustlib/src/rust
-export RUSTFLAGS="-Z threads=40 -C link-arg=-fuse-ld=/opt/homebrew/opt/lld/bin/ld64.lld"
-export RUSTUP_TOOLCHAIN=nightly-2026-02-27
-export CARGO_Z=build-dir-new-layout
+export RUSTUP_TOOLCHAIN=stable-aarch64-apple-darwin
 
 export CARGO_HOME=$HOME/.cache/cargo
 export FNM_DIR=$HOME/.cache/fnm
@@ -546,7 +545,6 @@ export BUILDKIT_PROGRESS=plain
 export OLLAMA_MODELS=$HOME/.cache/ollama
 export PATH="$PATH:/Users/adragomi/.modular/bin"
 export PIPENV_VENV_IN_PROJECT=1
-# Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/adragomi/.lmstudio/bin"
 
 [[ -x "$(command -v pio)" ]]     && _zsh_cache_completion pio     env _PIO_COMPLETE=zsh_source pio
@@ -563,12 +561,10 @@ export CLAUDE_CODE=$HOME/.config/claude
 export CLAUDE_CONFIG_DIR=$HOME/.config/claude
 export PI_CODING_AGENT_DIR=$HOME/.config/pi/agent
 
-export SCOUT_DATA_DIR=$HOME/.cache/scout/data
-export SCOUT_EMBEDDING_DATA_DIR=$HOME/.cache/scout/data
-export SCOUT_MODEL_DIR=$HOME/.cache/scout/models
-export SCOUT_ROOT=$HOME/.cache/scout
-
 export BROWSER_BIN="$HOME/Applications/Browsers/Google Chrome.app/Contents/MacOS/Google Chrome"
 export WEB_BROWSE_BROWSER_BIN="$HOME/Applications/Browsers/Google Chrome.app/Contents/MacOS/Google Chrome"
 export KACHE_CONFIG=$XDG_CONFIG_HOME/kache/config.toml
 export KACHE_CACHE_DIR=$XDG_CACHE_HOME/kache
+export KACHE_RUSTC_PATH_NORMALIZE=0
+export KACHE_CC_PATH_NORMALIZE=0
+

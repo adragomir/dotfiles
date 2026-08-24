@@ -12,6 +12,7 @@ from pathlib import Path
 @dataclass
 class UpdateResult:
     path: str
+    remote: str
     commits_added: int
     error: str | None = None
     untouched: bool = False
@@ -92,14 +93,19 @@ def save_local_changes(repo: Path) -> str | None:
 
 
 def update_repo(repo: Path) -> UpdateResult:
+    remote = "(origin URL unavailable)"
     try:
         for f in repo.iterdir():
             if f.is_file() and f.name.startswith("do-not-touch"):
-                return UpdateResult(str(repo), 0, untouched=True)
+                return UpdateResult(str(repo), remote, 0, untouched=True)
+
+        remote_out, rc = run_git(repo, "remote", "get-url", "origin")
+        if rc == 0:
+            remote = remote_out
 
         _, rc = run_git(repo, "ls-remote", "--exit-code", "origin", "HEAD")
         if rc != 0:
-            return UpdateResult(str(repo), 0, "remote not accessible (no auth or missing)")
+            return UpdateResult(str(repo), remote, 0, "remote not accessible (no auth or missing)")
 
         before = get_commit_count(repo)
 
@@ -113,23 +119,23 @@ def update_repo(repo: Path) -> UpdateResult:
 
         _, rc = run_git(repo, "fetch", "origin")
         if rc != 0:
-            return UpdateResult(str(repo), 0, "fetch failed")
+            return UpdateResult(str(repo), remote, 0, "fetch failed")
 
         target = find_target_branch(repo)
         if not target:
-            return UpdateResult(str(repo), 0, "no suitable branch found")
+            return UpdateResult(str(repo), remote, 0, "no suitable branch found")
 
         _, rc = run_git(repo, "checkout", "-B", target, f"origin/{target}")
         if rc != 0:
-            return UpdateResult(str(repo), 0, f"checkout {target} failed")
+            return UpdateResult(str(repo), remote, 0, f"checkout {target} failed")
 
         run_git(repo, "branch", "--set-upstream-to", f"origin/{target}", target)
 
         after = get_commit_count(repo)
-        return UpdateResult(str(repo), after - before)
+        return UpdateResult(str(repo), remote, after - before)
 
     except Exception as e:
-        return UpdateResult(str(repo), 0, str(e))
+        return UpdateResult(str(repo), remote, 0, str(e))
 
 
 def main():
@@ -177,6 +183,7 @@ def main():
             print(f"  UNTOUCHED  {r.path}")
         elif r.error:
             print(f"  ERROR  {r.path}: {r.error}")
+            print(f"         Remote: {r.remote}")
         else:
             print(f"  +{r.commits_added:4d}  {r.path}")
 

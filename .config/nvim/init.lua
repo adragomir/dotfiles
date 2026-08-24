@@ -283,8 +283,9 @@ vim.pack.add({
   'https://github.com/tanvirtin/vgit.nvim', 
   'https://github.com/pabloariasal/webify.nvim', 
   -- ai
-  'https://github.com/pablopunk/pi.nvim',
+  -- 'https://github.com/pablopunk/pi.nvim',
   --'https://github.com/alex35mil/pi.nvim'
+  'https://github.com/zgs225/pi2.nvim'
 })
 
 vim.opt.runtimepath:append("~/temp/source/99")
